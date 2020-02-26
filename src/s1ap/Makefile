@@ -1,0 +1,75 @@
+#
+# Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
+# Copyright (c) 2017 Intel Corporation
+# Copyright (c) 2019, Infosys Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#SRCDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+include ../../Makefile.common
+
+LIB_PATH +=-L../common/ -L./asn1c/asnGenFiles
+
+SRCDIR := .
+TARGET := $(BINDIR)/s1ap-app
+S1AP_CONF = s1ap.json
+
+SRCEXT := c
+SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
+OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/s1ap/%,$(SOURCES:.$(SRCEXT)=.o))
+
+CFLAGS += -Wall
+
+ifeq ($(DEBUG),true)
+	CFLAGS += -g
+endif
+
+ifeq ($(DEBUG),false)
+	CFLAGS += -O3
+endif
+
+INCS := $(INC_DIRS)
+
+LIBS := -lpthread \
+	-lsctp \
+	-linterface \
+	-llog \
+	-lthreadpool \
+	-ljson \
+	-lasncodec \
+	-lsecutil
+
+$(TARGET): $(OBJECTS)
+	@echo " Linking..."
+	-@mkdir -p $(BINDIR)
+	$(CC) $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH)  $(LIBS)
+
+$(OBJDIR)/s1ap/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(OBJDIR)/s1ap/handlers
+	$(CC) $(CFLAGS) $(INCS) -c -o $@ $<
+
+all:$(TARGET)
+
+clean:
+	@echo " Cleaning...";
+	@rm -rf $(OBJDIR)/s1ap $(TARGET)
+
+install:
+	mkdir -p $(TARGET_DIR)/bin/
+	cp $(TARGET) $(TARGET_DIR)/bin/
+	cp conf/$(S1AP_CONF) $(TARGET_DIR)/conf/
+
+
+.PHONY: clean
+
