@@ -31,12 +31,13 @@
 #include "err_codes.h"
 #include "unix_conn.h"
 #include "unix_sock.h"
-#include "mme_app.h"
 #include "log.h"
 
 extern int g_unix_fd; 
 extern pthread_t acceptUnix_t;
 extern struct thread_pool *g_tpool;
+
+extern JobFunction monitorConfigFunc_fpg;
 
 /**
  * @brief Initialize listen socket connection 
@@ -170,7 +171,8 @@ accept_unix(void *data)
 				    memcpy(tmpBuf, &sd, sizeof(int));
 			            memcpy(tmpBuf + sizeof(int), buffer, valread);
 				    log_msg(LOG_DEBUG, "Received msg len : %d \n",valread);
-				    insert_job(g_tpool, handle_monitor_processing, tmpBuf);
+				    if (monitorConfigFunc_fpg != NULL)
+					    insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
 
 				}
 			}

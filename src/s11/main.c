@@ -1,19 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
- * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -27,12 +17,12 @@
 #include "err_codes.h"
 #include "options.h"
 #include "ipc_api.h"
-#include "message_queues.h"
 #include "s11.h"
 #include "s11_config.h"
 #include <sys/types.h>
 #include "msgType.h"
-#include "../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
+
 /**Global and externs **/
 extern s11_config g_s11_cfg;
 
@@ -92,16 +82,18 @@ handle_mmeapp_message_s11(void * data)
 void * tipc_msg_handler_s11()
 {
 	int bytesRead = 0;
+	unsigned char buffer[1024] = {0};
 	while (1)
 	{
-		unsigned char buffer[255] = {0};
-		if ((bytesRead = read_tipc_msg(ipc_reader_tipc_s11, buffer, 255)) > 0)
+		if ((bytesRead = read_tipc_msg(ipc_reader_tipc_s11, buffer, 1024)) > 0)
 		{
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
-			log_msg(LOG_INFO, "S11 message received from mme-app");
+			log_msg(LOG_INFO, "S11 message received from mme-app, bytesRead %d", bytesRead);
 			insert_job(g_tpool_tipc_reader_s11, handle_mmeapp_message_s11, tmpBuf);
 		}
+		memset(buffer, 0 , 1024);
+		bytesRead = 0;
 	}
 }
 struct GtpV2Stack* gtpStack_gp = NULL;
@@ -153,16 +145,11 @@ init_gtpv2()
 	g_s11_fd = socket(PF_INET, SOCK_DGRAM, 0);
 
 	g_client_addr.sin_family = AF_INET;
-#if 0
+	//g_client_addr.sin_addr.s_addr = htonl(g_s11_cfg.local_egtp_ip);
+	struct in_addr mme_local_addr = {g_s11_cfg.local_egtp_ip};
+	fprintf(stderr, "....................local egtp %s\n", inet_ntoa(mme_local_addr));
 	g_client_addr.sin_addr.s_addr = htonl(g_s11_cfg.local_egtp_ip);
-	//struct in_addr mme_local_addr = {g_s11_cfg.local_egtp_ip};
-	//fprintf(stderr, "....................local egtp %s\n", inet_ntoa(mme_local_addr));
-#endif
-	g_client_addr.sin_addr.s_addr = htonl(g_s11_cfg.local_egtp_ip);
-	fprintf(stderr, "....................local egtp %d\n", g_s11_cfg.local_egtp_ip);
-
-	//g_client_addr.sin_port = htons(0); /* TODO: Read value from config */
-
+	g_client_addr.sin_port = htons(0); /* TODO: Read value from config */
 	g_client_addr.sin_port = htons(g_s11_cfg.egtp_def_port); 
 
 	bind(g_s11_fd, (struct sockaddr *)&g_client_addr, sizeof(g_client_addr));
@@ -174,13 +161,9 @@ init_gtpv2()
 	fprintf(stderr, ".................... egtp def port %d\n", g_s11_cfg.egtp_def_port);
 	g_s11_cp_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
 	//g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
-	fprintf(stderr, "....................sgw ip %d\n", g_s11_cfg.sgw_ip);
-	g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
-#if 0
 	struct in_addr sgw_addr = {g_s11_cfg.sgw_ip};
 	fprintf(stderr, "....................sgw ip %s\n", inet_ntoa(sgw_addr));
-	g_s11_cp_addr.sin_addr.s_addr = g_s11_cfg.sgw_ip;
-#endif
+	g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
 	memset(g_s11_cp_addr.sin_zero, '\0', sizeof(g_s11_cp_addr.sin_zero));
 
 	g_s11_serv_size = sizeof(g_s11_cp_addr);
@@ -188,9 +171,6 @@ init_gtpv2()
 	return SUCCESS;
 }
 
-/**
-  Opening pipe connection from S11 app to MME(Single queue pipe)
-*/
 int
 init_s11_ipc()
 {

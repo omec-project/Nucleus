@@ -132,6 +132,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	ueCtxt_p->setUtranCgi(Cgi(ue_info.utran_cgi));
 	ueCtxt_p->setUeNetCapab(Ue_net_capab(ue_info.ue_net_capab));
 	ueCtxt_p->setMsNetCapab(Ms_net_capab(ue_info.ms_net_capab));
+	ueCtxt_p->setDwnLnkSeqNo(ue_info.seq_no);
 	prcdCtxt_p->setPti(ue_info.pti);
 	prcdCtxt_p->setPcoOptions(ue_info.pco_options,sizeof((ue_info.pco_options)));
 	prcdCtxt_p->setEsmInfoTxRequired(ue_info.esm_info_tx_required);
@@ -190,6 +191,28 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 {
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "ue context is NULL \n");
+        return ActStatus::HALT;
+    }
+
 	MmeDetachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeDetachProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
@@ -199,7 +222,8 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	}
 
 	prcdCtxt_p->setCtxtType( ProcedureType::detach_c );
-	prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c );
+	prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c);
+	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	prcdCtxt_p->setNextState(DetachStart::Instance());
 	cb.setCurrentTempDataBlock(prcdCtxt_p);
 
@@ -253,6 +277,21 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 {
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
 	MmeSvcReqProcedureCtxt* svcReqProc_p = SubsDataGroupManager::Instance()->getMmeSvcReqProcedureCtxt();
 	if (svcReqProc_p == NULL)
 	{
@@ -280,6 +319,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 
 	svcReqProc_p->setCtxtType(ProcedureType::serviceRequest_c);
 	svcReqProc_p->setNextState(ServiceRequestStart::Instance());
+	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	cb.setCurrentTempDataBlock(svcReqProc_p);
 
 	SM::Event evt(Event_e::SERVICE_REQUEST_FROM_UE, NULL);

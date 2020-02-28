@@ -24,12 +24,11 @@
 #include "err_codes.h"
 #include "options.h"
 #include "ipc_api.h"
-#include "message_queues.h"
 #include "s11.h"
 #include "s11_config.h"
 #include "msgType.h"
 
-#include "../../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
 /*Globals and externs*/
 extern int g_resp_fd;
 extern struct GtpV2Stack* gtpStack_gp;

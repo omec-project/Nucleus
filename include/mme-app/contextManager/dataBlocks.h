@@ -292,7 +292,19 @@ namespace mme
 			* getMTmsi
 			*    get mTmsi from UEContext
 			****************************************/
-			uint32_t getMTmsi()const;				
+			uint32_t getMTmsi()const;
+
+            /****************************************
+            * setSubscribedApn
+            *    set subscribedApn to UEContext
+            ****************************************/
+            void setSubscribedApn(const Apn_name& subscribedApn_i);
+
+            /****************************************
+            * getSubscribedApn
+            *    get subscribedApn from UEContext
+            ****************************************/
+            const Apn_name& getSubscribedApn()const;
 			
 			/****************************************
 			* setMmContext
@@ -317,7 +329,7 @@ namespace mme
 			*    get SessionContext to UEContext
 			****************************************/
 			SessionContext* getSessionContext();
-			
+
 		
 		private:
 		
@@ -381,6 +393,9 @@ namespace mme
 			// DataName
 			uint32_t mTmsi_m;
 			
+			// DataName
+			Apn_name subscribedApn_m;
+
 			// MmContext
 			MmContext* MmContext_mp;
 			
@@ -718,7 +733,7 @@ namespace mme
 			* setPcoOptions
 			*    set pcoOptions to MmeProcedureCtxt
 			****************************************/
-			void setPcoOptions(const unsigned char* pcoOptions_i,uint8_t len);
+			void setPcoOptions(const unsigned char* pcoOptions_i,uint16_t len);
 			
 			/****************************************
 			* getPcoOptions
@@ -729,7 +744,7 @@ namespace mme
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeProcedureCtxt
 			****************************************/
-			uint8_t getPcoOptionsLen()const;							
+			uint16_t getPcoOptionsLen()const;
 			
 			/****************************************
 			* setPti
@@ -777,8 +792,20 @@ namespace mme
 			* getAuts
 			*    get auts from MmeProcedureCtxt
 			****************************************/
-			const Auts& getAuts()const;				
+			const Auts& getAuts()const;
 			
+            /****************************************
+            * setRequestedApn
+            *    set requestedApn to MmeProcedureCtxt
+            ****************************************/
+            void setRequestedApn(const Apn_name& requestedApn_i);
+
+            /****************************************
+            * getRequestedApn
+            *    get requestedApn from MmeProcedureCtxt
+            ****************************************/
+            const Apn_name& getRequestedApn()const;
+
 		
 		private:
 		
@@ -792,7 +819,7 @@ namespace mme
 			AttachType attachType_m;
 			
 			// DataName
-			uint8_t pcoOptionsLen_m;
+			uint16_t pcoOptionsLen_m;
 			unsigned char pcoOptions_m[256];
 			
 			
@@ -807,7 +834,10 @@ namespace mme
 			
 			// DataName
 			Auts auts_m;
-			
+
+			// DataName
+			Apn_name requestedApn_m;
+
 	};
 	 
 	class MmeDetachProcedureCtxt:public MmeProcedureCtxt

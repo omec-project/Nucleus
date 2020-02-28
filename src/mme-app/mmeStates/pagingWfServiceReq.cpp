@@ -18,7 +18,7 @@
 #include "actionHandlers/actionHandlers.h"
 
 #include "mmeStates/pagingWfServiceReq.h"	
-#include "mmeStates/serviceRequestWfAuthAndSecCheckCmp.h"
+#include "mmeStates/serviceRequestWfAuthResponse.h"
 
 using namespace mme;
 using namespace SM;
@@ -55,8 +55,8 @@ void PagingWfServiceReq::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_service_request);
                 actionTable.addAction(&ActionHandlers::send_ddn_ack_to_sgw);
-                actionTable.addAction(&ActionHandlers::perform_auth_and_sec_check);
-                actionTable.setNextState(ServiceRequestWfAuthAndSecCheckCmp::Instance());
+                actionTable.addAction(&ActionHandlers::auth_req_to_ue);
+                actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
                 eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SERVICE_REQUEST_FROM_UE, actionTable));
         }
 }

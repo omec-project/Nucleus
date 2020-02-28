@@ -23,7 +23,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <mme_app.h>
 
-#define DATA_BUF_SIZE 255
+#define DATA_BUF_SIZE 1024
 
 using namespace cmn::ipc;
 using namespace cmn::utils;

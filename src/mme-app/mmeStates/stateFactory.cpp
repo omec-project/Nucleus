@@ -43,9 +43,12 @@
 #include "mmeStates/s1ReleaseWfReleaseAccessBearerResp.h"
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
 #include "mmeStates/serviceRequestStart.h"
-#include "mmeStates/serviceRequestWfAuthAndSecCheckCmp.h"
+#include "mmeStates/serviceRequestWfAia.h"
+#include "mmeStates/serviceRequestWfAuthRespValidate.h"
+#include "mmeStates/serviceRequestWfAuthResponse.h"
 #include "mmeStates/serviceRequestWfInitCtxtResp.h"
 #include "mmeStates/serviceRequestWfMbResp.h"
+#include "mmeStates/serviceRequestWfSecCmp.h"
 #include "mmeStates/tauStart.h"    
 
 using namespace mme;
@@ -105,8 +108,11 @@ void StateFactory::initialize()
 	S1ReleaseWfReleaseAccessBearerResp::Instance()->initialize();
 	S1ReleaseWfUeCtxtReleaseComp::Instance()->initialize();
 	ServiceRequestStart::Instance()->initialize();
-	ServiceRequestWfAuthAndSecCheckCmp::Instance()->initialize();
+	ServiceRequestWfAia::Instance()->initialize();
+	ServiceRequestWfAuthRespValidate::Instance()->initialize();
+	ServiceRequestWfAuthResponse::Instance()->initialize();
 	ServiceRequestWfInitCtxtResp::Instance()->initialize();
 	ServiceRequestWfMbResp::Instance()->initialize();
+	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
 }

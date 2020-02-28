@@ -1,19 +1,11 @@
 /*
- * Copyright (c) 2019, Infosys Ltd.
+ * Copyright 2019-present Open Networking Foundation
+ * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
+ * Copyright (c) 2017 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */  
- 
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 
 #ifndef __UE_S11_H_
 #define __UE_S11_H_
@@ -21,6 +13,7 @@
 #include <stdint.h>
 #include "log.h"
 #include "s11_structs.h"
+#include <gtpV2StackWrappers.h>
 
 /*No of threads handling S11 GTPv2 messages coming in*/
 #define S11_THREADPOOL_SIZE 5
@@ -65,12 +58,11 @@ void* modify_bearer_handler(void *);
 void* release_bearer_handler(void *); 
 void* delete_session_handler(void *);
 void* ddn_ack_handler(void *);
-/*int s11_CS_resp_handler(char *message);
-int s11_MB_resp_handler(char *message);
-int s11_DS_resp_handler(char *message);
-int s11_RB_resp_handler(char *message);
-int s11_DDN_handler(char *message);
-*/
+int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
 
 
 void

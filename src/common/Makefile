@@ -39,7 +39,7 @@ TPOOL_SRC = ./thread_pool.c ./tpool_queue.c
 JSON_PARSER_SRC = ./json_parser.c
 UTIL_SRC = ./snow_3g.c ./f8.c ./f9.c
 UNIXSOCK_SRC = ./unix_sock.c ./unix_conn.c
-MONITOR_CONFIG = ./monitor_config.c
+MONITOR_CONFIG_SRC = ./monitor_config.c
 
 SRCDIR := .
 SRCEXT := c
@@ -48,21 +48,27 @@ LOG_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(LOG_SRC:.$(SRCEXT)=.o))
 TPOOL_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(TPOOL_SRC:.$(SRCEXT)=.o))
 JSON_PARSER_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(JSON_PARSER_SRC:.$(SRCEXT)=.o))
 UTIL_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(UTIL_SRC:.$(SRCEXT)=.o))
+MONITOR_CONFIG_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(MONITOR_CONFIG_SRC:.$(SRCEXT)=.o))
+UNIXSOCK_OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/common/%,$(UNIXSOCK_SRC:.$(SRCEXT)=.o))
 
 OBJS := $(IF_OBJS) \
         $(LOG_OBJS)\
         $(TPOOL_OBJS) \
 	$(JSON_PARSER_OBJS) \
-	$(UTIL_OBJS)
+	$(UTIL_OBJS) \
+	$(MONITOR_CONFIG_OBJS) \
+	$(UNIXSOCK_OBJS)
 
 build_commonLibs: $(OBJS)
 	-@echo "Linking..."
 	-@mkdir -p $(LIBDIR)
 	$(CC) $(CFLAGS) $(IF_OBJS) -shared -o $(IF_LIBNAME)
 	$(CC) $(CFLAGS) $(JSON_PARSER_OBJS) -shared -o $(JSON_PARSER_LIBNAME)
+	$(CC) $(CFLAGS) $(MONITOR_CONFIG_OBJS) -shared -o $(MONITOR_CONFIG_LIBNAME)
 	$(CC) $(CFLAGS) $(UTIL_OBJS) -shared -o $(UTIL_LIBNAME)
 	ar rcs $(LOG_LIBNAME) $(LOG_OBJS)
 	ar rcs $(TPOOL_LIBNAME) $(TPOOL_OBJS)
+	ar rcs $(UNIXSOCK_LIBNAME) $(UNIXSOCK_OBJS)
 
 $(OBJS) : $(OBJDIR)/common/%.o : $(SRCDIR)/%.c
 	-@mkdir -p $(OBJDIR)/common

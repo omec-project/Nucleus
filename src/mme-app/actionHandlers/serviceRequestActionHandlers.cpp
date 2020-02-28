@@ -135,31 +135,7 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	return ActStatus::PROCEED;
 }
 
-/***************************************
-* Action handler : perform_auth_and_sec_check
-***************************************/
-ActStatus ActionHandlers::perform_auth_and_sec_check(ControlBlock& cb)
-{
-    log_msg(LOG_DEBUG, "Inside auth_and_sec_check \n");
-	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(cb.getCBIndex());	
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "auth_and_sec_check: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
-	
-	log_msg(LOG_DEBUG, "Leaving auth_and_sec_check \n");
-	
 
-	SM::Event evt(Event_e::AUTH_AND_SEC_CHECK_COMPLETE, NULL);
-
-	controlBlk_p->addEventToProcQ(evt);
-
-	
-	return ActStatus::PROCEED;
-}
 /***************************************************
 * Action handler : send_init_ctxt_req_to_ue_svc_req
 ****************************************************/
@@ -325,4 +301,14 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock& cb)
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
 
 	return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : abort_service_req_procedure
+***************************************/
+ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
+{
+    // blindly delete for now!
+    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    return ActStatus::PROCEED;
 }

@@ -31,7 +31,7 @@ SUBDIRS 		 := src/cmn \
 					src/s1ap \
 					src/s11 \
 					src/s6a
- 
+
 #$(wildcard src/mme-app/.)
 
 $(TOPTARGETS): $(SUBDIRS)

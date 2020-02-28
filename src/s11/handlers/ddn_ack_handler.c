@@ -25,12 +25,11 @@
 
 #include "log.h"
 #include "err_codes.h"
-#include "message_queues.h"
 #include "ipc_api.h"
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include "msgType.h"
-#include "../../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
 
 
 /****Globals and externs ***/
@@ -39,13 +38,16 @@
 extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
-extern volatile uint32_t g_s11_sequence;
+
+/*Making global just to avoid stack passing*/
 static char buf[S11_DDN_ACK_BUF_SIZE];
 
-struct thread_pool *g_tpool;
+/*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
+extern volatile uint32_t g_s11_sequence;
+
 
 extern struct GtpV2Stack* gtpStack_gp;
-extern volatile uint32_t g_s11_sequence;
+struct thread_pool *g_tpool;
 
 struct MsgBuffer* ddnAckMsgBuf_p = NULL;
 /****Global and externs end***/

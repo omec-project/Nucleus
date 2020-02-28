@@ -24,12 +24,10 @@
 #include "err_codes.h"
 #include "options.h"
 #include "ipc_api.h"
-#include "message_queues.h"
 #include "s11.h"
 #include "s11_config.h"
 #include "msgType.h"
-
-#include "../../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
 
 /*Globals and externs*/
 extern int g_resp_fd;
@@ -67,7 +65,7 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	rbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
 	rbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
 
-	/*Send CS response msg*/
+	/*Send RAB Release response msg*/
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&rbr_info, GTP_READ_MSG_BUF_SIZE);
 	log_msg(LOG_INFO, "Send RB resp to mme-app stage2.\n");
 

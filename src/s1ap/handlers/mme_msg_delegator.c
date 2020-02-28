@@ -32,15 +32,6 @@
 #include "err_codes.h"
 #include "msgType.h"
 
-extern void* authreq_handler(void *data);
-extern void* secreq_handler(void *data);
-extern void* icsreq_handler(void *data);
-extern void* detach_accept_handler(void *data);
-extern void* ni_detach_request_handler(void *data);
-extern void* paging_handler(void *data);
-extern void* ics_req_paging_handler(void *data);
-extern void* tau_response_handler(void *data);
-
 void
 handle_mmeapp_message(void * data)
 {
@@ -85,6 +76,10 @@ handle_mmeapp_message(void * data)
 	case tau_response:
 		tau_response_handler(msg);
 		break;
+	case attach_reject:
+	case service_reject:
+	    s1ap_reject_handler(msg);
+	    break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

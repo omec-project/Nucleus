@@ -1,19 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
- * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 
@@ -32,7 +22,6 @@
 #include "s1ap_config.h"
 #include "sctp_conn.h"
 #include "s1ap_structs.h"
-#include "message_queues.h"
 #include "thread_pool.h"
 #include "tpool_queue.h"
 #include "snow_3g.h"
@@ -268,12 +257,14 @@ accept_sctp(void *data)
 			sd = enb_socket[i];
 
 			if (FD_ISSET(sd, &readfds)) {
-
-				if ((valread = recv_sctp_msg(sd, buffer, SCTP_BUF_SIZE)) == 0) {
+				if ((valread = recv_sctp_msg(sd, buffer, SCTP_BUF_SIZE)) <= 0) {
 
 					log_msg(LOG_INFO, "Host Disconnected\n");
 					close(sd);
 					enb_socket[i] = 0;
+                    /* MME-app should get notificaiton that peer is down ? 
+                     * what MME will do with existing subscribers with the
+                     * same eNB ? */
 
 				} else {
 

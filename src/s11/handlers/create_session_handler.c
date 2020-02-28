@@ -1,19 +1,10 @@
 /*
- * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
- * Copyright (c) 2017 Intel Corporation
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
+ * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
+ * Copyright (c) 2017 Intel Corporation 
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -26,14 +17,13 @@
 
 #include "log.h"
 #include "err_codes.h"
-#include "message_queues.h"
 #include "ipc_api.h"
 #include "msgType.h"
 
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
-#include "../../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
 
 /************************************************************************
 Current file : Stage 5 handler.
@@ -73,6 +63,7 @@ bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return;
 }
+
 uint32_t
 convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
@@ -96,6 +87,7 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return num_of_digits;
 }
+
 
 /**
 * Stage specific message processing.
@@ -181,7 +173,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.pgwS5S8AddressForControlPlaneOrPmipIePresent = true;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipv4present = true;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.interfaceType = 7;
-	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = g_s11_cfg.pgw_ip;
+	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = ntohl(g_s11_cfg.pgw_ip);
 
 	msgData.accessPointName.apnValue.count = g_csReqInfo->apn.len;
 	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->apn.val, g_csReqInfo->apn.len);
@@ -222,12 +214,15 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.aggregateMaximumBitRate.maxMbrUplink = g_csReqInfo->max_requested_bw_ul;
 	msgData.aggregateMaximumBitRate.maxMbrDownlink = g_csReqInfo->max_requested_bw_dl;
 
-	bool rc = GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
-	if (rc == false)
-	{
-		log_msg(LOG_ERROR, "Failed to encode create session request\n");
-		return E_FAIL;
-	}
+    log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
+    if(g_csReqInfo->pco_length > 0)
+    {
+        msgData.protocolConfigurationOptionsIePresent = false;
+        msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
+        memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
+    }
+
+	GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
 

@@ -1,19 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
- * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *		http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -27,7 +17,6 @@
 #include <freeDiameter/libfdproto.h>
 
 #include "err_codes.h"
-#include "message_queues.h"
 #include "ipc_api.h"
 #include "sec.h"
 #include "s6a_fd.h"
@@ -69,7 +58,7 @@ static void
 init_stage()
 {
 	log_msg(LOG_INFO, "Waiting for session detach initialiser  from mme-app\n");
-	if ((g_Q_detachread_fd  = open_ipc_channel(S6A_DTCHREQ_STAGE1_QUEUE, IPC_READ)) == -1){
+	if ((g_Q_detachread_fd  = open_ipc_channel(S6A_PURGEREQ_STAGE1_BUF_SIZE, IPC_READ)) == -1){
 		log_msg(LOG_ERROR, "Error in opening reader detach channel.\n");
 		pthread_exit(NULL);
 	}

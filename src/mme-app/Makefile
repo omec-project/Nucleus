@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2019, Infosys Ltd.
+# Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
+# Copyright (c) 2017 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,29 +30,36 @@ endif
 
 LIB_PATH +=-L../common/ 
 
-LIBS := -lpthread \
+LIBS :=	-lpthread \
         -lcrypto \
-	-lcmnUtils \
+        -lcmnUtils \
         -ldatagroupmgr \
-        -ljson \
+	-ljson \
         -llog \
         -linterface \
         -lipcfwk \
+	-lmonitor_config \
+	-lusock \
+	-lthreadpool \
         -lstatemachinefwk \
 	-lmmeGrpcProtoBuf \
 	-lgrpc++ \
         -lgrpc \
         -lgpr \
-        -lprotobuf
+        -lprotobuf \
 
 SRCDIR := .
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/mme-app/%,$(SOURCES:.$(SRCEXT)=.o))
 
+CEXT := c
+CSOURCES := $(shell find $(SRCDIR) -type f -name '*.$(CEXT)')
+COBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/mme-app/%,$(CSOURCES:.$(CEXT)=.o))
+
 TARGET := $(BINDIR)/mme-app
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(COBJECTS) $(OBJECTS) 
 	@echo "Linking..."
 	@mkdir -p $(BINDIR)
 	$(CC) $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
@@ -67,6 +75,11 @@ $(OBJDIR)/mme-app/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(OBJDIR)/mme-app/mmeGrpcServer
 	@mkdir -p $(OBJDIR)/mme-app/mmeStates
 	@mkdir -p $(OBJDIR)/mme-app/utils
+	$(CC) $(CFLAGS) $(INC_DIRS) -c -o $@ $<
+
+$(OBJDIR)/mme-app/%.o : $(SRCDIR)/%.$(CEXT)
+	echo "Compiling C files..."
+	@mkdir -p $(OBJDIR)/mme-app
 	$(CC) $(CFLAGS) $(INC_DIRS) -c -o $@ $<
 
 all:$(TARGET)

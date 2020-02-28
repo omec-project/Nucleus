@@ -285,6 +285,7 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setSubscriptionStatus(ula_msg.subscription_status);
 	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
+        ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
 
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
@@ -481,6 +482,8 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	if (msgBuf == NULL)
 		return ActStatus::HALT;
 
+	ue_ctxt->setUpLnkSeqNo(0);
+
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const secmode_resp_Q_msg &secmode_resp = s1_msg_data->msg_data.secmode_resp_Q_msg_m;
 	if(SUCCESS == secmode_resp.status)
@@ -546,7 +549,7 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 		apn.val[0] = apnName.length();
 		memcpy(&(apn.val[1]), apnName.c_str(), apnName.length());
 
-		sessionCtxt->setAccessPtName(Apn_name(apn));
+		procedure_p->setRequestedApn(Apn_name(apn));
         
 		SM::Event evt(Event_e::ESM_INFO_NOT_REQUIRED, NULL);
 		cb.addEventToProcQ(evt);
@@ -601,13 +604,12 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if( sessionCtxt == NULL )
-	{
-	    log_msg(LOG_ERROR, "Failed to allocate Session "
-                            "Context for UE IDX %d\n", cb.getCBIndex());
-	    return ActStatus::HALT;
-	}
+    MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procedure_p == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
+        return ActStatus::HALT;
+    }
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -617,7 +619,7 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
 
-    	sessionCtxt->setAccessPtName(Apn_name(esm_res.apn));
+	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
 }
@@ -684,7 +686,10 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	memcpy(&cs_msg.apn.val[1], formattedApn.str().c_str(),
 	formattedApn.str().length()); */
 
-	const Apn_name &apnName = sessionCtxt->getAccessPtName();
+	const Apn_name &apnName = ue_ctxt->getSubscribedApn();
+	// TODO: ApnSelection
+	// Set the subscribed apn to selected apn for now
+	sessionCtxt->setAccessPtName(apnName);
 	memcpy(&(cs_msg.apn), &(apnName.apnname_m), sizeof(struct apn_name));
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));

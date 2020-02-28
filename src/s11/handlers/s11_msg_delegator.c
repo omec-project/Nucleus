@@ -1,19 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
- * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -26,18 +16,17 @@
 #include "err_codes.h"
 #include "options.h"
 #include "ipc_api.h"
-#include "message_queues.h"
 #include "s11.h"
 #include "s11_config.h"
 #include "s11_structs.h"
-#include "../../gtpV2Codec/gtpV2StackWrappers.h"
+#include <gtpV2StackWrappers.h>
 
 extern struct GtpV2Stack* gtpStack_gp;
-int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+//int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+//int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+//int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+//int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+//int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
 
 /*
   Get count of no of IEs in gtpv2c msg
@@ -203,5 +192,8 @@ handle_s11_message(void *message)
                 break;
 
 	}
+
+	MsgBuffer_free(msgBuf_p);
+
 	return;
 }

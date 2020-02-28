@@ -20,10 +20,19 @@
 #include <iostream>
 #include "msgType.h"
 #include "s1ap_structs.h"
-#include "ue_table.h"
 #include "s11_structs.h"
 #include <utils/mmeProcedureTypes.h>
 
+
+struct secinfo {
+    uint8_t int_key[NAS_INT_KEY_SIZE];
+    uint8_t kenb_key[KENB_SIZE];
+};
+
+struct AMBR {
+    unsigned int max_requested_bw_dl;
+    unsigned int max_requested_bw_ul;
+};
 
 class Tai
 {

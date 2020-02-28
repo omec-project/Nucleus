@@ -453,19 +453,6 @@
                         ]
                     },
                     {
-                        "Name":"service_request_start",
-                        "Events":[
-                            {
-                                "Name":"SERVICE_REQUEST_FROM_UE",
-                                "Actions":[
-                                    "PROCESS_SERVICE_REQUEST",
-                                    "PERFORM_AUTH_AND_SEC_CHECK"
-                                ],
-                                "NextState":"service_request_wf_auth_and_sec_check_cmp"
-                            }
-                        ]
-                    },
-                    {
                         "Name":"paging_wf_service_req",
                         "Events":[
                             {
@@ -473,24 +460,98 @@
                                 "Actions":[
                                     "PROCESS_SERVICE_REQUEST",
                                     "SEND_DDN_ACK_TO_SGW",
-                                    "PERFORM_AUTH_AND_SEC_CHECK"
+                                    "AUTH_REQ_TO_UE"
                                 ],
-                                "NextState":"service_request_wf_auth_and_sec_check_cmp"
+                                "NextState":"service_request_wf_auth_response"
+                            }
+                        ]
+                    },					
+                    {
+                        "Name":"service_request_start",
+                        "Events":[
+                            {
+                                "Name":"SERVICE_REQUEST_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_SERVICE_REQUEST",
+                                    "AUTH_REQ_TO_UE"
+                                ],
+                                "NextState":"service_request_wf_auth_response"
                             }
                         ]
                     },
                     {
-                        "Name":"service_request_wf_auth_and_sec_check_cmp",
+                        "Name":"service_request_wf_auth_response",
                         "Events":[
                             {
-                                "Name":"AUTH_AND_SEC_CHECK_COMPLETE",
+                                "Name":"AUTH_RESP_FROM_UE",
                                 "Actions":[
+                                    "AUTH_RESPONSE_VALIDATE"
+                                ],
+                                "NextState":"service_request_wf_auth_resp_validate"
+                            }						
+                        ]
+                    },
+                    {
+                        "Name":"service_request_wf_auth_resp_validate",
+                        "Events":[
+                            {
+                                "Name":"AUTH_RESP_SUCCESS",
+                                "Actions":[
+                                    "SEC_MODE_CMD_TO_UE"
+                                ],
+                                "NextState":"service_request_wf_sec_cmp"
+                            },
+                            {
+                                "Name":"AUTH_RESP_SYNC_FAILURE",
+                                "Actions":[
+                                    "SEND_AIR_TO_HSS"
+                                ],
+                                "NextState":"service_request_wf_aia"
+                            },
+                            {
+                                "Name":"AUTH_RESP_FAILURE",
+                                "Actions":[
+								    "SEND_S1_REL_CMD_TO_UE",
+									"ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }								
+                        ]
+                    },
+                    {
+                        "Name":"service_request_wf_sec_cmp",
+                        "Events":[
+                            {
+                                "Name":"SEC_MODE_RESP_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_SEC_MODE_RESP",
                                     "SEND_INIT_CTXT_REQ_TO_UE_SVC_REQ"
                                 ],
                                 "NextState":"service_request_wf_init_ctxt_resp"
-                            }
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+								    "SEND_S1_REL_CMD_TO_UE",
+									"ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }								
                         ]
                     },
+                    {
+                        "Name":"service_request_wf_aia",
+                        "Events":[
+                            {
+                                "Name":"AIA_FROM_HSS",
+                                "Actions":[
+                                    "PROCESS_AIA",
+                                    "AUTH_REQ_TO_UE"
+                                ],
+                                "NextState":"service_request_wf_auth_response"
+                            }
+                        ]
+                    },					
                     {
                         "Name":"service_request_wf_init_ctxt_resp",
                         "Events":[

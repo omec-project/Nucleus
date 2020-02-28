@@ -24,7 +24,6 @@
 
 #include "log.h"
 #include "err_codes.h"
-#include "message_queues.h"
 #include "ipc_api.h"
 #include "s1ap.h"
 #include "s1ap_config.h"

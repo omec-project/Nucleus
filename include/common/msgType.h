@@ -17,6 +17,7 @@
 #ifndef INCLUDE_COMMON_MSGTYPE_H_
 #define INCLUDE_COMMON_MSGTYPE_H_
 
+#include "common_proc_info.h"
 #include "err_codes.h"
 #include "s11_structs.h"
 #include "s1ap_structs.h"
@@ -34,6 +35,7 @@ typedef enum msg_data_t
 
 typedef enum msg_type_t {
     attach_request = 0,
+    attach_reject,
     auth_info_request,
     auth_info_answer,
     update_loc_request,
@@ -72,6 +74,7 @@ typedef enum msg_type_t {
     ddn_acknowledgement,
     paging_request,
     service_request,
+    service_reject,
     ics_req_paging,
     tau_request,
     tau_response,
@@ -98,6 +101,7 @@ struct ue_attach_info {
     guti mi_guti;
     unsigned char seq_no;
     unsigned char dns_present;
+	uint8_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 	
 };
@@ -227,6 +231,7 @@ struct init_ctx_req_Q_msg {
 	struct fteid gtp_teid;
 	struct TAI tai;
 	struct apn_name apn;
+	struct apn_name selected_apn;
 	struct PAA pdn_addr;
 	unsigned char sec_key[32];
 	unsigned char bearer_id;
@@ -298,7 +303,7 @@ struct ics_req_paging_Q_msg {
 };
 #define ICS_REQ_PAGING_BUF_SIZE sizeof(struct ics_req_paging_Q_msg)
 
-struct attachReqRej_info
+struct commonRej_info
 {
   msg_type_t msg_type;
   int ue_idx; /*mme s1ap UE id*/
@@ -306,7 +311,8 @@ struct attachReqRej_info
   int enb_fd;
   unsigned char cause;
 };
-#define S1AP_REQ_REJECT_BUF_SIZE sizeof(struct attachReqRej_info)
+
+#define S1AP_REQ_REJECT_BUF_SIZE sizeof(struct commonRej_info)
 
 struct attachIdReq_info
 {
@@ -339,11 +345,13 @@ struct CS_Q_msg {
 	int ue_idx;
 	unsigned char IMSI[BINARY_IMSI_LEN];
 	struct apn_name apn;
+	struct apn_name selected_apn;
 	struct TAI tai;
 	struct CGI utran_cgi;
 	unsigned char MSISDN[MSISDN_STR_LEN];
 	unsigned int max_requested_bw_dl;
 	unsigned int max_requested_bw_ul;
+	uint8_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 #define S11_CSREQ_STAGE5_BUF_SIZE sizeof(struct CS_Q_msg)
@@ -460,7 +468,6 @@ struct s6a_purge_Q_msg {
 };
 #define S6A_PURGEREQ_STAGE1_BUF_SIZE sizeof(struct s6a_purge_Q_msg)
 
-
 /*************************
  * Incoming S6 Messages
  *************************/
@@ -487,6 +494,7 @@ struct ula_Q_msg {
     unsigned int apn_config_profile_ctx_id;
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];
+    struct apn_name selected_apn;
 };
 
 struct purge_resp_Q_msg {

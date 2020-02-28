@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 #include <iostream>
 #include <pthread.h>
 #include <thread>
@@ -25,20 +26,14 @@
 #include "err_codes.h"
 #include <interfaces/mmeIpcInterface.h>
 #include <mmeStates/stateFactory.h>
-#include "message_queues.h"
 #include "mme_app.h"
 #include "msgType.h"
 #include "stateMachineEngine.h"
 #include <sys/types.h>
 #include "mmeThreads.h"
+#include "log.h"
+#include "json_data.h"
 
-extern "C"
-{
- 	#include "log.h"
-	#include "json_data.h"
-}
-
-extern void* RunServer(void * data);
 using namespace std;
 using namespace mme;
 
@@ -55,44 +50,27 @@ cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcEgres
  * Externs
  *
  **********************************************************/
+extern "C"
+{
+#include "thread_pool.h"
+int init_sock();
+}
+
+extern void init_backtrace();
+extern void init_parser(char *path);
+extern int parse_mme_conf(mme_config *config);
+extern void* RunServer(void * data);
+
 extern char processName[255];
 extern int pid;
+int g_unix_fd = 0;
+struct thread_pool *g_tpool;
+pthread_t acceptUnix_t;
 
 mme_config g_mme_cfg;
 pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
-void
-init_parser(char *path)
-{
-	load_json(path);
-}
-
-int
-parse_mme_conf()
-{
-	/*mme own information*/
-	g_mme_cfg.mme_name = get_string_scalar("mme.name");
-	if(NULL == g_mme_cfg.mme_name) return E_PARSING_FAILED;
-
-	g_mme_cfg.mme_ip_addr = get_ip_scalar("mme.ip_addr");
-	if(E_PARSING_FAILED == g_mme_cfg.mme_ip_addr) return E_PARSING_FAILED;
-
-	g_mme_cfg.mcc_dig1 = get_int_scalar("mme.mcc.dig1");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-	g_mme_cfg.mcc_dig2 = get_int_scalar("mme.mcc.dig2");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-	g_mme_cfg.mcc_dig3 = get_int_scalar("mme.mcc.dig3");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-	g_mme_cfg.mcc_dig1 = get_int_scalar("mme.mnc.dig1");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-	g_mme_cfg.mnc_dig2 = get_int_scalar("mme.mnc.dig2");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-	g_mme_cfg.mnc_dig3 = get_int_scalar("mme.mnc.dig3");
-	if(E_PARSING_FAILED == g_mme_cfg.mcc_dig1) return E_PARSING_FAILED;
-
-	return SUCCESS;
-}
 
 void setThreadName(std::thread* thread, const char* threadName)
 {
@@ -100,18 +78,31 @@ void setThreadName(std::thread* thread, const char* threadName)
 	pthread_setname_np(handle,threadName);
 }
 
+void mme_parse_config(mme_config *config)
+{
+    /*Read MME configurations*/
+    init_parser("conf/mme.json");
+    parse_mme_conf(config);
+    /* Lets apply logging setting */
+    set_logging_level(config->logging);
+}
+
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace();
+	srand(time(0));
 
 	StateFactory::Instance()->initialize();
 
 	mmeIpcIf_g = new MmeIpcInterface();
 	mmeIpcIf_g->setup();
 
-	init_parser("conf/mme.json");
-	parse_mme_conf();
+	mme_parse_config(&g_mme_cfg);
+
+	register_config_updates();
 
 	MmeIngressIpcProducerThread ipcReader;
 	std::thread t1(ipcReader);
@@ -134,6 +125,12 @@ int main(int argc, char *argv[])
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	pthread_create(&stage_tid[0], &attr, &RunServer, NULL);
 	pthread_attr_destroy(&attr);
+
+    /*if (init_sock() != SUCCESS)
+    {
+        log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
+        return -E_FAIL_INIT;
+    }*/
 
 	while(1)
 	{

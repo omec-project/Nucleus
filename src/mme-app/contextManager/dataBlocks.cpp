@@ -375,6 +375,22 @@ namespace mme
 	{
 		return mTmsi_m;
 	}
+
+    /******************************************************************************
+    * sets subscribedApn
+    ******************************************************************************/
+    void UEContext::setSubscribedApn( const Apn_name& subscribedApn_i )
+    {
+        subscribedApn_m = subscribedApn_i;
+    }
+
+    /******************************************************************************
+    * returns subscribedApn
+    ******************************************************************************/
+    const Apn_name& UEContext::getSubscribedApn() const
+    {
+        return subscribedApn_m;
+    }
 	
 	/******************************************************************************
 	* sets MmContext
@@ -722,7 +738,8 @@ namespace mme
             pti_m(0),
             mmeErrorCause_m(noError_c),
             authRespStatus_m(0),
-            auts_m()
+            auts_m(),
+            requestedApn_m()
 	
 	{
 		memset(pcoOptions_m,0,sizeof(pcoOptions_m));
@@ -787,7 +804,7 @@ namespace mme
 	/******************************************************************************
 	* sets pcoOptions
 	******************************************************************************/
-	void MmeProcedureCtxt::setPcoOptions( const unsigned char* pcoOptions_i,uint8_t len )
+	void MmeProcedureCtxt::setPcoOptions( const unsigned char* pcoOptions_i,uint16_t len )
 	{
 		pcoOptionsLen_m=len;
 		memcpy(pcoOptions_m, pcoOptions_i, pcoOptionsLen_m);
@@ -803,7 +820,7 @@ namespace mme
 	/******************************************************************************
 	* returns pcoOptionsLen
 	******************************************************************************/	
-	uint8_t MmeProcedureCtxt::getPcoOptionsLen() const
+	uint16_t MmeProcedureCtxt::getPcoOptionsLen() const
 	{
 		return pcoOptionsLen_m;
 	}
@@ -871,7 +888,23 @@ namespace mme
 	{
 		return auts_m;
 	}
-	
+
+    /******************************************************************************
+    * sets requestedApn
+    ******************************************************************************/
+    void MmeProcedureCtxt::setRequestedApn( const Apn_name& requestedApn_i )
+    {
+        requestedApn_m = requestedApn_i;
+    }
+
+    /******************************************************************************
+    * returns requestedApn
+    ******************************************************************************/
+    const Apn_name& MmeProcedureCtxt::getRequestedApn() const
+    {
+        return requestedApn_m;
+    }
+
 	/******************************************************************************
 	*******************************************************************************
 	*							MmeDetachProcedureCtxt

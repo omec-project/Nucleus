@@ -26,7 +26,6 @@
 
 #include "log.h"
 #include "err_codes.h"
-#include "message_queues.h"
 #include "ipc_api.h"
 #include "s6a_fd.h"
 #include "s6a.h"
