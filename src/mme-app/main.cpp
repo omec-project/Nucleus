@@ -1,0 +1,141 @@
+/*
+ * Copyright (c) 2019, Infosys Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+#include <iostream>
+#include <pthread.h>
+#include <thread>
+#include <string.h>
+#include <sys/stat.h>
+
+#include <blockingCircularFifo.h>
+#include <msgBuffer.h>
+#include "err_codes.h"
+#include <interfaces/mmeIpcInterface.h>
+#include <mmeStates/stateFactory.h>
+#include "mme_app.h"
+#include "msgType.h"
+#include "stateMachineEngine.h"
+#include <sys/types.h>
+#include "mmeThreads.h"
+#include "log.h"
+#include "json_data.h"
+
+using namespace std;
+using namespace mme;
+
+/*********************************************************
+ *
+ * Circular FIFOs for sender IPC and Reader IPC threads
+ *
+ **********************************************************/
+cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcIngressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcEgressFifo_g;
+
+/*********************************************************
+ *
+ * Externs
+ *
+ **********************************************************/
+extern "C"
+{
+#include "thread_pool.h"
+int init_sock();
+}
+
+extern void init_backtrace();
+extern void init_parser(char *path);
+extern int parse_mme_conf(mme_config *config);
+extern void* RunServer(void * data);
+
+extern char processName[255];
+extern int pid;
+int g_unix_fd = 0;
+struct thread_pool *g_tpool;
+pthread_t acceptUnix_t;
+
+mme_config g_mme_cfg;
+pthread_t stage_tid[5];
+
+MmeIpcInterface* mmeIpcIf_g = NULL;
+
+void setThreadName(std::thread* thread, const char* threadName)
+{
+   	auto handle = thread->native_handle();
+	pthread_setname_np(handle,threadName);
+}
+
+void mme_parse_config(mme_config *config)
+{
+    /*Read MME configurations*/
+    init_parser("conf/mme.json");
+    parse_mme_conf(config);
+    /* Lets apply logging setting */
+    set_logging_level(config->logging);
+}
+
+int main(int argc, char *argv[])
+{
+	memcpy (processName, argv[0], strlen(argv[0]));
+	pid = getpid();
+	
+	init_backtrace();
+	srand(time(0));
+
+	StateFactory::Instance()->initialize();
+
+	mmeIpcIf_g = new MmeIpcInterface();
+	mmeIpcIf_g->setup();
+
+	mme_parse_config(&g_mme_cfg);
+
+	register_config_updates();
+
+	MmeIngressIpcProducerThread ipcReader;
+	std::thread t1(ipcReader);
+	setThreadName(&t1, "IpcReader");
+	t1.detach();
+
+	MmeIngressIpcConsumerThread msgHandlerThread;
+	std::thread t2(msgHandlerThread);
+	setThreadName(&t2, "MMEMsgHandlerThread");
+	t2.detach();
+
+	MmeEgressIpcConsumerThread ipcWriter;
+	std::thread t3(ipcWriter);
+	setThreadName(&t3, "IpcWriter");
+	t3.detach();
+
+	// start gRPC server
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_create(&stage_tid[0], &attr, &RunServer, NULL);
+	pthread_attr_destroy(&attr);
+
+    /*if (init_sock() != SUCCESS)
+    {
+        log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
+        return -E_FAIL_INIT;
+    }*/
+
+	while(1)
+	{
+		SM::StateMachineEngine::Instance()->run();
+	}
+
+	return 0;
+}

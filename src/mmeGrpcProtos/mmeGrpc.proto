@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package mmeGrpc;
+
+service MmeGrpcCli 
+{
+	rpc GetUeContext(UeContextReqBuf) returns(UeContextRespBuf) {}
+	rpc GetDebugUeContext(UeContextReqBuf) returns(EventInfoRespBuf) {}
+	rpc GetProcStats(Empty) returns(ProcedureStatsRespBuf) {}
+	rpc ShowAllMobileContexts(Empty) returns(stream UeContextRespBuf) {}
+
+}
+
+message UeContextReqBuf 
+{
+	int32 id = 1;
+}
+
+message UeContextRespBuf 
+{
+        string		IMSI = 1;
+	string		MSISDN = 2;
+	string		TAI = 3;
+	string		EUTRAN_CGI = 4;
+	uint32		CONTEXT_ID = 5;
+	int32		ENB_UE_S1AP_ID = 6;
+	string          UE_STATE = 7;
+	
+	message SessionContextRespBuf 
+	{
+		string		APN = 1;
+		string		PDN_ADDRESS = 2;
+		uint32		BEARER_ID = 3;
+		string		S11_SGW_GTPC_TEID = 4;
+		string		S5_PGW_GTPC_TEID = 5;
+		string		S1U_ENB_TEID = 6;
+		string		S1U_SGW_TEID = 7;
+		string		S5U_PGW_TEID = 8;
+	}
+	
+	repeated SessionContextRespBuf SessionContext = 8;
+}
+
+message EventInfoRespBuf
+{
+	string UE_STATE = 1;
+
+	message EventInfoBuf
+	{
+		string          EVENT = 1;
+		string          STATE = 2;
+		string          TIME = 3;
+	}
+
+       repeated EventInfoBuf EventInfo = 2;
+}
+
+message ProcedureStatsRespBuf
+{
+	uint32 num_of_air_sent = 1;
+	uint32 num_of_ulr_sent = 2;
+	uint32 num_of_processed_aia = 3;
+	uint32 num_of_processed_ula = 4;
+	uint32 num_of_auth_req_to_ue_sent = 5;
+	uint32 num_of_processed_auth_response = 6;
+	uint32 num_of_sec_mode_cmd_to_ue_sent = 7;
+	uint32 num_of_processed_sec_mode_resp = 8;
+	uint32 num_of_esm_info_req_to_ue_sent = 9;
+	uint32 num_of_handled_esm_info_resp = 10;
+	uint32 num_of_cs_req_to_sgw_sent = 11;
+	uint32 num_of_processed_cs_resp = 12;
+	uint32 num_of_init_ctxt_req_to_ue_sent = 13;
+	uint32 num_of_processed_init_ctxt_resp = 14;
+	uint32 num_of_mb_req_to_sgw_sent = 15;
+	uint32 num_of_processed_attach_cmp_from_ue = 16;
+	uint32 num_of_processed_mb_resp = 17;
+	uint32 num_of_attach_done = 18;
+	uint32 num_of_del_session_req_sent = 19;
+	uint32 num_of_purge_req_sent = 20;
+	uint32 num_of_processed_del_session_resp = 21;
+	uint32 num_of_processed_pur_resp = 22;
+	uint32 num_of_detach_accept_to_ue_sent = 23;
+	uint32 num_of_processed_detach_accept = 24;
+	uint32 num_of_ue_ctxt_release = 25;
+	uint32 num_of_processed_ctxt_rel_resp = 26;
+	uint32 num_of_subscribers_attached =27;
+	uint32 num_of_rel_access_bearer_req_sent =28;
+	uint32 num_of_rel_access_bearer_resp_received =29;
+	uint32 num_of_s1_rel_req_received =30;
+	uint32 num_of_s1_rel_cmd_sent =31;
+	uint32 num_of_s1_rel_comp_received =32;
+	uint32 num_of_clr_received =33;
+	uint32 num_of_cla_sent =34;
+	uint32 num_of_detach_req_to_ue_sent =35;
+	uint32 num_of_detach_accept_from_ue =36;
+	uint32 total_num_of_subscribers =37;
+	uint32 num_of_subscribers_detached =38;
+	uint32 num_of_tau_response_to_ue_sent =39;
+
+	
+}
+
+message Empty
+{
+}
