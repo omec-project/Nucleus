@@ -26,7 +26,7 @@ typedef uint32_t MmeErrorCause;
 
 const MmeErrorCause noError_c = 0x00;
 const MmeErrorCause ueContextNotFound_c = 0x01;
-
+const MmeErrorCause secModeRespFailure_c = 0x02;
 }
 
 #endif /* INCLUDE_MME_APP_UTILS_MMECAUSETYPES_H_ */

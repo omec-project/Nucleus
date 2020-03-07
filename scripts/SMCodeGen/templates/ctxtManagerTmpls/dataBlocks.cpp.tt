@@ -71,7 +71,7 @@ namespace mme
 	/******************************************************************************
 	* returns [% Data.Name %]Len
 	******************************************************************************/	
-	uint8_t [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]Len() const
+	uint16_t [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]Len() const
 	{
 		return [% Data.Name %]Len_m;
 	}

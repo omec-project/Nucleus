@@ -177,6 +177,7 @@ static constexpr const char* Events[] =
 
 enum Action_e
 {
+    ABORT_ATTACH,
     ABORT_SERVICE_REQ_PROCEDURE,
     ATTACH_DONE,
     AUTH_REQ_TO_UE,
@@ -212,6 +213,7 @@ enum Action_e
     PROCESS_ULA,
     SEC_MODE_CMD_TO_UE,
     SEND_AIR_TO_HSS,
+    SEND_ATTACH_REJECT,
     SEND_AUTH_REJECT,
     SEND_DDN_ACK_TO_SGW,
     SEND_ESM_INFO_REQ_TO_UE,
@@ -224,6 +226,7 @@ enum Action_e
     SEND_REL_AB_REQ_TO_SGW,
     SEND_S1_REL_CMD_TO_UE,
     SEND_S1_REL_CMD_TO_UE_FOR_DETACH,
+    SEND_SERVICE_REJECT,
     SEND_TAU_RESPONSE_TO_UE,
     SEND_ULR_TO_HSS,
     VALIDATE_IMSI_IN_UE_CONTEXT,
@@ -232,6 +235,7 @@ enum Action_e
 
 static constexpr const char* Actions[] =
 {
+    "ABORT_ATTACH",
     "ABORT_SERVICE_REQ_PROCEDURE",
     "ATTACH_DONE",
     "AUTH_REQ_TO_UE",
@@ -267,6 +271,7 @@ static constexpr const char* Actions[] =
     "PROCESS_ULA",
     "SEC_MODE_CMD_TO_UE",
     "SEND_AIR_TO_HSS",
+    "SEND_ATTACH_REJECT",
     "SEND_AUTH_REJECT",
     "SEND_DDN_ACK_TO_SGW",
     "SEND_ESM_INFO_REQ_TO_UE",
@@ -279,6 +284,7 @@ static constexpr const char* Actions[] =
     "SEND_REL_AB_REQ_TO_SGW",
     "SEND_S1_REL_CMD_TO_UE",
     "SEND_S1_REL_CMD_TO_UE_FOR_DETACH",
+    "SEND_SERVICE_REJECT",
     "SEND_TAU_RESPONSE_TO_UE",
     "SEND_ULR_TO_HSS",
     "VALIDATE_IMSI_IN_UE_CONTEXT",

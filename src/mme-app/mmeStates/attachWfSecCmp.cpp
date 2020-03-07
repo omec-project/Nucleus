@@ -58,4 +58,11 @@ void AttachWfSecCmp::initialize()
                 actionTable.setNextState(AttachWfEsmInfoCheck::Instance());
                 eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SEC_MODE_RESP_FROM_UE, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ABORT_EVENT, actionTable));
+        }
 }

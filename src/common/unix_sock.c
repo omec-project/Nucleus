@@ -37,7 +37,7 @@ extern int g_unix_fd;
 extern pthread_t acceptUnix_t;
 extern struct thread_pool *g_tpool;
 
-extern JobFunction monitorConfigFunc_fpg;
+JobFunction monitorConfigFunc_fpg;
 
 /**
  * @brief Initialize listen socket connection 

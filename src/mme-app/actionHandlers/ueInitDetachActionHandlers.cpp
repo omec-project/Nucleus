@@ -1,7 +1,5 @@
 /*
- * Copyright 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Infosys Limited
- * Copyright 2017 Intel Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -192,7 +190,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	mmCtxt->setEcmState( ecmIdle_c );
 
 	log_msg(LOG_DEBUG, "Leaving send_detach_accept for UE \n");
-
+	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_detach_accept_to_ue_sent ++;
 	ProcedureStats::num_of_subscribers_attached --;
 

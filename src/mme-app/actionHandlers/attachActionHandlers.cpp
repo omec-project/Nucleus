@@ -1,7 +1,5 @@
 /*
- * Copyright 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Infosys Limited
- * Copyright 2017 Intel Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -477,6 +475,13 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
+	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        if (procedure_p == NULL)
+        {
+                log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
+                return ActStatus::HALT;
+        }
+
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
@@ -495,6 +500,8 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	else
 	{
 		log_msg(LOG_INFO, "Sec mode failed. UE %d", ue_ctxt->getContextID());
+		//procedure_p->setMmeErrorCause(secModeRespFailure_c);
+		return ActStatus::ABORT;
 	}
 
 	ProcedureStats::num_of_processed_sec_mode_resp ++;
@@ -693,8 +700,10 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	memcpy(&(cs_msg.apn), &(apnName.apnname_m), sizeof(struct apn_name));
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
-	memcpy(&(cs_msg.pco_options[0]), procCtxt->getPcoOptions(),sizeof(cs_msg.pco_options));
-
+	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
+	if(procCtxt->getPcoOptionsLen() > 0){
+		memcpy(&(cs_msg.pco_options[0]), procCtxt->getPcoOptions(),cs_msg.pco_length);
+	}
 	const AMBR& ambr = ue_ctxt->getAmbr().ambr_m;
 
 	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl;
@@ -1020,4 +1029,43 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
 	return ActStatus::PROCEED;
+}
+
+ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
+{
+        UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+        if (ueCtxt_p == NULL)
+        {
+                log_msg(LOG_ERROR, " send_attach_reject: UE context is NULL %d\n",cb.getCBIndex());
+                return ActStatus::HALT;
+        }
+
+        MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        if (procCtxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
+                return ActStatus::HALT;
+        }
+        
+        struct commonRej_info attach_rej;
+
+        attach_rej.msg_type = attach_reject;
+        attach_rej.ue_idx = ueCtxt_p->getContextID();
+        attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
+        attach_rej.enb_fd = ueCtxt_p->getEnbFd();
+        attach_rej.cause = emmCause_ue_id_not_derived_by_network;
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+        mmeIpcIf_g->dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
+
+        ProcedureStats::num_of_attach_reject_sent ++;
+
+        return ActStatus::PROCEED;
+}
+
+ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
+{
+	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    	return ActStatus::PROCEED;
 }

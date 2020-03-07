@@ -101,7 +101,7 @@ struct ue_attach_info {
     guti mi_guti;
     unsigned char seq_no;
     unsigned char dns_present;
-	uint8_t pco_length;
+    uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 	
 };
@@ -240,7 +240,7 @@ struct init_ctx_req_Q_msg {
 	int enb_fd;
 	unsigned char pti;
 	unsigned int m_tmsi;
-	uint8_t pco_length;
+	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 
@@ -351,7 +351,7 @@ struct CS_Q_msg {
 	unsigned char MSISDN[MSISDN_STR_LEN];
 	unsigned int max_requested_bw_dl;
 	unsigned int max_requested_bw_ul;
-	uint8_t pco_length;
+	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 #define S11_CSREQ_STAGE5_BUF_SIZE sizeof(struct CS_Q_msg)
@@ -413,7 +413,7 @@ struct csr_Q_msg {
     struct fteid s1u_sgw_fteid;
     struct fteid s5s8_pgwu_fteid;
     struct PAA pdn_addr;
-    uint8_t pco_length;
+    uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 

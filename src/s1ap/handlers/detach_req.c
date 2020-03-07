@@ -65,7 +65,7 @@ detach_stage1_handler(struct proto_IE *detach_ies, bool retransmit)
                 }break;
             case S1AP_IE_NAS_PDU:
                 {
-		   req.msg_data.detachReq_Q_msg_m.ue_m_tmsi = ntohl(detach_ies->data[i].val.nas.elements[0].pduElement.mi_guti.m_TMSI);
+		   req.msg_data.detachReq_Q_msg_m.ue_m_tmsi = detach_ies->data[i].val.nas.elements[0].pduElement.mi_guti.m_TMSI;
                 }break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE");

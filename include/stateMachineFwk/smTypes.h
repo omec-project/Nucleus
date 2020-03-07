@@ -32,6 +32,7 @@ enum ActStatus
 {
 	PROCEED,
 	HALT,
+	ABORT
 };
 
 enum ControlBlockState

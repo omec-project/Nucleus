@@ -39,8 +39,8 @@ namespace SM
 		ActStatus rt = PROCEED;
 		for(auto it = actionsQ.begin(); it != actionsQ.end(); it++)
 		{
-			ActStatus ret = (*it)(cb);
-			if(PROCEED != ret)
+			rt = (*it)(cb);
+			if(PROCEED != rt)
 			{
 				// TODO: error handling
 				break;

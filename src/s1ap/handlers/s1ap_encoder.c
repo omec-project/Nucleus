@@ -93,15 +93,15 @@ int s1ap_mme_encode_service_rej(
 
     log_msg(LOG_DEBUG, "Encode Serivce Rej");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
-    pdu.choice.initiatingMessage = (InitiatingMessage_t*)malloc(sizeof(InitiatingMessage_t));
+    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
     if(pdu.choice.initiatingMessage == NULL)
     {
-        log_msg(LOG_ERROR,"malloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.\n");
         return -1;
     }
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
-    initiating_msg->criticality = 0;
+    initiating_msg->criticality = 1;
     initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
     //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
             
@@ -120,7 +120,7 @@ int s1ap_mme_encode_service_rej(
     log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
     val[2].id = ProtocolIE_ID_id_NAS_PDU;
-    val[2].criticality = 1;
+    val[2].criticality = 0;
     val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
 
@@ -136,12 +136,11 @@ int s1ap_mme_encode_service_rej(
 
 	buffer_copy(&g_nas_buffer, &message_type, sizeof(message_type));
 
-    value = 0x09; // UE identity can not be derived by the network
+    value = s1apPDU->emm_cause; // UE identity can not be derived by the network
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
     val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
-    val[2].value.choice.NAS_PDU.buf = (uint8_t*)malloc(
-                                        sizeof(uint8_t)*(g_nas_buffer.pos));
+    val[2].value.choice.NAS_PDU.buf = calloc(g_nas_buffer.pos, sizeof(uint8_t));
 
     if(val[2].value.choice.NAS_PDU.buf != NULL)
     {
@@ -184,15 +183,15 @@ int s1ap_mme_encode_attach_rej(
 
     log_msg(LOG_DEBUG, "Encode Attach Reject");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
-    pdu.choice.initiatingMessage = (InitiatingMessage_t*)malloc(sizeof(InitiatingMessage_t));
+    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
     if(pdu.choice.initiatingMessage == NULL)
     {
-        log_msg(LOG_ERROR,"malloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.\n");
         return -1;
     }
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
-    initiating_msg->criticality = 0;
+    initiating_msg->criticality = 1;
     initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
     //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
             
@@ -211,7 +210,7 @@ int s1ap_mme_encode_attach_rej(
     log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
     val[2].id = ProtocolIE_ID_id_NAS_PDU;
-    val[2].criticality = 1;
+    val[2].criticality = 0;
     val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
 
@@ -231,8 +230,7 @@ int s1ap_mme_encode_attach_rej(
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
     val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
-    val[2].value.choice.NAS_PDU.buf = (uint8_t*)malloc(
-                                        sizeof(uint8_t)*(g_nas_buffer.pos));
+    val[2].value.choice.NAS_PDU.buf = (uint8_t*)calloc(g_nas_buffer.pos, sizeof(uint8_t));
 
     if(val[2].value.choice.NAS_PDU.buf != NULL)
     {
@@ -578,7 +576,7 @@ int s1ap_mme_encode_paging_request(
     pagingId.choice.s_TMSI = calloc(sizeof(struct S_TMSI), sizeof(uint8_t));
     if(pagingId.choice.s_TMSI == NULL)
     {
-        log_msg(LOG_ERROR,"malloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.\n");
         free(pdu.choice.initiatingMessage);
         return -1;
     }
@@ -586,7 +584,7 @@ int s1ap_mme_encode_paging_request(
     pagingId.choice.s_TMSI->mMEC.buf = calloc(1, sizeof(uint8_t));
     if(NULL == pagingId.choice.s_TMSI->mMEC.buf)
     {
-        log_msg(LOG_ERROR,"malloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.\n");
         free(pdu.choice.initiatingMessage);
         free(pagingId.choice.s_TMSI);
         return -1;
@@ -598,7 +596,7 @@ int s1ap_mme_encode_paging_request(
     pagingId.choice.s_TMSI->m_TMSI.buf = calloc(sizeof(uint32_t), sizeof(uint8_t));
     if(NULL == pagingId.choice.s_TMSI->m_TMSI.buf)
     {
-        log_msg(LOG_ERROR,"malloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.\n");
         free(pdu.choice.initiatingMessage);
         free(pagingId.choice.s_TMSI);
         free(pagingId.choice.s_TMSI->mMEC.buf);
