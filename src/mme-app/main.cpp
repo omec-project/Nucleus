@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	pthread_create(&stage_tid[0], &attr, &RunServer, NULL);
 	pthread_attr_destroy(&attr);
 
-	JobFunction monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
+	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
     /*if (init_sock() != SUCCESS)
     {
