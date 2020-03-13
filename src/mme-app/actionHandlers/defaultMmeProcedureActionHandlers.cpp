@@ -314,7 +314,6 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 	}
 	
 	mmCtxt->setEcmState(ecmConnected_c);
-	log_msg(LOG_INFO, "value of enbid %d\n",msgData_p->s1ap_enb_ue_id);
 	
 	svcReqProc_p->setCtxtType(ProcedureType::serviceRequest_c);
 	svcReqProc_p->setNextState(ServiceRequestStart::Instance());

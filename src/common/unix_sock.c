@@ -184,6 +184,9 @@ accept_unix(void *data)
 
 void dummy_monitor_fn(void* msg)
 {
-   log_msg(LOG_DEBUG, "Do nothing\n");
+   log_msg(LOG_ERROR, "Unix IPC Socket callback "
+                      "not registered by the application!\n");
+   
+   pthread_exit(NULL);
 }
 

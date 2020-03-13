@@ -500,7 +500,7 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	else
 	{
 		log_msg(LOG_INFO, "Sec mode failed. UE %d", ue_ctxt->getContextID());
-		//procedure_p->setMmeErrorCause(secModeRespFailure_c);
+		procedure_p->setMmeErrorCause(secModeRespFailure_c);
 		return ActStatus::ABORT;
 	}
 

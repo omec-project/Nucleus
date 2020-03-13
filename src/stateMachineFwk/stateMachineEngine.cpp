@@ -53,16 +53,14 @@ namespace SM
             return procQ_m.push(cb);
 	}
 
-        ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock* cb, State *currentState_p, Event& currentEvent)
-	{
-		log_msg(LOG_DEBUG,"In handleProcedureEvent()\n");
-		time_t mytime = time(NULL);
-                debugEventInfo dEventInfo(currentEvent.getEventId(), currentState_p->getStateId(), mytime);
-                cb->addDebugInfo(dEventInfo);
+    ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent)
+    {
+        time_t mytime = time(NULL);
+        debugEventInfo dEventInfo(currentEvent.getEventId(), currentState.getStateId(), mytime);
+        cb.addDebugInfo(dEventInfo);
 
-                return currentState_p->executeActions(currentEvent.getEventId(),*cb);
-
-	}
+        return currentState.executeActions(currentEvent.getEventId(),cb);
+    }
 
 	void StateMachineEngine::run()
 	{
@@ -100,18 +98,14 @@ namespace SM
 				break;
 			}
 
-			log_msg(LOG_DEBUG,
-					"################ Executing actions for event: %s and State: %s #################\n",
-					 Events[currentEvent.getEventId()], States[currentState_p->getStateId()]);
-
-			
-			ActStatus ret = handleProcedureEvent(cb, currentState_p, currentEvent);
+						
+			ActStatus ret = handleProcedureEvent(*cb, *currentState_p, currentEvent);
 
 			if (ret == ABORT)
 			{
 				log_msg(LOG_INFO,"Abort Event Initiated \n");
 				Event abortEvent(ABORT_EVENT,NULL);
-				ret = handleProcedureEvent(cb, currentState_p, abortEvent);
+				ret = handleProcedureEvent(*cb, *currentState_p, abortEvent);
 			}
 
                         if (event_data != NULL)

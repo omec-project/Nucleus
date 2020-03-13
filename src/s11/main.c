@@ -94,7 +94,7 @@ void * tipc_msg_handler_s11()
 			log_msg(LOG_INFO, "S11 message received from mme-app, bytesRead %d", bytesRead);
 			insert_job(g_tpool_tipc_reader_s11, handle_mmeapp_message_s11, tmpBuf);
 		}
-		memset(buffer, 0 , S11_IPC_MSG_BUF_LEN);
+		
 		bytesRead = 0;
 	}
 }

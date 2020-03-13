@@ -94,11 +94,7 @@ int s1ap_mme_encode_service_rej(
     log_msg(LOG_DEBUG, "Encode Serivce Rej");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
-    if(pdu.choice.initiatingMessage == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        return -1;
-    }
+
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
@@ -184,11 +180,7 @@ int s1ap_mme_encode_attach_rej(
     log_msg(LOG_DEBUG, "Encode Attach Reject");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
-    if(pdu.choice.initiatingMessage == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        return -1;
-    }
+
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
@@ -275,11 +267,7 @@ int s1ap_mme_encode_ue_context_release_command(
 
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
-    if(pdu.choice.initiatingMessage == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        return -1;
-    }
+    
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_UEContextRelease;
     initiating_msg->criticality = 0;
@@ -392,11 +380,7 @@ int s1ap_mme_encode_initial_context_setup_request(
 
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc (sizeof(InitiatingMessage_t), sizeof(uint8_t));
-    if(pdu.choice.initiatingMessage == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        return -1;
-    }
+    
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_InitialContextSetup;
     initiating_msg->criticality = 0;
@@ -517,8 +501,6 @@ int s1ap_mme_encode_paging_request(
   uint8_t **buffer,
   uint32_t *length)
 {
-    log_msg(LOG_DEBUG,"Entered s1ap_encoder->s1ap_mme_encode_paging_request\n");
-
     S1AP_PDU_t pdu = {(S1AP_PDU_PR_NOTHING)};
     InitiatingMessage_t *initiating_msg = NULL;
     S1AP_PDU_t *pdu_p = &pdu;
@@ -527,12 +509,7 @@ int s1ap_mme_encode_paging_request(
 
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc (sizeof(InitiatingMessage_t), sizeof(uint8_t));
-    if(pdu.choice.initiatingMessage == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        return -1;
-    }
-
+   
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_Paging;
     initiating_msg->criticality = 0;
@@ -574,35 +551,14 @@ int s1ap_mme_encode_paging_request(
     UEPagingID_t pagingId;
     pagingId.present = UEPagingID_PR_s_TMSI;
     pagingId.choice.s_TMSI = calloc(sizeof(struct S_TMSI), sizeof(uint8_t));
-    if(pagingId.choice.s_TMSI == NULL)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        free(pdu.choice.initiatingMessage);
-        return -1;
-    }
-
+    
     pagingId.choice.s_TMSI->mMEC.buf = calloc(1, sizeof(uint8_t));
-    if(NULL == pagingId.choice.s_TMSI->mMEC.buf)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        free(pdu.choice.initiatingMessage);
-        free(pagingId.choice.s_TMSI);
-        return -1;
-    }
-
+    
     memcpy(pagingId.choice.s_TMSI->mMEC.buf, &g_s1ap_cfg.mme_code, sizeof(uint8_t));
     pagingId.choice.s_TMSI->mMEC.size = sizeof(uint8_t);
     
     pagingId.choice.s_TMSI->m_TMSI.buf = calloc(sizeof(uint32_t), sizeof(uint8_t));
-    if(NULL == pagingId.choice.s_TMSI->m_TMSI.buf)
-    {
-        log_msg(LOG_ERROR,"calloc failed.\n");
-        free(pdu.choice.initiatingMessage);
-        free(pagingId.choice.s_TMSI);
-        free(pagingId.choice.s_TMSI->mMEC.buf);
-        return -1;
-    }
-
+    
     uint32_t ue_idx = htonl(s1apPDU->ue_idx);
     memcpy(pagingId.choice.s_TMSI->m_TMSI.buf, &ue_idx, sizeof(uint32_t));
     pagingId.choice.s_TMSI->m_TMSI.size = sizeof(uint32_t);
