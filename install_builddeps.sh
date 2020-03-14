@@ -50,7 +50,7 @@ install_freediameter() {
 
 install_grpc() {
 	$SUDO rm -rf /tmp/grpc
-	git clone -b $(curl -L https://grpc.io/release) \
+	git clone -b v1.26.0 \
 	-q https://github.com/grpc/grpc /tmp/grpc
 	cd /tmp/grpc && \
 	git submodule update --init && \

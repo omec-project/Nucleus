@@ -77,9 +77,11 @@ handle_mmeapp_message(void * data)
 		tau_response_handler(msg);
 		break;
 	case attach_reject:
+		s1ap_reject_handler(msg);
+            	break;
 	case service_reject:
-	    s1ap_reject_handler(msg);
-	    break;
+	    	s1ap_reject_handler(msg);
+	    	break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

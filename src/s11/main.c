@@ -1,5 +1,6 @@
 /*
  * Copyright 2019-present Open Networking Foundation
+ * Copyright (c) 2019, Infosys Ltd.
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
  *
@@ -48,6 +49,7 @@ struct thread_pool *g_tpool_tipc_reader_s11;
 extern char processName[255];
 extern int pid;
 
+#define S11_IPC_MSG_BUF_LEN 1024
 
 void
 handle_mmeapp_message_s11(void * data)
@@ -82,17 +84,17 @@ handle_mmeapp_message_s11(void * data)
 void * tipc_msg_handler_s11()
 {
 	int bytesRead = 0;
-	unsigned char buffer[1024] = {0};
+	unsigned char buffer[S11_IPC_MSG_BUF_LEN] = {0};
 	while (1)
 	{
-		if ((bytesRead = read_tipc_msg(ipc_reader_tipc_s11, buffer, 1024)) > 0)
+		if ((bytesRead = read_tipc_msg(ipc_reader_tipc_s11, buffer, S11_IPC_MSG_BUF_LEN)) > 0)
 		{
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
 			log_msg(LOG_INFO, "S11 message received from mme-app, bytesRead %d", bytesRead);
 			insert_job(g_tpool_tipc_reader_s11, handle_mmeapp_message_s11, tmpBuf);
 		}
-		memset(buffer, 0 , 1024);
+		
 		bytesRead = 0;
 	}
 }

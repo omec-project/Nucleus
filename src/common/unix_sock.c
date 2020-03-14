@@ -37,7 +37,7 @@ extern int g_unix_fd;
 extern pthread_t acceptUnix_t;
 extern struct thread_pool *g_tpool;
 
-extern JobFunction monitorConfigFunc_fpg;
+JobFunction monitorConfigFunc_fpg = dummy_monitor_fn;
 
 /**
  * @brief Initialize listen socket connection 
@@ -171,8 +171,7 @@ accept_unix(void *data)
 				    memcpy(tmpBuf, &sd, sizeof(int));
 			            memcpy(tmpBuf + sizeof(int), buffer, valread);
 				    log_msg(LOG_DEBUG, "Received msg len : %d \n",valread);
-				    if (monitorConfigFunc_fpg != NULL)
-					    insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
+			        insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
 
 				}
 			}
@@ -181,5 +180,13 @@ accept_unix(void *data)
 	}/* while */
 
 	return NULL;
+}
+
+void dummy_monitor_fn(void* msg)
+{
+   log_msg(LOG_ERROR, "Unix IPC Socket callback "
+                      "not registered by the application!\n");
+   
+   pthread_exit(NULL);
 }
 

@@ -96,7 +96,8 @@ message ProcedureStatsRespBuf
 	uint32 total_num_of_subscribers =37;
 	uint32 num_of_subscribers_detached =38;
 	uint32 num_of_tau_response_to_ue_sent =39;
-
+	uint32 num_of_service_reject_sent = 40;
+	uint32 num_of_attach_reject_sent = 41;
 	
 }
 

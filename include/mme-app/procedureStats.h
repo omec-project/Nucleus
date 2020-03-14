@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019-present, Infosys Limited.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
 #ifndef PROCEDURE_STATS_H
 #define PROCEDURE_STATS_H
 namespace mme
@@ -47,7 +53,8 @@ namespace mme
 		static int num_of_service_request_received;
 		static int num_of_ddn_ack_sent;		
 		static int num_of_tau_response_to_ue_sent;
-		
+		static int num_of_service_reject_sent;
+		static int num_of_attach_reject_sent;		
 
         };
 };

@@ -36,7 +36,6 @@ extern "C"
 #include <unix_conn.h>
 }
 
-JobFunction monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
 using namespace mme;
 

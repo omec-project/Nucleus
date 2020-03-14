@@ -62,8 +62,6 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf_g->dispatchIpcMsg((char *) &ni_detach_req, sizeof(ni_detach_req), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving ni_detach_req_to_ue \n");
-
-	ProcedureStats::num_of_clr_received ++;
 	ProcedureStats::num_of_detach_req_to_ue_sent ++;
 
 	return ActStatus::PROCEED;
@@ -84,8 +82,6 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
 	
 	log_msg(LOG_DEBUG, "Leaving process_detach_accept_from_ue \n");
-
-	ProcedureStats::num_of_cla_sent ++;
 	ProcedureStats::num_of_detach_accept_from_ue ++;
 
 	return ActStatus::PROCEED;
@@ -154,7 +150,8 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     else
     {
     	mmCtxt->setMmState( EpsDetached );
-	mmCtxt->setEcmState( ecmIdle_c );
+        mmCtxt->setEcmState( ecmIdle_c );
+	    ueCtxt->setS1apEnbUeId(0);
     	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
     }
 

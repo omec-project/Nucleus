@@ -20,4 +20,5 @@
 void parse_args(int argc, char **argv);
 void log_buffer_free(char** buffer);
 void convert_imsi_to_bcd_str(uint8_t *src, uint8_t* dest); 
+
 #endif /* OPTIONS_H_ */
