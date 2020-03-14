@@ -33,9 +33,11 @@
 #include "mmeThreads.h"
 #include "log.h"
 #include "json_data.h"
+#include "monitorSubscriber.h"
 
 using namespace std;
 using namespace mme;
+
 
 /*********************************************************
  *
@@ -56,6 +58,7 @@ extern "C"
 int init_sock();
 }
 
+extern JobFunction monitorConfigFunc_fpg;
 extern void init_backtrace();
 extern void init_parser(char *path);
 extern int parse_mme_conf(mme_config *config);
@@ -125,6 +128,8 @@ int main(int argc, char *argv[])
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	pthread_create(&stage_tid[0], &attr, &RunServer, NULL);
 	pthread_attr_destroy(&attr);
+
+	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
     /*if (init_sock() != SUCCESS)
     {

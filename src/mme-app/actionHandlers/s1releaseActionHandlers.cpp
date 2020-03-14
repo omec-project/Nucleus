@@ -149,7 +149,7 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
 
 
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
-
+	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_s1_rel_comp_received++;
 
     	log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp \n");

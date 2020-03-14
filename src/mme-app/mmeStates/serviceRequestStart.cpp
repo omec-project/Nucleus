@@ -53,7 +53,6 @@ void ServiceRequestStart::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_service_request);
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
                 actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
                 eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SERVICE_REQUEST_FROM_UE, actionTable));

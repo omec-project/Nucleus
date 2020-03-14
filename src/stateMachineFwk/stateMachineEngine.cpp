@@ -53,8 +53,18 @@ namespace SM
             return procQ_m.push(cb);
 	}
 
+    ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent)
+    {
+        time_t mytime = time(NULL);
+        debugEventInfo dEventInfo(currentEvent.getEventId(), currentState.getStateId(), mytime);
+        cb.addDebugInfo(dEventInfo);
+
+        return currentState.executeActions(currentEvent.getEventId(),cb);
+    }
+
 	void StateMachineEngine::run()
 	{
+		
 		ControlBlock* cb = procQ_m.pop();
 
 		if(cb == NULL)
@@ -74,35 +84,36 @@ namespace SM
 				break;
 			}
 
+			void * event_data = currentEvent.getEventData();
+
 			State *currentState_p = cb->getCurrentState();
 			if (currentState_p == NULL)
 			{
 				log_msg(LOG_INFO, "Current state is NULL"
 						" for control block idx %d\n", cb->getCBIndex());
 
-				// TODO: free event msg data or cleaner handling
+				if (event_data != NULL)
+					delete static_cast <cmn::utils::MsgBuffer *>(event_data);
 
-				break;;
+				break;
 			}
 
-			log_msg(LOG_DEBUG,
-					"################ Executing actions for event: %s and State: %s #################\n",
-					 Events[currentEvent.getEventId()], States[currentState_p->getStateId()]);
+						
+			ActStatus ret = handleProcedureEvent(*cb, *currentState_p, currentEvent);
 
-			time_t mytime = time(NULL);
-			debugEventInfo dEventInfo(currentEvent.getEventId(), currentState_p->getStateId(), mytime);
-			cb->addDebugInfo(dEventInfo);
-
-			ActStatus ret = currentState_p->executeActions(currentEvent.getEventId(),*cb);
-			if(PROCEED != ret)
+			if (ret == ABORT)
 			{
-				// TODO: Error Handling, do not process further events for now
-				break;;
+				log_msg(LOG_INFO,"Abort Event Initiated \n");
+				Event abortEvent(ABORT_EVENT,NULL);
+				ret = handleProcedureEvent(*cb, *currentState_p, abortEvent);
 			}
 
-			void * event_data = currentEvent.getEventData();
-			if (event_data != NULL)
-				delete static_cast <cmn::utils::MsgBuffer *>(event_data);
+                        if (event_data != NULL)
+                                delete static_cast <cmn::utils::MsgBuffer *>(event_data);
+
+			if (ret == HALT)
+				break;			
+
 		}
 
 		if (cb->getControlBlockState() == ALLOCATED)

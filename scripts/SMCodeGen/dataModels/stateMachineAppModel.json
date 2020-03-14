@@ -94,7 +94,7 @@
                                 "NextState":"attach_wf_identity_response"
                             }
                         ]
-                    },					
+                    },
                     {
                         "Name":"attach_wf_aia",
                         "Events":[
@@ -169,6 +169,15 @@
                                     "CHECK_ESM_INFO_REQ_REQUIRED"
                                 ],
                                 "NextState":"attach_wf_esm_info_check"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -216,7 +225,7 @@
                                 "NextState":"attach_wf_cs_resp"
                             }
                         ]
-                    },					
+                    },
                     {
                         "Name":"attach_wf_cs_resp",
                         "Events":[
@@ -465,14 +474,13 @@
                                 "NextState":"service_request_wf_auth_response"
                             }
                         ]
-                    },					
+                    },
                     {
                         "Name":"service_request_start",
                         "Events":[
                             {
                                 "Name":"SERVICE_REQUEST_FROM_UE",
                                 "Actions":[
-                                    "PROCESS_SERVICE_REQUEST",
                                     "AUTH_REQ_TO_UE"
                                 ],
                                 "NextState":"service_request_wf_auth_response"
@@ -488,7 +496,7 @@
                                     "AUTH_RESPONSE_VALIDATE"
                                 ],
                                 "NextState":"service_request_wf_auth_resp_validate"
-                            }						
+                            }
                         ]
                     },
                     {
@@ -511,11 +519,11 @@
                             {
                                 "Name":"AUTH_RESP_FAILURE",
                                 "Actions":[
-								    "SEND_S1_REL_CMD_TO_UE",
-									"ABORT_SERVICE_REQ_PROCEDURE"
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
-                            }								
+                            }
                         ]
                     },
                     {
@@ -532,11 +540,12 @@
                             {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
-								    "SEND_S1_REL_CMD_TO_UE",
-									"ABORT_SERVICE_REQ_PROCEDURE"
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
-                            }								
+                            }
                         ]
                     },
                     {
@@ -551,7 +560,7 @@
                                 "NextState":"service_request_wf_auth_response"
                             }
                         ]
-                    },					
+                    },
                     {
                         "Name":"service_request_wf_init_ctxt_resp",
                         "Events":[

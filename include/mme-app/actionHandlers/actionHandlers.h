@@ -48,6 +48,11 @@ namespace mme
         public:
 
         /**********************************************
+        * Action handler : abort_attach
+        ***********************************************/
+        static SM::ActStatus abort_attach(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_service_req_procedure
         ***********************************************/
         static SM::ActStatus abort_service_req_procedure(SM::ControlBlock& cb);                
@@ -223,6 +228,11 @@ namespace mme
         static SM::ActStatus send_air_to_hss(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_attach_reject
+        ***********************************************/
+        static SM::ActStatus send_attach_reject(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_auth_reject
         ***********************************************/
         static SM::ActStatus send_auth_reject(SM::ControlBlock& cb);                
@@ -281,6 +291,11 @@ namespace mme
         * Action handler : send_s1_rel_cmd_to_ue_for_detach
         ***********************************************/
         static SM::ActStatus send_s1_rel_cmd_to_ue_for_detach(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_service_reject
+        ***********************************************/
+        static SM::ActStatus send_service_reject(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_tau_response_to_ue

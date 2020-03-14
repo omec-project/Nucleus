@@ -20,6 +20,7 @@
 #include <map>
 #include "smTypes.h"
 #include "procedureQueue.h"
+#include "event.h"
 
 namespace SM
 {
@@ -31,7 +32,7 @@ namespace SM
 		static StateMachineEngine* Instance();
 	    void run();
       	bool addCBToProcQ(ControlBlock* cb);
-	
+        ActStatus handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent);	
    	private:
 		StateMachineEngine();
 
