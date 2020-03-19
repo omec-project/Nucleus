@@ -217,7 +217,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
     log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
     if(g_csReqInfo->pco_length > 0)
     {
-        msgData.protocolConfigurationOptionsIePresent = false;
+        msgData.protocolConfigurationOptionsIePresent = true;
         msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
         memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
     }

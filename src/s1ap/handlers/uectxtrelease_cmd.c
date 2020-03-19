@@ -31,24 +31,7 @@
 #include "msgType.h"
 
 
-/*static int
-get_uectxtrelcmd_protoie_value(struct proto_IE *value, struct s1relcmd_info *g_uectxtrelcmd)
-{
-	//uint8_t ieCnt = 0;
 
-	value->no_of_IEs = UE_CTX_RELEASE_NO_OF_IES;
-
-	value->data = (proto_IEs *) malloc(UE_CTX_RELEASE_NO_OF_IES *
-			sizeof(proto_IEs));
-
-	value->data[0].mme_ue_s1ap_id = g_uectxtrelcmd->ue_idx;
-	
-	value->data[1].enb_ue_s1ap_id = g_uectxtrelcmd->enb_s1ap_ue_id;
-	
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
-					g_uectxtrelcmd->ue_idx,g_uectxtrelcmd->enb_s1ap_ue_id);
-	return SUCCESS;
-}*/
 
 /**
 * Stage specific message processing.

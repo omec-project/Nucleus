@@ -44,7 +44,8 @@ namespace mme
             ueSecInfo_m(),
             ambr_m(),
             aiaSecInfo_m(),
-            mTmsi_m(0),MmContext_mp(NULL),SessionContext_mp(NULL)
+            mTmsi_m(0),
+            subscribedApn_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
 	
 	{	
 	}
@@ -375,22 +376,22 @@ namespace mme
 	{
 		return mTmsi_m;
 	}
-
-    /******************************************************************************
-    * sets subscribedApn
-    ******************************************************************************/
-    void UEContext::setSubscribedApn( const Apn_name& subscribedApn_i )
-    {
-        subscribedApn_m = subscribedApn_i;
-    }
-
-    /******************************************************************************
-    * returns subscribedApn
-    ******************************************************************************/
-    const Apn_name& UEContext::getSubscribedApn() const
-    {
-        return subscribedApn_m;
-    }
+	
+	/******************************************************************************
+	* sets subscribedApn
+	******************************************************************************/
+	void UEContext::setSubscribedApn( const Apn_name& subscribedApn_i )
+	{
+		subscribedApn_m = subscribedApn_i;
+	}
+	
+	/******************************************************************************
+	* returns subscribedApn
+	******************************************************************************/	
+	const Apn_name& UEContext::getSubscribedApn() const
+	{
+		return subscribedApn_m;
+	}
 	
 	/******************************************************************************
 	* sets MmContext
@@ -888,23 +889,23 @@ namespace mme
 	{
 		return auts_m;
 	}
-
-    /******************************************************************************
-    * sets requestedApn
-    ******************************************************************************/
-    void MmeProcedureCtxt::setRequestedApn( const Apn_name& requestedApn_i )
-    {
-        requestedApn_m = requestedApn_i;
-    }
-
-    /******************************************************************************
-    * returns requestedApn
-    ******************************************************************************/
-    const Apn_name& MmeProcedureCtxt::getRequestedApn() const
-    {
-        return requestedApn_m;
-    }
-
+	
+	/******************************************************************************
+	* sets requestedApn
+	******************************************************************************/
+	void MmeProcedureCtxt::setRequestedApn( const Apn_name& requestedApn_i )
+	{
+		requestedApn_m = requestedApn_i;
+	}
+	
+	/******************************************************************************
+	* returns requestedApn
+	******************************************************************************/	
+	const Apn_name& MmeProcedureCtxt::getRequestedApn() const
+	{
+		return requestedApn_m;
+	}
+	
 	/******************************************************************************
 	*******************************************************************************
 	*							MmeDetachProcedureCtxt

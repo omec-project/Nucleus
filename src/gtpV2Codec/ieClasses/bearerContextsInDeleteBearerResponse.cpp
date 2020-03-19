@@ -187,11 +187,12 @@ decodeBearerContextsInDeleteBearerResponse(MsgBuffer &buffer,
                          BearerContextsInDeleteBearerResponseData 
                          &data, Uint16 length)
 {
-
+    Uint16 groupedIeBoundary = length + buffer.getCurrentIndex();
     bool rc = false;
     GtpV2IeHeader ieHeader;
     set<Uint16> mandatoryIeLocalList = mandatoryIeSet;
-    while (buffer.lengthLeft() > IE_HEADER_SIZE)
+    while ((buffer.lengthLeft() > IE_HEADER_SIZE) &&
+                   (buffer.getCurrentIndex() < groupedIeBoundary))
     {
         GtpV2Ie::decodeGtpV2IeHeader(buffer, ieHeader);
         if (ieHeader.length > buffer.lengthLeft())

@@ -76,7 +76,7 @@ namespace mme
 			* get[% String.new(Data.Name).capital.text() %]Len
 			*    get [% Data.Name %]Len from [% dataBlockClassName %]
 			****************************************/
-			uint8_t get[% String.new(Data.Name).capital.text() %]Len()const;				
+			uint16_t get[% String.new(Data.Name).capital.text() %]Len()const;				
 [%- END %]			
 			[%- END %]
 			
@@ -102,7 +102,7 @@ namespace mme
 			[%-IF Data.Cardinality=='' %]
 			[% Data.Type %] [% Data.Name %]_m;
 			[%-ELSE%]
-			uint8_t [% Data.Name %]Len_m;
+			uint16_t [% Data.Name %]Len_m;
 			[% Data.Type %] [% Data.Name %]_m[[% Data.Cardinality %]];
 			[% END %]
 			[% END %]

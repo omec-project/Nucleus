@@ -60,3 +60,5 @@ int ProcedureStats::num_of_ddn_received = 0;
 int ProcedureStats::num_of_service_request_received = 0;
 int ProcedureStats::num_of_ddn_ack_sent = 0;
 int ProcedureStats::num_of_tau_response_to_ue_sent = 0;
+int ProcedureStats::num_of_service_reject_sent = 0;
+int ProcedureStats::num_of_attach_reject_sent = 0;

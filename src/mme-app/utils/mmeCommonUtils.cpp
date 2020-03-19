@@ -217,8 +217,9 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		case tau_request:
 		{
-			cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
-
+			if(msgData_p->ue_idx > 0)
+				cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
+			
 			if (cb == NULL)
 				log_msg(LOG_INFO, "Failed to retrieve CB using idx %d.\n", msgData_p->ue_idx);
 

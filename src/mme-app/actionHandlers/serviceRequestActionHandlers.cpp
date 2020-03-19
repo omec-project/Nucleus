@@ -35,6 +35,7 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
+//#include <utils/mmeCauseUtils.h>
 
 using namespace mme;
 using namespace SM;
@@ -93,9 +94,23 @@ ActStatus ActionHandlers::process_service_request(ControlBlock& cb)
 		log_msg(LOG_DEBUG, "process_service_request: ue ctxt is NULL \n");
 		return ActStatus::HALT;
 	}
-	
-	log_msg(LOG_DEBUG, "Leaving process_service_request \n");
+	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    	if (msgBuf == NULL)
+    	{
+        	log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        	return ActStatus::HALT;
+    	}
 
+    	const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    	if (msgData_p == NULL)
+    	{
+        	log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        	return ActStatus::HALT;
+    	}
+	
+	ue_ctxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
+	log_msg(LOG_DEBUG, "Leaving process_service_request \n");
 	ProcedureStats::num_of_service_request_received ++;
 
 	return ActStatus::PROCEED;
@@ -301,6 +316,46 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock& cb)
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
 
 	return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : send_service_reject
+***************************************/
+ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
+{
+  	log_msg(LOG_DEBUG, "Inside send_service_reject \n");
+        
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+        if (ue_ctxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "send_service_reject: ue context is NULL \n");
+                return ActStatus::HALT;
+        }
+
+	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	if (procCtxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "send_service_reject: procedure ctxt is NULL \n");
+                return ActStatus::HALT;
+        }
+
+        
+	struct commonRej_info service_rej;
+	
+	service_rej.msg_type = service_reject;
+	service_rej.ue_idx = ue_ctxt->getContextID(); 
+	service_rej.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
+	service_rej.enb_fd = ue_ctxt->getEnbFd();
+	service_rej.cause = emmCause_ue_id_not_derived_by_network;
+	
+	cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+        mmeIpcIf_g->dispatchIpcMsg((char *) &service_rej, sizeof(service_rej), destAddr);
+
+	ProcedureStats::num_of_service_reject_sent ++;
+
+        return ActStatus::PROCEED;
+
 }
 
 /***************************************

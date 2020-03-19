@@ -25,4 +25,7 @@
 
 void* accept_unix(void *data);
 int init_sock();
+
+// Dummy function callback used by unix socket
+void dummy_monitor_fn(void* message); 
 #endif
