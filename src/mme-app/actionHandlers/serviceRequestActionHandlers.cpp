@@ -26,7 +26,7 @@
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 #include "common_proc_info.h"
 #include <ipcTypes.h>
 #include <tipcTypes.h>
@@ -339,7 +339,6 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
                 return ActStatus::HALT;
         }
 
-        
 	struct commonRej_info service_rej;
 	
 	service_rej.msg_type = service_reject;

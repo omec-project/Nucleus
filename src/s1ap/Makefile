@@ -38,7 +38,8 @@ LIBS := -lpthread \
 	-lthreadpool \
 	-ljson \
 	-lasncodec \
-	-lsecutil
+	-lsecutil \
+	-lmonitor_config
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

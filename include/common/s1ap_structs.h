@@ -25,6 +25,7 @@
 #define AUTH_REQ_NO_OF_IES 3
 #define SEC_MODE_NO_OF_IES 3
 #define ESM_REQ_NO_OF_IES 3
+#define EMM_INFO_REQ_NO_OF_IES 3
 #define ICS_REQ_NO_OF_IES 6
 #define DTCH_ACCEPT_NO_OF_IES 3
 #define UE_CTX_RELEASE_NO_OF_IES 3
@@ -612,6 +613,7 @@ typedef enum s1apCauseMisc {
 
 typedef enum emmCause {
     emmCause_ue_id_not_derived_by_network   = 9,
+    emmCause_network_failure = 11
 } e_emmCause;
 
 /* s1apCauseMisc */
@@ -703,6 +705,7 @@ enum eps_nas_mesage_type {
 	AuthenticationRequest = 0x52,
     IdentityRequest       = 0x55,
 	SecurityModeCommand = 0x5d,
+    EMMInformation = 0x61,
 	ESMInformationRequest = 0xd9,
 };
 

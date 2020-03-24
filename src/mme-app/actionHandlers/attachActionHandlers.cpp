@@ -26,7 +26,7 @@
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 #include <cstring>
 #include <event.h>
 #include <ipcTypes.h>
@@ -35,6 +35,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <utils/mmeCauseUtils.h>
 
 using namespace SM;
 using namespace mme;
@@ -53,7 +54,7 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 
     if (ueCtxt_p->getImsi().isValid())
     {
-        SM::Event evt(Event_e::IMSI_VALIDATION_SUCCESS, NULL);
+        SM::Event evt(IMSI_VALIDATION_SUCCESS, NULL);
         cb.addEventToProcQ(evt);
     }
     else
@@ -61,7 +62,7 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
         // TODO: If known GUTI, IMSI_VALIDATION_FAILURE_KNOWN_GUTI to trigger id req to UE
         // If unknown GUTI, IMSI_VALIDATION_FAILURE_UNKNOWN_GUTI to query old mme
         // when s10 is supported in MME
-        SM::Event evt(Event_e::IMSI_VALIDATION_FAILURE, NULL);
+        SM::Event evt(IMSI_VALIDATION_FAILURE, NULL);
         cb.addEventToProcQ(evt);
     }
     return ActStatus::PROCEED;
@@ -234,12 +235,29 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
+    MmeProcedureCtxt *procedure_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procedure_p == NULL)
+    {
+        log_msg(LOG_DEBUG, "handle_aia: procedure context is NULL \n");
+        return ActStatus::HALT;
+    }
+
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
 		return ActStatus::HALT;
 
 	const s6_incoming_msg_data_t* msgData_p = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
+
+	if (msgData_p->msg_data.aia_Q_msg_m.res == S6A_AIA_FAILED)
+	{	
+		/* send attach reject and release UE */
+        log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
+        procedure_p->setMmeErrorCause(s6AiaFailure_c);
+        return ActStatus::ABORT;
+
+	}
 
 	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->msg_data.aia_Q_msg_m.sec));
 	
@@ -369,7 +387,7 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		if(auth_resp.auts.len == 0)
 		{
 			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n");
-			SM::Event evt(Event_e::AUTH_RESP_FAILURE,NULL);
+			SM::Event evt(AUTH_RESP_FAILURE,NULL);
         		controlBlk_p->addEventToProcQ(evt);
 		}
 		else
@@ -377,13 +395,13 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 			log_msg(LOG_INFO,"AUTS recvd.  Synch failure. send AIR\n");
 			procedure_p->setAuthRespStatus(auth_resp.status);
 			procedure_p->setAuts(Auts(auth_resp.auts));
-			SM::Event evt(Event_e::AUTH_RESP_SYNC_FAILURE,NULL);
+			SM::Event evt(AUTH_RESP_SYNC_FAILURE,NULL);
             		controlBlk_p->addEventToProcQ(evt);
 		}
 	}
 	else{
 		log_msg(LOG_INFO,"Auth response validation success. Proceeding to Sec mode Command\n");
-                SM::Event evt(Event_e::AUTH_RESP_SUCCESS,NULL);
+                SM::Event evt(AUTH_RESP_SUCCESS,NULL);
                 controlBlk_p->addEventToProcQ(evt);
 
 	}
@@ -549,21 +567,12 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	
 	if (procedure_p->getEsmInfoTxRequired() == false)
 	{
-		// hardcoding APN, if ESM info request is not to be sent
-		std::string apnName = "apn1";
-		struct apn_name apn = {0};
-		apn.len = apnName.length() + 1;
-		apn.val[0] = apnName.length();
-		memcpy(&(apn.val[1]), apnName.c_str(), apnName.length());
-
-		procedure_p->setRequestedApn(Apn_name(apn));
-        
-		SM::Event evt(Event_e::ESM_INFO_NOT_REQUIRED, NULL);
+		SM::Event evt(ESM_INFO_NOT_REQUIRED, NULL);
 		cb.addEventToProcQ(evt);
 	} 
 	else
 	{
-		SM::Event evt(Event_e::ESM_INFO_REQUIRED, NULL);
+		SM::Event evt(ESM_INFO_REQUIRED, NULL);
 		cb.addEventToProcQ(evt);
 	}
 	
@@ -997,8 +1006,47 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 ActStatus ActionHandlers::process_mb_resp(SM::ControlBlock& cb)
 {	
 	log_msg(LOG_DEBUG, "Inside handle_mb_resp \n");
+	
 	ProcedureStats::num_of_processed_mb_resp ++;
 	return ActStatus::PROCEED;
+}
+
+ActStatus ActionHandlers::send_emm_info(SM::ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside send_emm_info \n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_emm_info: ue context is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    struct ue_emm_info temp;
+    temp.msg_type = emm_info_request;
+    temp.enb_fd = ue_ctxt->getEnbFd();
+    temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
+    temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
+    temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+    /*Logically MME should have TAC database. and based on TAC
+     * MME can send different name. For now we are sending Aether for
+     * all TACs
+     */
+    strcpy(temp.short_network_name, "Aether");
+    strcpy(temp.full_network_name, "Aether");
+    memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
+    NAS_INT_KEY_SIZE);
+
+    cmn::ipc::IpcAddress destAddr;
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    mmeIpcIf_g->dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
+
+    ProcedureStats::num_of_emm_info_sent++;
+
+    log_msg(LOG_DEBUG, "Leaving send_emm_info \n");
+
+    return ActStatus::PROCEED;
+
 }
 
 ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
@@ -1053,7 +1101,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         attach_rej.ue_idx = ueCtxt_p->getContextID();
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
-        attach_rej.cause = emmCause_ue_id_not_derived_by_network;
+        attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

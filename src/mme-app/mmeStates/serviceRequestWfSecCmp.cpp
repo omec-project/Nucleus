@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(State_e::service_request_wf_sec_cmp)
+ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(service_request_wf_sec_cmp)
 {
 }
 
@@ -56,13 +56,13 @@ void ServiceRequestWfSecCmp::initialize()
                 actionTable.addAction(&ActionHandlers::process_sec_mode_resp);
                 actionTable.addAction(&ActionHandlers::send_init_ctxt_req_to_ue_svc_req);
                 actionTable.setNextState(ServiceRequestWfInitCtxtResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SEC_MODE_RESP_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(SEC_MODE_RESP_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ABORT_EVENT, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

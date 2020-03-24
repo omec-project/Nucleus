@@ -39,9 +39,6 @@ extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 
-/*Making global just to avoid stack passing*/
-static char buf[S11_DDN_ACK_BUF_SIZE];
-
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
 

@@ -59,7 +59,7 @@ int init_sock();
 }
 
 extern JobFunction monitorConfigFunc_fpg;
-extern void init_backtrace();
+//extern void init_backtrace();
 extern void init_parser(char *path);
 extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);
@@ -84,7 +84,7 @@ void setThreadName(std::thread* thread, const char* threadName)
 void mme_parse_config(mme_config *config)
 {
     /*Read MME configurations*/
-    init_parser("conf/mme.json");
+    init_parser((char *)("conf/mme.json"));
     parse_mme_conf(config);
     /* Lets apply logging setting */
     set_logging_level(config->logging);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 	
-	init_backtrace();
+	init_backtrace(argv[0]);
 	srand(time(0));
 
 	StateFactory::Instance()->initialize();

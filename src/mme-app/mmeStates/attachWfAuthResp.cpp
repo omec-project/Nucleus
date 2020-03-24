@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAuthResp::AttachWfAuthResp():State(State_e::attach_wf_auth_resp)
+AttachWfAuthResp::AttachWfAuthResp():State(attach_wf_auth_resp)
 {
 }
 
@@ -55,6 +55,6 @@ void AttachWfAuthResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::auth_response_validate);
                 actionTable.setNextState(AttachWfAuthRespValidate::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AUTH_RESP_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_FROM_UE, actionTable));
         }
 }

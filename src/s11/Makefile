@@ -47,7 +47,8 @@ LIBS := \
 	-lcmnUtils \
 	-linterface \
 	-llog \
-	-ljson 
+	-ljson \
+	-lmonitor_config
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

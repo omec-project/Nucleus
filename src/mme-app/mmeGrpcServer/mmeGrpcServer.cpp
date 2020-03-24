@@ -13,10 +13,13 @@
 
 #include "mmeGrpc.grpc.pb.h"
 
+#include <mmeSmDefs.h>
+#include <smTypes.h>
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <procedureStats.h>
+#include <log.h>
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -213,9 +216,9 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         	for(auto it=evtQ.begin();it!=evtQ.end();it++)
 		{
         		EventInfoRespBuf_EventInfoBuf* EvtInfo = reply->add_eventinfo();
-	                string strEvent = Events[it->event];
+	                string strEvent = SM::SmUtility::Instance()->convertEventToString(it->event);
         	        EvtInfo->set_event(strEvent);
-                	string strState = States[it->state];
+                	string strState = SM::SmUtility::Instance()->convertStateToString(it->state);
 	                EvtInfo->set_state(strState);
         	        EvtInfo->set_time(ctime(&(it->evt_time)));
         	}
@@ -269,6 +272,7 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
 	reply->set_num_of_tau_response_to_ue_sent(ProcedureStats::num_of_tau_response_to_ue_sent);
 	reply->set_num_of_service_reject_sent(ProcedureStats::num_of_service_reject_sent);
 	reply->set_num_of_attach_reject_sent(ProcedureStats::num_of_attach_reject_sent);
+	reply->set_num_of_emm_info_sent(ProcedureStats::num_of_emm_info_sent);
 		
 	//reply->set_num_of_ddn_received(ProcedureStats::num_of_ddn_received);
         return Status::OK;
@@ -278,18 +282,21 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
 
 void * RunServer(void* data) {
   std::string server_address("0.0.0.0:50051");
+
   MmeGrpcCliServiceImpl service;
 
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
+
   // Finally assemble the server.
   std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
-
+  
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
   server->Wait();

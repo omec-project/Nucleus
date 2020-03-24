@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAia::AttachWfAia():State(State_e::attach_wf_aia)
+AttachWfAia::AttachWfAia():State(attach_wf_aia)
 {
 }
 
@@ -56,6 +56,13 @@ void AttachWfAia::initialize()
                 actionTable.addAction(&ActionHandlers::process_aia);
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
                 actionTable.setNextState(AttachWfAuthResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AIA_FROM_HSS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AIA_FROM_HSS, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

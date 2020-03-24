@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -27,7 +27,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(State_e::attach_wf_imsi_validate_action)
+AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(attach_wf_imsi_validate_action)
 {
 }
 
@@ -56,12 +56,12 @@ void AttachWfImsiValidateAction::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_air_to_hss);
                 actionTable.setNextState(AttachWfAia::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IMSI_VALIDATION_SUCCESS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IMSI_VALIDATION_SUCCESS, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_identity_request_to_ue);
                 actionTable.setNextState(AttachWfIdentityResponse::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IMSI_VALIDATION_FAILURE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IMSI_VALIDATION_FAILURE, actionTable));
         }
 }

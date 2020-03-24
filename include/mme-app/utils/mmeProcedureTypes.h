@@ -76,7 +76,7 @@ namespace mme
  };
 
 enum EcmState{
-		invalidEcmState_c,	
+		ecmUnknown_c,
 		ecmIdle_c,
 		ecmConnected_c,
 		maxEcmState_c

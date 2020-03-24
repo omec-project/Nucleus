@@ -105,6 +105,15 @@
                                     "AUTH_REQ_TO_UE"
                                 ],
                                 "NextState":"attach_wf_auth_resp"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -291,6 +300,7 @@
                                 "Name":"MB_RESP_FROM_SGW",
                                 "Actions":[
                                     "PROCESS_MB_RESP",
+                                    "SEND_EMM_INFO",
                                     "ATTACH_DONE"
                                 ],
                                 "NextState":"end_state"

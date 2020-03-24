@@ -63,6 +63,9 @@ void
 void
 *s1ap_reject_handler(void *);
 
+void
+*emm_info_req_handler(void *);
+
 void 
 *s1ap_attach_id_req_handler(void *);
 

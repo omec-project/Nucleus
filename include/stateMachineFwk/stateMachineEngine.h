@@ -32,7 +32,7 @@ namespace SM
 		static StateMachineEngine* Instance();
 	    void run();
       	bool addCBToProcQ(ControlBlock* cb);
-        ActStatus handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent);	
+      	ActStatus handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent);
    	private:
 		StateMachineEngine();
 

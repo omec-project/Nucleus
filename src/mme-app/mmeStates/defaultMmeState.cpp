@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -25,7 +25,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DefaultMmeState::DefaultMmeState():State(State_e::default_mme_state)
+DefaultMmeState::DefaultMmeState():State(default_mme_state)
 {
 }
 
@@ -53,36 +53,36 @@ void DefaultMmeState::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_attach_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ATTACH_REQ_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_detach_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_REQ_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_REQ_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_s1_release_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::S1_REL_REQ_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(S1_REL_REQ_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_ddn_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DDN_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DDN_FROM_SGW, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_service_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SERVICE_REQUEST_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(SERVICE_REQUEST_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_cancel_loc_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::CLR_FROM_HSS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(CLR_FROM_HSS, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_tau_req_handler);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::TAU_REQUEST_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(TAU_REQUEST_FROM_UE, actionTable));
         }
 }

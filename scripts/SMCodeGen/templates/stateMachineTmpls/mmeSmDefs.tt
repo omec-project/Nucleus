@@ -30,8 +30,9 @@
  * limitations under the License.
  */
 
-#ifndef SM_ENUMS_H
-#define SM_ENUMS_H
+#ifndef MME_SM_DEFS_H
+#define MME_SM_DEFS_H
+#include <stdint.h>
 /**************************************
  * 
  * This is an auto generated file.
@@ -39,13 +40,13 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/enum.tt>
  **************************************/
- 
-enum State_e
-{
-    [%- FOREACH state = stateList%] 
-    [% state %],[% END %]
-    END_STATE
-};
+ 	 	
+[% id = 1 %]
+[%- FOREACH state = stateList%]     
+ const uint16_t [% state %] = [% id %];
+[%- id = id + 1 -%]
+[% END %]
+const uint16_t END_STATE = [% id %];
 
 static constexpr const char* States[] =
 {
@@ -54,12 +55,12 @@ static constexpr const char* States[] =
     "END_STATE"
 };
 
-enum Event_e
-{
-    [%- FOREACH event = eventList%]
-    [% event %],[%END%]
-    END_EVENT
-};
+[% id = 1 %]
+[%- FOREACH event = eventList%]
+const uint16_t [% event %] = [% id %];
+[%- id = id + 1 -%]
+[% END %]
+const uint16_t END_EVENT = [% id %];    
 
 static constexpr const char* Events[] =
 {
@@ -68,12 +69,12 @@ static constexpr const char* Events[] =
     "END_EVENT"
 };
 
-enum Action_e
-{
-    [%- FOREACH actions = actionList%]
-    [% actions %],[% END %]
-    END_ACTION
-};
+[% id = 1 %]
+[%- FOREACH actions = actionList%]
+const uint16_t [% actions %] = [% id %];
+[%- id = id + 1 -%]
+[% END %]
+const uint16_t END_ACTION = [% id %];
 
 static constexpr const char* Actions[] =
 {

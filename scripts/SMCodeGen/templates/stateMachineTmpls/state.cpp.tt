@@ -30,7 +30,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -47,7 +47,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-[% stateClassName %]::[% stateClassName %]():State(State_e::[% State.Name %])
+[% stateClassName %]::[% stateClassName %]():State([% State.Name %])
 {
 }
 
@@ -81,7 +81,7 @@ void [% stateClassName %]::initialize()
 				[%- IF Event.NextState != "end_state" %]
                 actionTable.setNextState([% CLASSNAME(Event.NextState) %]::Instance());
                 [%- END %]
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::[% Event.Name %], actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>([% Event.Name %], actionTable));
         }
         [%- END %]
 }
