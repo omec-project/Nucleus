@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
@@ -35,7 +36,6 @@
 extern s1ap_config g_s1ap_cfg;
 pthread_t s1ap_iam_t;
 
-int g_enb_fd = 0;
 int g_sctp_fd = 0;
 struct thread_pool *g_tpool;
 struct thread_pool *g_tpool_tipc_reader;
@@ -245,7 +245,6 @@ accept_sctp(void *data)
 				if( enb_socket[i] == 0 ) {
 
 					enb_socket[i] = new_socket;
-					g_enb_fd = new_socket;
 					log_msg(LOG_INFO, "Adding to list of sockets at %d value %d\n" , i, new_socket);
 
 					break;
@@ -446,8 +445,15 @@ main(int argc, char **argv)
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 
-	parse_args(argc, argv);
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+		init_logging("container", NULL);
+	}
+	else { 
+		init_logging("hostbased", "/tmp/s1aplogs.txt");
+	}
 
+	parse_args(argc, argv);
 	init_parser("conf/s1ap.json");
 	parse_s1ap_conf();
 

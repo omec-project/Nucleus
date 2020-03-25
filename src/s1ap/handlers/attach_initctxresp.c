@@ -24,7 +24,6 @@
 #include "msgType.h"
 
 
-extern int g_enb_fd;
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
