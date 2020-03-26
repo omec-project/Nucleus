@@ -446,6 +446,8 @@ main(int argc, char **argv)
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 
+	init_backtrace(argv[0]); 
+	
 	parse_args(argc, argv);
 
 	init_parser("conf/s1ap.json");

@@ -170,6 +170,9 @@ handle_s11_message(void *message)
 
 	bool rc = GtpV2Stack_decodeMessageHeader(gtpStack_gp, &msgHeader, msgBuf_p);
 
+	if(rc == false)
+		log_msg(LOG_ERROR,"Failed to decode the GTP Message\n");
+
 	switch(msgHeader.msgType){
 	case S11_GTP_CREATE_SESSION_RESP:
 		s11_CS_resp_handler(msgBuf_p, &msgHeader);

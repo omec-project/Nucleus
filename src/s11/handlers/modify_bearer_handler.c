@@ -40,7 +40,6 @@ extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
-static char buf[S11_MBREQ_STAGE7_BUF_SIZE];
 
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
@@ -79,7 +78,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 			(struct sockaddr*)&g_s11_cp_addr,
 			g_s11_serv_size);
 	//TODO " error chk, eagain etc?	
-	log_msg(LOG_INFO, "Modify beader send, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
+	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
 
 	MsgBuffer_reset(mbReqMsgBuf_p);
 

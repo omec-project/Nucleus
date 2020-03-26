@@ -171,7 +171,7 @@ accept_unix(void *data)
 				    memcpy(tmpBuf, &sd, sizeof(int));
 			            memcpy(tmpBuf + sizeof(int), buffer, valread);
 				    log_msg(LOG_DEBUG, "Received msg len : %d \n",valread);
-			        insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
+				    insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
 
 				}
 			}
@@ -184,9 +184,7 @@ accept_unix(void *data)
 
 void dummy_monitor_fn(void* msg)
 {
-   log_msg(LOG_ERROR, "Unix IPC Socket callback "
+    log_msg(LOG_ERROR, "Unix IPC Socket callback "
                       "not registered by the application!\n");
-   
-   pthread_exit(NULL);
+    pthread_exit(NULL);
 }
-

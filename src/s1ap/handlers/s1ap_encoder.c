@@ -509,7 +509,7 @@ int s1ap_mme_encode_paging_request(
 
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc (sizeof(InitiatingMessage_t), sizeof(uint8_t));
-   
+
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_Paging;
     initiating_msg->criticality = 0;
@@ -551,14 +551,13 @@ int s1ap_mme_encode_paging_request(
     UEPagingID_t pagingId;
     pagingId.present = UEPagingID_PR_s_TMSI;
     pagingId.choice.s_TMSI = calloc(sizeof(struct S_TMSI), sizeof(uint8_t));
-    
     pagingId.choice.s_TMSI->mMEC.buf = calloc(1, sizeof(uint8_t));
-    
+
     memcpy(pagingId.choice.s_TMSI->mMEC.buf, &g_s1ap_cfg.mme_code, sizeof(uint8_t));
     pagingId.choice.s_TMSI->mMEC.size = sizeof(uint8_t);
     
     pagingId.choice.s_TMSI->m_TMSI.buf = calloc(sizeof(uint32_t), sizeof(uint8_t));
-    
+
     uint32_t ue_idx = htonl(s1apPDU->ue_idx);
     memcpy(pagingId.choice.s_TMSI->m_TMSI.buf, &ue_idx, sizeof(uint32_t));
     pagingId.choice.s_TMSI->m_TMSI.size = sizeof(uint32_t);

@@ -21,7 +21,7 @@
 #include "procedureStats.h"
 #include "log.h"
 #include <string.h>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 
 #include <ipcTypes.h>
 #include <tipcTypes.h>

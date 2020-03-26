@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -25,7 +25,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(State_e::service_request_wf_mb_resp)
+ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp)
 {
 }
 
@@ -53,6 +53,6 @@ void ServiceRequestWfMbResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp_svc_req);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::MB_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
         }
 }

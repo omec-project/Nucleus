@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(State_e::attach_wf_esm_info_resp)
+AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(attach_wf_esm_info_resp)
 {
 }
 
@@ -56,6 +56,6 @@ void AttachWfEsmInfoResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_esm_info_resp);
                 actionTable.addAction(&ActionHandlers::send_ulr_to_hss);
                 actionTable.setNextState(AttachWfUla::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ESM_INFO_RESP_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ESM_INFO_RESP_FROM_UE, actionTable));
         }
 }

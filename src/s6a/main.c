@@ -247,6 +247,8 @@ main(int argc, char **argv)
         
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace(argv[0]); 
 
 	/*Check cmd line arguments for config file path*/
 	check_args(argc, argv);

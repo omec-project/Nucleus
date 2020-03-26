@@ -391,6 +391,29 @@ void Auts::operator = ( const Auts& auts_i )
 
 
 /*******************************************************
+*S1apCause
+********************************************************/
+S1apCause::S1apCause()
+{
+    memset( &s1apCause_m, 0, sizeof( s1apCause_m ));
+}
+
+S1apCause::S1apCause( const s1apCause_t& s1apCause_i )
+{
+    memset( &s1apCause_m, 0, sizeof( s1apCause_m ));
+    memcpy( &s1apCause_m, &s1apCause_i, sizeof( s1apCause_i ));
+}
+
+S1apCause::~S1apCause()
+{
+}
+
+void S1apCause::operator = ( const S1apCause& s1apCause_i )
+{
+    memcpy( &s1apCause_m, &(s1apCause_i.s1apCause_m), sizeof( s1apCause_i.s1apCause_m ));
+}
+
+/*******************************************************
 *DigitRegister15
 ********************************************************/
 DigitRegister15::DigitRegister15()

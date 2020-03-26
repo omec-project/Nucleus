@@ -48,8 +48,6 @@ extern s11_config g_s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 
 /****Global and externs end***/
-static char buf[S11_CSREQ_STAGE5_BUF_SIZE];
-
 struct CS_Q_msg *g_csReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;

@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachStart::DetachStart():State(State_e::detach_start)
+DetachStart::DetachStart():State(detach_start)
 {
 }
 
@@ -55,6 +55,6 @@ void DetachStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.setNextState(DetachWfDelSessionResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_REQ_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_REQ_FROM_UE, actionTable));
         }
 }

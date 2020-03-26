@@ -179,6 +179,17 @@ class Auts
 		AUTS auts_m;
 };
 
+class S1apCause
+{
+	public:
+                S1apCause();
+                S1apCause( const s1apCause_t& s1apCause_i );
+                ~S1apCause();
+                void operator = ( const S1apCause& s1apCause_i );
+        public:
+                s1apCause_t s1apCause_m;
+};
+
 class DigitRegister15
 {
 	public:

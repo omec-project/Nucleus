@@ -18,6 +18,7 @@
 #include <contextManager/subsDataGroupManager.h>
 #include <controlBlock.h>
 #include <event.h>
+#include <mmeSmDefs.h>
 #include <mmeStates/attachStart.h>
 #include <mmeStates/detachStart.h>
 #include <mmeStates/niDetachStart.h>
@@ -33,7 +34,6 @@
 #include <state.h>
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
 #include <typeinfo>
 #include <utils/mmeProcedureTypes.h>
 #include <utils/mmeCommonUtils.h>
@@ -156,7 +156,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 
 			SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
 
-			SM::Event evt(Event_e::VALIDATE_IMSI, NULL);
+			SM::Event evt(VALIDATE_IMSI, NULL);
 			cb.addEventToProcQ(evt);
 
 			break;
@@ -165,14 +165,14 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		{
 			// copy seq num?
 
-			SM::Event evt(Event_e::VALIDATE_IMSI, NULL);
+			SM::Event evt(VALIDATE_IMSI, NULL);
 			cb.addEventToProcQ(evt);
 
 			break;
 		}
 		case unknownGutiAttach_c:
 		{
-			SM::Event evt(Event_e::VALIDATE_IMSI, NULL);
+			SM::Event evt(VALIDATE_IMSI, NULL);
 			cb.addEventToProcQ(evt);
 
 			break;
@@ -227,7 +227,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setNextState(DetachStart::Instance());
 	cb.setCurrentTempDataBlock(prcdCtxt_p);
 
-	SM::Event evt(Event_e::DETACH_REQ_FROM_UE, NULL);
+	SM::Event evt(DETACH_REQ_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 
 	return ActStatus::PROCEED;
@@ -267,7 +267,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
 	cb.setCurrentTempDataBlock(svcReqProc_p);
     
-	SM::Event evt(Event_e::DDN_FROM_SGW, NULL);
+	SM::Event evt(DDN_FROM_SGW, NULL);
 	cb.addEventToProcQ(evt);
 	return ActStatus::PROCEED;
 }
@@ -320,7 +320,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	cb.setCurrentTempDataBlock(svcReqProc_p);
 
-	SM::Event evt(Event_e::SERVICE_REQUEST_FROM_UE, NULL);
+	SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 
     return ActStatus::PROCEED;
@@ -369,7 +369,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setCancellationType(SUBSCRIPTION_WITHDRAWAL);
 	cb.setCurrentTempDataBlock(prcdCtxt_p);
 
-	SM::Event evt(Event_e::CLR_FROM_HSS, NULL);
+	SM::Event evt(CLR_FROM_HSS, NULL);
 	cb.addEventToProcQ(evt);
 	
     return ActStatus::PROCEED;
@@ -393,7 +393,7 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 
 	ProcedureStats::num_of_s1_rel_req_received ++;
 
-	SM::Event evt(Event_e::S1_REL_REQ_FROM_UE, NULL);
+	SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 
 	return ActStatus::PROCEED;
@@ -452,7 +452,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 	tauReqProc_p->setEnbFd(tauReq.enb_fd);
 	cb.setCurrentTempDataBlock(tauReqProc_p);	
 
-	SM::Event evt(Event_e::TAU_REQUEST_FROM_UE, NULL);
+	SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 	return ActStatus::PROCEED;
 }
