@@ -30,6 +30,7 @@ void enable_logs();
 void disable_logs();
 void set_logging_level(char *level);
 void init_logging(char *env, char *file);
+void init_backtrace(char *binary);
 
 #ifdef __cplusplus
 }

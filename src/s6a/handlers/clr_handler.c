@@ -82,42 +82,39 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
 		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_host,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_host));
-		}
+    }
 
 	fd_msg_search_avp(resp, g_fd_dict_objs.org_realm, &avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
 		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_realm,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_realm));
-		}
+    }
          
 	fd_msg_search_avp(resp, g_fd_dict_objs.user_name,&avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
 		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.imsi,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.imsi));
-		}
+    }
        
-       /*CLA Processing*/
+    /*CLA Processing*/
 
-       struct msg *ans, *qry;
-       struct avp * a;
+    struct msg *ans;
 
-       if (buf == NULL)
-               return EINVAL;
+    if (buf == NULL)
+        return EINVAL;
 
+    /* Create answer header */
+    CHECK_FCT( fd_msg_new_answer_from_req ( fd_g_config->cnf_dict, buf, 0 ) );
+    ans = *buf;
 
-       /* Create answer header */
-       qry = *buf;
-       CHECK_FCT( fd_msg_new_answer_from_req ( fd_g_config->cnf_dict, buf, 0 ) );
-       ans = *buf;
+    /* Set the Origin-Host, Origin-Realm, Result-Code AVPs */
+    CHECK_FCT( fd_msg_rescode_set( ans, "DIAMETER_SUCCESS", NULL, NULL, 1 ) );
 
-       /* Set the Origin-Host, Origin-Realm, Result-Code AVPs */
-       CHECK_FCT( fd_msg_rescode_set( ans, "DIAMETER_SUCCESS", NULL, NULL, 1 ) );
+    /* Send the answer */
+    CHECK_FCT( fd_msg_send( buf, NULL, NULL ) );
 
-       /* Send the answer */
-       CHECK_FCT( fd_msg_send( buf, NULL, NULL ) );
-
-	/*Do cleanup for freediameter*/
-	fd_msg_free(*buf);
+    /*Do cleanup for freediameter*/
+    fd_msg_free(*buf);
 
 	*buf = NULL;
 	
@@ -127,7 +124,7 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	s6_incoming_msgs.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-        send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&s6_incoming_msgs, S6_READ_MSG_BUF_SIZE);
+    send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&s6_incoming_msgs, S6_READ_MSG_BUF_SIZE);
 	
 	return SUCCESS;
 }

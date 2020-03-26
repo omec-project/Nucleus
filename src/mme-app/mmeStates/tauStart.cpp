@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -25,7 +25,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-TauStart::TauStart():State(State_e::tau_start)
+TauStart::TauStart():State(tau_start)
 {
 }
 
@@ -53,6 +53,6 @@ void TauStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_tau_response_to_ue);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::TAU_REQUEST_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(TAU_REQUEST_FROM_UE, actionTable));
         }
 }

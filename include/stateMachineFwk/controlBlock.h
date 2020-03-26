@@ -35,11 +35,11 @@ namespace SM
 {
 	typedef struct debugEventInfo
 	{
-        	Event_e event;
-	        State_e state;
+		uint16_t event;
+		uint16_t state;
         	time_t evt_time;
 
-        	debugEventInfo(Event_e evt, State_e st, time_t t)
+        	debugEventInfo(uint16_t evt, uint16_t st, time_t t)
         	{
         		event = evt;
         		state = st;

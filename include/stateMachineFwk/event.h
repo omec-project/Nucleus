@@ -20,8 +20,6 @@
 #include <string>
 #include <map>
 
-#include "smEnumTypes.h"
-
 using namespace std;
 
 namespace SM
@@ -30,10 +28,10 @@ namespace SM
 	{
    	public:
 		Event();
-      		Event(Event_e evtID, void* eventData);
+      		Event(uint16_t evtID, void* eventData);
       		virtual ~Event();
 
-      		inline Event_e getEventId()const
+      		inline uint16_t getEventId()const
       		{
       			return eventID;
       		}
@@ -43,7 +41,7 @@ namespace SM
       		virtual void display();
  
    	private:
-	      	Event_e eventID;
+      		uint16_t eventID;
 	      	void * eventData_p;
 	};
 }

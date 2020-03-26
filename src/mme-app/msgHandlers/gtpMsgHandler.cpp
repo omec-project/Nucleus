@@ -20,6 +20,7 @@
 #include <event.h>
 #include <ipcTypes.h>
 #include <log.h>
+#include <mmeSmDefs.h>
 
 using namespace SM;
 using namespace mme;
@@ -90,7 +91,7 @@ void GtpMsgHandler::handleCreateSessionResponseMsg_v(const cmn::utils::MsgBuffer
 	}
 
 	// Fire CS resp from SGW event, insert cb to procedure queue
-	SM::Event evt(Event_e::CS_RESP_FROM_SGW, (void *)msgData_p);
+	SM::Event evt(CS_RESP_FROM_SGW, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -108,7 +109,7 @@ void GtpMsgHandler::handleModifyBearerResponseMsg_v(const cmn::utils::MsgBuffer*
 	}
 
 	// Fire MB rep from SGW event, insert cb to procedure queue
-	SM::Event evt(Event_e::MB_RESP_FROM_SGW, (void *)msgData_p);
+	SM::Event evt(MB_RESP_FROM_SGW, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -125,7 +126,7 @@ void GtpMsgHandler::handleDeleteSessionResponseMsg_v(const cmn::utils::MsgBuffer
 		return;
 	}
 
-	SM::Event evt(Event_e::DEL_SESSION_RESP_FROM_SGW, (void *)msgData_p);
+	SM::Event evt(DEL_SESSION_RESP_FROM_SGW, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -143,7 +144,7 @@ void GtpMsgHandler::handleReleaseBearerResponseMsg_v(const cmn::utils::MsgBuffer
 	}
 	
 	// Fire rel bearer response from sgw event, insert cb to procedure queue
-	SM::Event evt(Event_e::REL_AB_RESP_FROM_SGW, (void *)msgData_p);
+	SM::Event evt(REL_AB_RESP_FROM_SGW, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -161,7 +162,7 @@ void GtpMsgHandler::handleDdnMsg_v(const cmn::utils::MsgBuffer* msgData_p, uint3
 	}
 
 	// Fire ddn from sgw event, insert cb to procedure queue
-	SM::Event evt(Event_e::DDN_FROM_SGW, (void *)msgData_p);
+	SM::Event evt(DDN_FROM_SGW, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 

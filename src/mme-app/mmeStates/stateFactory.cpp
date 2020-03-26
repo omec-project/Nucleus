@@ -13,6 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/stateFactory.cpp.tt>
  **************************************/
 
+#include "mmeSmDefs.h"
 #include "mmeStates/stateFactory.h"
 #include "mmeStates/attachStart.h"
 #include "mmeStates/attachWfAia.h"
@@ -115,4 +116,7 @@ void StateFactory::initialize()
 	ServiceRequestWfMbResp::Instance()->initialize();
 	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
+
+        populateEventStringMap();
+        populateStateStringMap();
 }

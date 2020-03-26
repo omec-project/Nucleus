@@ -769,6 +769,18 @@ namespace mme
 			*    get mmeErrorCause from MmeProcedureCtxt
 			****************************************/
 			MmeErrorCause getMmeErrorCause()const;				
+
+			/****************************************
+			* setS1apCause
+			*   set s1apCause to MmeProcedureCtxt
+			*****************************************/
+			void setS1apCause(const S1apCause& s1apCause_i);
+
+			/****************************************
+			* getS1apCause
+			*   get s1apCause from MmeProcedureCtxt
+			*****************************************/
+			const S1apCause& getS1apCause()const;
 			
 			/****************************************
 			* setAuthRespStatus
@@ -828,6 +840,9 @@ namespace mme
 			
 			// DataName
 			MmeErrorCause mmeErrorCause_m;
+
+			// DataName
+			S1apCause  s1apCause_m;
 			
 			// DataName
 			int authRespStatus_m;

@@ -248,6 +248,8 @@ main(int argc, char **argv)
         
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace(argv[0]); 
 
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <iomanip>
 #include <debug.h>
 
 using namespace cmn::utils;
@@ -29,9 +30,9 @@ Debug::~Debug()
   //TODO
 }
 
-void Debug::printDebugStream()
+void Debug::printDebugStream(log_levels l)
 {
-  fprintf(stderr, "%s" , stream.str().c_str());
+  log_msg(l, "%s" , stream.str().c_str());
 }
 
 void Debug::clearStream()
@@ -79,6 +80,14 @@ void Debug::add(uint64_t data)
   stream << data;
 }
 
+void Debug::addHexByte(uint8_t byte)
+{
+    if(newLine)
+	startNewLine();
+
+    stream << std::hex << " 0x" <<
+    std::setw(2) << std::setfill('0') << (int) byte;
+}
 
 void Debug::endOfLine()
 {

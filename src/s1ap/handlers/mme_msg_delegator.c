@@ -78,10 +78,13 @@ handle_mmeapp_message(void * data)
 		break;
 	case attach_reject:
 		s1ap_reject_handler(msg);
-            	break;
+		break;
 	case service_reject:
-	    	s1ap_reject_handler(msg);
-	    	break;
+	    s1ap_reject_handler(msg);
+	    break;
+	case emm_info_request:
+	    emm_info_req_handler(msg);
+	    break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

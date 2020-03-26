@@ -64,7 +64,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 
 	value->no_of_IEs = ICS_REQ_NO_OF_IES;
 
-	value->data = (proto_IEs *) malloc(ICS_REQ_NO_OF_IES *
+	value->data = (proto_IEs *) calloc(ICS_REQ_NO_OF_IES ,
 			sizeof(proto_IEs));
 	
 

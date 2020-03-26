@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -27,7 +27,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(State_e::ni_detach_wf_det_accpt_del_sess_resp)
+NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(ni_detach_wf_det_accpt_del_sess_resp)
 {
 }
 
@@ -56,12 +56,12 @@ void NiDetachWfDetAccptDelSessResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_detach_accept_from_ue);
                 actionTable.setNextState(NiDetachWfDelSessResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_ACCEPT_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_ACCEPT_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
                 actionTable.setNextState(NiDetachWfDetachAccept::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DEL_SESSION_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DEL_SESSION_RESP_FROM_SGW, actionTable));
         }
 }

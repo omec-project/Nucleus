@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <string>
 #include <time.h>
 #include <msgBuffer.h>
 #include "stateMachineEngine.h"
@@ -30,6 +31,7 @@ using namespace std;
 
 namespace SM
 {
+
 	StateMachineEngine::StateMachineEngine():
 		procQ_m()
 	{
@@ -53,14 +55,19 @@ namespace SM
             return procQ_m.push(cb);
 	}
 
-    ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent)
-    {
-        time_t mytime = time(NULL);
-        debugEventInfo dEventInfo(currentEvent.getEventId(), currentState.getStateId(), mytime);
-        cb.addDebugInfo(dEventInfo);
+	ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock& cb, State& currentState, Event& currentEvent)
+	{
+		SmUtility* util = SmUtility::Instance();
+		log_msg(LOG_DEBUG,"################ Executing actions for event: %s and State: %s #################\n",
+				util->convertEventToString(currentEvent.getEventId()).c_str(), 
+				util->convertStateToString(currentState.getStateId()).c_str());
 
-        return currentState.executeActions(currentEvent.getEventId(),cb);
-    }
+		time_t mytime = time(NULL);
+		debugEventInfo dEventInfo(currentEvent.getEventId(), currentState.getStateId(), mytime);
+		cb.addDebugInfo(dEventInfo);
+
+		return currentState.executeActions(currentEvent.getEventId(),cb);
+	}
 
 	void StateMachineEngine::run()
 	{
@@ -98,7 +105,6 @@ namespace SM
 				break;
 			}
 
-						
 			ActStatus ret = handleProcedureEvent(*cb, *currentState_p, currentEvent);
 
 			if (ret == ABORT)

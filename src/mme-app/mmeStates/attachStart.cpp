@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachStart::AttachStart():State(State_e::attach_start)
+AttachStart::AttachStart():State(attach_start)
 {
 }
 
@@ -55,6 +55,6 @@ void AttachStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::validate_imsi_in_ue_context);
                 actionTable.setNextState(AttachWfImsiValidateAction::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::VALIDATE_IMSI, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(VALIDATE_IMSI, actionTable));
         }
 }

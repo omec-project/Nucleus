@@ -434,7 +434,7 @@ namespace mme
 	******************************************************************************/
 	MmContext::MmContext():            
             mmState_m(InvalidState),
-            ecmState_m(invalidEcmState_c)
+            ecmState_m(ecmUnknown_c)
 	
 	{	
 	}
@@ -738,6 +738,7 @@ namespace mme
             pcoOptionsLen_m(0),
             pti_m(0),
             mmeErrorCause_m(noError_c),
+            s1apCause_m(),
             authRespStatus_m(0),
             auts_m(),
             requestedApn_m()
@@ -857,7 +858,23 @@ namespace mme
 	{
 		return mmeErrorCause_m;
 	}
-	
+
+	/******************************************************************************
+	* sets s1apCause
+	********************************************************************************/
+	void MmeProcedureCtxt::setS1apCause(const S1apCause &s1apCause_i)
+	{
+	    s1apCause_m = s1apCause_i;
+	}
+
+	/******************************************************************************
+	* returns s1apCause
+	*******************************************************************************/
+	const S1apCause& MmeProcedureCtxt::getS1apCause() const
+	{
+	    return s1apCause_m;
+	}
+
 	/******************************************************************************
 	* sets authRespStatus
 	******************************************************************************/

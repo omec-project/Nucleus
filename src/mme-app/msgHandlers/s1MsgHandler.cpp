@@ -21,6 +21,7 @@
 #include <log.h>
 #include <utils/mmeCommonUtils.h>
 #include <contextManager/subsDataGroupManager.h>
+#include <mmeSmDefs.h>
 
 using namespace SM;
 using namespace mme;
@@ -126,7 +127,7 @@ void S1MsgHandler::handleInitUeAttachRequestMsg_v(const cmn::utils::MsgBuffer* m
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::ATTACH_REQ_FROM_UE, (void *)msgData_p);
+	SM::Event evt(ATTACH_REQ_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -144,7 +145,7 @@ void S1MsgHandler::handleIdentityResponseMsg_v(const cmn::utils::MsgBuffer* msgD
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::IDENTITY_RESPONSE_FROM_UE, (void *)msgData_p);
+	SM::Event evt(IDENTITY_RESPONSE_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -162,7 +163,7 @@ void S1MsgHandler::handleAuthResponseMsg_v(const cmn::utils::MsgBuffer* msgData_
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::AUTH_RESP_FROM_UE, (void *)msgData_p);
+	SM::Event evt(AUTH_RESP_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -180,7 +181,7 @@ void S1MsgHandler::handleSecurityModeResponse_v(const cmn::utils::MsgBuffer* msg
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::SEC_MODE_RESP_FROM_UE, (void *)msgData_p);
+	SM::Event evt(SEC_MODE_RESP_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -198,7 +199,7 @@ void S1MsgHandler::handleEsmInfoResponse_v(const cmn::utils::MsgBuffer* msgData_
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::ESM_INFO_RESP_FROM_UE, (void *)msgData_p);
+	SM::Event evt(ESM_INFO_RESP_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -216,7 +217,7 @@ void S1MsgHandler::handleInitCtxtResponse_v(const cmn::utils::MsgBuffer* msgData
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::INIT_CTXT_RESP_FROM_UE, (void *)msgData_p);
+	SM::Event evt(INIT_CTXT_RESP_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -234,7 +235,7 @@ void S1MsgHandler::handleAttachComplete_v(const cmn::utils::MsgBuffer* msgData_p
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::ATT_CMP_FROM_UE, (void *)msgData_p);
+	SM::Event evt(ATT_CMP_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -252,7 +253,7 @@ void S1MsgHandler::handleDetachRequest_v(const cmn::utils::MsgBuffer* msgData_p,
 	}
 
 	// Fire detach request event, insert cb to procedure queue
-	SM::Event evt(Event_e::DETACH_REQ_FROM_UE, (void *)msgData_p);
+	SM::Event evt(DETACH_REQ_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -270,7 +271,7 @@ void S1MsgHandler::handleS1ReleaseRequestMsg_v(const cmn::utils::MsgBuffer* msgD
     }
 
 	// Fire s1 release event, insert cb to procedure queue
-	SM::Event evt(Event_e::S1_REL_REQ_FROM_UE, (void *)msgData_p);
+	SM::Event evt(S1_REL_REQ_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -288,7 +289,7 @@ void S1MsgHandler::handleS1ReleaseComplete_v(const cmn::utils::MsgBuffer* msgDat
     }
 
 	// Fire s1 release complete event, insert cb to procedure queue
-	SM::Event evt(Event_e::UE_CTXT_REL_COMP_FROM_ENB, (void *)msgData_p);
+	SM::Event evt(UE_CTXT_REL_COMP_FROM_ENB, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -306,7 +307,7 @@ void S1MsgHandler::handleDetachAcceptFromUE_v(const cmn::utils::MsgBuffer* msgDa
 	}
 
 	//Fire NI_Detach Event, insert CB to procedure queue
-	SM::Event evt(Event_e::DETACH_ACCEPT_FROM_UE, (void *)msgData_p);
+	SM::Event evt(DETACH_ACCEPT_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -325,7 +326,7 @@ void S1MsgHandler::handleServiceRequest_v(const cmn::utils::MsgBuffer* msgData_p
 	}
 
 	//Fire NI_Detach Event, insert CB to procedure queue
-	SM::Event evt(Event_e::SERVICE_REQUEST_FROM_UE, (void *)msgData_p);
+	SM::Event evt(SERVICE_REQUEST_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -344,6 +345,6 @@ void S1MsgHandler::handleTauRequestMsg_v(const cmn::utils::MsgBuffer* msgData_p,
 	}
 
 	// Fire tau-start event, insert cb to procedure queue
-	SM::Event evt(Event_e::TAU_REQUEST_FROM_UE, (void *)msgData_p);
+	SM::Event evt(TAU_REQUEST_FROM_UE, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }

@@ -55,6 +55,7 @@ namespace mme
 		static int num_of_tau_response_to_ue_sent;
 		static int num_of_service_reject_sent;
 		static int num_of_attach_reject_sent;		
+		static int num_of_emm_info_sent;
 
         };
 };

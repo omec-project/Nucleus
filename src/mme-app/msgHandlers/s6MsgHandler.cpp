@@ -19,6 +19,7 @@
 #include <event.h>
 #include <ipcTypes.h>
 #include <log.h>
+#include <mmeSmDefs.h>
 
 using namespace SM;
 using namespace mme;
@@ -81,7 +82,7 @@ void S6MsgHandler::handleAuthInfoAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint
 	}
 
 	// Fire Auth Info Answer event, insert cb to procedure queue
-	SM::Event evt(Event_e::AIA_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(AIA_FROM_HSS, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -98,7 +99,7 @@ void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::utils::MsgBuffer* msgData_p
 		return;
 	}
 	// Fire Update Loc Answer event, insert cb to procedure queue
-	SM::Event evt(Event_e::ULA_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(ULA_FROM_HSS, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
@@ -147,7 +148,7 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::utils::MsgBuffer* msgData_
 		return;
 	}
 	//Fire CLR event, insert CB to Procedure Queue
-	SM::Event evt(Event_e::CLR_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(CLR_FROM_HSS, (void *)msgData_p);
 	controlBlk_p->addEventToProcQ(evt);
 }
 

@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingStart::PagingStart():State(State_e::paging_start)
+PagingStart::PagingStart():State(paging_start)
 {
 }
 
@@ -55,6 +55,6 @@ void PagingStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_paging_req_to_ue);
                 actionTable.setNextState(PagingWfServiceReq::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DDN_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DDN_FROM_SGW, actionTable));
         }
 }

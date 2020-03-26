@@ -452,6 +452,7 @@ main(int argc, char **argv)
 	else { 
 		init_logging("hostbased", "/tmp/s1aplogs.txt");
 	}
+	init_backtrace(argv[0]); 
 
 	parse_args(argc, argv);
 	init_parser("conf/s1ap.json");

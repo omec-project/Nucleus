@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfUla::AttachWfUla():State(State_e::attach_wf_ula)
+AttachWfUla::AttachWfUla():State(attach_wf_ula)
 {
 }
 
@@ -56,6 +56,6 @@ void AttachWfUla::initialize()
                 actionTable.addAction(&ActionHandlers::process_ula);
                 actionTable.addAction(&ActionHandlers::cs_req_to_sgw);
                 actionTable.setNextState(AttachWfCsResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ULA_FROM_HSS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ULA_FROM_HSS, actionTable));
         }
 }
