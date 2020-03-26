@@ -1011,39 +1011,49 @@ ActStatus ActionHandlers::process_mb_resp(SM::ControlBlock& cb)
 	return ActStatus::PROCEED;
 }
 
-ActStatus ActionHandlers::send_emm_info(SM::ControlBlock& cb)
+ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_emm_info \n");
+    log_msg(LOG_DEBUG, "Inside check_and_send_emm_info \n");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_emm_info: ue context is NULL \n");
+        log_msg(LOG_DEBUG, "check_and_send_emm_info: ue context is NULL \n");
         return ActStatus::HALT;
     }
+    
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
+    {
+	    log_msg(LOG_DEBUG, "check_and_send_emm_info: Procedure context is NULL\n");
+	    return ActStatus::HALT;
+    }
 
-    struct ue_emm_info temp;
-    temp.msg_type = emm_info_request;
-    temp.enb_fd = ue_ctxt->getEnbFd();
-    temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
-    temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
-    temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-    /*Logically MME should have TAC database. and based on TAC
-     * MME can send different name. For now we are sending Aether for
-     * all TACs
-     */
-    strcpy(temp.short_network_name, "Aether");
-    strcpy(temp.full_network_name, "Aether");
-    memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
-    NAS_INT_KEY_SIZE);
+    if (MmeCommonUtils::isEmmInfoRequired(cb, *ue_ctxt, *procCtxt))
+    {
+    	struct ue_emm_info temp;
+    	temp.msg_type = emm_info_request;
+    	temp.enb_fd = ue_ctxt->getEnbFd();
+    	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
+    	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
+    	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+    	/*Logically MME should have TAC database. and based on TAC
+     	* MME can send different name. For now we are sending Aether for
+     	* all TACs
+     	*/
+    	strcpy(temp.short_network_name, "Aether");
+    	strcpy(temp.full_network_name, "Aether");
+    	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
+    	NAS_INT_KEY_SIZE);
 
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-    mmeIpcIf_g->dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
+    	cmn::ipc::IpcAddress destAddr;
+    	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    	mmeIpcIf_g->dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
 
-    ProcedureStats::num_of_emm_info_sent++;
+    	ProcedureStats::num_of_emm_info_sent++;
+    }
 
-    log_msg(LOG_DEBUG, "Leaving send_emm_info \n");
+    log_msg(LOG_DEBUG, "Leaving check_and_send_emm_info \n");
 
     return ActStatus::PROCEED;
 

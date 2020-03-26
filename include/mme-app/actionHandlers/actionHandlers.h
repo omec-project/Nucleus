@@ -243,9 +243,9 @@ namespace mme
         static SM::ActStatus send_ddn_ack_to_sgw(SM::ControlBlock& cb);                
 
         /**********************************************
-        * Action handler : send_emm_info
+        * Action handler : check_and_send_emm_info
         ***********************************************/
-        static SM::ActStatus send_emm_info(SM::ControlBlock& cb);                
+        static SM::ActStatus check_and_send_emm_info(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_esm_info_req_to_ue

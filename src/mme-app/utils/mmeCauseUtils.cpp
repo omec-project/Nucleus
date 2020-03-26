@@ -7,6 +7,7 @@
 
 #include <controlBlock.h>
 #include <s1ap_structs.h>
+#include <gtpCauseTypes.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <log.h>
 #include <utils/mmeCauseUtils.h>
@@ -43,10 +44,10 @@ uint32_t MmeCauseUtils::convertToGtpCause(MmeErrorCause mmeErrorCause)
 	switch (mmeErrorCause)
 	{
 		case networkTimeout_c:
-			gtpCause = 0x87; //UE not responding
+			gtpCause = GTPV2C_CAUSE_UE_NOT_RESPONDING;
 			break;
 		default:
-			gtpCause = 0x13; //Network Failure
+			gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;
 			break;
 	}
 	return gtpCause;

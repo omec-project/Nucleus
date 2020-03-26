@@ -39,7 +39,7 @@ using mmeGrpc::EventInfoRespBuf_EventInfoBuf;
 
 using namespace mme;
 
-const string UEStates[4]={ "NoState", "EpsAttached", "Detached", "Idle" };
+const string UEStates[5]={ "InvalidState", "NoState", "EpsAttached", "Detached" };
 // Logic and data behind the server's behavior.
 class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
   Status GetUeContextInfo(SM::ControlBlock* controlBlk_p, UeContextRespBuf* reply)   {
@@ -273,8 +273,9 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
 	reply->set_num_of_service_reject_sent(ProcedureStats::num_of_service_reject_sent);
 	reply->set_num_of_attach_reject_sent(ProcedureStats::num_of_attach_reject_sent);
 	reply->set_num_of_emm_info_sent(ProcedureStats::num_of_emm_info_sent);
-		
-	//reply->set_num_of_ddn_received(ProcedureStats::num_of_ddn_received);
+	reply->set_num_of_ddn_received(ProcedureStats::num_of_ddn_received);
+	reply->set_num_of_ddn_ack_sent(ProcedureStats::num_of_ddn_ack_sent);
+
         return Status::OK;
   }
 

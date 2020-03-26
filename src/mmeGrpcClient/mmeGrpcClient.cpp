@@ -196,12 +196,15 @@ class MmeGrpcCliClient {
 	    cout << "num_of_cla_sent                         " << reply.num_of_cla_sent() << endl;
 	    cout << "num_of_detach_req_to_ue_sent            " << reply.num_of_detach_req_to_ue_sent() << endl;
 	    cout << "num_of_detach_accept_from_ue            " << reply.num_of_detach_accept_from_ue() << endl;
+	    cout << "num_of_ddn_received		     " << reply.num_of_ddn_received() << endl;
+	    cout << "num_of_ddn_ack_sent		     " << reply.num_of_ddn_ack_sent() << endl;
 	    cout << "total_num_of_subscribers                " << reply.total_num_of_subscribers() << endl;
 	    cout << "num_of_subscribers_detached             " << reply.num_of_subscribers_detached() << endl;
 	    cout << "num_of_tau_response_to_ue_sent          " << reply.num_of_tau_response_to_ue_sent() << endl;
 	    cout << "num_of_service_reject_sent	             " << reply.num_of_service_reject_sent() << endl;
     	    cout << "num_of_attach_reject_sent               " << reply.num_of_attach_reject_sent() << endl;	    
 	    cout << "num_of_emm_info_sent		     " << reply.num_of_emm_info_sent() << endl;
+	   
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;

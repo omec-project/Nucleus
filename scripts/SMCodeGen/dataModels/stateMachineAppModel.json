@@ -300,7 +300,7 @@
                                 "Name":"MB_RESP_FROM_SGW",
                                 "Actions":[
                                     "PROCESS_MB_RESP",
-                                    "SEND_EMM_INFO",
+                                    "CHECK_AND_SEND_EMM_INFO",
                                     "ATTACH_DONE"
                                 ],
                                 "NextState":"end_state"

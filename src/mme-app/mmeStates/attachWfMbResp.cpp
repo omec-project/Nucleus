@@ -53,7 +53,7 @@ void AttachWfMbResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp);
-                actionTable.addAction(&ActionHandlers::send_emm_info);
+                actionTable.addAction(&ActionHandlers::check_and_send_emm_info);
                 actionTable.addAction(&ActionHandlers::attach_done);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
         }

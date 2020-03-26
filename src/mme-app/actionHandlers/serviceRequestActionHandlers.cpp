@@ -27,6 +27,7 @@
 #include <string.h>
 #include <sstream>
 #include <mmeSmDefs.h>
+#include <gtpCauseTypes.h>
 #include "common_proc_info.h"
 #include <ipcTypes.h>
 #include <tipcTypes.h>
@@ -136,7 +137,7 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	ddn_ack.msg_type = ddn_acknowledgement;
 	ddn_ack.ue_idx= ue_ctxt->getContextID();
 	ddn_ack.seq_no= srPrcdCtxt_p->getDdnSeqNo();
-	ddn_ack.cause = 16;
+	ddn_ack.cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
 	
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;

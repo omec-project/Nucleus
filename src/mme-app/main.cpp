@@ -59,7 +59,6 @@ int init_sock();
 }
 
 extern JobFunction monitorConfigFunc_fpg;
-//extern void init_backtrace();
 extern void init_parser(char *path);
 extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);

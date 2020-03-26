@@ -20,6 +20,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdint.h>
+#include <log.h>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ public:
   Debug();
   ~Debug();
 
-  void printDebugStream();
+  void printDebugStream(log_levels = LOG_DEBUG);
   void printDebugStreamToFile();
 
   void add(char* data);
@@ -48,6 +49,7 @@ public:
   void add(uint16_t data);
   void add(uint32_t data);
   void add(uint64_t data);
+  void addHexByte(uint8_t byte);
   
   void endOfLine();
   void startNewLine();
