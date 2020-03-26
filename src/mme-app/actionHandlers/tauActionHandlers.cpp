@@ -24,7 +24,7 @@
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 #include "common_proc_info.h"
 #include <ipcTypes.h>
 #include <tipcTypes.h>
@@ -46,7 +46,7 @@ extern MmeIpcInterface* mmeIpcIf_g;
 ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 {	
 	log_msg(LOG_INFO,"Inside send_tau_response_to_ue\n");
-
+	
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());	
 	if (ue_ctxt == NULL)
 	{

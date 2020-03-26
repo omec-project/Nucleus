@@ -14,6 +14,9 @@
 
 include ../../Makefile.common
 
+CC := g++
+CFLAGS += -std=c++11
+
 gtpV2CodecOBJDIR := $(OBJDIR)/gtpV2Codec/
 
 gtpV2CodecLIB := $(LIBDIR)/libgtpV2Codec.so

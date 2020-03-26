@@ -94,7 +94,6 @@ void * tipc_msg_handler_s11()
 			log_msg(LOG_INFO, "S11 message received from mme-app, bytesRead %d", bytesRead);
 			insert_job(g_tpool_tipc_reader_s11, handle_mmeapp_message_s11, tmpBuf);
 		}
-		
 		bytesRead = 0;
 	}
 }
@@ -219,6 +218,8 @@ main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace(argv[0]);
 
 	init_parser("conf/s11.json");
 	parse_s11_conf();

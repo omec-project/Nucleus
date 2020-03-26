@@ -22,9 +22,12 @@ void mme_config_change_cbk(char *config_file, uint32_t flags)
 {
     // Run the script with this file. It generates new config for mme
 	log_msg(LOG_INFO, "Received %s . File %s Flags %x \n", __FUNCTION__, config_file, flags);
-    system("sh /opt/mme/config/mme-init.sh");
+    int sysRet = system("sh /opt/mme/config/mme-init.sh");
+
+    if(sysRet == -1)
+	    log_msg(LOG_ERROR,"system returned -1\n");
     /* We dont expect quick updates from configmap..One update per interval */
-    watch_config_change("/opt/mme/config/config.json", mme_config_change_cbk, false);
+    watch_config_change((char *)("/opt/mme/config/config.json"), mme_config_change_cbk, false);
 
     /* Parse the config again */
     mme_config new_config;
@@ -44,6 +47,6 @@ void register_config_updates(void)
 {
     /* I would prefer a complete path than this relative path.
      * Looks like it may break */
-    watch_config_change("/opt/mme/config/config.json", mme_config_change_cbk, false);
+    watch_config_change((char *)("/opt/mme/config/config.json"), mme_config_change_cbk, false);
 }
 

@@ -78,6 +78,7 @@ typedef enum msg_type_t {
     ics_req_paging,
     tau_request,
     tau_response,
+    emm_info_request,
     max_msg_type
 } msg_type_t;
 
@@ -337,6 +338,18 @@ struct tauResp_Q_msg {
 };
 #define S1AP_TAURESP_BUF_SIZE sizeof(struct tauResp_Q_msg)
 
+struct ue_emm_info {
+	msg_type_t msg_type;
+	uint32_t enb_fd;
+	uint32_t enb_s1ap_ue_id;
+	uint32_t mme_s1ap_ue_id;
+	char     short_network_name[16];
+	char     full_network_name[128];
+	uint8_t int_key[NAS_INT_KEY_SIZE];
+	unsigned short dl_seq_no;
+};
+
+#define UE_EMM_INFO_BUF_SIZE sizeof(struct ue_emm_info)
 /*************************
  * Outgoing GTP Messages
  *************************/

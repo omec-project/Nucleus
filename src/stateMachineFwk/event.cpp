@@ -27,7 +27,7 @@ namespace SM
 	{
 	}
 
-	Event::Event(Event_e evtID, void* ptr)
+	Event::Event(uint16_t evtID, void* ptr)
 	  	:eventID(evtID), eventData_p(ptr)
 	{
 	}

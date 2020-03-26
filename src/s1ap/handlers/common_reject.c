@@ -42,11 +42,11 @@ get_serviceReject_protoie_value(struct proto_IE *value, struct commonRej_info *g
     value->data = (proto_IEs *) malloc(SERVICE_REJECT_NO_OF_IES*
             sizeof(proto_IEs));
 
-    value->data[0].val.mme_ue_s1ap_id = 0;
+    value->data[0].val.mme_ue_s1ap_id = g_mmeS1apInfo->ue_idx;
     value->data[1].val.enb_ue_s1ap_id = g_mmeS1apInfo->s1ap_enb_ue_id;
 
-    log_msg(LOG_INFO, "mme_ue_s1ap_id 0 and enb_ue_s1ap_id %d\n",
-            g_mmeS1apInfo->s1ap_enb_ue_id);
+    log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
+		g_mmeS1apInfo->ue_idx, g_mmeS1apInfo->s1ap_enb_ue_id);
 
     /* TODO: Add enum for security header type */
     value->data[2].val.nas.header.security_header_type = 0;

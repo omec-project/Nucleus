@@ -24,7 +24,6 @@
 #include "ipc_api.h"
 #include "s11_structs.h"
 #include "msgType.h"
-//#include "stage7_info.h"
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include <gtpV2StackWrappers.h>

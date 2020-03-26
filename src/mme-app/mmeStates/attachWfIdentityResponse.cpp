@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfIdentityResponse::AttachWfIdentityResponse():State(State_e::attach_wf_identity_response)
+AttachWfIdentityResponse::AttachWfIdentityResponse():State(attach_wf_identity_response)
 {
 }
 
@@ -56,6 +56,6 @@ void AttachWfIdentityResponse::initialize()
                 actionTable.addAction(&ActionHandlers::process_identity_response);
                 actionTable.addAction(&ActionHandlers::send_air_to_hss);
                 actionTable.setNextState(AttachWfAia::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IDENTITY_RESPONSE_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IDENTITY_RESPONSE_FROM_UE, actionTable));
         }
 }

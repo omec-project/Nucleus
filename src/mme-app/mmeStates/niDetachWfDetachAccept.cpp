@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(State_e::ni_detach_wf_detach_accept)
+NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(ni_detach_wf_detach_accept)
 {
 }
 
@@ -56,6 +56,6 @@ void NiDetachWfDetachAccept::initialize()
                 actionTable.addAction(&ActionHandlers::process_detach_accept_from_ue);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue_for_detach);
                 actionTable.setNextState(NiDetachWfS1RelComp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_ACCEPT_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_ACCEPT_FROM_UE, actionTable));
         }
 }

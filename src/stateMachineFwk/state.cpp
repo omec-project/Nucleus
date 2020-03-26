@@ -26,7 +26,7 @@ using namespace std;
 
 namespace SM
 {
-	State::State(State_e sID)
+	State::State(uint16_t sID)
 	      :stateID(sID),
 	       eventToActionsMap()
 	{
@@ -46,7 +46,12 @@ namespace SM
 		}
 	}
 
-	ActStatus State::executeActions(Event_e evt,ControlBlock& cb)
+	uint16_t State::getStateId()const
+	{
+	    return stateID;
+	}
+
+	ActStatus State::executeActions(uint16_t evt,ControlBlock& cb)
 	{
 		EventToActionTableMap::iterator itr = eventToActionsMap.find(evt);
 

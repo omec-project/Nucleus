@@ -1,4 +1,5 @@
 #include "gtpV2Stack.h"
+#include "log.h"
 #include "msgBuffer.h"
 #include "gtpV2StackWrappers.h"
 
@@ -53,10 +54,11 @@ extern "C"
         	bool rc = stack_p->encodeMessage(*msgHeader_p, *buf_p, data_p);
         	if (rc == false)
         	{
-        		errorStream.printDebugStream();
+        		buf_p->display(errorStream);
+			errorStream.printDebugStream(LOG_ERROR);
         	} else
         	{
-        		cout << "GTP Encode Success" << endl;
+        		log_msg(LOG_DEBUG,"GTP Encode Success\n");
         	}
         	return rc;
         }
@@ -74,10 +76,11 @@ extern "C"
         	bool rc = stack_p->decodeMessage(*msgHeader, *buffer, data_p);
         	if (rc == false)
         	{
-        		errorStream.printDebugStream();
+        		buffer->display(errorStream);
+			errorStream.printDebugStream();
         	} else
         	{
-        		cout << "GTP Decode Success" << endl;
+        		log_msg(LOG_DEBUG,"GTP Decode Success\n");
         	}
         	return rc;
     	}

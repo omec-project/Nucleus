@@ -35,6 +35,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/stateFactory.cpp.tt>
  **************************************/
 
+#include "mmeSmDefs.h"
 #include "mmeStates/stateFactory.h"
 [%- FOREACH state = stateList%]
 [%- IF state != "end_state" %]
@@ -75,4 +76,7 @@ void StateFactory::initialize()
 	[% CLASSNAME(state) %]::Instance()->initialize();
 	[%- END %]
     [%- END %]
+
+        populateEventStringMap();
+        populateStateStringMap();
 }

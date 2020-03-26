@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseStart::S1ReleaseStart():State(State_e::s1_release_start)
+S1ReleaseStart::S1ReleaseStart():State(s1_release_start)
 {
 }
 
@@ -55,6 +55,6 @@ void S1ReleaseStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_rel_ab_req_to_sgw);
                 actionTable.setNextState(S1ReleaseWfReleaseAccessBearerResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::S1_REL_REQ_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(S1_REL_REQ_FROM_UE, actionTable));
         }
 }

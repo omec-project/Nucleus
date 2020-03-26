@@ -28,20 +28,18 @@ namespace SM
 	class State
 	{
   	public:
-		State(State_e sID);
+		State(uint16_t sID);
       		virtual ~State();
 
 	      	virtual void display();
 
-      		ActStatus executeActions(Event_e evtId,ControlBlock& cb);
+      		ActStatus executeActions(uint16_t evtId,ControlBlock& cb);
 
-	      	inline State_e getStateId()const
-      		{
-			return stateID;
-      		}
+	      	uint16_t getStateId() const;
+
 
    	protected:
-      		State_e stateID;
+      		uint16_t stateID;
 	      	EventToActionTableMap eventToActionsMap;
 	};
 }
