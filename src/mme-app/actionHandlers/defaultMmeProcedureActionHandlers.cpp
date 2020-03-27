@@ -108,7 +108,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		cb.setFastAccessBlock(ueCtxt_p, 1);
 	}
 
-	MmeProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeProcedureCtxt();
+	MmeAttachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeAttachProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Procedure Context \n");
@@ -380,7 +380,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 {	
-	MmeProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeProcedureCtxt();
+	MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt \n");

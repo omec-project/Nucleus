@@ -31,7 +31,9 @@
 #include "contextManager/sessionContextManager.h"
 #include "contextManager/bearerContextManager.h"
 #include "contextManager/mmeProcedureCtxtManager.h"
+#include "contextManager/mmeAttachProcedureCtxtManager.h"
 #include "contextManager/mmeDetachProcedureCtxtManager.h"
+#include "contextManager/mmeS1RelProcedureCtxtManager.h"
 #include "contextManager/mmeSvcReqProcedureCtxtManager.h"
 #include "contextManager/mmeTauProcedureCtxtManager.h"
 namespace mme
@@ -114,6 +116,17 @@ namespace mme
 			 ******************************************/
 			void deleteMmeProcedureCtxt(MmeProcedureCtxt* MmeProcedureCtxtp );
 			/******************************************
+			 * getMmeAttachProcedureCtxt
+			 * Get MmeAttachProcedureCtxt data block
+			 ******************************************/
+			MmeAttachProcedureCtxt* getMmeAttachProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeAttachProcedureCtxt
+			 *  Delete a MmeAttachProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeAttachProcedureCtxt(MmeAttachProcedureCtxt* MmeAttachProcedureCtxtp );
+			/******************************************
 			 * getMmeDetachProcedureCtxt
 			 * Get MmeDetachProcedureCtxt data block
 			 ******************************************/
@@ -124,6 +137,17 @@ namespace mme
 			 *  Delete a MmeDetachProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeDetachProcedureCtxt(MmeDetachProcedureCtxt* MmeDetachProcedureCtxtp );
+			/******************************************
+			 * getMmeS1RelProcedureCtxt
+			 * Get MmeS1RelProcedureCtxt data block
+			 ******************************************/
+			MmeS1RelProcedureCtxt* getMmeS1RelProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeS1RelProcedureCtxt
+			 *  Delete a MmeS1RelProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeS1RelProcedureCtxt(MmeS1RelProcedureCtxt* MmeS1RelProcedureCtxtp );
 			/******************************************
 			 * getMmeSvcReqProcedureCtxt
 			 * Get MmeSvcReqProcedureCtxt data block
@@ -217,9 +241,19 @@ namespace mme
 			MmeProcedureCtxtManager* MmeProcedureCtxtManagerm_p;
 			
 			/****************************************
+			* MmeAttachProcedureCtxt Pool Manager
+			****************************************/
+			MmeAttachProcedureCtxtManager* MmeAttachProcedureCtxtManagerm_p;
+			
+			/****************************************
 			* MmeDetachProcedureCtxt Pool Manager
 			****************************************/
 			MmeDetachProcedureCtxtManager* MmeDetachProcedureCtxtManagerm_p;
+			
+			/****************************************
+			* MmeS1RelProcedureCtxt Pool Manager
+			****************************************/
+			MmeS1RelProcedureCtxtManager* MmeS1RelProcedureCtxtManagerm_p;
 			
 			/****************************************
 			* MmeSvcReqProcedureCtxt Pool Manager

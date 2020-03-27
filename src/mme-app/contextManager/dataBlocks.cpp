@@ -733,19 +733,12 @@ namespace mme
 	******************************************************************************/
 	MmeProcedureCtxt::MmeProcedureCtxt():            
             ctxtType_m(invalidProcedureType_c),
-            esmInfoTxRequired_m(false),
-            attachType_m(invalidAttachType_c),
-            pcoOptionsLen_m(0),
-            pti_m(0),
             mmeErrorCause_m(noError_c),
             s1apCause_m(),
             authRespStatus_m(0),
-            auts_m(),
-            requestedApn_m()
+            auts_m()
 	
-	{
-		memset(pcoOptions_m,0,sizeof(pcoOptions_m));
-	
+	{	
 	}
 	
 	/******************************************************************************
@@ -772,79 +765,7 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets esmInfoTxRequired
-	******************************************************************************/
-	void MmeProcedureCtxt::setEsmInfoTxRequired( bool esmInfoTxRequired_i )
-	{
-		esmInfoTxRequired_m = esmInfoTxRequired_i;
-	}
-	
-	/******************************************************************************
-	* returns esmInfoTxRequired
-	******************************************************************************/	
-	bool MmeProcedureCtxt::getEsmInfoTxRequired() const
-	{
-		return esmInfoTxRequired_m;
-	}
-	
-	/******************************************************************************
-	* sets attachType
-	******************************************************************************/
-	void MmeProcedureCtxt::setAttachType( AttachType attachType_i )
-	{
-		attachType_m = attachType_i;
-	}
-	
-	/******************************************************************************
-	* returns attachType
-	******************************************************************************/	
-	AttachType MmeProcedureCtxt::getAttachType() const
-	{
-		return attachType_m;
-	}
-	
-	/******************************************************************************
-	* sets pcoOptions
-	******************************************************************************/
-	void MmeProcedureCtxt::setPcoOptions( const unsigned char* pcoOptions_i,uint16_t len )
-	{
-		pcoOptionsLen_m=len;
-		memcpy(pcoOptions_m, pcoOptions_i, pcoOptionsLen_m);
-	}
-	
-	/******************************************************************************
-	* returns pcoOptions
-	******************************************************************************/	
-	const unsigned char* MmeProcedureCtxt::getPcoOptions() const
-	{
-		return pcoOptions_m;
-	}
-	/******************************************************************************
-	* returns pcoOptionsLen
-	******************************************************************************/	
-	uint16_t MmeProcedureCtxt::getPcoOptionsLen() const
-	{
-		return pcoOptionsLen_m;
-	}
-	
-	/******************************************************************************
-	* sets pti
-	******************************************************************************/
-	void MmeProcedureCtxt::setPti( uint8_t pti_i )
-	{
-		pti_m = pti_i;
-	}
-	
-	/******************************************************************************
-	* returns pti
-	******************************************************************************/	
-	uint8_t MmeProcedureCtxt::getPti() const
-	{
-		return pti_m;
-	}
-	
-	/******************************************************************************
-	* sets mmeErrorCause
+	* sets 
 	******************************************************************************/
 	void MmeProcedureCtxt::setMmeErrorCause( MmeErrorCause mmeErrorCause_i )
 	{
@@ -852,29 +773,29 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* returns mmeErrorCause
+	* returns 
 	******************************************************************************/	
 	MmeErrorCause MmeProcedureCtxt::getMmeErrorCause() const
 	{
 		return mmeErrorCause_m;
 	}
-
+	
 	/******************************************************************************
 	* sets s1apCause
-	********************************************************************************/
-	void MmeProcedureCtxt::setS1apCause(const S1apCause &s1apCause_i)
+	******************************************************************************/
+	void MmeProcedureCtxt::setS1apCause( const S1apCause& s1apCause_i )
 	{
-	    s1apCause_m = s1apCause_i;
+		s1apCause_m = s1apCause_i;
 	}
-
+	
 	/******************************************************************************
 	* returns s1apCause
-	*******************************************************************************/
+	******************************************************************************/	
 	const S1apCause& MmeProcedureCtxt::getS1apCause() const
 	{
-	    return s1apCause_m;
+		return s1apCause_m;
 	}
-
+	
 	/******************************************************************************
 	* sets authRespStatus
 	******************************************************************************/
@@ -908,9 +829,109 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	*******************************************************************************
+	*							MmeAttachProcedureCtxt
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	MmeAttachProcedureCtxt::MmeAttachProcedureCtxt():            
+            esmInfoTxRequired_m(false),
+            attachType_m(invalidAttachType_c),
+            pcoOptionsLen_m(0),
+            pti_m(0),
+            requestedApn_m()
+	
+	{
+		memset(pcoOptions_m,0,sizeof(pcoOptions_m));
+	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	MmeAttachProcedureCtxt::~MmeAttachProcedureCtxt()
+	{
+	}	
+	
+	/******************************************************************************
+	* sets esmInfoTxRequired
+	******************************************************************************/
+	void MmeAttachProcedureCtxt::setEsmInfoTxRequired( bool esmInfoTxRequired_i )
+	{
+		esmInfoTxRequired_m = esmInfoTxRequired_i;
+	}
+	
+	/******************************************************************************
+	* returns esmInfoTxRequired
+	******************************************************************************/	
+	bool MmeAttachProcedureCtxt::getEsmInfoTxRequired() const
+	{
+		return esmInfoTxRequired_m;
+	}
+	
+	/******************************************************************************
+	* sets attachType
+	******************************************************************************/
+	void MmeAttachProcedureCtxt::setAttachType( AttachType attachType_i )
+	{
+		attachType_m = attachType_i;
+	}
+	
+	/******************************************************************************
+	* returns attachType
+	******************************************************************************/	
+	AttachType MmeAttachProcedureCtxt::getAttachType() const
+	{
+		return attachType_m;
+	}
+	
+	/******************************************************************************
+	* sets pcoOptions
+	******************************************************************************/
+	void MmeAttachProcedureCtxt::setPcoOptions( const unsigned char* pcoOptions_i,uint16_t len )
+	{
+		pcoOptionsLen_m=len;
+		memcpy(pcoOptions_m, pcoOptions_i, pcoOptionsLen_m);
+	}
+	
+	/******************************************************************************
+	* returns pcoOptions
+	******************************************************************************/	
+	const unsigned char* MmeAttachProcedureCtxt::getPcoOptions() const
+	{
+		return pcoOptions_m;
+	}
+	/******************************************************************************
+	* returns pcoOptionsLen
+	******************************************************************************/	
+	uint16_t MmeAttachProcedureCtxt::getPcoOptionsLen() const
+	{
+		return pcoOptionsLen_m;
+	}
+	
+	/******************************************************************************
+	* sets pti
+	******************************************************************************/
+	void MmeAttachProcedureCtxt::setPti( uint8_t pti_i )
+	{
+		pti_m = pti_i;
+	}
+	
+	/******************************************************************************
+	* returns pti
+	******************************************************************************/	
+	uint8_t MmeAttachProcedureCtxt::getPti() const
+	{
+		return pti_m;
+	}
+	
+	/******************************************************************************
 	* sets requestedApn
 	******************************************************************************/
-	void MmeProcedureCtxt::setRequestedApn( const Apn_name& requestedApn_i )
+	void MmeAttachProcedureCtxt::setRequestedApn( const Apn_name& requestedApn_i )
 	{
 		requestedApn_m = requestedApn_i;
 	}
@@ -918,7 +939,7 @@ namespace mme
 	/******************************************************************************
 	* returns requestedApn
 	******************************************************************************/	
-	const Apn_name& MmeProcedureCtxt::getRequestedApn() const
+	const Apn_name& MmeAttachProcedureCtxt::getRequestedApn() const
 	{
 		return requestedApn_m;
 	}
@@ -976,6 +997,44 @@ namespace mme
 	CancellationType MmeDetachProcedureCtxt::getCancellationType() const
 	{
 		return cancellationType_m;
+	}
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							MmeS1RelProcedureCtxt
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():            
+            s1ReleaseTrigger_m(noTrigger_c)
+	
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	MmeS1RelProcedureCtxt::~MmeS1RelProcedureCtxt()
+	{
+	}	
+	
+	/******************************************************************************
+	* sets s1ReleaseTrigger
+	******************************************************************************/
+	void MmeS1RelProcedureCtxt::setS1ReleaseTrigger( S1ReleaseTrigger s1ReleaseTrigger_i )
+	{
+		s1ReleaseTrigger_m = s1ReleaseTrigger_i;
+	}
+	
+	/******************************************************************************
+	* returns s1ReleaseTrigger
+	******************************************************************************/	
+	S1ReleaseTrigger MmeS1RelProcedureCtxt::getS1ReleaseTrigger() const
+	{
+		return s1ReleaseTrigger_m;
 	}
 	
 	/******************************************************************************
