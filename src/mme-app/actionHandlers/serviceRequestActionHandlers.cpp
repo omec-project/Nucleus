@@ -326,35 +326,38 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
 {
   	log_msg(LOG_DEBUG, "Inside send_service_reject \n");
         
-	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-        if (ue_ctxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "send_service_reject: ue context is NULL \n");
-                return ActStatus::HALT;
-        }
+    UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt_p == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_service_reject: ue context is NULL \n");
+        return ActStatus::HALT;
+    }
 
 	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-	if (procCtxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "send_service_reject: procedure ctxt is NULL \n");
-                return ActStatus::HALT;
-        }
+    if (procCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_service_reject: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
 
-	struct commonRej_info service_rej;
-	
-	service_rej.msg_type = service_reject;
-	service_rej.ue_idx = ue_ctxt->getContextID(); 
-	service_rej.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
-	service_rej.enb_fd = ue_ctxt->getEnbFd();
-	service_rej.cause = emmCause_ue_id_not_derived_by_network;
-	
+    log_msg(LOG_INFO, "Sending Service Reject\n");
+    struct s1ap_common_req_Q_msg service_rej;
+    service_rej.msg_type = service_reject;
+    service_rej.IE_type = S1AP_SERVICE_REJ;
+    service_rej.ue_idx = ueCtxt_p->getContextID();;
+    service_rej.mme_s1ap_ue_id = ueCtxt_p->getContextID();
+    service_rej.enb_s1ap_ue_id = ueCtxt_p->getS1apEnbUeId();
+    service_rej.enb_fd = ueCtxt_p->getEnbFd();
+    service_rej.emm_cause = emmCause_ue_id_not_derived_by_network;
+
 	cmn::ipc::IpcAddress destAddr;
-        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-        mmeIpcIf_g->dispatchIpcMsg((char *) &service_rej, sizeof(service_rej), destAddr);
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    mmeIpcIf_g->dispatchIpcMsg((char *) &service_rej, 
+                               sizeof(service_rej), destAddr);
 
 	ProcedureStats::num_of_service_reject_sent ++;
 
-        return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 
 }
 

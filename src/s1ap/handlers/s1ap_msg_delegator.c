@@ -257,9 +257,191 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 	}
 	
 	case NAS_TAU_REQUEST:
+    {
 		log_msg(LOG_INFO, "NAS_TAU_REQUEST recvd\n");
-		break;
+		
+		unsigned char tmp = msg[0];
+		unsigned char tmp_val = 0;
+        tmp_val = (tmp & 0xF0) >> 4;
+        nas->header.ksi = (tmp_val & 0x07);
 
+		tmp_val = (tmp & 0x0F);
+        nas->header.active_flag = tmp_val >> 3;
+        nas->header.update_type = tmp_val & 0x07;
+		msg++;
+
+		nas->elements_len = 5;
+		nas->elements = calloc(sizeof(nas_pdu_elements), nas->elements_len);
+		
+		int index = 0;
+		unsigned short imsi_len = get_length(&msg);
+		
+		unsigned char eps_identity = msg[0] & 0x07;
+		switch(eps_identity) 
+        {
+            case 0x01: {
+                // Mobile Identity contains imsi
+                nas->flags |= NAS_MSG_UE_IE_IMSI;
+                log_msg(LOG_INFO, "IMSI len=%u - %u\n", imsi_len, BINARY_IMSI_LEN);
+                char *buffer = NULL;
+                log_msg(LOG_INFO, "IMSI=%s [to be read nibble-swapped]\n",
+                        msg_to_hex_str((char *)nas->elements[index].pduElement.IMSI, imsi_len, &buffer));
+                log_buffer_free(&buffer);
+                nas->elements[index].msgType = NAS_IE_TYPE_EPS_MOBILE_ID_IMSI;
+                memcpy(&(nas->elements[index].pduElement.IMSI), msg, imsi_len);
+                break;
+            }
+            case 0x06: {
+                log_msg(LOG_INFO, "Mobile identity GUTI Rcvd \n");
+                // Mobile Identity contains GUTI
+                // MCC+MNC offset = 3
+                // MME Group Id   = 2
+                // MME Code       = 1
+                // MTMSI offset from start of this AVP = 3 + 2 + 1
+                nas->elements[index].msgType = NAS_IE_TYPE_EPS_MOBILE_ID_IMSI;
+                memcpy(&nas->elements[index].pduElement.mi_guti.plmn_id.idx, &msg[1], 3);
+                nas->elements[index].pduElement.mi_guti.mme_grp_id = ntohs(*(short int *)(&msg[4]));
+                nas->elements[index].pduElement.mi_guti.mme_code = msg[6];
+                nas->elements[index].pduElement.mi_guti.m_TMSI = ntohl(*((unsigned int *)(&msg[7])));
+                log_msg(LOG_INFO, "NAS TAU Request Rcvd ID: GUTI. PLMN id %d %d %d \n", nas->elements[index].pduElement.mi_guti.plmn_id.idx[0], 
+                        nas->elements[index].pduElement.mi_guti.plmn_id.idx[1], 
+                        nas->elements[index].pduElement.mi_guti.plmn_id.idx[2] );
+                log_msg(LOG_INFO, "NAS TAU Request Rcvd ID: GUTI. mme group id = %d, MME code %d  mtmsi = %d\n", 
+                        nas->elements[index].pduElement.mi_guti.mme_grp_id, 
+                        nas->elements[index].pduElement.mi_guti.mme_code,
+                        nas->elements[index].pduElement.mi_guti.m_TMSI);
+                nas->flags |= NAS_MSG_UE_IE_GUTI;
+                break;
+            }
+            case 0x03: {
+                // Mobile Identity contains imei
+                break;
+            }
+            default:
+                log_msg(LOG_INFO, "Mobile identity Unknown %d\n", eps_identity);
+        }
+
+        msg += imsi_len;
+
+        /*UE network capacity*/
+        index++;
+        nas->elements[index].msgType = 
+            NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
+        nas->elements[index].pduElement.ue_network.len = msg[0];
+        msg++;
+        memcpy(
+               (nas->elements[index].pduElement.ue_network.capab)
+               ,msg,
+               nas->elements[index].pduElement.ue_network.len);
+        msg += nas->elements[index].pduElement.ue_network.len;
+
+        unsigned char elem_id = msg[0];
+        while(msg != msg_end)
+        {
+            elem_id = msg[0];
+            elem_id >>= 4;
+            if((NAS_IE_TYPE_GUTI_TYPE == elem_id)
+               || (NAS_IE_TYPE_TMSI_STATUS == elem_id)
+               || (NAS_IE_TYPE_MS_NETWORK_FEATURE_SUPPORT == elem_id))
+            {
+                switch(elem_id)
+                {
+                    case NAS_IE_TYPE_GUTI_TYPE:
+                        {
+                            log_msg(LOG_DEBUG, "Old guti type : Skipping.\n");
+                            msg++;
+                        }break;
+                    case NAS_IE_TYPE_TMSI_STATUS:
+                        {
+                            log_msg(LOG_DEBUG, "TMSI Status : Skipping.\n");
+                            msg++;
+                        }break;
+                    case NAS_IE_TYPE_MS_NETWORK_FEATURE_SUPPORT:
+                        {
+                            log_msg(LOG_DEBUG, "MS Network feature support : Skipping.\n");
+                            msg++;
+                        }break;
+                    default:
+                        log_msg(LOG_WARNING, "Unknown AVP in attach msg. %d \n",elem_id);
+                        msg++;
+                }
+
+                continue;
+            }
+            else
+            {
+                elem_id = msg[0];
+                switch(elem_id)
+                {
+                    case NAS_IE_TYPE_EPS_BEARER_STATUS:
+                        {
+                            log_msg(LOG_DEBUG, "EPS Bearer Status : Skipping.\n");
+                            index++;
+                            int len = msg[1];
+                            msg += 2;
+                            nas->elements[index].msgType = NAS_IE_TYPE_EPS_BEARER_STATUS;
+                            memcpy(
+                                   (nas->elements[index].pduElement.eps_bearer_status), 
+                                   msg, BEARER_STATUS_LEN);
+                            msg += len; 
+                        }break;
+                    case NAS_IE_TYPE_TAI:
+                        {
+                            log_msg(LOG_DEBUG, "TAI : Skipping.\n");
+                            msg += 6;
+                        }break;
+                    case NAS_IE_TYPE_MS_CLASSMARK_2:
+                        {
+                            log_msg(LOG_DEBUG, "MS classmark 2 : Skipping.\n");
+                            int len = msg[1];
+                            msg += len + 2; //msgid + len field + len;
+                        }break;
+                    case NAS_IE_TYPE_SUPPORTED_CODEC:
+                        {
+                            log_msg(LOG_DEBUG, "Supported Codec list : Skipping.\n");
+                            int len = msg[1];
+                            msg += len + 2; //msgid + len field + len;
+                        }break;
+                    case NAS_IE_TYPE_MS_CLASSMARK_3:
+                        {
+                            log_msg(LOG_DEBUG, "MS classmark 3 : Skipping.\n");
+                            int len = msg[1];
+                            msg += len + 2; //msgid + len field + len;
+                        }break;
+                    case NAS_IE_TYPE_VOICE_DOMAIN_PREF_UE_USAGE_SETTING:
+                        {
+                            log_msg(LOG_DEBUG, "Voice domain UE Usage : Skipping.\n");
+                            int len = msg[1];
+                            msg += len + 2; //msgid + len field + len;
+                        }break;
+                    case NAS_IE_TYPE_MS_NETWORK_CAPABILITY:
+                        {
+                            log_msg(LOG_DEBUG, "MS Network capability : Handling.\n");
+                            index++;
+                            nas->elements[index].msgType = NAS_IE_TYPE_MS_NETWORK_CAPABILITY;
+                            nas->elements[index].pduElement.ms_network.pres = true;
+                            nas->elements[index].pduElement.ms_network.element_id 
+                                = msg[0];
+                            msg++;
+                            nas->elements[index].pduElement.ms_network.len = msg[0];
+                            msg++;
+                            memcpy(
+                                   (nas->elements[index].pduElement.ms_network.capab), 
+                                   msg, 
+                                   nas->elements[index].pduElement.ms_network.len);
+                            msg += 
+                                nas->elements[index].pduElement.ms_network.len;
+                        }break;
+                    default:
+                        log_msg(LOG_WARNING, "Unknown AVP in Attach Req  %d \n", elem_id);
+                        msg++;
+                }
+
+                continue;
+            }
+        }
+        break;
+    }
 	case NAS_AUTH_FAILURE:
 	{
 		nas->elements_len = 1;
@@ -293,7 +475,6 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		int index = 0;
 		unsigned short imsi_len = get_length(&msg);
 		
-		bool odd = msg[0] & 0x08;
 		unsigned char eps_identity = msg[0] & 0x07;
 		switch(eps_identity) {
                 case 0x01: {
@@ -387,7 +568,6 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 
                 if(0x27 == val)
                 {
-                    unsigned short int pco_offset =  msg_offset;
                     unsigned char pco_length = msg[msg_offset+1];
                     // element Id 1 byte and pco length 1 byte 
                     // Copy from - 1 byte header Extension + Configuration Protocol
@@ -497,39 +677,39 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		/*Other than error check there seems no information to pass to mme. Marking TODO for protocol study*/
 		break;
 
-        case NAS_DETACH_REQUEST: 
-        {
-            log_msg(LOG_INFO, "NAS_DETACH_REQUEST recvd\n");
-            nas->elements_len = 1;
-            nas->elements = calloc(sizeof(nas_pdu_elements), 1);
+    case NAS_DETACH_REQUEST: 
+    {
+        log_msg(LOG_INFO, "NAS_DETACH_REQUEST recvd\n");
+        nas->elements_len = 1;
+        nas->elements = calloc(sizeof(nas_pdu_elements), 1);
 
-			/*EPS mobility identity*/
-            uint8_t msg_len = msg[1];
-            unsigned char eps_identity = msg[2] & 0x07;
-            log_msg(LOG_INFO, "NAS Detach Request Rcvd :  %d %d %d %d, eps id %d\n", msg[0],msg[1],msg[2],msg[4],eps_identity); 
-            if(eps_identity == 0x06)
-            {
-                log_msg(LOG_INFO, "Mobile identity GUTI Rcvd \n");
-                // Mobile Identity contains GUTI
-                // MCC+MNC offset = 3
-                // MME Group Id   = 2
-                // MME Code       = 1
-                // MTMSI offset from start of this AVP = 3 + 2 + 1
-                nas->elements[0].msgType = NAS_IE_TYPE_EPS_MOBILE_ID_IMSI;
-                memcpy(&nas->elements[0].pduElement.mi_guti.plmn_id.idx, &msg[3], 3);
-                nas->elements[0].pduElement.mi_guti.mme_grp_id = ntohs(*(short int *)(&msg[6]));
-                nas->elements[0].pduElement.mi_guti.mme_code = msg[8];
-                nas->elements[0].pduElement.mi_guti.m_TMSI = ntohl(*((unsigned int *)(&msg[9])));
-                log_msg(LOG_INFO, "NAS Detach Request Rcvd ID: GUTI. PLMN id %d %d %d \n", nas->elements[0].pduElement.mi_guti.plmn_id.idx[0], 
-                        nas->elements[0].pduElement.mi_guti.plmn_id.idx[1], 
-                        nas->elements[0].pduElement.mi_guti.plmn_id.idx[2] );
-                log_msg(LOG_INFO, "NAS Detach Request Rcvd ID: GUTI. mme group id = %d, MME code %d  mtmsi = %d\n", 
-                        nas->elements[0].pduElement.mi_guti.mme_grp_id, 
-                        nas->elements[0].pduElement.mi_guti.mme_code,
-                        nas->elements[0].pduElement.mi_guti.m_TMSI);
-                nas->flags |= NAS_MSG_UE_IE_GUTI;
-			}
-			break;
+        /*EPS mobility identity*/
+        uint8_t msg_len = msg[1];
+        unsigned char eps_identity = msg[2] & 0x07;
+        log_msg(LOG_INFO, "NAS Detach Request Rcvd :  %d %d %d %d, eps id %d\n", msg[0],msg[1],msg[2],msg[4],eps_identity); 
+        if(eps_identity == 0x06)
+        {
+            log_msg(LOG_INFO, "Mobile identity GUTI Rcvd \n");
+            // Mobile Identity contains GUTI
+            // MCC+MNC offset = 3
+            // MME Group Id   = 2
+            // MME Code       = 1
+            // MTMSI offset from start of this AVP = 3 + 2 + 1
+            nas->elements[0].msgType = NAS_IE_TYPE_EPS_MOBILE_ID_IMSI;
+            memcpy(&nas->elements[0].pduElement.mi_guti.plmn_id.idx, &msg[3], 3);
+            nas->elements[0].pduElement.mi_guti.mme_grp_id = ntohs(*(short int *)(&msg[6]));
+            nas->elements[0].pduElement.mi_guti.mme_code = msg[8];
+            nas->elements[0].pduElement.mi_guti.m_TMSI = ntohl(*((unsigned int *)(&msg[9])));
+            log_msg(LOG_INFO, "NAS Detach Request Rcvd ID: GUTI. PLMN id %d %d %d \n", nas->elements[0].pduElement.mi_guti.plmn_id.idx[0], 
+                    nas->elements[0].pduElement.mi_guti.plmn_id.idx[1], 
+                    nas->elements[0].pduElement.mi_guti.plmn_id.idx[2] );
+            log_msg(LOG_INFO, "NAS Detach Request Rcvd ID: GUTI. mme group id = %d, MME code %d  mtmsi = %d\n", 
+                    nas->elements[0].pduElement.mi_guti.mme_grp_id, 
+                    nas->elements[0].pduElement.mi_guti.mme_code,
+                    nas->elements[0].pduElement.mi_guti.m_TMSI);
+            nas->flags |= NAS_MSG_UE_IE_GUTI;
+        }
+        break;
 	}
 	
 	case NAS_DETACH_ACCEPT: {
@@ -864,7 +1044,7 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		break;
 
 	case NAS_TAU_REQUEST:
-	    tau_request_handler(&proto_ies, enb_fd);
+	    tau_request_handler(&proto_ies, enb_fd, true);
 	    break;
 	}
 
@@ -925,7 +1105,7 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
         break;
 
 	case NAS_TAU_REQUEST:
-	    tau_request_handler(&proto_ies, enb_fd);
+	    tau_request_handler(&proto_ies, enb_fd, false);
 	    break;
 	}
 

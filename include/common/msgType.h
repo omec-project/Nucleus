@@ -33,6 +33,13 @@ typedef enum msg_data_t
     session_data
 }msg_data_t;
 
+enum s1ap_cn_domain
+{
+    CN_DOMAIN_PS,
+    CN_DOMAIN_CS,
+    CN_DOMAIN_NONE
+};
+
 typedef enum msg_type_t {
     attach_request = 0,
     attach_reject,
@@ -77,6 +84,7 @@ typedef enum msg_type_t {
     service_reject,
     ics_req_paging,
     tau_request,
+    tau_reject,
     tau_response,
     emm_info_request,
     max_msg_type
@@ -144,8 +152,13 @@ struct service_req_Q_msg {
 };
 
 struct tauReq_Q_msg {
+    unsigned char active_flag;;
+    unsigned int  flags; /* imsi - 0x00000001, GUTI - 0x00000002 */
     int seq_num;
     int enb_fd;
+	unsigned char eps_bearer_status[BEARER_STATUS_LEN];
+    unsigned char IMSI[BINARY_IMSI_LEN];
+    guti mi_guti;
 };
 
 struct identityResp_Q_msg {
@@ -192,6 +205,26 @@ struct authreq_info {
     	unsigned char autn[NAS_AUTN_SIZE];
      	//struct TAI tai;
     	int enb_fd;
+};
+
+struct s1ap_common_req_Q_msg {
+    msg_type_t      msg_type;
+    int             IE_type;
+    e_emmCause      emm_cause;
+	int ue_idx;
+	int enb_fd;
+	int enb_s1ap_ue_id;
+	int mme_s1ap_ue_id;
+    enum s1ap_cn_domain cn_domain;
+    unsigned char imsi[BINARY_IMSI_LEN];
+	struct TAI      tai;//TODO: will be list of 16 TAI's for UE.
+	s1apCause_t cause;
+
+	unsigned long ueag_max_ul_bitrate;
+	unsigned long ueag_max_dl_bitrate;
+	struct fteid gtp_teid;
+	unsigned char sec_key[32];
+	unsigned char bearer_id;
 };
 
 #define S1AP_AUTHREQ_STAGE2_BUF_SIZE sizeof(struct authreq_info)

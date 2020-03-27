@@ -204,6 +204,7 @@ class MmeGrpcCliClient {
 	    cout << "num_of_service_request_received	     " << reply.num_of_service_request_received() << endl;
 	    cout << "num_of_service_reject_sent	             " << reply.num_of_service_reject_sent() << endl;
     	    cout << "num_of_attach_reject_sent               " << reply.num_of_attach_reject_sent() << endl;	    
+    	    cout << "num_of_tau_reject_sent               " << reply.num_of_tau_reject_sent() << endl;	    
 	    cout << "num_of_emm_info_sent		     " << reply.num_of_emm_info_sent() << endl;
 	    cout << "num_of_attach_req_received		     " << reply.num_of_attach_req_received() << endl;
 	    cout << "num_of_detach_req_received              " << reply.num_of_detach_req_received() << endl;
