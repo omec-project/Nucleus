@@ -34,6 +34,7 @@
 #include "log.h"
 #include "json_data.h"
 #include "monitorSubscriber.h"
+#include "timeoutManager.h"
 
 using namespace std;
 using namespace mme;
@@ -73,6 +74,7 @@ mme_config g_mme_cfg;
 pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
+TimeoutManager* timeoutMgr_g = NULL;
 
 void setThreadName(std::thread* thread, const char* threadName)
 {
