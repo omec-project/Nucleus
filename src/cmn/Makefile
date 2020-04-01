@@ -32,9 +32,15 @@ CMNUTILS_LIBNAME = $(LIBDIR)/libcmnUtils.so
 
 IPC_SRCS := ./ipcChannel.cpp  \
             ./tipcSocket.cpp
+            
 DATAGROUPMGR_SRCS := ./dataGroupManager.cpp
-CMNUTILS_SRCS := ./debug.cpp \
-		./msgBuffer.cpp
+
+CMNUTILS_SRCS := ./cTime.cpp \
+		 ./debug.cpp \
+		 ./msgBuffer.cpp \
+		 ./timerQueue.cpp \
+		 ./timeoutManager.cpp
+		 
 
 SRCDIR := .
 SRCEXT := cpp

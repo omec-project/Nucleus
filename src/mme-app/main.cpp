@@ -34,6 +34,8 @@
 #include "log.h"
 #include "json_data.h"
 #include "monitorSubscriber.h"
+#include "timeoutManager.h"
+#include <utils/mmeTimerUtils.h>
 
 using namespace std;
 using namespace mme;
@@ -73,6 +75,9 @@ mme_config g_mme_cfg;
 pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
+TimeoutManager* timeoutMgr_g = NULL;
+
+using namespace std::placeholders;
 
 void setThreadName(std::thread* thread, const char* threadName)
 {
@@ -96,6 +101,9 @@ int main(int argc, char *argv[])
 	
 	init_backtrace(argv[0]);
 	srand(time(0));
+
+    auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
+    timeoutMgr_g = new TimeoutManager(cb);
 
 	StateFactory::Instance()->initialize();
 
