@@ -240,6 +240,37 @@
 								"Key": "No"
 							},
 							{
+								"Name": "mmeErrorCause",
+								"Type": "MmeErrorCause",
+								"SubType": "enum",
+								"DefaultVal": "noError_c",
+								"Key": "No"
+							},
+							{
+								"Name": "s1apCause",
+								"Type": "S1apCause",
+								"Key": "No"
+							},
+							{
+								"Name": "authRespStatus",
+								"Type": "int",
+								"Key": "No"
+							},
+							{
+								"Name": "auts",
+								"Type": "Auts",
+								"Key": "No"
+							}
+						]
+					},
+					{
+						"BlockName": "MmeAttachProcedureCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
 								"Name": "esmInfoTxRequired",
 								"Type": "bool",
 								"DefaultVal": "false",
@@ -261,28 +292,6 @@
 							{
 								"Name": "pti",
 								"Type": "uint8_t",
-								"Key": "No"
-							},
-							{
-								"Name": "mmeErrorCause",
-								"Type": "MmeErrorCause",
-								"SubType": "enum",
-								"DefaultVal": "noError_c",
-								"Key": "No"
-							},
-							{
-								"Name": "s1apCause",
-								"Type": "S1apCause",
-								"Key": "No"
-							},
-							{
-								"Name": "authRespStatus",
-								"Type": "int",
-								"Key": "No"
-							},
-							{
-								"Name": "auts",
-								"Type": "Auts",
 								"Key": "No"
 							},
 							{
@@ -311,6 +320,22 @@
 								"Type": "CancellationType",
 								"SubType": "enum",
 								"DefaultVal": "INVALID_TYPE",
+								"Key": "No"
+							}
+						]
+					},
+					{
+						"BlockName": "MmeS1RelProcedureCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "s1ReleaseTrigger",
+								"Type": "S1ReleaseTrigger",
+								"SubType": "enum",
+								"DefaultVal": "noTrigger_c",
 								"Key": "No"
 							}
 						]

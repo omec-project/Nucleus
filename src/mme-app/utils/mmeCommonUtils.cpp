@@ -237,9 +237,13 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt)
 {
 	bool rc = false;
-	if (procCtxt.getCtxtType() == attach_c && procCtxt.getAttachType() == imsiAttach_c)
+	if (procCtxt.getCtxtType() == attach_c)
 	{
-	    rc = true;
+    		MmeAttachProcedureCtxt& attachCtxt = dynamic_cast<MmeAttachProcedureCtxt &>(procCtxt);
+    		if (attachCtxt.getAttachType() == imsiAttach_c)
+    		{
+        		rc = true;
+    		}
 	}
 	return rc;
 }

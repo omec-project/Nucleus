@@ -539,7 +539,7 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
@@ -620,7 +620,7 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-    MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
     if (procedure_p == NULL)
     {
         log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
@@ -645,7 +645,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (ue_ctxt == NULL  || procCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: UE context or Procedure Context is NULL \n");
@@ -745,7 +745,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -802,7 +802,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -889,7 +889,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside process_init_ctxt_resp \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 
 	if (ue_ctxt == NULL || procCtxt == NULL)
 	{
@@ -1098,7 +1098,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
                 return ActStatus::HALT;
         }
 
-        MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
         if (procCtxt == NULL)
         {
                 log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
