@@ -23,43 +23,29 @@ const uint16_t stateGuardTimer_c = 1;
 const uint32_t defaultStateGuardTimerDuration_c = 5000;
 
 
-class MmeTimerContext : public TimerContext
+class MmeUeTimerContext : public TimerContext
 {
 public:
-    MmeTimerContext(uint32_t cbIdx,
+    MmeUeTimerContext(uint32_t ueIdx,
             uint16_t timerType,
             uint16_t timerId,
             CTime& expiryTime):
-        TimerContext(expiryTime),
-        controlBlockIdx_m(cbIdx),
-        timerType_m(timerType),
-        timerId_m(timerId)
+        TimerContext(expiryTime, timerType, timerId),
+        ueIndex_m(ueIdx)
     {
     }
 
-    ~MmeTimerContext()
+    ~MmeUeTimerContext()
     {
     }
 
-    uint16_t getTimerType() const
+    uint32_t getUeIndex() const
     {
-        return timerType_m;
-    }
-
-    uint16_t getTimerId() const
-    {
-        return timerId_m;
-    }
-
-    uint32_t getCbIndex() const
-    {
-        return controlBlockIdx_m;
+        return ueIndex_m;
     }
 
 private:
-    uint32_t controlBlockIdx_m;
-    uint16_t timerType_m;
-    uint16_t timerId_m;
+    uint32_t ueIndex_m;
 };
 }
 

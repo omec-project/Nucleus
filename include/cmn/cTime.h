@@ -29,6 +29,7 @@ public:
     bool operator<(const CTime& rhs) const;
     bool operator>(const CTime& rhs) const;
     bool operator==(const CTime& rhs) const;
+    bool operator<=(const CTime& rhs) const;
     CTime operator+(const CTime& rhs);
     CTime& operator=(const CTime& rhs);
 

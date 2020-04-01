@@ -77,26 +77,18 @@ bool CTime::operator <(const CTime& rhs) const
 
 bool CTime::operator >(const CTime& rhs) const
 {
-    bool rc = false;
-
-    if (time_m.tv_sec > rhs.time_m.tv_sec)
-    {
-        rc = true;
-    }
-    else if (time_m.tv_sec == rhs.time_m.tv_sec)
-    {
-        if (time_m.tv_usec > rhs.time_m.tv_usec)
-        {
-            rc = true;
-        }
-    }
-    return rc;
+    return (rhs < *this);
 }
 
 bool CTime::operator==(const CTime& rhs) const
 {
     return (time_m.tv_sec == rhs.time_m.tv_sec &&
             time_m.tv_usec == rhs.time_m.tv_usec);
+}
+
+bool CTime::operator<=(const CTime& rhs) const
+{
+    return (!(*this > rhs));
 }
 
 CTime CTime::operator+(const CTime& rhs)

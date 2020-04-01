@@ -12,16 +12,17 @@
 class TimerContext;
 namespace mme
 {
-class MmeTimerContext;
+class MmeUeTimerContext;
 
 class MmeTimerUtils
 {
-    static MmeTimerContext* startTimer(uint32_t durationMs,
+public:
+    static TimerContext* startTimer(uint32_t durationMs,
                                         uint32_t ueIdx,
                                         uint16_t timerType,
                                         uint16_t timerId);
-    static uint32_t stopTimer(MmeTimerContext* timerCtxt);
-    static void onTimeout(TimerContext* mmeTimerCtxt);
+    static uint32_t stopTimer(TimerContext* timerCtxt);
+    static void onTimeout(TimerContext* timerCtxt);
 
 private:
     MmeTimerUtils();

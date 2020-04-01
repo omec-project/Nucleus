@@ -49,8 +49,6 @@ void TimeoutManager::Timer::initTimer()
 
 bool TimeoutManager::Timer::startTimer()
 {
-    log_msg(LOG_DEBUG, "TimeoutManager::Timer::startTimer() ENTRY\n");    
-
     bool rc = false;
 
     if (fd_m != 0)
@@ -65,15 +63,12 @@ bool TimeoutManager::Timer::startTimer()
         }
     }
 
-    log_msg(LOG_DEBUG,"TimeoutManager::Timer::startTimer()-EXIT\n");
-
     return rc;
 }
 
 bool TimeoutManager::Timer::stopTimer()
 {
     bool rc = false;
-    log_msg(LOG_DEBUG,"TimeoutManager::Timer::stopTimer-ENTRY\n");
 
     if (fd_m != 0)
     {
@@ -92,7 +87,7 @@ bool TimeoutManager::Timer::stopTimer()
             // thread abort.
         }
     }
-    log_msg(LOG_DEBUG,"TimeoutManager::Timer::stopTimer-EXIT\n");
+
     return rc;
 }
 
@@ -115,12 +110,12 @@ TimeoutManager::~TimeoutManager()
 
 void TimeoutManager::startTimer(TimerContext* timer_p)
 {
-    timerQueue_m.add(timer_p);
+    timerQueue_m.addTimerInQueue(timer_p);
 }
 
 uint32_t TimeoutManager::cancelTimer(TimerContext* timer_p)
 {
-    return timerQueue_m.remove(timer_p);
+    return timerQueue_m.removeTimerInQueue(timer_p);
 }
 
 void TimeoutManager::run()

@@ -22,14 +22,19 @@ class TimerContext
 public:
     friend class TimerQueue;
 
-    TimerContext(const CTime &expiryTime);
-    ~TimerContext(); 
+    TimerContext(const CTime &expiryTime,
+            uint16_t timerType, uint16_t timerId);
+    virtual ~TimerContext();
 
     const CTime& getExpiryTime() const;
     void setExpiryTime(const CTime& expiryTime);
+    uint16_t getTimerType() const;
+    uint16_t getTimerId() const;
 
 private:
     CTime expiryTime_m;
+    uint16_t timerType_m;
+    uint16_t timerId_m;
 };
 
 class TimerQueue
@@ -38,8 +43,8 @@ public:
     TimerQueue();
     ~TimerQueue();
 
-    void add(TimerContext* item);
-    uint32_t remove(TimerContext* item);
+    void addTimerInQueue(TimerContext* item);
+    uint32_t removeTimerInQueue(TimerContext* item);
 
     void onTimer(Callback cb);
 

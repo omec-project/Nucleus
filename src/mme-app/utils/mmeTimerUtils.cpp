@@ -17,12 +17,12 @@ using namespace cmn;
 
 extern TimeoutManager* timeoutMgr_g;
 
-MmeTimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
+TimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
         uint32_t ueIdx,
         uint16_t timerType,
         uint16_t timerId)
 {
-    MmeTimerContext* timerCtxt = NULL;
+    MmeUeTimerContext* timerCtxt = NULL;
 
     CTime duration(durationMs);
     CTime expiryTime;
@@ -30,7 +30,7 @@ MmeTimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
 
     if (timeoutMgr_g != NULL)
     {
-        timerCtxt = new MmeTimerContext(
+        timerCtxt = new MmeUeTimerContext(
                 ueIdx, timerType, timerId, expiryTime);
 
         timeoutMgr_g->startTimer(timerCtxt);
@@ -41,7 +41,7 @@ MmeTimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
     return timerCtxt;
 }
 
-uint32_t MmeTimerUtils::stopTimer(MmeTimerContext* timerCtxt)
+uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
 {
     uint32_t rc = 0;
 
@@ -63,14 +63,14 @@ uint32_t MmeTimerUtils::stopTimer(MmeTimerContext* timerCtxt)
 void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 {
 #if 0
-    MmeTimerContext* mmeTimerCtxt = static_cast<MmeTimerContext *>(timerCtxt);
+    MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
         return;
     }
 
     ControlBlock* controlBlk_p =
-            SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getCbIndex());
+            SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getUeIndex());
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
