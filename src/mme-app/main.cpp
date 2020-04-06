@@ -46,8 +46,8 @@ using namespace mme;
  * Circular FIFOs for sender IPC and Reader IPC threads
  *
  **********************************************************/
-cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcIngressFifo_g;
-cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcEgressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcIngressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
 /*********************************************************
  *

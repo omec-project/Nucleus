@@ -30,8 +30,8 @@ using namespace cmn::utils;
 
 extern MmeIpcInterface* mmeIpcIf_g;
 
-extern cmn::utils::BlockingCircularFifo<MsgBuffer, fifoQSize_c> mmeIpcIngressFifo_g;
-extern cmn::utils::BlockingCircularFifo<MsgBuffer, fifoQSize_c> mmeIpcEgressFifo_g;
+extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcIngressFifo_g;
+extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
 class MmeIngressIpcProducerThread
 {
@@ -46,16 +46,15 @@ public:
 		{
 			if ((bytesRead = mmeIpcIf_g->reader()->recvMsgFrom(buf, DATA_BUF_SIZE, srcAddr)) > 0 )
 			{
-				MsgBuffer *msgBuf = new MsgBuffer(bytesRead);
+				cmn::IpcEventMessage *ipcMsg = new cmn::IpcEventMessage(bytesRead);
+				MsgBuffer *msgBuf = ipcMsg->getMsgBuffer();
 				msgBuf->writeBytes(buf, bytesRead);
 				msgBuf->rewind();
-				if (!mmeIpcIngressFifo_g.push(msgBuf))
+				if (!mmeIpcIngressFifo_g.push(ipcMsg))
 				{
-					delete msgBuf;
+					delete ipcMsg;
 				}
 			}
-
-			memset(buf, 0 , 255);
 		}
 	}
 };
@@ -67,10 +66,10 @@ public:
 	{
 		while(1)
 		{
-			MsgBuffer* msgBuf = NULL;
-			while(mmeIpcIngressFifo_g.pop(msgBuf) == true)
+			cmn::IpcEventMessage* eMsg = NULL;
+			while(mmeIpcIngressFifo_g.pop(eMsg) == true)
 			{
-				mmeIpcIf_g->handleIpcMsg(msgBuf);
+				mmeIpcIf_g->handleIpcMsg(eMsg);
 			}
 		}
 	}
@@ -83,18 +82,22 @@ public:
 	{
 		while(1)
 		{
-			MsgBuffer* msgBuf = NULL;
-			while(mmeIpcEgressFifo_g.pop(msgBuf) == true)
+			cmn::IpcEventMessage* eMsg = NULL;
+			while(mmeIpcEgressFifo_g.pop(eMsg) == true)
 			{
-				if (msgBuf != NULL)
+				if (eMsg != NULL)
 				{
-					cmn::ipc::IpcMsgHeader ipcHdr;
-					msgBuf->rewind();
-					msgBuf->readUint32(ipcHdr.destAddr.u32);
-					msgBuf->readUint32(ipcHdr.srcAddr.u32);
-					mmeIpcIf_g->sender()->sendMsgTo(msgBuf->getDataPointer(), msgBuf->getLength(), ipcHdr.destAddr);
-	
-					delete msgBuf;
+					MsgBuffer * msgBuf = eMsg->getMsgBuffer();
+					if (msgBuf != NULL)
+					{
+						cmn::ipc::IpcMsgHeader ipcHdr;
+						msgBuf->rewind();
+						msgBuf->readUint32(ipcHdr.destAddr.u32);
+						msgBuf->readUint32(ipcHdr.srcAddr.u32);
+						mmeIpcIf_g->sender()->sendMsgTo(msgBuf->getDataPointer(), 
+								msgBuf->getLength(), ipcHdr.destAddr);
+					}
+					delete eMsg;
 				}
 			}
 		}

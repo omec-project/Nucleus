@@ -10,6 +10,7 @@
 #include <ipcChannel.h>
 
 namespace cmn{
+    class IpcEventMessage;
 namespace utils{
 	class MsgBuffer;
 }
@@ -27,11 +28,9 @@ public:
 	cmn::ipc::IpcChannel* sender();
 	cmn::ipc::IpcChannel* reader();
 
-	void handleIpcMsg(cmn::utils::MsgBuffer* buf);
+	void handleIpcMsg(cmn::IpcEventMessage* buf);
 
 	bool dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr);
-
-	bool dispatchIpcMsg(cmn::utils::MsgBuffer* msgBuf_p, cmn::ipc::IpcAddress& destAddr);
 
 private:
 	cmn::ipc::IpcChannel* sender_mp;

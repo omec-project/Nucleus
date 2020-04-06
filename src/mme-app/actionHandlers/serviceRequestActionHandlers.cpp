@@ -74,7 +74,7 @@ ActStatus ActionHandlers::send_paging_req_to_ue(ControlBlock& cb)
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	mmeIpcIf_g->dispatchIpcMsg((char *) &pag_req, sizeof(pag_req), destAddr);
 
-	ProcedureStats::num_of_ddn_received++;
+	ProcedureStats::num_of_paging_request_sent++;
 
 	log_msg(LOG_INFO,"Leaving send_paging_req\n");
 
