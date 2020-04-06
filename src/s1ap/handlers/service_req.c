@@ -32,7 +32,6 @@
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
 
-extern int g_enb_fd;
 extern s1ap_config g_s1ap_cfg;
 extern ipc_handle ipc_S1ap_Hndl;
 

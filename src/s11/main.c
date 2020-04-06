@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
@@ -13,7 +14,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
-
 #include "thread_pool.h"
 #include "err_codes.h"
 #include "options.h"
@@ -213,6 +213,7 @@ s11_reader()
 	}
 }
 
+
 int
 main(int argc, char **argv)
 {
@@ -220,6 +221,15 @@ main(int argc, char **argv)
 	pid = getpid();
 	
 	init_backtrace(argv[0]);
+
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+		init_logging("container", NULL);
+	}
+	else { 
+		init_logging("hostbased","/tmp/s11logs.txt" );
+	}
+
 
 	init_parser("conf/s11.json");
 	parse_s11_conf();

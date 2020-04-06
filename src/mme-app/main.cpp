@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
@@ -20,7 +21,6 @@
 #include <thread>
 #include <string.h>
 #include <sys/stat.h>
-
 #include <blockingCircularFifo.h>
 #include <msgBuffer.h>
 #include "err_codes.h"
@@ -98,8 +98,17 @@ int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+		init_logging("container", NULL);
+	}
+	else { 
+		init_logging("hostbased", "/tmp/mmelogs.txt");
+	}
 	
 	init_backtrace(argv[0]);
+
 	srand(time(0));
 
     auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
