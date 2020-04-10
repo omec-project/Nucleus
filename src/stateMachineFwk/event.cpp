@@ -27,7 +27,7 @@ namespace SM
 	{
 	}
 
-	Event::Event(uint16_t evtID, void* ptr)
+	Event::Event(uint16_t evtID, cmn::EventMessage * ptr)
 	  	:eventID(evtID), eventData_p(ptr)
 	{
 	}
@@ -36,7 +36,7 @@ namespace SM
 	{
 	}
 
-	void *Event::getEventData() const
+	cmn::EventMessage* Event::getEventData() const
 	{
 		return eventData_p;
 	}

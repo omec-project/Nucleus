@@ -48,7 +48,6 @@ namespace SM
 
 		cbState_m = FREE;
 
-		data_p = NULL;
 		pdb_mp = NULL;
 
 		for (int i = 0; i < MAX_FAST_BLOCK_IDX; i++)
@@ -79,7 +78,7 @@ namespace SM
 		evt = eventQ.front();
 		eventQ.pop();
 
-		setMsgData(evt.getEventData());
+		setEventMessage(evt.getEventData());
 
 		return true;
 	}
@@ -217,4 +216,19 @@ namespace SM
         std::lock_guard<std::mutex> lock(mutex_m);
         return inProcQueue_m;
     }
+
+    void* ControlBlock::getMsgData()
+    {
+        cmn::IpcEventMessage *eMsg =
+                dynamic_cast<cmn::IpcEventMessage *>(data_p);
+        void * msg = NULL;
+        if (eMsg != NULL)
+        {
+            msg =  eMsg->getMsgBuffer();
+        }
+
+        return msg;
+    }
+
 }
+

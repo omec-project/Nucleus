@@ -61,7 +61,7 @@ namespace SM
 		log_msg(LOG_DEBUG,"################ Executing actions for event: %s and State: %s #################\n",
 				util->convertEventToString(currentEvent.getEventId()).c_str(), 
 				util->convertStateToString(currentState.getStateId()).c_str());
-
+		
 		time_t mytime = time(NULL);
 		debugEventInfo dEventInfo(currentEvent.getEventId(), currentState.getStateId(), mytime);
 		cb.addDebugInfo(dEventInfo);
@@ -91,7 +91,7 @@ namespace SM
 				break;
 			}
 
-			void * event_data = currentEvent.getEventData();
+			cmn::EventMessage * event_data = currentEvent.getEventData();
 
 			State *currentState_p = cb->getCurrentState();
 			if (currentState_p == NULL)
@@ -100,7 +100,7 @@ namespace SM
 						" for control block idx %d\n", cb->getCBIndex());
 
 				if (event_data != NULL)
-					delete static_cast <cmn::utils::MsgBuffer *>(event_data);
+					delete event_data;
 
 				break;
 			}
@@ -115,7 +115,7 @@ namespace SM
 			}
 
                         if (event_data != NULL)
-                                delete static_cast <cmn::utils::MsgBuffer *>(event_data);
+                                delete event_data;
 
 			if (ret == HALT)
 				break;			
@@ -126,4 +126,5 @@ namespace SM
 		    cb->setProcQueueFlag(false);
 	}
 }
+
 
