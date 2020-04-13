@@ -25,6 +25,7 @@
 #include "permDataBlock.h"
 #include <smTypes.h>
 #include "tempDataBlock.h"
+#include <event.h>
 
 class Event;
 class State;
@@ -35,11 +36,11 @@ namespace SM
 {
 	typedef struct debugEventInfo
 	{
-        	Event_e event;
-	        State_e state;
+		uint16_t event;
+		uint16_t state;
         	time_t evt_time;
 
-        	debugEventInfo(Event_e evt, State_e st, time_t t)
+        	debugEventInfo(uint16_t evt, uint16_t st, time_t t)
         	{
         		event = evt;
         		state = st;
@@ -53,8 +54,8 @@ namespace SM
 	class ControlBlock
 	{
    	public:
-			static const unsigned short MAX_FAST_BLOCK_IDX = 5;
-			static uint32_t controlBlockArrayIdx;
+		static const unsigned short MAX_FAST_BLOCK_IDX = 5;
+		static uint32_t controlBlockArrayIdx;
 
       		ControlBlock();
       		virtual ~ControlBlock();
@@ -81,44 +82,41 @@ namespace SM
 
       		void addDebugInfo(debugEventInfo& eventInfo);
       		inline deque<debugEventInfo> getDebugInfoQueue()const
-			{
-      			return debugEventInfoQ;
-			}
+		{
+			return debugEventInfoQ;
+		}
 
-      		void* getMsgData()
-      		{
-      			return data_p;
-      		}
+      		void setEventMessage(cmn::EventMessage* ptr)
+		{
+			data_p = ptr;
+		}
 
-      		void setMsgData(void* ptr)
-      		{
-      			data_p = ptr;
-      		}
+		void* getMsgData();
 
       		void setControlBlockState(ControlBlockState state);
       		ControlBlockState getControlBlockState();
-
-            bool isInProcQueue();
-            void setProcQueueFlag(bool flag);
-
+		
+		bool isInProcQueue();
+		void setProcQueueFlag(bool flag);
+		
       		virtual void display();
 
    	private:
-		std::mutex mutex_m;
-		const uint32_t cbIndex_m;
-		ControlBlockState cbState_m;
+      		std::mutex mutex_m;
+      		const uint32_t cbIndex_m;
+      		ControlBlockState cbState_m;
 
-		// deallocated once the event is processed
-		void* data_p;
+		cmn::EventMessage* data_p;
 
-      		PermDataBlock* pdb_mp;
+		PermDataBlock* pdb_mp;
       		PermDataBlock* fadb_mpa[MAX_FAST_BLOCK_IDX];
       		TempDataBlock* tdb_mp;
 
       		queue<Event> eventQ;
 		
 	    	deque<debugEventInfo> debugEventInfoQ;
-		bool inProcQueue_m;
+	    	bool inProcQueue_m;
 	};
 }
 #endif /* CONTROLBLOCK_H_ */
+

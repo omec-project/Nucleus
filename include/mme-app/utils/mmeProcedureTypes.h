@@ -75,13 +75,20 @@ namespace mme
         maxPagingTrigger_c
  };
 
-enum EcmState{
-		invalidEcmState_c,	
-		ecmIdle_c,
-		ecmConnected_c,
-		maxEcmState_c
-};
+ enum EcmState{
+	ecmUnknown_c,
+	ecmIdle_c,
+	ecmConnected_c,
+	maxEcmState_c
+ };
 
+ enum S1ReleaseTrigger
+ {
+       noTrigger_c,
+       enbInit_c,
+       mmeInit_c,
+       maxS1ReleaseTrigger_c
+ };
 
 }
 

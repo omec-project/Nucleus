@@ -21,7 +21,7 @@
 #include "procedureStats.h"
 #include "log.h"
 #include <string.h>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 
 #include <ipcTypes.h>
 #include <tipcTypes.h>
@@ -192,7 +192,9 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Leaving send_detach_accept for UE \n");
 	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_detach_accept_to_ue_sent ++;
-	ProcedureStats::num_of_subscribers_attached --;
+	ProcedureStats::num_of_subscribers_detached ++;
+	if (ProcedureStats::num_of_subscribers_attached > 0)
+		ProcedureStats::num_of_subscribers_attached --;
 
 	return ActStatus::PROCEED;
 	

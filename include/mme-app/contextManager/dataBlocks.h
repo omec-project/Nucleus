@@ -34,7 +34,9 @@ namespace mme
 	class SessionContext;
 	class BearerContext;
 	class MmeProcedureCtxt;
+	class MmeAttachProcedureCtxt;
 	class MmeDetachProcedureCtxt;
+	class MmeS1RelProcedureCtxt;
 	class MmeSvcReqProcedureCtxt;
 	class MmeTauProcedureCtxt;
 	 
@@ -292,19 +294,19 @@ namespace mme
 			* getMTmsi
 			*    get mTmsi from UEContext
 			****************************************/
-			uint32_t getMTmsi()const;
-
-            /****************************************
-            * setSubscribedApn
-            *    set subscribedApn to UEContext
-            ****************************************/
-            void setSubscribedApn(const Apn_name& subscribedApn_i);
-
-            /****************************************
-            * getSubscribedApn
-            *    get subscribedApn from UEContext
-            ****************************************/
-            const Apn_name& getSubscribedApn()const;
+			uint32_t getMTmsi()const;				
+			
+			/****************************************
+			* setSubscribedApn
+			*    set subscribedApn to UEContext
+			****************************************/
+			void setSubscribedApn(const Apn_name& subscribedApn_i);
+			
+			/****************************************
+			* getSubscribedApn
+			*    get subscribedApn from UEContext
+			****************************************/
+			const Apn_name& getSubscribedApn()const;				
 			
 			/****************************************
 			* setMmContext
@@ -329,7 +331,7 @@ namespace mme
 			*    get SessionContext to UEContext
 			****************************************/
 			SessionContext* getSessionContext();
-
+			
 		
 		private:
 		
@@ -395,7 +397,7 @@ namespace mme
 			
 			// DataName
 			Apn_name subscribedApn_m;
-
+			
 			// MmContext
 			MmContext* MmContext_mp;
 			
@@ -706,60 +708,7 @@ namespace mme
 			ProcedureType getCtxtType()const;				
 			
 			/****************************************
-			* setEsmInfoTxRequired
-			*    set esmInfoTxRequired to MmeProcedureCtxt
-			****************************************/
-			void setEsmInfoTxRequired(bool esmInfoTxRequired_i);
-			
-			/****************************************
-			* getEsmInfoTxRequired
-			*    get esmInfoTxRequired from MmeProcedureCtxt
-			****************************************/
-			bool getEsmInfoTxRequired()const;				
-			
-			/****************************************
-			* setAttachType
-			*    set attachType to MmeProcedureCtxt
-			****************************************/
-			void setAttachType(AttachType attachType_i);
-			
-			/****************************************
-			* getAttachType
-			*    get attachType from MmeProcedureCtxt
-			****************************************/
-			AttachType getAttachType()const;				
-			
-			/****************************************
-			* setPcoOptions
-			*    set pcoOptions to MmeProcedureCtxt
-			****************************************/
-			void setPcoOptions(const unsigned char* pcoOptions_i,uint16_t len);
-			
-			/****************************************
-			* getPcoOptions
-			*    get pcoOptions from MmeProcedureCtxt
-			****************************************/
-			const unsigned char* getPcoOptions()const;							
-			/****************************************
-			* getPcoOptionsLen
-			*    get pcoOptionsLen from MmeProcedureCtxt
-			****************************************/
-			uint16_t getPcoOptionsLen()const;
-			
-			/****************************************
-			* setPti
-			*    set pti to MmeProcedureCtxt
-			****************************************/
-			void setPti(uint8_t pti_i);
-			
-			/****************************************
-			* getPti
-			*    get pti from MmeProcedureCtxt
-			****************************************/
-			uint8_t getPti()const;				
-			
-			/****************************************
-			* setMmeErrorCause
+			* set MmeErrorCause
 			*    set mmeErrorCause to MmeProcedureCtxt
 			****************************************/
 			void setMmeErrorCause(MmeErrorCause mmeErrorCause_i);
@@ -769,6 +718,18 @@ namespace mme
 			*    get mmeErrorCause from MmeProcedureCtxt
 			****************************************/
 			MmeErrorCause getMmeErrorCause()const;				
+			
+			/****************************************
+			* setS1apCause
+			*    set s1apCause to MmeProcedureCtxt
+			****************************************/
+			void setS1apCause(const S1apCause& s1apCause_i);
+			
+			/****************************************
+			* getS1apCause
+			*    get s1apCause from MmeProcedureCtxt
+			****************************************/
+			const S1apCause& getS1apCause()const;				
 			
 			/****************************************
 			* setAuthRespStatus
@@ -792,26 +753,112 @@ namespace mme
 			* getAuts
 			*    get auts from MmeProcedureCtxt
 			****************************************/
-			const Auts& getAuts()const;
+			const Auts& getAuts()const;				
 			
-            /****************************************
-            * setRequestedApn
-            *    set requestedApn to MmeProcedureCtxt
-            ****************************************/
-            void setRequestedApn(const Apn_name& requestedApn_i);
-
-            /****************************************
-            * getRequestedApn
-            *    get requestedApn from MmeProcedureCtxt
-            ****************************************/
-            const Apn_name& getRequestedApn()const;
-
 		
 		private:
 		
 			// DataName
 			ProcedureType ctxtType_m;
 			
+			// DataName
+			MmeErrorCause mmeErrorCause_m;
+			
+			// DataName
+			S1apCause s1apCause_m;
+			
+			// DataName
+			int authRespStatus_m;
+			
+			// DataName
+			Auts auts_m;
+			
+	};
+	 
+	class MmeAttachProcedureCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* MmeAttachProcedureCtxt
+			*    constructor
+			****************************************/
+			MmeAttachProcedureCtxt();
+			
+			/****************************************
+			* ~MmeAttachProcedureCtxt
+			*    destructor
+			****************************************/
+			~MmeAttachProcedureCtxt();
+			
+			/****************************************
+			* setEsmInfoTxRequired
+			*    set esmInfoTxRequired to MmeAttachProcedureCtxt
+			****************************************/
+			void setEsmInfoTxRequired(bool esmInfoTxRequired_i);
+			
+			/****************************************
+			* getEsmInfoTxRequired
+			*    get esmInfoTxRequired from MmeAttachProcedureCtxt
+			****************************************/
+			bool getEsmInfoTxRequired()const;				
+			
+			/****************************************
+			* setAttachType
+			*    set attachType to MmeAttachProcedureCtxt
+			****************************************/
+			void setAttachType(AttachType attachType_i);
+			
+			/****************************************
+			* getAttachType
+			*    get attachType from MmeAttachProcedureCtxt
+			****************************************/
+			AttachType getAttachType()const;				
+			
+			/****************************************
+			* setPcoOptions
+			*    set pcoOptions to MmeAttachProcedureCtxt
+			****************************************/
+			void setPcoOptions(const unsigned char* pcoOptions_i,uint16_t len);
+			
+			/****************************************
+			* getPcoOptions
+			*    get pcoOptions from MmeAttachProcedureCtxt
+			****************************************/
+			const unsigned char* getPcoOptions()const;							
+			/****************************************
+			* getPcoOptionsLen
+			*    get pcoOptionsLen from MmeAttachProcedureCtxt
+			****************************************/
+			uint16_t getPcoOptionsLen()const;							
+			
+			/****************************************
+			* setPti
+			*    set pti to MmeAttachProcedureCtxt
+			****************************************/
+			void setPti(uint8_t pti_i);
+			
+			/****************************************
+			* getPti
+			*    get pti from MmeAttachProcedureCtxt
+			****************************************/
+			uint8_t getPti()const;				
+			
+			/****************************************
+			* setRequestedApn
+			*    set requestedApn to MmeAttachProcedureCtxt
+			****************************************/
+			void setRequestedApn(const Apn_name& requestedApn_i);
+			
+			/****************************************
+			* getRequestedApn
+			*    get requestedApn from MmeAttachProcedureCtxt
+			****************************************/
+			const Apn_name& getRequestedApn()const;				
+			
+		
+		private:
+		
 			// DataName
 			bool esmInfoTxRequired_m;
 			
@@ -827,17 +874,8 @@ namespace mme
 			uint8_t pti_m;
 			
 			// DataName
-			MmeErrorCause mmeErrorCause_m;
-			
-			// DataName
-			int authRespStatus_m;
-			
-			// DataName
-			Auts auts_m;
-
-			// DataName
 			Apn_name requestedApn_m;
-
+			
 	};
 	 
 	class MmeDetachProcedureCtxt:public MmeProcedureCtxt
@@ -888,6 +926,42 @@ namespace mme
 			
 			// DataName
 			CancellationType cancellationType_m;
+			
+	};
+	 
+	class MmeS1RelProcedureCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* MmeS1RelProcedureCtxt
+			*    constructor
+			****************************************/
+			MmeS1RelProcedureCtxt();
+			
+			/****************************************
+			* ~MmeS1RelProcedureCtxt
+			*    destructor
+			****************************************/
+			~MmeS1RelProcedureCtxt();
+			
+			/****************************************
+			* setS1ReleaseTrigger
+			*    set s1ReleaseTrigger to MmeS1RelProcedureCtxt
+			****************************************/
+			void setS1ReleaseTrigger(S1ReleaseTrigger s1ReleaseTrigger_i);
+			
+			/****************************************
+			* getS1ReleaseTrigger
+			*    get s1ReleaseTrigger from MmeS1RelProcedureCtxt
+			****************************************/
+			S1ReleaseTrigger getS1ReleaseTrigger()const;				
+			
+		
+		private:
+		
+			// DataName
+			S1ReleaseTrigger s1ReleaseTrigger_m;
 			
 	};
 	 

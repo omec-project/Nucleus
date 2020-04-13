@@ -55,6 +55,14 @@ namespace mme
 		static int num_of_tau_response_to_ue_sent;
 		static int num_of_service_reject_sent;
 		static int num_of_attach_reject_sent;		
+		static int num_of_emm_info_sent;
+		static int num_of_attach_req_received;
+		static int num_of_detach_req_received;
+		static int num_of_tau_req_received;
+		static int num_of_paging_request_sent;
+		static int num_of_id_req_sent;
+		static int num_of_id_resp_received;
+		static int num_of_auth_reject_sent;
 
         };
 };

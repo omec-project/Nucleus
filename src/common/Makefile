@@ -39,7 +39,7 @@ TPOOL_SRC = ./thread_pool.c ./tpool_queue.c
 JSON_PARSER_SRC = ./json_parser.c
 UTIL_SRC = ./snow_3g.c ./f8.c ./f9.c
 UNIXSOCK_SRC = ./unix_sock.c ./unix_conn.c
-MONITOR_CONFIG_SRC = ./monitor_config.c
+MONITOR_CONFIG_SRC = ./monitor_config.c ./backtrace.c
 
 SRCDIR := .
 SRCEXT := c

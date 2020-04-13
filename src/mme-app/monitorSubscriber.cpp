@@ -59,22 +59,32 @@ void MonitorSubscriber::handle_monitor_imsi_req(struct monitor_imsi_req *mir, in
             if (ueCtxt_p != NULL)
             {
                 MmContext* mmCtxt_p = ueCtxt_p->getMmContext();
-                if (mmCtxt_p != NULL && mmCtxt_p->getMmState() == EpsAttached)
+                if (mmCtxt_p != NULL)
                 {
-                    SessionContext* sessCtxt_p = ueCtxt_p->getSessionContext();
-                    if (sessCtxt_p != NULL)
+                    if (mmCtxt_p->getMmState() == EpsAttached)
+                    {
+                        SessionContext* sessCtxt_p = ueCtxt_p->getSessionContext();
+                        if (sessCtxt_p != NULL)
+                        {
+                            mia.result = 1;
+                            mia.ue_state = mmCtxt_p->getEcmState();
+                            mia.bearer_id = 5;
+                            mia.paa = sessCtxt_p->getPdnAddr().paa_m.ip_type.ipv4.s_addr;
+                            ueCtxt_p->getImsi().getImsiDigits(mia.imsi);
+                            memcpy(&mia.tai, &ueCtxt_p->getTai().tai_m, sizeof(struct TAI));
+                            memcpy(&mia.ambr, &ueCtxt_p->getAmbr().ambr_m, sizeof(struct AMBR));
+                            log_msg(LOG_ERROR, "IMSI: %s PAA %x \n", mia.imsi, mia.paa);
+                        }
+                    }
+                    else if (mmCtxt_p->getMmState() == EpsDetached)
                     {
                         mia.result = 1;
-
-                        mia.bearer_id = 5;
-                        mia.paa = sessCtxt_p->getPdnAddr().paa_m.ip_type.ipv4.s_addr;
+                        mia.ue_state = mmCtxt_p->getEcmState();
                         ueCtxt_p->getImsi().getImsiDigits(mia.imsi);
                         memcpy(&mia.tai, &ueCtxt_p->getTai().tai_m, sizeof(struct TAI));
                         memcpy(&mia.ambr, &ueCtxt_p->getAmbr().ambr_m, sizeof(struct AMBR));
-                        log_msg(LOG_ERROR, "IMSI: %s PAA %x \n", mia.imsi, mia.paa);
                     }
                 }
-
             }
         }
 
@@ -115,12 +125,23 @@ void MonitorSubscriber::handle_imsi_list_req(struct monitor_imsi_req *mir, int s
                     size += IMSI_STR_LEN;
                     numOfUes++;
                 }
+                if(((size + IMSI_STR_LEN) > BUFFER_SIZE))
+                    break;
             }
     }
 
     memcpy(buf, &numOfUes, sizeof(uint32_t));
     send_unix_msg(sock_fd, buf, size);
     return;
+}
+
+/**
+* Flush Imsis.
+*/
+void MonitorSubscriber::handle_imsi_flush_req()
+{
+    /* TODO: Throttling design in progress for global events that 
+    are applicable to large number of UEs. */
 }
 
 /**
@@ -150,7 +171,12 @@ void MonitorSubscriber::handle_monitor_processing(void *message)
 	            handle_imsi_list_req(mir, sock_fd);
                 break;
             }
-            
+        case 2:
+            {
+                log_msg(LOG_DEBUG, "imsi flush request");
+                handle_imsi_flush_req();
+                break;
+            }
     }
 	/*free allocated message buffer*/
 	free(message);

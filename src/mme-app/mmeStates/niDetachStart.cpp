@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachStart::NiDetachStart():State(State_e::ni_detach_start)
+NiDetachStart::NiDetachStart():State(ni_detach_start)
 {
 }
 
@@ -56,6 +56,6 @@ void NiDetachStart::initialize()
                 actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.setNextState(NiDetachWfDetAccptDelSessResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::CLR_FROM_HSS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(CLR_FROM_HSS, actionTable));
         }
 }

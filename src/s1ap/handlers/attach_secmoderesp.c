@@ -24,7 +24,6 @@
 #include "msgType.h"
 
 
-extern int g_enb_fd;
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
@@ -44,7 +43,7 @@ s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies)
 	/*Create Q structure for stage 1 to MME.
 	  contains init UE information.*/
 	secmode_resp.msg_type = sec_mode_complete;
-	
+
 	for(int i = 0; i < s1_sec_resp_ies->no_of_IEs; i++)
     {
         switch(s1_sec_resp_ies->data[i].IE_type)

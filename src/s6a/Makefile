@@ -38,7 +38,8 @@ LIBS :=  \
 	-ljson \
 	-lpthread \
 	-lfdproto \
-	-lfdcore
+	-lfdcore \
+	-lmonitor_config
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."

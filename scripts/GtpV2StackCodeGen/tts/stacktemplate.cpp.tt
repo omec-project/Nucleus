@@ -20,7 +20,7 @@
 #include "msgClasses/[% msg.msgFileName %].h"
 [% END -%]
 
-cmn::utils::Debug errorStream;
+thread_local cmn::utils::Debug errorStream;
 
 GtpV2Stack::GtpV2Stack ()
 {

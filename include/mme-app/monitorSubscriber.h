@@ -17,6 +17,7 @@ private:
 
     static void handle_monitor_imsi_req(struct monitor_imsi_req *mir, int sock_fd);
     static void handle_imsi_list_req(struct monitor_imsi_req *mir, int sock_fd);
+    static void handle_imsi_flush_req();
 };
 
 

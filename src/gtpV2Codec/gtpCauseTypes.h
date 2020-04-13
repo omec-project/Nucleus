@@ -1,0 +1,34 @@
+/*
+* Copyright 2020-present, Infosys Ltd.
+*
+* SPDX-License-Identifier: Apache-2.0
+*/
+
+
+#ifndef INCLUDE_GTPV2CODEC_GTPCAUSETYPES_H_
+#define INCLUDE_GTPV2CODEC_GTPCAUSETYPES_H_
+
+#include <stdint.h>
+
+static const uint8_t GTPV2C_CAUSE_NETWORK_FAILURE = 13;
+static const uint8_t GTPV2C_CAUSE_REQUEST_ACCEPTED = 16;
+static const uint8_t GTPV2C_CAUSE_REQUEST_ACCEPTED_PARTIALLY = 17;
+static const uint8_t GTPV2C_CAUSE_NEW_PDN_TYPE_NETWORK_PREFERENCE = 18;
+static const uint8_t GTPV2C_CAUSE_NEW_PDN_TYPE_SINGLE_ADDR_BEARER = 19;
+static const uint8_t GTPV2C_CAUSE_CONTEXT_NOT_FOUND = 64;
+static const uint8_t GTPV2C_CAUSE_INVALID_MESSAGE_FORMAT = 65;
+static const uint8_t GTPV2C_CAUSE_INVALID_LENGTH = 67;
+static const uint8_t GTPV2C_CAUSE_SERVICE_NOT_SUPPORTED = 68;
+static const uint8_t GTPV2C_CAUSE_MANDATORY_IE_INCORRECT = 69;
+static const uint8_t GTPV2C_CAUSE_MANDATORY_IE_MISSING = 70;
+static const uint8_t GTPV2C_CAUSE_SYSTEM_FAILURE = 72;
+static const uint8_t GTPV2C_CAUSE_NO_RESOURCES_AVAILABLE = 73;
+static const uint8_t GTPV2C_CAUSE_MISSING_UNKNOWN_APN = 78;
+static const uint8_t GTPV2C_CAUSE_PREFERRED_PDN_TYPE_UNSUPPORTED = 83;
+static const uint8_t GTPV2C_CAUSE_ALL_DYNAMIC_ADDRESSES_OCCUPIED = 84;
+static const uint8_t GTPV2C_CAUSE_UE_NOT_RESPONDING = 87;
+static const uint8_t GTPV2C_CAUSE_REQUEST_REJECTED = 94;
+static const uint8_t GTPV2C_CAUSE_REMOTE_PEER_NOT_RESPONDING = 100;
+static const uint8_t GTPV2C_CAUSE_CONDITIONAL_IE_MISSING = 103;
+
+#endif

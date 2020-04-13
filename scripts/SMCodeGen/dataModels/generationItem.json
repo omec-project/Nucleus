@@ -24,11 +24,21 @@
         {
             "appModelKeyword" : "Procedures",
             "appModelValueDepth" : 0, 
-            "templateFile" : "templates/stateMachineTmpls/enum.tt",
-            "outputPath" : "output/enums",
-            "outputFile": "smEnumTypes",
+            "templateFile" : "templates/stateMachineTmpls/mmeSmDefs.h.tt",
+            "outputPath" : "output/mmeSmDefs",
+            "outputFile": "mmeSmDefs",
             "outputFileKey": "",
             "outputFileExt" : ".h",
+            "mode" : "overwrite"
+        },
+        {
+            "appModelKeyword" : "Procedures",
+            "appModelValueDepth" : 0,
+            "templateFile" : "templates/stateMachineTmpls/mmeSmDefs.cpp.tt",
+            "outputPath" : "output/mmeSmDefs",
+            "outputFile": "mmeSmDefs",
+            "outputFileKey": "",
+            "outputFileExt" : ".cpp",
             "mode" : "overwrite"
         },
         {

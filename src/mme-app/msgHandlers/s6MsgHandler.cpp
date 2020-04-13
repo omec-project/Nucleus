@@ -19,9 +19,12 @@
 #include <event.h>
 #include <ipcTypes.h>
 #include <log.h>
+#include <mmeSmDefs.h>
+#include <eventMessage.h>
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 
 
 S6MsgHandler::~S6MsgHandler() {
@@ -37,28 +40,44 @@ S6MsgHandler* S6MsgHandler::Instance()
 	return &msgHandler;
 }
 
-void S6MsgHandler::handleS6Message_v(cmn::utils::MsgBuffer* msgBuf)
+void S6MsgHandler::handleS6Message_v(IpcEventMessage* eMsg)
 {
-	if (msgBuf == NULL)
-		return;
+	if (eMsg == NULL)
+        	return;
+
+    	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+    	if (msgBuf == NULL)
+    	{
+		log_msg(LOG_INFO, "S6 Message Buffer is empty \n");
+
+        	delete eMsg;
+        	return;
+    	}
+    	if (msgBuf->getLength() < sizeof (s6_incoming_msg_data_t))
+    	{
+        	log_msg(LOG_INFO, "Not enough bytes in s6 message \n");
+
+        	delete eMsg;
+        	return;
+    	}
 
 	const s6_incoming_msg_data_t* msgData_p = (s6_incoming_msg_data_t*)(msgBuf->getDataPointer());
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::auth_info_answer:
-			handleAuthInfoAnswer_v(msgBuf, msgData_p->ue_idx);
+			handleAuthInfoAnswer_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::update_loc_answer:
-			handleUpdateLocationAnswer_v(msgBuf,  msgData_p->ue_idx);
+			handleUpdateLocationAnswer_v(eMsg,  msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::purge_answser:
-			handlePurgeAnswer_v(msgBuf,  msgData_p->ue_idx);
+			handlePurgeAnswer_v(eMsg,  msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::cancel_location_request:
-			handleCancelLocationRequest_v(msgBuf);
+			handleCancelLocationRequest_v(eMsg);
 			break;
 
 		default:
@@ -67,7 +86,7 @@ void S6MsgHandler::handleS6Message_v(cmn::utils::MsgBuffer* msgBuf)
 
 }
 
-void S6MsgHandler::handleAuthInfoAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint32_t ueIdx)
+void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handleAuthInfoAnswer_v \n");
 
@@ -81,11 +100,11 @@ void S6MsgHandler::handleAuthInfoAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint
 	}
 
 	// Fire Auth Info Answer event, insert cb to procedure queue
-	SM::Event evt(Event_e::AIA_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(AIA_FROM_HSS, eMsg);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint32_t ueIdx)
+void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handleUpdateLocationAnswer_v \n");
 
@@ -98,11 +117,11 @@ void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::utils::MsgBuffer* msgData_p
 		return;
 	}
 	// Fire Update Loc Answer event, insert cb to procedure queue
-	SM::Event evt(Event_e::ULA_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(ULA_FROM_HSS, eMsg);
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S6MsgHandler::handlePurgeAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint32_t ueIdx)
+void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handlePurgeAnswer_v \n");
 
@@ -115,20 +134,21 @@ void S6MsgHandler::handlePurgeAnswer_v(cmn::utils::MsgBuffer* msgData_p, uint32_
 		return;
 	}
 	// Fire attach-start event, insert cb to procedure queue
-	//SM::Event evt(Event_e::DETACH_PUR_RESP_FROM_HSS);
+	//SM::Event evt(DETACH_PUR_RESP_FROM_HSS);
 	//controlBlk_p->addEventToProcQ(evt);
 	//
 }
 
-void S6MsgHandler::handleCancelLocationRequest_v(cmn::utils::MsgBuffer* msgData_p)
+void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEventMessage* eMsg)
 {
 	log_msg(LOG_INFO, "Inside handleCancelLocationRequest \n");
         
-	const char *buf = static_cast<const char*>(msgData_p->getDataPointer());
+	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
+	void* buf = msgData_p->getDataPointer();
 	const s6_incoming_msg_data_t* msgInfo_p = (s6_incoming_msg_data_t*)(buf);
 
 	DigitRegister15 IMSI;
-	IMSI.setImsiDigits(const_cast<uint8_t*> (msgInfo_p->msg_data.clr_Q_msg_m.imsi));
+	IMSI.setImsiDigits((unsigned char *)msgInfo_p->msg_data.clr_Q_msg_m.imsi);
       
 	int ue_idx =  SubsDataGroupManager::Instance()->findCBWithimsi(IMSI);
 	log_msg(LOG_INFO, "UE_IDX found from map : %d \n", ue_idx);
@@ -147,7 +167,7 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::utils::MsgBuffer* msgData_
 		return;
 	}
 	//Fire CLR event, insert CB to Procedure Queue
-	SM::Event evt(Event_e::CLR_FROM_HSS, (void *)msgData_p);
+	SM::Event evt(CLR_FROM_HSS, eMsg);
 	controlBlk_p->addEventToProcQ(evt);
 }
 

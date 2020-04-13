@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
@@ -11,7 +12,6 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdio.h>
-
 #include <freeDiameter/freeDiameter-host.h>
 #include <freeDiameter/libfdcore.h>
 #include <freeDiameter/libfdproto.h>
@@ -236,6 +236,7 @@ s6a_run()
 	} /*else - HSS_PERF*/
 }
 
+
 /**
  * brief main for s6a application
  * @param argc and argv
@@ -247,7 +248,16 @@ main(int argc, char **argv)
         
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace(argv[0]); 
 
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+			init_logging("container", NULL);
+	}
+	else { 
+		init_logging("hostbased", "/tmp/s6alogs.txt");
+	}
 	/*Check cmd line arguments for config file path*/
 	check_args(argc, argv);
 	

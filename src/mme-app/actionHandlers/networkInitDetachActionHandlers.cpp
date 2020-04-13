@@ -16,7 +16,7 @@
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 
 #include <ipcTypes.h>
 #include <tipcTypes.h>
@@ -150,13 +150,15 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     else
     {
     	mmCtxt->setMmState( EpsDetached );
-        mmCtxt->setEcmState( ecmIdle_c );
+	    mmCtxt->setEcmState( ecmIdle_c );
 	    ueCtxt->setS1apEnbUeId(0);
     	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
     }
 
+    ProcedureStats::num_of_s1_rel_comp_received ++;
     ProcedureStats::num_of_subscribers_detached ++;
-    ProcedureStats::num_of_subscribers_attached --;
+    if (ProcedureStats::num_of_subscribers_attached > 0)
+    	ProcedureStats::num_of_subscribers_attached --;
 
     log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp_for_detach \n");
 

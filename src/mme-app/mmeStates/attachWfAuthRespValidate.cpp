@@ -13,7 +13,7 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 
@@ -27,7 +27,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAuthRespValidate::AttachWfAuthRespValidate():State(State_e::attach_wf_auth_resp_validate)
+AttachWfAuthRespValidate::AttachWfAuthRespValidate():State(attach_wf_auth_resp_validate)
 {
 }
 
@@ -56,17 +56,17 @@ void AttachWfAuthRespValidate::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::sec_mode_cmd_to_ue);
                 actionTable.setNextState(AttachWfSecCmp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AUTH_RESP_SUCCESS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_SUCCESS, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_air_to_hss);
                 actionTable.setNextState(AttachWfAia::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AUTH_RESP_SYNC_FAILURE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_SYNC_FAILURE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_auth_reject);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AUTH_RESP_FAILURE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_FAILURE, actionTable));
         }
 }
