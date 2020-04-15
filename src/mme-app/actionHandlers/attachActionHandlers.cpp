@@ -1110,18 +1110,21 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
                 log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
                 return ActStatus::HALT;
         }
-        
-        struct commonRej_info attach_rej;
-
+       
+        log_msg(LOG_INFO, "Sending Attach Reject\n");
+        struct s1ap_common_req_Q_msg attach_rej;
         attach_rej.msg_type = attach_reject;
-        attach_rej.ue_idx = ueCtxt_p->getContextID();
-        attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
+        attach_rej.IE_type = S1AP_ATTACH_REJ;
+        attach_rej.ue_idx = ueCtxt_p->getContextID();;
+        attach_rej.mme_s1ap_ue_id = ueCtxt_p->getContextID();
+        attach_rej.enb_s1ap_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
-        attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+        attach_rej.emm_cause  
+            = (e_emmCause)MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-        mmeIpcIf_g->dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
+        mmeIpcIf_g->dispatchIpcMsg((char *) &attach_rej, sizeof(attach_rej), destAddr);
 
         ProcedureStats::num_of_attach_reject_sent ++;
 

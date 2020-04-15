@@ -66,6 +66,10 @@ int s1ap_mme_encode_initiating(
 	        log_msg(LOG_INFO, "Attach Reject encode\n");
 	        return s1ap_mme_encode_attach_rej(
 		          message_p, buffer, length); 
+        case S1AP_TAU_REJ:
+	        log_msg(LOG_INFO, "TAU Reject encode\n");
+	        return s1ap_mme_encode_tau_rej(
+		          message_p, buffer, length); 
         case S1AP_SERVICE_REJ:
 	        log_msg(LOG_INFO, "Service Reject encode\n");
 	        return s1ap_mme_encode_service_rej(
@@ -151,6 +155,92 @@ int s1ap_mme_encode_service_rej(
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
         log_msg(LOG_ERROR, "Encoding of Service Rej failed\n");
+        return -1;
+    }
+
+    log_msg(LOG_INFO,"free allocated msgs");
+    if(val[2].value.choice.NAS_PDU.buf)
+    {
+        free(val[2].value.choice.NAS_PDU.buf);
+    }
+    
+    free(pdu.choice.initiatingMessage);
+    
+    *length = enc_ret;
+    return enc_ret; 
+}
+
+int s1ap_mme_encode_tau_rej(
+  struct s1ap_common_req_Q_msg *s1apPDU,
+  uint8_t **buffer,
+  uint32_t *length)
+{
+	S1AP_PDU_t                              pdu = {(S1AP_PDU_PR_NOTHING)};
+    InitiatingMessage_t *initiating_msg = NULL;
+	S1AP_PDU_t                             *pdu_p = &pdu;
+	int                                     enc_ret = -1;
+	memset ((void *)pdu_p, 0, sizeof (S1AP_PDU_t));
+
+    log_msg(LOG_DEBUG, "Encode TAU Reject");
+    pdu.present = S1AP_PDU_PR_initiatingMessage;
+    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
+
+    initiating_msg = pdu.choice.initiatingMessage;
+    initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
+    initiating_msg->criticality = 1;
+    initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
+    //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
+            
+    DownlinkNASTransport_IEs_t val[3];
+    memset(val, 0, (3*(sizeof(DownlinkNASTransport_IEs_t))));
+    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0].criticality = 0;
+    val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
+    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+    log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
+
+    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1].criticality = 0;
+    val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
+    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+    log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
+
+    val[2].id = ProtocolIE_ID_id_NAS_PDU;
+    val[2].criticality = 0;
+    val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
+    //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
+
+    struct Buffer g_nas_buffer;
+	g_nas_buffer.pos = 0;
+    unsigned char headertype = 0;
+    unsigned char proto_disc = EPSMobilityManagementMessages;
+    unsigned char message_type = TauReject;
+
+	uint8_t value = (headertype << 4) | proto_disc;
+
+	buffer_copy(&g_nas_buffer, &value, sizeof(value));
+
+	buffer_copy(&g_nas_buffer, &message_type, sizeof(message_type));
+
+    value = 0x09; // UE identity can not be derived by the network
+	buffer_copy(&g_nas_buffer, &value, sizeof(value));
+
+    val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
+    val[2].value.choice.NAS_PDU.buf = (uint8_t*)calloc(g_nas_buffer.pos, sizeof(uint8_t));
+
+    if(val[2].value.choice.NAS_PDU.buf != NULL)
+    {
+        memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
+                val[2].value.choice.NAS_PDU.size);
+    }
+    log_msg(LOG_INFO,"Add values to list.\n");
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
+
+    if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
+    {
+        log_msg(LOG_ERROR, "Encoding of TAU Reject failed\n");
         return -1;
     }
 

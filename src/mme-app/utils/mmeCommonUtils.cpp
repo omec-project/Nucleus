@@ -217,12 +217,40 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		case tau_request:
 		{
-			if(msgData_p->ue_idx > 0)
-				cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
-			
-			if (cb == NULL)
-				log_msg(LOG_INFO, "Failed to retrieve CB using idx %d.\n", msgData_p->ue_idx);
+			const struct tauReq_Q_msg  &tau_info = (msgData_p->msg_data.tauReq_Q_msg_m);
+			if ((INVALID_UE_INDEX == msgData_p->ue_idx) && UE_ID_GUTI(tau_info.flags))
+			{
+                log_msg(LOG_INFO, "GUTI TAU received.\n");
 
+				if (isLocalGuti(tau_info.mi_guti))
+				{
+					log_msg(LOG_INFO, "GUTI is local.\n");
+
+					int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tau_info.mi_guti.m_TMSI);
+					if (cbIndex > 0)
+					{
+						cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+					}
+					else
+					{
+						log_msg(LOG_ERROR, "Failed to find control block with mTmsi.\n");
+                        /*TBD : Send TAU Reject */  
+					}
+				}
+                else
+                {
+					log_msg(LOG_ERROR, "Not local guti. Start S10 Procedures / Reject.\n");
+                    /*TBD : Send TAU Reject */  
+                }
+			}
+            else if(INVALID_UE_INDEX == msgData_p->ue_idx)
+            {
+                {
+                    log_msg(LOG_INFO, "Failed to retrieve CB using idx %d.\n", 
+                               msgData_p->ue_idx);
+                    /*TBD : Send TAU Reject */  
+                }
+            }
 			break;
 		}
 		default:

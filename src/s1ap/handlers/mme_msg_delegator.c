@@ -76,11 +76,14 @@ handle_mmeapp_message(void * data)
 	case tau_response:
 		tau_response_handler(msg);
 		break;
+	case tau_reject:
+		tau_reject_handler(msg);
+		break;
 	case attach_reject:
-		s1ap_reject_handler(msg);
+		attach_rej_command_handler(msg);
 		break;
 	case service_reject:
-	    s1ap_reject_handler(msg);
+	    service_rej_command_handler(msg);
 	    break;
 	case emm_info_request:
 	    emm_info_req_handler(msg);

@@ -56,7 +56,11 @@ const uint16_t service_request_wf_init_ctxt_resp = 33;
 const uint16_t service_request_wf_mb_resp = 34;     
 const uint16_t service_request_wf_sec_cmp = 35;     
 const uint16_t tau_start = 36;
-const uint16_t END_STATE = 37;
+const uint16_t tau_wf_aia = 37;
+const uint16_t tau_wf_auth_resp_validate = 38;
+const uint16_t tau_wf_auth_response = 39;
+const uint16_t tau_wf_sec_cmp = 40;
+const uint16_t END_STATE = 41;
 
 /******************************************
 * MME-APP Specific Events - ID

@@ -18,6 +18,7 @@
 #include "SuccessfulOutcome.h"
 #include "UnsuccessfulOutcome.h"
 #include "common_proc_info.h"
+#include "msgType.h"
 
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
@@ -68,7 +69,7 @@ int
 s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd);
 
 int
-tau_request_handler(struct proto_IE *s1_tau_req_ies, int enb_fd);
+tau_request_handler(struct proto_IE *s1_tau_req_ies, int enb_fd, bool initial_ue_flag);
 
 int
 s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg);
@@ -103,6 +104,9 @@ int s1ap_mme_encode_service_rej(
         uint8_t **buffer, uint32_t *length);
 
 int s1ap_mme_encode_attach_rej(
+        struct s1ap_common_req_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+int s1ap_mme_encode_tau_rej(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
 int

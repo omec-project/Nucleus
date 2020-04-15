@@ -607,9 +607,84 @@
                             {
                                 "Name":"TAU_REQUEST_FROM_UE",
                                 "Actions":[
+                                    "AUTH_REQ_TO_UE"
+                                ],
+                                "NextState":"tau_wf_auth_response"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"tau_wf_auth_response",
+                        "Events":[
+                            {
+                                "Name":"AUTH_RESP_FROM_UE",
+                                "Actions":[
+                                    "AUTH_RESPONSE_VALIDATE"
+                                ],
+                                "NextState":"tau_wf_auth_resp_validate"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"tau_wf_auth_resp_validate",
+                        "Events":[
+                            {
+                                "Name":"AUTH_RESP_SUCCESS",
+                                "Actions":[
+                                    "SEC_MODE_CMD_TO_UE"
+                                ],
+                                "NextState":"tau_wf_sec_cmp"
+                            },
+                            {
+                                "Name":"AUTH_RESP_SYNC_FAILURE",
+                                "Actions":[
+                                    "SEND_AIR_TO_HSS"
+                                ],
+                                "NextState":"tau_wf_aia"
+                            },
+                            {
+                                "Name":"AUTH_RESP_FAILURE",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "SEND_TAU_REJECT",
+                                    "ABORT_TAU_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"tau_wf_sec_cmp",
+                        "Events":[
+                            {
+                                "Name":"SEC_MODE_RESP_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_SEC_MODE_RESP",
                                     "SEND_TAU_RESPONSE_TO_UE"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_TAU_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_TAU_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"tau_wf_aia",
+                        "Events":[
+                            {
+                                "Name":"AIA_FROM_HSS",
+                                "Actions":[
+                                    "PROCESS_AIA",
+                                    "AUTH_REQ_TO_UE"
+                                ],
+                                "NextState":"tau_wf_auth_response"
                             }
                         ]
                     }

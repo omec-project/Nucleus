@@ -80,6 +80,15 @@ void
 *s1_release_command_handler(void *);
 
 void
+*attach_rej_command_handler(void *);
+
+void
+*tau_reject_handler(void *);
+
+void
+*service_rej_command_handler(void *);
+
+void
 *ni_detach_request_handler(void *);
 
 void

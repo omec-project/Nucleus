@@ -19,6 +19,7 @@
 #include "S1AP-PDU.h"
 #include "InitiatingMessage.h"
 
+#define INVALID_UE_INDEX -1
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
 
@@ -102,8 +103,10 @@ typedef enum
     NAS_IE_TYPE_APN=0x28,
     NAS_IE_TYPE_AUTH_FAIL_PARAM=0x30,
     NAS_IE_TYPE_MS_NETWORK_CAPABILITY=0x31,
+    NAS_IE_TYPE_SUPPORTED_CODEC=0x40,
     NAS_IE_TYPE_DRX_PARAM=0x5C,
     NAS_IE_TYPE_TAI=0x52,
+    NAS_IE_TYPE_EPS_BEARER_STATUS=0x57,
     NAS_IE_TYPE_VOICE_DOMAIN_PREF_UE_USAGE_SETTING=0x5D,
     NAS_IE_TYPE_TX_FLAG=0xAA,
     NAS_IE_TYPE_PCO=0xAB,
@@ -365,6 +368,8 @@ typedef struct nas_pdu_header {
 	unsigned char mac[MAC_SIZE];
 	unsigned char short_mac[SHORT_MAC_SIZE];
 	unsigned char ksi;
+	unsigned char active_flag;
+	unsigned char update_type;
 	unsigned char seq_no;
 	unsigned char eps_bearer_identity;
 	unsigned char procedure_trans_identity;
@@ -375,6 +380,7 @@ typedef struct nas_pdu_header {
 
 /****Information elements presentations **/
 #define BINARY_IMSI_LEN 8 /*same as packet capture. TODO: Write macros*/
+#define BEARER_STATUS_LEN 2 /*same as packet capture. TODO: Write macros*/
 #define BCD_IMSI_STR_LEN 15
 
 /*36.413 - 9.2.1.38*/
@@ -456,6 +462,7 @@ typedef union nas_pdu_elements_union {
 	unsigned char rand[NAS_RAND_SIZE];
 	unsigned char autn[NAS_AUTN_SIZE];
 	unsigned char IMSI[BINARY_IMSI_LEN];
+	unsigned char eps_bearer_status[BEARER_STATUS_LEN];
 	unsigned char short_mac[SHORT_MAC_SIZE];
 	struct esm_sec_info esm_info;
 	enum drx_params drx;

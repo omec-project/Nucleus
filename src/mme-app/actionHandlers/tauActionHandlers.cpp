@@ -46,7 +46,7 @@ extern MmeIpcInterface* mmeIpcIf_g;
 ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 {	
 	log_msg(LOG_INFO,"Inside send_tau_response_to_ue\n");
-	
+
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());	
 	if (ue_ctxt == NULL)
 	{
@@ -85,3 +85,53 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	return ActStatus::PROCEED;
 }
 
+/***************************************
+* Action handler : send_tau_reject
+***************************************/
+ActStatus ActionHandlers::send_tau_reject(ControlBlock& cb)
+{
+  	log_msg(LOG_DEBUG, "Inside send_tau_reject \n");
+        
+    UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt_p == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_tau_reject: ue context is NULL \n");
+        return ActStatus::HALT;
+    }
+
+	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_tau_reject: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    log_msg(LOG_INFO, "Sending TAU Reject\n");
+    struct s1ap_common_req_Q_msg tau_rej;
+    tau_rej.msg_type = tau_reject;
+    tau_rej.IE_type = S1AP_TAU_REJ;
+    tau_rej.ue_idx = ueCtxt_p->getContextID();;
+    tau_rej.mme_s1ap_ue_id = ueCtxt_p->getContextID();
+    tau_rej.enb_s1ap_ue_id = ueCtxt_p->getS1apEnbUeId();
+    tau_rej.enb_fd = ueCtxt_p->getEnbFd();
+    tau_rej.emm_cause = emmCause_ue_id_not_derived_by_network;
+
+	cmn::ipc::IpcAddress destAddr;
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    mmeIpcIf_g->dispatchIpcMsg((char *) &tau_rej, 
+                               sizeof(tau_rej), destAddr);
+
+	ProcedureStats::num_of_tau_reject_sent ++;
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : abort_tau_procedure
+***************************************/
+ActStatus ActionHandlers::abort_tau_procedure(ControlBlock& cb)
+{
+    // blindly delete for now!
+    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    return ActStatus::PROCEED;
+}

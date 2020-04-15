@@ -58,6 +58,11 @@ namespace mme
         static SM::ActStatus abort_service_req_procedure(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_tau_procedure
+        ***********************************************/
+        static SM::ActStatus abort_tau_procedure(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : attach_done
         ***********************************************/
         static SM::ActStatus attach_done(SM::ControlBlock& cb);                
@@ -301,6 +306,11 @@ namespace mme
         * Action handler : send_service_reject
         ***********************************************/
         static SM::ActStatus send_service_reject(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_tau_reject
+        ***********************************************/
+        static SM::ActStatus send_tau_reject(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_tau_response_to_ue
