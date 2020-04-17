@@ -40,21 +40,21 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 	switch (procedure_p->getCtxtType())
 	{
 		case attach_c:
-		{
-			MmeAttachProcedureCtxt* atchProc_p =
-			        static_cast<MmeAttachProcedureCtxt *>(procedure_p);
+                {
+                        MmeAttachProcedureCtxt* atchProc_p =
+                                static_cast<MmeAttachProcedureCtxt *>(procedure_p);
 
-			subsDgMgr_p->deleteMmeAttachProcedureCtxt(atchProc_p);
-			break;
-		}
-		case s1Release_c:
-		{
-			MmeS1RelProcedureCtxt* s1RelProc_p =
-			        static_cast<MmeS1RelProcedureCtxt *>(procedure_p);
+                        subsDgMgr_p->deleteMmeAttachProcedureCtxt(atchProc_p);
+                        break;
+                }
+                case s1Release_c:
+                {
+                        MmeS1RelProcedureCtxt* s1RelProc_p =
+                                static_cast<MmeS1RelProcedureCtxt *>(procedure_p);
 
-			subsDgMgr_p->deleteMmeS1RelProcedureCtxt(s1RelProc_p);
-			break;
-		}	
+                        subsDgMgr_p->deleteMmeS1RelProcedureCtxt(s1RelProc_p);
+                        break;
+                }	
 		case detach_c:
 		{
 			MmeDetachProcedureCtxt* detachProc_p = 
