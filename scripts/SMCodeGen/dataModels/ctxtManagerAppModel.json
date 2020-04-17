@@ -122,6 +122,11 @@
 								"Name": "subscribedApn",
 								"Type": "Apn_name",
 								"Key": "No"
+							},
+							{
+								"Name": "pdnAddr",
+								"Type": "Paa",
+								"Key": "No"
 							}
 						]
 					},

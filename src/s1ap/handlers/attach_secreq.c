@@ -118,12 +118,12 @@ get_secreq_protoie_value(struct proto_IE *value, struct sec_mode_Q_msg * g_secRe
 static int
 secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 {
-	Buffer g_sec_buffer;
-	Buffer g_sec_value_buffer;
-	Buffer g_sec_nas_buffer;
+	Buffer g_sec_buffer = {0};
+	Buffer g_sec_value_buffer = {0};
+	Buffer g_sec_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
 	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -170,6 +170,10 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 
 	buffer_copy(&g_sec_nas_buffer, &nas.elements->pduElement.ue_network.capab,
 			nas.elements->pduElement.ue_network.len);
+
+    	/* Request IMEI from the device */
+	uint8_t imei = 0xc1;
+	buffer_copy(&g_sec_nas_buffer, &imei, sizeof(imei));
 
 	/* Calculate mac */
 	uint8_t direction = 1;

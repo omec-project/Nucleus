@@ -318,7 +318,27 @@
                             {
                                 "Name":"DETACH_REQ_FROM_UE",
                                 "Actions":[
-                                    "DEL_SESSION_REQ"
+                                    "DEL_SESSION_REQ",
+				    "PURGE_REQ"
+                                ],
+                                "NextState":"detach_wf_purge_resp_del_session_resp"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"detach_wf_purge_resp_del_session_resp",
+                        "Events":[
+                            {
+                                "Name":"DEL_SESSION_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_DEL_SESSION_RESP"
+                                ],
+                                "NextState":"detach_wf_purge_resp"
+                            },
+                            {
+                                "Name":"PURGE_RESP_FROM_HSS",
+                                "Actions":[
+                                    "PROCESS_PUR_RESP"
                                 ],
                                 "NextState":"detach_wf_del_session_resp"
                             }
@@ -332,6 +352,19 @@
                                 "Actions":[
                                     "PROCESS_DEL_SESSION_RESP",
                                     "DETACH_ACCEPT_TO_UE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"detach_wf_purge_resp",
+                        "Events":[
+                            {
+                                "Name":"PURGE_RESP_FROM_HSS",
+                                "Actions":[
+                                    "PROCESS_PUR_RESP",
+				    "DETACH_ACCEPT_TO_UE"
                                 ],
                                 "NextState":"end_state"
                             }

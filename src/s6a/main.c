@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <stdio.h>
+
 #include <freeDiameter/freeDiameter-host.h>
 #include <freeDiameter/libfdcore.h>
 #include <freeDiameter/libfdproto.h>
@@ -23,7 +24,7 @@
 #include "hss_message.h"
 #include "thread_pool.h"
 #include <sys/types.h>
-
+#include "msgType.h"
 /**Globals and externs**/
 struct fd_dict_objects g_fd_dict_objs;
 struct fd_dict_data g_fd_dict_data;
@@ -31,6 +32,7 @@ int g_Q_mme_S6a_fd;
 
 int g_our_hss_fd;
 struct thread_pool *g_tpool;
+struct thread_pool *g_tpool_tipc_reader_s6a;
 extern s6a_config g_s6a_cfg;
 
 pthread_t g_AIR_handler_tid, g_ULR_handler_tid;
@@ -45,6 +47,8 @@ int ipc_reader_tipc_s6;
 extern void*
 S6Req_handler(void *data);
 
+extern void*
+detach_handler(void *data);
 /**Globals and externs**/
 
 /**
@@ -122,7 +126,27 @@ check_args(int argc, char **argv)
 	/*For wrong arguments print help*/
 	return;
 }
+void
+handle_mmeapp_message_s6a(void * data)
+{
+	char *msg = ((char *) data) + (sizeof(uint32_t)*2);
 
+	msg_type_t* msg_type = (msg_type_t*)(msg);
+
+	switch(*msg_type)
+	{
+	case auth_info_request:
+	case update_loc_request:
+		S6Req_handler(msg);
+		break;
+	case purge_request:
+		detach_handler(msg);
+		break;
+	default:
+		break;
+	}
+	free(data);
+}
 void * AIR_handler(void * data)
 {
 	int bytesRead = 0;
@@ -134,10 +158,9 @@ void * AIR_handler(void * data)
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
 			log_msg(LOG_INFO, "S6 message received from mme-app");
-			S6Req_handler(tmpBuf);
-			free(tmpBuf);
-			memset(buffer, 0, 255);
+			insert_job(g_tpool_tipc_reader_s6a, handle_mmeapp_message_s6a, tmpBuf);
 		}
+		bytesRead = 0;
 	}
 }
 
@@ -161,6 +184,12 @@ init_handlers()
 		return -E_FAIL;
 	}
 
+	g_tpool_tipc_reader_s6a = thread_pool_new(3);
+
+	if (g_tpool_tipc_reader_s6a == NULL) {
+		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		return -E_FAIL_INIT;
+	}
 	pthread_attr_t attr;
 
 	pthread_attr_init(&attr);
@@ -188,7 +217,6 @@ init_s6a_ipc()
 		pthread_exit(NULL);
 	}
 	log_msg(LOG_INFO, "S6a response - mme-app TIPC: Connected.\n");
-
 	return 0;
 }
 

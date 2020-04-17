@@ -313,6 +313,12 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	
 	ue_ctxt->setAmbr(Ambr(ambr));
 	
+	struct PAA pdn_addr;
+	pdn_addr.pdn_type = 1;
+	pdn_addr.ip_type.ipv4.s_addr = ntohl(ula_msg.static_addr); // network byte order
+	
+	ue_ctxt->setPdnAddr(Paa(pdn_addr));
+	
 	ProcedureStats::num_of_processed_ula ++;
 	log_msg(LOG_DEBUG, "Leaving handle_ula_v \n");
 	
@@ -712,7 +718,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	// TODO: ApnSelection
 	// Set the subscribed apn to selected apn for now
 	sessionCtxt->setAccessPtName(apnName);
-	memcpy(&(cs_msg.apn), &(apnName.apnname_m), sizeof(struct apn_name));
+	memcpy(&(cs_msg.selected_apn), &(apnName.apnname_m), sizeof(struct apn_name));
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
 	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
@@ -723,6 +729,10 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 
 	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl;
 	cs_msg.max_requested_bw_ul = ambr.max_requested_bw_ul;
+	
+	const PAA& pdn_addr = ue_ctxt->getPdnAddr().paa_m;
+	
+	cs_msg.paa_v4_addr = pdn_addr.ip_type.ipv4.s_addr; /* host order */
 
 	memset(cs_msg.MSISDN, 0, BINARY_IMSI_LEN);
 	

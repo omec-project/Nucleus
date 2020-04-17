@@ -69,11 +69,11 @@ static int
 emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 {
 	
-    Buffer g_buffer;
-    Buffer g_s1ap_buffer;
-    Buffer g_nas_buffer;
+    Buffer g_buffer = {0};
+    Buffer g_s1ap_buffer = {0};
+    Buffer g_nas_buffer = {0};
 
-    struct s1ap_PDU s1apPDU;
+    struct s1ap_PDU s1apPDU = {0};
     
     /* Assigning values to s1apPDU */
     s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -183,9 +183,13 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
     buffer_copy(&g_buffer, &g_s1ap_buffer.buf[0], g_s1ap_buffer.pos);
     /* Now s1ap header + s1ap buffer is attached */
     
-    send_sctp_msg(g_ueEmmInfoMsg->enb_fd, g_buffer.buf, g_buffer.pos, 1);
+    log_msg(LOG_INFO, "EMM info request sent on fd = %u , enb-id %u mmeid %u EMM \n",g_ueEmmInfoMsg->enb_fd, 
+		    g_ueEmmInfoMsg->enb_s1ap_ue_id, g_ueEmmInfoMsg->mme_s1ap_ue_id);
+
+    log_msg(LOG_INFO, "EMM info request : Buffer size %d g_ueEmmInfoMsg = %p \n", g_buffer.pos,g_ueEmmInfoMsg);
+    int res = send_sctp_msg(g_ueEmmInfoMsg->enb_fd, g_buffer.buf, g_buffer.pos, 1);
     
-    log_msg(LOG_INFO, "EMM Info Message sent to UE \n");
+    log_msg(LOG_INFO, "EMM Info Message sent to UE %d\n", res);
     
     return SUCCESS;
 }
