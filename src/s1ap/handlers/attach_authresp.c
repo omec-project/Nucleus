@@ -104,7 +104,8 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 	  contains init UE information.*/
 	  
 	  /* msg_type for auth_failure
-	  ?auth_resp.msg_type =?;*/
+	auth_resp.msg_type = auth_response;	
+
     for(int i = 0; i < s1_auth_resp_ies->no_of_IEs; i++)
     {
         switch(s1_auth_resp_ies->data[i].IE_type)
@@ -132,7 +133,7 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&auth_resp, S1_READ_MSG_BUF_SIZE);
 
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Auth resp send to mme-app stage3.\n");
+    log_msg(LOG_INFO, "Sent Auth fail resp indication to mme-app stage3.\n");
 
 	//TODO: free IEs
 	return SUCCESS;
