@@ -18,7 +18,7 @@
 #include "actionHandlers/actionHandlers.h"
 
 #include "mmeStates/detachStart.h"	
-#include "mmeStates/detachWfDelSessionResp.h"
+#include "mmeStates/detachWfPurgeRespDelSessionResp.h"
 
 using namespace mme;
 using namespace SM;
@@ -54,7 +54,8 @@ void DetachStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.setNextState(DetachWfDelSessionResp::Instance());
+                actionTable.addAction(&ActionHandlers::purge_req);
+                actionTable.setNextState(DetachWfPurgeRespDelSessionResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_REQ_FROM_UE, actionTable));
         }
 }

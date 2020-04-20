@@ -164,7 +164,7 @@ init_gtpv2()
 	//g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
 	struct in_addr sgw_addr = {g_s11_cfg.sgw_ip};
 	fprintf(stderr, "....................sgw ip %s\n", inet_ntoa(sgw_addr));
-	g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
+	g_s11_cp_addr.sin_addr.s_addr = g_s11_cfg.sgw_ip;
 	memset(g_s11_cp_addr.sin_zero, '\0', sizeof(g_s11_cp_addr.sin_zero));
 
 	g_s11_serv_size = sizeof(g_s11_cp_addr);

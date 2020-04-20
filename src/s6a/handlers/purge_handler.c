@@ -34,9 +34,13 @@ extern int g_Q_mme_S6a_fd;
 static
 void send_to_stage2(struct s6_incoming_msg_data_t *incoming_msg_p)
 {
+	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
+
+	incoming_msg_p->destInstAddr = htonl(mmeAppInstanceNum_c);
+	incoming_msg_p->srcInstAddr = htonl(s6AppInstanceNum_c);
+
 	/*Send to stage2 queue*/
-	write_ipc_channel(g_Q_mme_S6a_fd, (char*)incoming_msg_p,
-			S6_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)incoming_msg_p, S6_READ_MSG_BUF_SIZE);
 }
 
 /**
@@ -96,6 +100,7 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 		s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status =res.result_code;
 	}
 
+	
 	/*Inform response to mme-app*/
 	send_to_stage2(&s6_incoming_msgs);
 

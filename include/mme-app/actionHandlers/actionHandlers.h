@@ -188,6 +188,11 @@ namespace mme
         static SM::ActStatus process_mb_resp_svc_req(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : process_pur_resp
+        ***********************************************/
+        static SM::ActStatus process_pur_resp(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : process_rel_ab_resp_from_sgw
         ***********************************************/
         static SM::ActStatus process_rel_ab_resp_from_sgw(SM::ControlBlock& cb);                
@@ -216,6 +221,11 @@ namespace mme
         * Action handler : process_ula
         ***********************************************/
         static SM::ActStatus process_ula(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : purge_req
+        ***********************************************/
+        static SM::ActStatus purge_req(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : sec_mode_cmd_to_ue

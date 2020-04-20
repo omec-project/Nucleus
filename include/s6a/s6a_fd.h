@@ -282,11 +282,9 @@ clr_resp_callback(struct msg **msg, struct avp *avp, struct session *sess,
 		void *data, enum disp_action *act);
 
 
-#if 0
 int
 purge_resp_callback(struct msg **msg, struct avp *avp, struct session *sess,
 		void *data, enum disp_action *act);
-#endif
 
 /**
  * @brief Dumo freediameter message on console
