@@ -20,10 +20,6 @@
 #include "common_proc_info.h"
 #include "s1ap_config.h"
 
-extern void it_ho_req_ack(struct handover_request_Q_msg *g_ho_req);
-extern void it_ho_notify(struct handover_command_Q_msg *g_ho_cmd);
-extern void it_ho_enb_status_transfer(struct handover_command_Q_msg *g_ho_cmd);
-
 /* Put all the instances within this */
 typedef struct s1ap_instance 
 {
