@@ -91,7 +91,9 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 
 	mmeIpcIf_g->dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
 
-    return ActStatus::PROCEED;
+    	ProcedureStats::num_of_id_req_sent ++;
+	
+	return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
@@ -140,7 +142,9 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 
 	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
 
-    return ActStatus::PROCEED;
+    	ProcedureStats::num_of_id_resp_received ++;
+	
+	return ActStatus::PROCEED;
 }
 
 
@@ -435,6 +439,8 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_auth_reject: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+	ProcedureStats::num_of_auth_reject_sent ++;
 	return ActStatus::HALT;
 }
 	
@@ -1125,5 +1131,5 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
 	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
-    	return ActStatus::PROCEED;
+	return ActStatus::PROCEED;
 }

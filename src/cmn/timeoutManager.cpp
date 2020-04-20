@@ -1,8 +1,7 @@
 /*
- * timeoutManager.cpp
+ * Copyright 2020-present Infosys Limited
  *
- *  Created on: Feb 16, 2020
- *      Author: Anjana_Sreekumar
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include "timeoutManager.h"

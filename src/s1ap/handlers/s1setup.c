@@ -22,7 +22,6 @@
 #include "s1ap_structs.h"
 #include "s1ap_msg_codes.h"
 
-extern int g_enb_fd;
 extern s1ap_config g_s1ap_cfg;
 static struct Buffer resp_buf;
 
