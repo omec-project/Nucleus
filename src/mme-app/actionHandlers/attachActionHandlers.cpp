@@ -19,7 +19,6 @@
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
-#include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
 #include "log.h"
 #include "secUtils.h"
@@ -642,6 +641,8 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
+	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
 }
@@ -843,6 +844,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
 	SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
+	secInfo.next_hop_chaining_count = 0 ;
+	memcpy(secInfo.next_hop_nh , secInfo.kenb_key, KENB_SIZE);
 	
 	init_ctx_req_Q_msg icr_msg;
 	icr_msg.msg_type = init_ctxt_request;
@@ -976,7 +979,8 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 
 	memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
 		sizeof(struct fteid));
-
+	mb_msg.servingNetworkIePresent = false;
+	mb_msg.userLocationInformationIePresent = false;
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
@@ -1043,6 +1047,7 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
     	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+    	ue_ctxt->setDwnLnkSeqNo(temp.dl_seq_no+1);
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
      	* all TACs
@@ -1091,6 +1096,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 	ProcedureStats::num_of_subscribers_attached ++;
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
+
 
 	return ActStatus::PROCEED;
 }

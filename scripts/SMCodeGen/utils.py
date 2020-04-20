@@ -19,7 +19,8 @@ from os import listdir
 from os.path import isfile, join
 
 # Globals
-ttFileName = ''            
+ttFileName = ''
+includeset = ''
 outputDir = ''
 outputFile = ''
 outputFileKeyword = ''

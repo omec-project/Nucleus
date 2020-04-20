@@ -14,7 +14,6 @@
  ******************************************************************************/
 
 #include <actionHandlers/actionHandlers.h>
-#include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <controlBlock.h>
 #include <event.h>
@@ -26,6 +25,7 @@
 #include <mmeStates/s1ReleaseStart.h>
 #include <mmeStates/serviceRequestStart.h>
 #include <mmeStates/tauStart.h>
+#include <mmeStates/intraS1HoStart.h>
 #include <msgBuffer.h>
 #include <msgType.h>
 #include <log.h>
@@ -38,6 +38,7 @@
 #include <utils/mmeProcedureTypes.h>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "contextManager/dataBlocks.h"
 
 using namespace mme;
 using namespace SM;
@@ -228,6 +229,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	prcdCtxt_p->setNextState(DetachStart::Instance());
 	cb.setCurrentTempDataBlock(prcdCtxt_p);
+	ueCtxt->setUpLnkSeqNo(ueCtxt->getUpLnkSeqNo()+1);
 
 	SM::Event evt(DETACH_REQ_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
@@ -437,14 +439,14 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 	}
 
 	mmCtxt->setEcmState(ecmConnected_c);
-	
+
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	if (msgBuf == NULL)
-	{	
+	{
             log_msg(LOG_DEBUG,"process_tau_req: msgBuf is NULL \n");
             return ActStatus::HALT;
 	}
-	
+
 	const s1_incoming_msg_data_t* msgData_p =
 			static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	if (msgData_p == NULL)
@@ -453,13 +455,15 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);	
+	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
 	
 	tauReqProc_p->setCtxtType(ProcedureType::tau_c);
-	tauReqProc_p->setNextState(TauStart::Instance());	
+	tauReqProc_p->setNextState(TauStart::Instance());
 	tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	tauReqProc_p->setEnbFd(tauReq.enb_fd);
+	tauReqProc_p->setTai(Tai(tauReq.tai));
 	cb.setCurrentTempDataBlock(tauReqProc_p);	
+	ueCtxt->setUpLnkSeqNo(ueCtxt->getUpLnkSeqNo()+1);
 
 	SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
@@ -467,5 +471,56 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 	ProcedureStats::num_of_tau_req_received ++;
 	
 	return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : default_s1_ho_handler
+***************************************/
+ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
+{
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG,"process_handover_required: msgBuf is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+	S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+	if (hoReqProc_p == NULL)
+	{
+		log_msg(LOG_ERROR, "Failed to allocate procedure context"
+				" for ho required cbIndex %d\n", cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	if (ueCtxt == NULL)
+	{
+		log_msg(LOG_DEBUG, "ue context is NULL \n");
+		return ActStatus::HALT;
+	}
+
+	const struct handover_required_Q_msg &hoReq = (msgData_p->msg_data.handover_required_Q_msg_m);
+
+	hoReqProc_p->setS1apCause(hoReq.cause);
+	hoReqProc_p->setTargetEnbFd(hoReq.target_enb_fd);
+	hoReqProc_p->setSrcToTargetTransContainer(hoReq.srcToTargetTranspContainer);
+	hoReqProc_p->setTargetTai(hoReq.target_id.selected_tai);
+	hoReqProc_p->setSrcS1apEnbUeId(hoReq.s1ap_enb_ue_id);
+	hoReqProc_p->setSrcEnbFd(hoReq.enb_fd);
+
+	ProcedureStats::num_of_ho_required_received++;
+
+	SM::Event evt(INTRA_S1HO_START, NULL);
+	cb.addEventToProcQ(evt);
+    return ActStatus::PROCEED;
 }
 

@@ -17,7 +17,6 @@
 #include "actionHandlers/actionHandlers.h"
 #include "controlBlock.h" 
 #include "msgType.h"
-#include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
 #include "log.h"
 #include "secUtils.h"
@@ -33,12 +32,60 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <contextManager/dataBlocks.h>
 
 using namespace mme;
 using namespace SM;
 using namespace cmn::utils;
 
 extern MmeIpcInterface* mmeIpcIf_g;
+
+/***************************************
+* Action handler : process_tau_request
+***************************************/
+ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
+{
+	log_msg(LOG_INFO,"Inside process_tau_request\n");
+
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+	if (ue_ctxt == NULL)
+	{
+		log_msg(LOG_ERROR, "process_tau_request: ue context is NULL\n",cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	MmeProcedureCtxt* prcdCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	if (prcdCtxt_p == NULL)
+	{
+		log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureCtxt is NULL\n");
+		return ActStatus::HALT;
+	}
+
+	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+	if (msgBuf == NULL)
+	{
+            log_msg(LOG_DEBUG,"process_tau_req: msgBuf is NULL \n");
+            return ActStatus::HALT;
+	}
+
+	const s1_incoming_msg_data_t* msgData_p =
+			static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+	if (msgData_p == NULL)
+	{
+		log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+		return ActStatus::HALT;
+	}
+
+	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
+	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+
+	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
+	{
+		S1HandoverProcedureContext *s1HoPrCtxt = dynamic_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
+		s1HoPrCtxt->setTargetTai(tauReq.tai);
+	}
+    return ActStatus::PROCEED;
+}
 
 /***************************************
 * Action handler : send_tau_response_to_ue
@@ -54,31 +101,47 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	MmeTauProcedureCtxt* tauPrcdCtxt_p = dynamic_cast<MmeTauProcedureCtxt*>(cb.getTempDataBlock());	
-	if (tauPrcdCtxt_p == NULL)
+	MmeProcedureCtxt* prcdCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	if (prcdCtxt_p == NULL)
 	{
-		log_msg(LOG_DEBUG, "send_tau_response_to_ue: MmeTauProcedureCtxt is NULL\n");
+		log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureCtxt is NULL\n");
 		return ActStatus::HALT;
 	}
-	
+
 	struct tauResp_Q_msg tau_resp;
+	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
+	{
+		S1HandoverProcedureContext *s1HoPrCtxt = static_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
+		tau_resp.enb_fd = s1HoPrCtxt->getTargetEnbFd();
+		tau_resp.s1ap_enb_ue_id = s1HoPrCtxt->getTargetS1apEnbUeId();
+		memcpy(&tau_resp.tai, &(s1HoPrCtxt->getTargetTai().tai_m), sizeof(struct TAI));
+	}
+	else
+	{
+		MmeTauProcedureCtxt *tauPrCtxt = static_cast<MmeTauProcedureCtxt*>(prcdCtxt_p);
+		tau_resp.enb_fd = tauPrCtxt->getEnbFd();
+		tau_resp.s1ap_enb_ue_id = tauPrCtxt->getS1apEnbUeId();
+		memcpy(&tau_resp.tai, &(tauPrCtxt->getTai().tai_m), sizeof(struct TAI));
+	}
 
 	tau_resp.msg_type = tau_response;
 	tau_resp.status = 0;
 	tau_resp.ue_idx = ue_ctxt->getContextID();
-	tau_resp.enb_fd = tauPrcdCtxt_p->getEnbFd();
-	tau_resp.s1ap_enb_ue_id = tauPrcdCtxt_p->getS1apEnbUeId();	
 	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	ue_ctxt->setDwnLnkSeqNo(tau_resp.dl_seq_no+1);
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
-	memcpy(&tau_resp.tai, &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));	
+
 	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
-	
+	ue_ctxt->setTai(Tai(tau_resp.tai));
 	cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;	
 	mmeIpcIf_g->dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
 	
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, tau_c );
+	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
+	{
+		MmeContextManagerUtils::deallocateProcedureCtxt(cb, tau_c );
+	}
 	ProcedureStats::num_of_tau_response_to_ue_sent++;
 
 	log_msg(LOG_INFO,"Leaving send_tau_response_to_ue\n");

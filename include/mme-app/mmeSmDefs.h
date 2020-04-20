@@ -1,3 +1,4 @@
+    
 /*
  * Copyright 2020-present, Infosys Limited.
  *
@@ -38,25 +39,32 @@ const uint16_t attach_wf_ula = 15;
 const uint16_t default_mme_state = 16;     
 const uint16_t detach_start = 17;     
 const uint16_t detach_wf_del_session_resp = 18;     
-const uint16_t ni_detach_start = 19;     
-const uint16_t ni_detach_wf_del_sess_resp = 20;     
-const uint16_t ni_detach_wf_det_accpt_del_sess_resp = 21;     
-const uint16_t ni_detach_wf_detach_accept = 22;     
-const uint16_t ni_detach_wf_s1_rel_comp = 23;     
-const uint16_t paging_start = 24;     
-const uint16_t paging_wf_service_req = 25;     
-const uint16_t s1_release_start = 26;     
-const uint16_t s1_release_wf_release_access_bearer_resp = 27;     
-const uint16_t s1_release_wf_ue_ctxt_release_comp = 28;     
-const uint16_t service_request_start = 29;     
-const uint16_t service_request_wf_aia = 30;     
-const uint16_t service_request_wf_auth_resp_validate = 31;     
-const uint16_t service_request_wf_auth_response = 32;     
-const uint16_t service_request_wf_init_ctxt_resp = 33;     
-const uint16_t service_request_wf_mb_resp = 34;     
-const uint16_t service_request_wf_sec_cmp = 35;     
-const uint16_t tau_start = 36;
-const uint16_t END_STATE = 37;
+const uint16_t intra_s1_ho_start = 19;     
+const uint16_t ni_detach_start = 20;     
+const uint16_t ni_detach_wf_del_sess_resp = 21;     
+const uint16_t ni_detach_wf_det_accpt_del_sess_resp = 22;     
+const uint16_t ni_detach_wf_detach_accept = 23;     
+const uint16_t ni_detach_wf_s1_rel_comp = 24;     
+const uint16_t paging_start = 25;     
+const uint16_t paging_wf_service_req = 26;     
+const uint16_t s1_ho_wf_ho_notify = 27;     
+const uint16_t s1_ho_wf_ho_request_ack = 28;     
+const uint16_t s1_ho_wf_modify_bearer_response = 29;     
+const uint16_t s1_ho_wf_src_s1_rel_cmp = 30;     
+const uint16_t s1_ho_wf_src_s1_rel_tau_request = 31;     
+const uint16_t s1_ho_wf_tau_request = 32;     
+const uint16_t s1_release_start = 33;     
+const uint16_t s1_release_wf_release_access_bearer_resp = 34;     
+const uint16_t s1_release_wf_ue_ctxt_release_comp = 35;     
+const uint16_t service_request_start = 36;     
+const uint16_t service_request_wf_aia = 37;     
+const uint16_t service_request_wf_auth_resp_validate = 38;     
+const uint16_t service_request_wf_auth_response = 39;     
+const uint16_t service_request_wf_init_ctxt_resp = 40;     
+const uint16_t service_request_wf_mb_resp = 41;     
+const uint16_t service_request_wf_sec_cmp = 42;     
+const uint16_t tau_start = 43;
+const uint16_t END_STATE = 44;
 
 /******************************************
 * MME-APP Specific Events - ID
@@ -75,23 +83,28 @@ const uint16_t DDN_FROM_SGW = 110;
 const uint16_t DEL_SESSION_RESP_FROM_SGW = 111; 
 const uint16_t DETACH_ACCEPT_FROM_UE = 112; 
 const uint16_t DETACH_REQ_FROM_UE = 113; 
-const uint16_t ESM_INFO_NOT_REQUIRED = 114; 
-const uint16_t ESM_INFO_REQUIRED = 115; 
-const uint16_t ESM_INFO_RESP_FROM_UE = 116; 
-const uint16_t IDENTITY_RESPONSE_FROM_UE = 117; 
-const uint16_t IMSI_VALIDATION_FAILURE = 118; 
-const uint16_t IMSI_VALIDATION_SUCCESS = 119; 
-const uint16_t INIT_CTXT_RESP_FROM_UE = 120; 
-const uint16_t MB_RESP_FROM_SGW = 121; 
-const uint16_t REL_AB_RESP_FROM_SGW = 122; 
-const uint16_t S1_REL_REQ_FROM_UE = 123; 
-const uint16_t SEC_MODE_RESP_FROM_UE = 124; 
-const uint16_t SERVICE_REQUEST_FROM_UE = 125; 
-const uint16_t TAU_REQUEST_FROM_UE = 126; 
-const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 127; 
-const uint16_t ULA_FROM_HSS = 128; 
-const uint16_t VALIDATE_IMSI = 129; 
-const uint16_t END_EVENT = 130;    
+const uint16_t ENB_STATUS_TRANFER_FROM_SRC_ENB = 114; 
+const uint16_t ESM_INFO_NOT_REQUIRED = 115; 
+const uint16_t ESM_INFO_REQUIRED = 116; 
+const uint16_t ESM_INFO_RESP_FROM_UE = 117; 
+const uint16_t HO_NOTIFY_FROM_ENB = 118; 
+const uint16_t HO_REQUEST_ACK_FROM_ENB = 119; 
+const uint16_t HO_REQUIRED_FROM_ENB = 120; 
+const uint16_t IDENTITY_RESPONSE_FROM_UE = 121; 
+const uint16_t IMSI_VALIDATION_FAILURE = 122; 
+const uint16_t IMSI_VALIDATION_SUCCESS = 123; 
+const uint16_t INIT_CTXT_RESP_FROM_UE = 124; 
+const uint16_t INTRA_S1HO_START = 125; 
+const uint16_t MB_RESP_FROM_SGW = 126; 
+const uint16_t REL_AB_RESP_FROM_SGW = 127; 
+const uint16_t S1_REL_REQ_FROM_UE = 128; 
+const uint16_t SEC_MODE_RESP_FROM_UE = 129; 
+const uint16_t SERVICE_REQUEST_FROM_UE = 130; 
+const uint16_t TAU_REQUEST_FROM_UE = 131; 
+const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 132; 
+const uint16_t ULA_FROM_HSS = 133; 
+const uint16_t VALIDATE_IMSI = 134; 
+const uint16_t END_EVENT = 135;    
 
 /******************************************
 * Maps Event Name to Event ID

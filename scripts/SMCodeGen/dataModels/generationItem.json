@@ -1,148 +1,223 @@
 {
-    "Model1" :
-    [  
-	    {
-            "appModelKeyword" : "States",
-            "appModelValueDepth" : 2, 
-            "templateFile" : "templates/stateMachineTmpls/state.h.tt",
-            "outputPath" : "output/states/headers",
-            "outputFile": "",
-            "outputFileKey": "Name",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },
-        {
-            "appModelKeyword" : "States",
-            "appModelValueDepth" : 2, 
-            "templateFile" : "templates/stateMachineTmpls/state.cpp.tt",
-            "outputPath" : "output/states/cpp",
-            "outputFile": "",
-            "outputFileKey": "Name",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-        },
-        {
-            "appModelKeyword" : "Procedures",
-            "appModelValueDepth" : 0, 
-            "templateFile" : "templates/stateMachineTmpls/mmeSmDefs.h.tt",
-            "outputPath" : "output/mmeSmDefs",
-            "outputFile": "mmeSmDefs",
-            "outputFileKey": "",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },
-        {
-            "appModelKeyword" : "Procedures",
-            "appModelValueDepth" : 0,
-            "templateFile" : "templates/stateMachineTmpls/mmeSmDefs.cpp.tt",
-            "outputPath" : "output/mmeSmDefs",
-            "outputFile": "mmeSmDefs",
-            "outputFileKey": "",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-        },
-        {
-            "appModelKeyword" : "Actions",
-            "appModelValueDepth" : 0, 
-            "templateFile" : "templates/stateMachineTmpls/actionHandlers.h.tt",
-            "outputPath" : "output/actionHandler/header",
-            "outputFile": "actionHandlers",
-            "outputFileKey": "",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },    
-        {
-            "appModelKeyword" : "Procedures",
-            "appModelValueDepth" : 2, 
-            "templateFile" : "templates/stateMachineTmpls/actionHandlers.cpp.tt",
-            "outputPath" : "output/actionHandler/cpp",
-            "outputFile": "ActionHandlers",
-            "outputFileKey": "Name",
-            "outputFileExt" : ".cpp",
-            "mode" : "append"
-        },
-	    {
-    	    "appModelKeyword" : "States",
-            "appModelValueDepth" : 0,
-            "templateFile" : "templates/stateMachineTmpls/stateFactory.cpp.tt",
-            "outputPath" : "output/states/cpp",
-            "outputFile": "stateFactory",
-            "outputFileKey": "",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-	    },
-	    {
-    	    "appModelKeyword" : "States",
-            "appModelValueDepth" : 0,
-            "templateFile" : "templates/stateMachineTmpls/stateFactory.h.tt",
-            "outputPath" : "output/states/headers",
-            "outputFile": "stateFactory",
-            "outputFileKey": "",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-	    }
-    ],
-    "Model2" :
-    [
-	    {
-            "appModelKeyword" : "DataBlocks",
-            "appModelValueDepth" : 2,
-            "templateFile" : "templates/ctxtManagerTmpls/blockPoolManager.h.tt",
-            "outputPath" : "output/contextManager/dg/headers",
-            "outputFile": "Manager",
-            "outputFileKey": "BlockName",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },
-	    {
-            "appModelKeyword" : "DataBlocks",
-            "appModelValueDepth" : 2,
-            "templateFile" : "templates/ctxtManagerTmpls/blockPoolManager.cpp.tt",
-            "outputPath" : "output/contextManager/dg/cpp",
-            "outputFile": "Manager",
-            "outputFileKey": "BlockName",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-        },
+	"Models": [
 		{
-            "appModelKeyword" : "DataStore",
-            "appModelValueDepth" : 1,
-            "templateFile" : "templates/ctxtManagerTmpls/dataBlocks.h.tt",
-            "outputPath" : "output/contextManager/dg/headers",
-            "outputFile": "dataBlocks",
-            "outputFileKey": "",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },
-	    {
-            "appModelKeyword" : "DataStore",
-            "appModelValueDepth" : 1,
-            "templateFile" : "templates/ctxtManagerTmpls/dataBlocks.cpp.tt",
-            "outputPath" : "output/contextManager/dg/cpp",
-            "outputFile": "dataBlocks",
-            "outputFileKey": "",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-        },
-	    {
-            "appModelKeyword" : "DataGroups",
-            "appModelValueDepth" : 2,
-            "templateFile" : "templates/ctxtManagerTmpls/subsDataGroupManager.h.tt",
-            "outputPath" : "output/contextManager/dg/headers",
-            "outputFile": "subsDataGroupManager",
-            "outputFileKey": "",
-            "outputFileExt" : ".h",
-            "mode" : "overwrite"
-        },
-	    {
-            "appModelKeyword" : "DataGroups",
-            "appModelValueDepth" : 2,
-            "templateFile" : "templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt",
-            "outputPath" : "output/contextManager/dg/cpp",
-            "outputFile": "subsDataGroupManager",
-            "outputFileKey": "",
-            "outputFileExt" : ".cpp",
-            "mode" : "overwrite"
-        }
-    ]
+			"AppModel": "dataModels/stateMachineAppModel.json",
+			"genCode": [
+				{
+					"appModelKeyword": "States",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/stateMachineTmpls/state.h.tt",
+					"outputPath": "output/states/headers",
+					"outputFile": "",
+					"outputFileKey": "Name",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "States",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/stateMachineTmpls/state.cpp.tt",
+					"outputPath": "output/states/cpp",
+					"outputFile": "",
+					"outputFileKey": "Name",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "Procedures",
+					"appModelValueDepth": 0,
+					"templateFile": "templates/stateMachineTmpls/mmeSmDefs.h.tt",
+					"outputPath": "output/mmeSmDefs",
+					"outputFile": "mmeSmDefs",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "Procedures",
+					"appModelValueDepth": 0,
+					"templateFile": "templates/stateMachineTmpls/mmeSmDefs.cpp.tt",
+					"outputPath": "output/mmeSmDefs",
+					"outputFile": "mmeSmDefs",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "Actions",
+					"appModelValueDepth": 0,
+					"templateFile": "templates/stateMachineTmpls/actionHandlers.h.tt",
+					"outputPath": "output/actionHandler/header",
+					"outputFile": "actionHandlers",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "Procedures",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/stateMachineTmpls/actionHandlers.cpp.tt",
+					"outputPath": "output/actionHandler/cpp",
+					"outputFile": "ActionHandlers",
+					"outputFileKey": "Name",
+					"outputFileExt": ".cpp",
+					"mode": "append"
+				},
+				{
+					"appModelKeyword": "States",
+					"appModelValueDepth": 0,
+					"templateFile": "templates/stateMachineTmpls/stateFactory.cpp.tt",
+					"outputPath": "output/states/cpp",
+					"outputFile": "stateFactory",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "States",
+					"appModelValueDepth": 0,
+					"templateFile": "templates/stateMachineTmpls/stateFactory.h.tt",
+					"outputPath": "output/states/headers",
+					"outputFile": "stateFactory",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				}
+			]
+		},
+		{
+			"AppModel": "dataModels/ctxtManagerAppModel.json",
+			"genCode": [
+				{
+					"appModelKeyword": "DataBlocks",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/blockPoolManager.h.tt",
+					"outputPath": "output/contextManager/dg/headers",
+					"outputFile": "Manager",
+					"outputFileKey": "BlockName",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataBlocks",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/blockPoolManager.cpp.tt",
+					"includes" : "contextManager/dataBlocks.h",
+					"outputPath": "output/contextManager/dg/cpp",
+					"outputFile": "Manager",
+					"outputFileKey": "BlockName",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataStore",
+					"appModelValueDepth": 1,
+					"templateFile": "templates/ctxtManagerTmpls/dataBlocks.h.tt",
+					"includes" : "structs.h,utils/mmeCauseTypes.h,utils/mmeProcedureTypes.h",
+					"outputPath": "output/contextManager/dg/headers",
+					"outputFile": "dataBlocks",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataStore",
+					"appModelValueDepth": 1,
+					"templateFile": "templates/ctxtManagerTmpls/dataBlocks.cpp.tt",
+					"outputPath": "output/contextManager/dg/cpp",
+					"outputFile": "dataBlocks",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataGroups",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/subsDataGroupManager.h.tt",
+					"outputPath": "output/contextManager/dg/headers",
+					"outputFile": "subsDataGroupManager",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataGroups",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt",
+					"outputPath": "output/contextManager/dg/cpp",
+					"outputFile": "subsDataGroupManager",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				}
+			]
+		},
+		{
+			"AppModel": "dataModels/s1apCtxtManagerAppModel.json",
+			"genCode": [
+				{
+					"appModelKeyword": "DataBlocks",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/blockPoolManager.h.tt",
+					"outputPath": "output/s1apContextManager/dg/headers",
+					"outputFile": "Manager",
+					"outputFileKey": "BlockName",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataBlocks",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/blockPoolManager.cpp.tt",
+					"includes" : "s1apContextManager/s1apDataBlocks.h",
+					"outputPath": "output/s1apContextManager/dg/cpp",
+					"outputFile": "Manager",
+					"outputFileKey": "BlockName",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataStore",
+					"appModelValueDepth": 1,
+					"templateFile": "templates/ctxtManagerTmpls/dataBlocks.h.tt",
+					"includes" : "s1_common_types.h",
+					"outputPath": "output/s1apContextManager/dg/headers",
+					"outputFile": "s1apDataBlocks",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataStore",
+					"appModelValueDepth": 1,
+					"templateFile": "templates/ctxtManagerTmpls/dataBlocks.cpp.tt",
+					"outputPath": "output/s1apContextManager/dg/cpp",
+					"outputFile": "s1apDataBlocks",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataGroups",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/subsDataGroupManager.h.tt",
+					"outputPath": "output/s1apContextManager/dg/headers",
+					"outputFile": "s1apDataGroupManager",
+					"outputFileKey": "",
+					"outputFileExt": ".h",
+					"mode": "overwrite"
+				},
+				{
+					"appModelKeyword": "DataGroups",
+					"appModelValueDepth": 2,
+					"templateFile": "templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt",
+					"outputPath": "output/s1apContextManager/dg/cpp",
+					"outputFile": "s1apDataGroupManager",
+					"outputFileKey": "",
+					"outputFileExt": ".cpp",
+					"mode": "overwrite"
+				}
+			]
+		}
+	]
 }

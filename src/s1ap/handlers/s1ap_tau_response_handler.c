@@ -24,7 +24,6 @@
 #include "s1ap_structs.h"
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
-extern s1ap_config g_s1ap_cfg;
 extern ipc_handle ipc_S1ap_Hndl;
 static Buffer g_buffer;
 static int
@@ -79,6 +78,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	uint8_t mac_data_pos;
 	uint8_t datalen;
 	uint8_t u8value;
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
     if(g_tauRespInfo->status != 0)
     {
@@ -136,7 +136,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	  /* Copy length to s1ap length field */
 	  datalen = g_buffer.pos - s1ap_len_pos - 1;
 	  memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
-      return E_FAIL;
+      return SUCCESS;
     }
 	/* Assigning values to s1apPDU */
 	s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -268,10 +268,10 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 
     buffer_copy(&g_buffer, &g_tauRespInfo->tai.plmn_id, 3);
 
-    uint16_t grpid = htons(g_s1ap_cfg.mme_group_id);
+	uint16_t grpid = htons(s1ap_cfg->mme_group_id);
 	buffer_copy(&g_buffer, &grpid, sizeof(grpid)); 
 
-    u8value = g_s1ap_cfg.mme_code;
+	u8value = s1ap_cfg->mme_code;
 	buffer_copy(&g_buffer, &u8value, sizeof(u8value));
 
     uint32_t mtmsi = htonl(g_tauRespInfo->m_tmsi); 

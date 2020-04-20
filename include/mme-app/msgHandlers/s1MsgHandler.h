@@ -38,6 +38,10 @@ private:
 	void handleDetachAcceptFromUE_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 	void handleServiceRequest_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 	void handleTauRequestMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+    void handleHandoverRequiredMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+    void handleHandoverRequestAckMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+    void handleHandoverNotifyMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+    void handleEnbStatusTransferMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 };
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_S1MSGHANDLER_H_ */

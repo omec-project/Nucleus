@@ -27,6 +27,8 @@
 struct secinfo {
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint8_t kenb_key[KENB_SIZE];
+    int next_hop_chaining_count ;
+    uint8_t next_hop_nh[KENB_SIZE];
 };
 
 struct AMBR {

@@ -18,6 +18,17 @@
 #include "SuccessfulOutcome.h"
 #include "UnsuccessfulOutcome.h"
 #include "common_proc_info.h"
+#include "s1ap_config.h"
+
+extern void it_ho_req_ack(struct handover_request_Q_msg *g_ho_req);
+extern void it_ho_notify(struct handover_command_Q_msg *g_ho_cmd);
+extern void it_ho_enb_status_transfer(struct handover_command_Q_msg *g_ho_cmd);
+
+/* Put all the instances within this */
+typedef struct s1ap_instance 
+{
+	s1ap_config_t *s1ap_config;
+}s1ap_instance_t;
 
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
@@ -30,6 +41,10 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
 int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
+int convertUehoReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
+int convertHoNotifyToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 
 int
 s1_setup_handler(InitiatingMessage_t *msg, int enb_fd);
@@ -80,6 +95,18 @@ int
 s1_ctx_release_complete_handler(SuccessfulOutcome_t *msg);
 
 int
+s1_handover_ack_handler(SuccessfulOutcome_t *msg);
+
+int
+s1_handover_required_handler(InitiatingMessage_t *msg);
+
+int
+s1_handover_notify_handler(InitiatingMessage_t *msg);
+
+int
+s1_enb_status_transfer_handler(InitiatingMessage_t *msg);
+
+int
 detach_accept_from_ue_handler(struct proto_IE *detach_ies, bool retransmit);
 
 int s1ap_mme_encode_ue_context_release_command(
@@ -94,6 +121,10 @@ int s1ap_mme_encode_initiating(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
 
+int s1ap_mme_encode_outcome(
+        struct s1ap_common_req_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
 int s1ap_mme_encode_initial_context_setup_request(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
@@ -102,9 +133,31 @@ int s1ap_mme_encode_service_rej(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
 
+int s1ap_mme_encode_s1_setup_failure(
+        struct s1ap_common_req_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_s1_setup_response(
+        struct s1ap_common_req_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
 int s1ap_mme_encode_attach_rej(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_handover_request(
+        struct handover_request_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_handover_command(
+        struct handover_command_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_handover_mme_status_transfer(
+        struct mme_status_transfer_Q_msg *s1apPDU,
+        uint8_t **buffer,
+        uint32_t *length);
+
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd);
 

@@ -29,6 +29,7 @@ namespace mme
 {
 
 class MmeProcedureCtxt;
+class S1HandoverProcedureContext;
 class MmeContextManagerUtils
 {
 public:
@@ -41,6 +42,8 @@ public:
 
 	static void deleteUEContext(uint32_t cbIndex);
 	static void deleteSessionContext(SM::ControlBlock& cb_r);
+
+	static S1HandoverProcedureContext* allocateHoContext(SM::ControlBlock& cb_r);
 
 private:
 	MmeContextManagerUtils();

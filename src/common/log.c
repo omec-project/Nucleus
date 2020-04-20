@@ -29,7 +29,7 @@ FILE *fp;
 
 void init_logging(char *env, char *file)
 {
-	if(strcmp(env, "container") == 0) {
+	/*if(strcmp(env, "container") == 0) {
 		fp = (FILE *)stderr;
 		fprintf(fp, "\ninit_logging %s\n", env);
 	} else {
@@ -40,7 +40,9 @@ void init_logging(char *env, char *file)
 			exit(0);
 		}
 		fprintf(fp, "\ninit_logging %s\n", env);
-	}
+	}*/
+
+    fp = (FILE *)stderr;
 }
 
 inline void enable_logs()
