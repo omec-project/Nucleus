@@ -19,11 +19,15 @@ namespace mme
 {
 	class S1HandoverProcedureContext;
 	class UEContext;
+	class SessionContext;
 	class MmeGtpMsgUtils
 	{
 	public:
-		static void populateModifyBearerRequestHo(SM::ControlBlock& cb, UEContext& ueCtxt,
-				S1HandoverProcedureContext& procCtxt, struct MB_Q_msg& mbMsg);
+		static void populateModifyBearerRequestHo(SM::ControlBlock& cb,
+		        UEContext& ueCtxt,
+		        SessionContext& sessCtxt,
+				S1HandoverProcedureContext& procCtxt,
+				struct MB_Q_msg& mbMsg);
 	private:
 		MmeGtpMsgUtils();
 		~MmeGtpMsgUtils();

@@ -33,12 +33,16 @@ void dumpHOReqAck(struct handover_req_acknowledge_Q_msg* msg)
 int s1_handover_ack_handler(SuccessfulOutcome_t *msg)
 {
     struct s1_incoming_msg_data_t handover_ack = {0};
-    struct proto_IE s1_ho_ack_ies;
+    struct proto_IE s1_ho_ack_ies = {0};
 
     int decode_status = convertHoAcklToProtoIe(msg, &s1_ho_ack_ies); //create
     if (decode_status < 0)
     {
         log_msg(LOG_ERROR, "Failed to decode HO Request Ack\n");
+
+        if (s1_ho_ack_ies.data != NULL)
+            free(s1_ho_ack_ies.data);
+
         return E_FAIL;
     }
 
@@ -113,9 +117,9 @@ int s1_handover_ack_handler(SuccessfulOutcome_t *msg)
 
     log_msg(LOG_INFO, "Handover Request Ack sent to mme-app. Bytes sent %d\n", i);
 
-    //dumpHOReqAck(&handover_ack.msg_data.handover_req_acknowledge_Q_msg_m);
+    if (s1_ho_ack_ies.data != NULL)
+        free(s1_ho_ack_ies.data);
 
-    //TODO: free IEs
     return SUCCESS;
 }
 

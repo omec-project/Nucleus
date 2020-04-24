@@ -37,10 +37,10 @@ void dumpHoRequired(struct handover_required_Q_msg *msg)
      log_msg(LOG_INFO, "Container is \n %s \n", container);*/
 }
 
-int s1_handover_required_handler(InitiatingMessage_t *msg)
+int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 {
     struct s1_incoming_msg_data_t ho_required = {0};
-    struct proto_IE ho_required_ies;
+    struct proto_IE ho_required_ies = {0};
     int enb_id = 0;
     log_msg(LOG_INFO, "Parse s1ap handover required message\n");
 
@@ -48,6 +48,10 @@ int s1_handover_required_handler(InitiatingMessage_t *msg)
     if (decode_status < 0)
     {
         log_msg(LOG_ERROR, "Failed to decode HO Required\n");
+
+        if (ho_required_ies.data != NULL)
+            free(ho_required_ies.data);
+
         return E_FAIL;
     }
 
@@ -131,6 +135,10 @@ int s1_handover_required_handler(InitiatingMessage_t *msg)
     if (enb_id == 0)
     {
         log_msg(LOG_ERROR, "Failed to decode target enb id %d", enb_id);
+
+        if (ho_required_ies.data != NULL)
+            free(ho_required_ies.data);
+
         return E_FAIL;
     }
 
@@ -138,9 +146,14 @@ int s1_handover_required_handler(InitiatingMessage_t *msg)
     if (cbIndex == INVALID_CB_INDEX)
     {
         log_msg(LOG_ERROR, "Failed to find cb for enb id %d", enb_id);
+
+        if (ho_required_ies.data != NULL)
+            free(ho_required_ies.data);
+
         return E_FAIL;
     }
     ho_required.msg_data.handover_required_Q_msg_m.target_enb_fd = cbIndex;
+    ho_required.msg_data.handover_required_Q_msg_m.enb_fd = enb_fd;
 
     ho_required.msg_type = handover_required;
     ho_required.destInstAddr = htonl(mmeAppInstanceNum_c);
@@ -154,7 +167,10 @@ int s1_handover_required_handler(InitiatingMessage_t *msg)
     {
         log_msg(LOG_ERROR, "Error To write in s1_handover_required_handler\n");
     }
-    //TODO: free IEs
+
+    if (ho_required_ies.data != NULL)
+        free(ho_required_ies.data);
+
     return SUCCESS;
 }
 

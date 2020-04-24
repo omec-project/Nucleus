@@ -20,6 +20,7 @@
 #include "common_proc_info.h"
 #include "s1ap_config.h"
 
+
 /* Put all the instances within this */
 typedef struct s1ap_instance 
 {
@@ -94,7 +95,7 @@ int
 s1_handover_ack_handler(SuccessfulOutcome_t *msg);
 
 int
-s1_handover_required_handler(InitiatingMessage_t *msg);
+s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd);
 
 int
 s1_handover_notify_handler(InitiatingMessage_t *msg);

@@ -18,7 +18,7 @@
 #include "actionHandlers/actionHandlers.h"
 
 #include "mmeStates/s1HoWfModifyBearerResponse.h"	
-#include "mmeStates/s1HoWfSrcS1RelTauRequest.h"
+#include "mmeStates/s1HoWfTauCheck.h"
 
 using namespace mme;
 using namespace SM;
@@ -54,8 +54,9 @@ void S1HoWfModifyBearerResponse::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp_for_ho);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue_for_ho);
-                actionTable.setNextState(S1HoWfSrcS1RelTauRequest::Instance());
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho);
+                actionTable.addAction(&ActionHandlers::is_tau_required);
+                actionTable.setNextState(S1HoWfTauCheck::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
         }
 }

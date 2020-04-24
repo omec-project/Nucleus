@@ -20,13 +20,17 @@ extern ipc_handle ipc_S1ap_Hndl;
 int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
 {
     struct s1_incoming_msg_data_t ho_enb_status_transfer = {0};
-    struct proto_IE ho_enb_status_transfer_ies;
+    struct proto_IE ho_enb_status_transfer_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover enb_status_transfer message\n");
 
     int decode_status = convertEnbStatusTransferToProtoIe(msg, &ho_enb_status_transfer_ies);
     if (decode_status < 0)
     {
         log_msg(LOG_ERROR, "Failed to decode enb-status-transfer message\n");
+
+        if (ho_enb_status_transfer_ies.data != NULL)
+            free(ho_enb_status_transfer_ies.data);
+
         return E_FAIL;
     }
 
@@ -83,6 +87,9 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
 
     log_msg(LOG_INFO, "enb_status_transfer sent to mme-app."
             "Bytes sent %d\n", i);
+
+    if (ho_enb_status_transfer_ies.data != NULL)
+        free(ho_enb_status_transfer_ies.data);
 
     return SUCCESS;
 }

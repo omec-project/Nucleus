@@ -34,7 +34,7 @@ handover_request_processing(struct handover_request_Q_msg *g_ho_req)
 	log_msg(LOG_INFO,
 	        "HO Request Sent. Num of bytes - %d, enb_fd - %d\n",
 	        length, g_ho_req->enb_fd);
-
+	
 	return SUCCESS;
 }
 

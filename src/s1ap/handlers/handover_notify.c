@@ -20,13 +20,17 @@ extern ipc_handle ipc_S1ap_Hndl;
 int s1_handover_notify_handler(InitiatingMessage_t *msg)
 {
     struct s1_incoming_msg_data_t notify = {0};
-    struct proto_IE ho_notify_ies;
+    struct proto_IE ho_notify_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover notify message\n");
 
     int decode_status = convertHoNotifyToProtoIe(msg, &ho_notify_ies);
     if (decode_status < 0)
     {
         log_msg(LOG_ERROR, "Failed to decode HO Notify\n");
+
+        if (ho_notify_ies.data != NULL)
+            free(ho_notify_ies.data);
+
         return E_FAIL;
     }
 
@@ -82,6 +86,9 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
 
     log_msg(LOG_INFO, "Handover notify complete sent to mme-app."
             "Bytes sent %d\n", i);
+
+    if (ho_notify_ies.data != NULL)
+        free(ho_notify_ies.data);
 
     return SUCCESS;
 }

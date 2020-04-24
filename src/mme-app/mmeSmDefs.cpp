@@ -55,7 +55,9 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(SEC_MODE_RESP_FROM_UE,"SEC_MODE_RESP_FROM_UE");      
     smUtil->addEventToStrEntry(SERVICE_REQUEST_FROM_UE,"SERVICE_REQUEST_FROM_UE");      
     smUtil->addEventToStrEntry(STATE_GUARD_TIMEOUT,"STATE_GUARD_TIMEOUT");      
+    smUtil->addEventToStrEntry(TAU_NOT_REQUIRED,"TAU_NOT_REQUIRED");      
     smUtil->addEventToStrEntry(TAU_REQUEST_FROM_UE,"TAU_REQUEST_FROM_UE");      
+    smUtil->addEventToStrEntry(TAU_REQUIRED,"TAU_REQUIRED");      
     smUtil->addEventToStrEntry(UE_CTXT_REL_COMP_FROM_ENB,"UE_CTXT_REL_COMP_FROM_ENB");      
     smUtil->addEventToStrEntry(ULA_FROM_HSS,"ULA_FROM_HSS");      
     smUtil->addEventToStrEntry(VALIDATE_IMSI,"VALIDATE_IMSI");      
@@ -93,8 +95,7 @@ void populateStateStringMap()
     smUtil->addStateToStrEntry(s1_ho_wf_ho_notify,"s1_ho_wf_ho_notify");
     smUtil->addStateToStrEntry(s1_ho_wf_ho_request_ack,"s1_ho_wf_ho_request_ack");
     smUtil->addStateToStrEntry(s1_ho_wf_modify_bearer_response,"s1_ho_wf_modify_bearer_response");
-    smUtil->addStateToStrEntry(s1_ho_wf_src_s1_rel_cmp,"s1_ho_wf_src_s1_rel_cmp");
-    smUtil->addStateToStrEntry(s1_ho_wf_src_s1_rel_tau_request,"s1_ho_wf_src_s1_rel_tau_request");
+    smUtil->addStateToStrEntry(s1_ho_wf_tau_check,"s1_ho_wf_tau_check");
     smUtil->addStateToStrEntry(s1_ho_wf_tau_request,"s1_ho_wf_tau_request");
     smUtil->addStateToStrEntry(s1_release_start,"s1_release_start");
     smUtil->addStateToStrEntry(s1_release_wf_release_access_bearer_resp,"s1_release_wf_release_access_bearer_resp");

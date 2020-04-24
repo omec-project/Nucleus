@@ -63,6 +63,14 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 	nasIeCnt++;
 	nasIEs[nasIeCnt].pduElement.spare = 0; /* TA updated */
 	nasIeCnt++;
+	nasIEs[nasIeCnt].pduElement.tailist.type = 1;
+	nasIEs[nasIeCnt].pduElement.tailist.num_of_elements = 0;
+
+    	/* S1AP TAI mcc 123, mnc 456 : 214365 */
+    	/* NAS TAI mcc 123, mnc 456 : 216354 */
+	memcpy(&(nasIEs[nasIeCnt].pduElement.tailist.partial_list[0]),
+			&(g_tauRespInfo->tai), sizeof(g_tauRespInfo->tai));
+	nasIeCnt++;
 
 	return SUCCESS;
 }
@@ -256,7 +264,8 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 #endif
 	buffer_copy(&g_buffer, &u8value, sizeof(u8value));
 
-#if 1 
+        nas_pdu_elements *ies =s1apPDU.value.data[2].val.nas.elements;
+#if 1
     /* adding GUTI */
 	u8value = 0x50; /* element id TODO: define macro or enum */
 	buffer_copy(&g_buffer, &u8value, sizeof(u8value));
@@ -278,7 +287,14 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	buffer_copy(&g_buffer, &(mtmsi), sizeof(mtmsi));
 #endif
 
-
+  	u8value = 0x54;
+        buffer_copy(&g_buffer, &u8value, sizeof(u8value));
+        datalen = 6; /* TODO: use value from tai list */
+        buffer_copy(&g_buffer, &datalen, sizeof(datalen));
+        u8value = 0x20; /* TODO: remove hard coding */
+        buffer_copy(&g_buffer, &u8value, sizeof(u8value));
+        buffer_copy(&g_buffer, &(ies[2].pduElement.tailist.partial_list[0].plmn_id.idx), 3);
+        buffer_copy(&g_buffer, &(ies[2].pduElement.tailist.partial_list[0].tac), 2);
 
 #if 1
     /*TODO : Experiment */
@@ -293,6 +309,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
     mtmsi = htonl(g_tauRespInfo->ue_idx); 
 	buffer_copy(&g_buffer, &(mtmsi), sizeof(mtmsi));
 #endif
+
 	/* NAS PDU end */
 
 	/* Calculate mac */

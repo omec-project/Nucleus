@@ -34,6 +34,7 @@
 #include <utils/mmeS1MsgUtils.h>
 #include <utils/mmeGtpMsgUtils.h>
 #include <contextManager/dataBlocks.h>
+#include "contextManager/subsDataGroupManager.h"
 
 using namespace mme;
 using namespace SM;
@@ -75,9 +76,7 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
     MmeS1MsgUtils::populateHoRequest(cb, *ueCtxt, *hoProcCtxt, hoReq);
 
     /*Send message to S1AP-APP*/
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     mmeIpcIf_g->dispatchIpcMsg((char*)&hoReq, sizeof(hoReq), destAddr);
 
     log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb \n");
@@ -165,9 +164,7 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
 
     MmeS1MsgUtils::populateHoCommand(cb, *ue_ctxt, *ho_ctxt, ho_command);
 
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     mmeIpcIf_g->dispatchIpcMsg((char*) &ho_command, sizeof(ho_command),
             destAddr);
 
@@ -229,9 +226,7 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
     	&(enb_status_trans.enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container),
 	sizeof(struct enB_status_transfer_transparent_container));
 
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     mmeIpcIf_g->dispatchIpcMsg((char*) &mme_status_trans, sizeof(struct  mme_status_transfer_Q_msg),
             destAddr);
     return ActStatus::PROCEED;
@@ -321,22 +316,11 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
         return ActStatus::HALT;
     }
 
-    BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
-    if (bearerCtxt == NULL)
-    {
-        log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho: bearer ctxt is NULL \n");
-        return ActStatus::HALT;
-    }
-
     struct MB_Q_msg mb_msg;
-    MmeGtpMsgUtils::populateModifyBearerRequestHo(cb, *ue_ctxt,
-    		*ho_ctxt, mb_msg);
-    if (bearerCtxt)
-        bearerCtxt->setS1uEnbUserFteid(Fteid(mb_msg.s1u_enb_fteid));
+    MmeGtpMsgUtils::populateModifyBearerRequestHo(
+            cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
 
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
-
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s11AppInstanceNum_c};
     mmeIpcIf_g->dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
@@ -358,7 +342,7 @@ ActStatus ActionHandlers::process_mb_resp_for_ho(ControlBlock& cb)
 /***************************************
 * Action handler : send_s1_rel_cmd_to_ue_for_ho
 ***************************************/
-ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
+ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
 {
     log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_ho\n");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -382,26 +366,15 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
     s1relcmd.cause.present = s1apCause_PR_radioNetwork;
     s1relcmd.cause.choice.radioNetwork = s1apCauseRadioNetwork_successful_handover;
     s1relcmd.enb_fd = ho_ctxt->getSrcEnbFd();
-    /*Send message to S1AP-APP*/
-    cmn::ipc::IpcAddress destAddr;
-    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
+    // Fire and forget s1 release to src enb
+
+    /*Send message to S1AP-APP*/
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     mmeIpcIf_g->dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
     log_msg(LOG_DEBUG,"Leaving send_s1ap_ue_ctxt_rel_command_to_src_enb \n");
-    return ActStatus::PROCEED;
-}
-
-/***************************************
-* Action handler : process_ue_ctxt_rel_comp_for_ho
-***************************************/
-ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_ho(ControlBlock& cb)
-{
-    log_msg(LOG_DEBUG, "Inside process_ue_ctxt_rel_comp_for_ho \n");
-
-    ProcedureStats::num_of_s1_rel_comp_received++;
-
     return ActStatus::PROCEED;
 }
 
@@ -412,10 +385,23 @@ ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
 {
     log_msg(LOG_INFO, "Inside ho_complete\n");
 
+    ProcedureStats::num_of_ho_complete++;
+
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : is_tau_required
+***************************************/
+ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
+{
+    log_msg(LOG_INFO, "Inside is_tau_required\n");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_ERROR, "ho_complete: ue context is NULL\n",
+        log_msg(LOG_ERROR, "is_tau_required: ue context is NULL\n",
                 cb.getCBIndex());
         return ActStatus::HALT;
     }
@@ -424,17 +410,23 @@ ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (s1HoPrcdCtxt_p == NULL)
     {
-        log_msg(LOG_DEBUG, "ho_complete: S1HandoverProcedureContext is NULL\n");
+        log_msg(LOG_DEBUG,
+                "is_tau_required: S1HandoverProcedureContext is NULL\n");
         return ActStatus::HALT;
     }
 
-    ue_ctxt->setTai(Tai(s1HoPrcdCtxt_p->getTargetTai()));
-    ue_ctxt->setUtranCgi(Cgi(s1HoPrcdCtxt_p->getTargetCgi()));
-
-    ProcedureStats::num_of_ho_complete++;
-
-    MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
-
+    if (ue_ctxt->getTai() == s1HoPrcdCtxt_p->getTargetTai())
+    {
+        log_msg(LOG_DEBUG, "TAI is same, TAU not Required\n");
+        SM::Event evt(TAU_NOT_REQUIRED, NULL);
+        cb.addEventToProcQ(evt);
+    }
+    else
+    {
+        log_msg(LOG_DEBUG, "TAI is not same, TAU Required\n");
+        SM::Event evt(TAU_REQUIRED, NULL);
+        cb.addEventToProcQ(evt);
+    }
     return ActStatus::PROCEED;
 }
 

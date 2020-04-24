@@ -43,6 +43,7 @@ class Tai
 		Tai( const TAI& tai_i );
 		~Tai();
 		void operator = ( const Tai& tai_i );
+		bool operator== (const Tai& tai_i) const;
 	public:
 		TAI tai_m;
 };

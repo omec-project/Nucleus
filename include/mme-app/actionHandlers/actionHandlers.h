@@ -143,6 +143,11 @@ namespace mme
         static SM::ActStatus ho_complete(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : is_tau_required
+        ***********************************************/
+        static SM::ActStatus is_tau_required(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : ni_detach_req_to_ue
         ***********************************************/
         static SM::ActStatus ni_detach_req_to_ue(SM::ControlBlock& cb);                
@@ -248,11 +253,6 @@ namespace mme
         static SM::ActStatus process_ue_ctxt_rel_comp_for_detach(SM::ControlBlock& cb);                
 
         /**********************************************
-        * Action handler : process_ue_ctxt_rel_comp_for_ho
-        ***********************************************/
-        static SM::ActStatus process_ue_ctxt_rel_comp_for_ho(SM::ControlBlock& cb);                
-
-        /**********************************************
         * Action handler : process_ula
         ***********************************************/
         static SM::ActStatus process_ula(SM::ControlBlock& cb);                
@@ -343,6 +343,11 @@ namespace mme
         static SM::ActStatus send_rel_ab_req_to_sgw(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_s1_rel_cmd_to_src_enb_for_ho
+        ***********************************************/
+        static SM::ActStatus send_s1_rel_cmd_to_src_enb_for_ho(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_s1_rel_cmd_to_ue
         ***********************************************/
         static SM::ActStatus send_s1_rel_cmd_to_ue(SM::ControlBlock& cb);                
@@ -351,11 +356,6 @@ namespace mme
         * Action handler : send_s1_rel_cmd_to_ue_for_detach
         ***********************************************/
         static SM::ActStatus send_s1_rel_cmd_to_ue_for_detach(SM::ControlBlock& cb);                
-
-        /**********************************************
-        * Action handler : send_s1_rel_cmd_to_ue_for_ho
-        ***********************************************/
-        static SM::ActStatus send_s1_rel_cmd_to_ue_for_ho(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_service_reject

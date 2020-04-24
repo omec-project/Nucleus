@@ -1053,7 +1053,7 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 		break;
 		
 	case S1AP_HANDOVER_REQUIRED_CODE:
-		s1_handover_required_handler(initiating_p);
+		s1_handover_required_handler(initiating_p, enb_fd);
 		break;
 
 	case S1AP_HANDOVER_NOTIFY_CODE:
