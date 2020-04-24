@@ -10,6 +10,7 @@
 #include "json_data.h"
 #include "s6a_config.h"
 #include "err_codes.h"
+#include "log.h"
 
 /**Globals and externs**/
 s6a_config g_s6a_cfg;
@@ -46,6 +47,15 @@ parse_s6a_conf()
 
 	g_s6a_cfg.realm = get_string_scalar("s6a.realm");
 	if(NULL == g_s6a_cfg.realm) return E_FAIL;
+
+	char *logging = get_string_scalar((char *)("mme.logging"));
+	if(NULL == logging) 
+    { 
+      logging = (char *)calloc(1, strlen("debug")+1);
+      strncpy(logging, "debug", strlen("debug")+1);
+    } 
+    set_logging_level(logging); 
+
 
 	return SUCCESS;
 }

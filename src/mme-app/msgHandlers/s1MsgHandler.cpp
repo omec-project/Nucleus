@@ -44,6 +44,7 @@ S1MsgHandler* S1MsgHandler::Instance()
 	return &msgHandler;
 }
 
+// Starting point 
 void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 {
 	log_msg(LOG_INFO, "S1 - handleS1Message_v\n");
@@ -69,6 +70,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 
 	const s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
 
+	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
@@ -178,6 +180,7 @@ void S1MsgHandler::handleAuthResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx
 		return;
 	}
 
+    // add event in the controBlk
 	// Fire attach-start event, insert cb to procedure queue
 	SM::Event evt(AUTH_RESP_FROM_UE, eMsg);
 	controlBlk_p->addEventToProcQ(evt);

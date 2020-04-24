@@ -166,9 +166,10 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	s6a_Q_msg s6a_req;
-	
+	s6a_Q_msg s6a_req; 
+	RESET_S6A_REQ_MSG(s6a_req);
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
+	 
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
 
 	memcpy(&(s6a_req.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
@@ -207,6 +208,7 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req;
+    RESET_S6A_REQ_MSG(s6a_req);
 
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
