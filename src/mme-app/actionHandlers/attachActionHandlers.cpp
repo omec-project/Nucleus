@@ -417,19 +417,19 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
                 controlBlk_p->addEventToProcQ(evt);
 
 	}
-	//TODO: XRES comparison
-	#if 0
-	log_msg(LOG_ERROR, "stage 3 processing memcmp - %d, %d, %d", &(ue_ctxt->getaiaSecInfo().AiaSecInfo_mp->xres.val),
-                &(auth_resp->res.val),
-                auth_resp->res.len);
-	if(memcmp(&(ue_ctxt->getaiaSecInfo().AiaSecInfo_mp->xres.val),
-		&(auth_resp->res.val),
-		auth_resp->res.len) != 0) {
-		log_msg(LOG_ERROR, "Invalid auth result received for UE %d",
-			auth_resp->ue_idx);
-		return E_FAIL;//report failure
+	uint64_t xres = *(uint64_t *) (&ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val[0]);
+	uint64_t res  = *(uint64_t *) (&auth_resp.res.val[0]);
+	log_msg(LOG_DEBUG, "Auth response Comparing received result from UE " 
+                       " (%lu) with xres (%lu). Length %d", res, xres, auth_resp.res.len);
+
+	if(memcmp((ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val),
+		(auth_resp.res.val),
+		auth_resp.res.len) != 0) {
+		log_msg(LOG_ERROR, "Invalid Auth response Comparing received result " 
+                           "from UE (%lu) with xres (%lu). Length %d", 
+							res, xres, auth_resp.res.len);
+		return ActStatus::HALT;
 	}
-	#endif
 	
 	ProcedureStats::num_of_processed_auth_response ++;
 	log_msg(LOG_DEBUG, "Leaving auth_response_validate \n");

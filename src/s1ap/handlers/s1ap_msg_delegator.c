@@ -241,9 +241,9 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		nas->elements_len = 1;
 		nas->elements = calloc(sizeof(nas_pdu_elements), 5);
 		//if(NULL == nas.elements)...
-		unsigned short len = get_length(&msg);
 		memcpy(&(nas->elements[0].pduElement.auth_resp), msg, sizeof(struct XRES));
-
+		uint64_t res = *(uint64_t *)(&nas->elements[0].pduElement.auth_resp.val);
+		log_msg(LOG_INFO, "NAS_AUTH_RESP recvd len %d %lu\n",nas->elements[0].pduElement.auth_resp.len,res);
 		break;
     
 	case NAS_IDENTITY_RESPONSE: {
@@ -352,7 +352,7 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 
             index++;
             /*ESM msg container*/
-            len = msg[0] << 8 | msg[1];
+            unsigned short len = msg[0] << 8 | msg[1];
             msg += 2;
             //now msg points to ESM message contents
             log_msg(LOG_INFO, "len=%x\n", len);
