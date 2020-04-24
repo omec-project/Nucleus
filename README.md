@@ -1,5 +1,6 @@
 # Nucleus
 ## Table of Contents
+[Features](#security_feature)
 [Introduction](#introduction)
 
 [Builds and Installation Procedure](#build-and-installation-procedure)
@@ -9,6 +10,19 @@
 [Known Issues](#known-issues)
 
 [Config Parameters](#config-parameters)
+
+## Features:
+Security feature framework will be added on this branch.
+The changes will include the following:
+1. Support Multiple Authentication Vectors.
+2. Add Security Context to MME which will include all the info regarding
+Security including : KSI, UL/DL Count, KASME from selected Vector, active-flag,
+         Integrity Algorithm ID, Encoding Algorithm ID.
+3. Update UL Count and DL Count update for all flows. Count should include sequence Number and Overflow counter.
+4. Nas Decryption should be moved to the mme-app cause we will need the info
+about algorithms and count.
+5. Add Integrity check for incoming messages.
+
 
 ## Introduction:
 Nucleus is a grounds up implementation of the Mobility management Entity EPC S1 front end to the Cell Tower (eNB). Its design is performance optimized for high speed mobility events over the S1-MME interface, while maintaining state coherent high transaction rate interactions over the S6a interface to the HSS and the S11 interface to the Serving Gateway Control (SGWC). The design allows maximum utilization of the transaction rate allowed by the S1-MME Non-Access Stratum (NAS) messages over SCTP, S6a DIAMETER Attribute Value Pairs (AVPs) over TCP and S11 GTPV2C messages over UDP protocols.
