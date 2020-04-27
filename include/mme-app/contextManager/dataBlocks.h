@@ -309,6 +309,18 @@ namespace mme
 			const Apn_name& getSubscribedApn()const;				
 			
 			/****************************************
+			* setPdnAddr
+			*    set pdnAddr to UEContext
+			****************************************/
+			void setPdnAddr(const Paa& pdnAddr_i);
+			
+			/****************************************
+			* getPdnAddr
+			*    get pdnAddr from UEContext
+			****************************************/
+			const Paa& getPdnAddr()const;
+			
+			/****************************************
 			* setMmContext
 			*    set MmContext to UEContext
 			****************************************/
@@ -397,6 +409,9 @@ namespace mme
 			
 			// DataName
 			Apn_name subscribedApn_m;
+			
+			// DataName
+			Paa pdnAddr_m;
 			
 			// MmContext
 			MmContext* MmContext_mp;

@@ -219,14 +219,14 @@ static int
 icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 {
 
-    Buffer g_ics_buffer;
-    Buffer g_s1ap_buffer;
-    Buffer g_rab1_buffer;
-    Buffer g_rab2_buffer;
-    Buffer g_nas_buffer;
+    Buffer g_ics_buffer = {0};
+    Buffer g_s1ap_buffer = {0};
+    Buffer g_rab1_buffer = {0};
+    Buffer g_rab2_buffer = {0};
+    Buffer g_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
-	struct s1ap_PDU s1apPDU;
+	struct s1ap_PDU s1apPDU = {0};
 	uint16_t protocolIe_Id;
 	uint8_t protocolIe_criticality;
 	uint8_t initiating_msg = 0;

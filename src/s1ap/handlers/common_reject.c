@@ -66,9 +66,9 @@ static int
 s1ap_service_reject_processing(struct commonRej_info *g_mmeS1apInfo)
 {
     struct s1ap_PDU s1apPDU = {0};
-    struct Buffer g_buffer;
-    struct Buffer g_value_buffer;
-    struct Buffer g_nas_buffer;
+    struct Buffer g_buffer = {0};
+    struct Buffer g_value_buffer = {0};
+    struct Buffer g_nas_buffer = {0};
 
     /* Assigning values to s1apPDU */
     s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -226,10 +226,10 @@ get_attachReject_protoie_value(struct proto_IE *value, struct commonRej_info *g_
 static int
 s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 {
-	struct Buffer g_buffer;
-	struct Buffer g_value_buffer;
-	struct Buffer g_nas_buffer;
-	struct s1ap_PDU s1apPDU= {0};
+	struct Buffer g_buffer = {0};
+	struct Buffer g_value_buffer = {0};
+	struct Buffer g_nas_buffer = {0};
+	struct s1ap_PDU s1apPDU = {0};
 
 	/* Assigning values to s1apPDU */
 	s1apPDU.procedurecode = id_downlinkNASTransport;
