@@ -31,8 +31,11 @@ static int
 getIntAlgOrder(char *alg_list, uint8_t* alg_order)
 {
     char *subString;
-    subString = strtok(alg_list,"[");
-    subString = strtok(NULL,"]");
+    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    subString = strtok(alg_list,"[]");
+    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    //subString = strtok(NULL,"]");
+    //log_msg(LOG_DEBUG, "substring : %s\n", subString); 
 
     char token[] = ",";
     char *saved_comma=NULL;
@@ -43,17 +46,25 @@ getIntAlgOrder(char *alg_list, uint8_t* alg_order)
 
     for(int i = 0;i < 3; i++)
     {
-        if(!strcmp(alg[i],"EIA0"))
+        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        if(alg[i] != NULL)
         {
-            alg_order[i] = 0;
-        }
-        else if(!strcmp(alg[i],"EIA1"))
-        {
-            alg_order[i] = 1;
-        }
-        else if(!strcmp(alg[i],"EIA2"))
-        {
-            alg_order[i] = 2;
+            if(!strcmp(alg[i],"EIA0"))
+            {
+                alg_order[i] = 0;
+            }
+            else if(!strcmp(alg[i],"EIA1"))
+            {
+                alg_order[i] = 1;
+            }
+            else if(!strcmp(alg[i],"EIA2"))
+            {
+                alg_order[i] = 2;
+            }
+            else
+            {
+                alg_order[i] = 0;
+            }
         }
         else
         {
@@ -71,11 +82,9 @@ getSecAlgOrder(char *alg_list, uint8_t* alg_order)
 {
     char *subString;
     log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
-    subString = strtok(alg_list,"[");
+    subString = strtok(alg_list,"[]");
     log_msg(LOG_DEBUG, "substring : %s\n", subString); 
-    subString = strtok(NULL,"]");
 
-    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
     char token[] = ",";
     char *saved_comma=NULL;
     char *alg[3] = {NULL,NULL,NULL};
@@ -90,18 +99,25 @@ getSecAlgOrder(char *alg_list, uint8_t* alg_order)
 
     for(int i = 0;i < 3; i++)
     {
-        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]); 
-        if(!strcmp(alg[i],"EEA0"))
+        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        if(alg[i] != NULL)
         {
-            alg_order[i] = 0;
-        }
-        else if(!strcmp(alg[i],"EEA1"))
-        {
-            alg_order[i] = 1;
-        }
-        else if(!strcmp(alg[i],"EEA2"))
-        {
-            alg_order[i] = 2;
+            if(!strcmp(alg[i],"EEA0"))
+            {
+                alg_order[i] = 0;
+            }
+            else if(!strcmp(alg[i],"EEA1"))
+            {
+                alg_order[i] = 1;
+            }
+            else if(!strcmp(alg[i],"EEA2"))
+            {
+                alg_order[i] = 2;
+            }
+            else
+            {
+                alg_order[i] = 0;
+            }
         }
         else
         {
