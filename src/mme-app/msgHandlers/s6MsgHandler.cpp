@@ -133,10 +133,10 @@ void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueId
 							ueIdx);
 		return;
 	}
-	// Fire attach-start event, insert cb to procedure queue
-	//SM::Event evt(DETACH_PUR_RESP_FROM_HSS);
-	//controlBlk_p->addEventToProcQ(evt);
-	//
+	// Fire purge-resp event, insert cb to procedure queue
+	SM::Event evt(PURGE_RESP_FROM_HSS, eMsg);
+	controlBlk_p->addEventToProcQ(evt);
+	
 }
 
 void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEventMessage* eMsg)

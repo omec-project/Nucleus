@@ -71,6 +71,7 @@ struct hss_req_msg {
 	int ue_idx;
 	union req_data {
 		struct hss_air_msg air;
+		struct hss_pur_msg pur;
 	}data;
 };
 

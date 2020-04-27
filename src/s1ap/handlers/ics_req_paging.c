@@ -60,8 +60,8 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 	uint32_t length = 0;
     	uint8_t *buffer = NULL;
 	
-	Buffer g_ics_req_buffer;
-	struct s1ap_common_req_Q_msg req= {0};
+	Buffer g_ics_req_buffer = {0};
+	struct s1ap_common_req_Q_msg req = {0};
 	
         log_msg(LOG_DEBUG,"Inside ics_req_paging processing\n");	
 	

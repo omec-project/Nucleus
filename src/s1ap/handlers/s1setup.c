@@ -30,8 +30,8 @@ create_s1setup_response(/*enb info,*/unsigned char **s1_setup_resp)
 {
 	unsigned char data_len = 0;
 	unsigned char msg[50];
-	struct Buffer proto_ies;
-	struct Buffer gummies;
+	struct Buffer proto_ies = {0};
+	struct Buffer gummies = {0};
 	uint16_t proto_ie_id;
 	unsigned char tmp_str[4];
 	uint8_t criticality;
