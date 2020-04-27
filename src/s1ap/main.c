@@ -158,13 +158,13 @@ copyU16(unsigned char *buffer, uint32_t val)
 }
 
 void
-calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
+calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 		uint8_t bearer, uint8_t *data, uint16_t data_len,
 		uint8_t *mac)
 {
 	uint8_t *out;
 
-	out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
+	out = f9(int_key, count, bearer, direction, data, data_len * 8);
 
 	memcpy(mac, out, MAC_SIZE);
 

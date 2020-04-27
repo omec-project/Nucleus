@@ -26,6 +26,91 @@ init_parser(char *path)
 	load_json(path);
 }
 
+/* int_alg: "EIA1, EIA2, EIA0" */
+static int
+getIntAlgOrder(char *alg_list, uint8_t* alg_order)
+{
+    char *subString;
+    subString = strtok(alg_list,"[");
+    subString = strtok(NULL,"]");
+
+    char token[] = ",";
+    char *saved_comma=NULL;
+    char *alg[3] = {NULL,NULL,NULL};
+    alg[0] = strtok_r(subString, token, &saved_comma);
+    alg[1] = strtok_r(NULL, token, &saved_comma);
+    alg[2] = strtok_r(NULL, token, &saved_comma);
+
+    for(int i = 0;i < 3; i++)
+    {
+        if(!strcmp(alg[i],"EIA0"))
+        {
+            alg_order[i] = 0;
+        }
+        else if(!strcmp(alg[i],"EIA1"))
+        {
+            alg_order[i] = 1;
+        }
+        else if(!strcmp(alg[i],"EIA2"))
+        {
+            alg_order[i] = 2;
+        }
+        else
+        {
+            alg_order[i] = 0;
+        }
+    }
+    
+    return 0;
+}
+
+
+/* sec_alg: "EEA0, EEA1, EEA2" */
+static int
+getSecAlgOrder(char *alg_list, uint8_t* alg_order)
+{
+    char *subString;
+    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    subString = strtok(alg_list,"[");
+    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    subString = strtok(NULL,"]");
+
+    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    char token[] = ",";
+    char *saved_comma=NULL;
+    char *alg[3] = {NULL,NULL,NULL};
+    char *temp_token = subString;
+    char *temp;
+    //while ((temp = strtok_r(temp_token, ",", &temp_token)))
+    //    log_msg(LOG_DEBUG, "token : %s\n", temp); 
+    
+    alg[0] = strtok_r(subString, token, &saved_comma);
+    alg[1] = strtok_r(NULL, token, &saved_comma);
+    alg[2] = strtok_r(NULL, token, &saved_comma);
+
+    for(int i = 0;i < 3; i++)
+    {
+        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]); 
+        if(!strcmp(alg[i],"EEA0"))
+        {
+            alg_order[i] = 0;
+        }
+        else if(!strcmp(alg[i],"EEA1"))
+        {
+            alg_order[i] = 1;
+        }
+        else if(!strcmp(alg[i],"EEA2"))
+        {
+            alg_order[i] = 2;
+        }
+        else
+        {
+            alg_order[i] = 0;
+        }
+    }
+    
+    return 0;
+}
 /**
  * @brief parser mme-app input json file
  * @param None
@@ -69,5 +154,12 @@ parse_mme_conf(mme_config *config)
 	config->mme_code = get_int_scalar((char *)("mme.code"));
 	if(-1 == config->mme_code) return -1;
 
+	char* int_alg_list = get_string_scalar((char *)("mme.security.int_alg_list"));
+	if(E_PARSING_FAILED == config->mcc_dig1) return E_PARSING_FAILED;
+	char* sec_alg_list = get_string_scalar((char *)("mme.security.sec_alg_list"));
+	if(E_PARSING_FAILED == config->mcc_dig1) return E_PARSING_FAILED;
+    getIntAlgOrder(int_alg_list, config->integrity_alg_order);
+    getSecAlgOrder(sec_alg_list, config->ciphering_alg_order);
 	return SUCCESS;
 }
+

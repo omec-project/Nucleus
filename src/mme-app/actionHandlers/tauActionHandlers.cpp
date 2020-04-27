@@ -68,7 +68,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.ue_idx = ue_ctxt->getContextID();
 	tau_resp.enb_fd = tauPrcdCtxt_p->getEnbFd();
 	tau_resp.s1ap_enb_ue_id = tauPrcdCtxt_p->getS1apEnbUeId();	
-	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 	memcpy(&tau_resp.tai, &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));	

@@ -128,11 +128,10 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 {
 	unsigned char *resp_msg = NULL;
 	int resp_len = 0;
-	/*struct proto_IE s1_init_ies;
+	/*struct proto_IE s1_init_ies;*/
 
-	/*****Message structure***
-	*/
-	/*parse_IEs(msg+2, &s1_init_ies, S1AP_SETUP_REQUEST_CODE);
+	/*****Message structure****/
+	/*parse_IEs(msg+2, &s1_init_ies, S1AP_SETUP_REQUEST_CODE);*/
 
 	/*Validate all eNB info*/
 

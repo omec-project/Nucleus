@@ -343,13 +343,10 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	authreq.enb_fd = ue_ctxt->getEnbFd();
 	authreq.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
 
-	ue_ctxt->setDwnLnkSeqNo(0);
+	ue_ctxt->getUeSecInfo().resetUplinkCount();
+	ue_ctxt->getUeSecInfo().resetDownlinkCount();
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
-
-	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
-
-	SecUtils::create_integrity_key(secVect->kasme.val, secInfo.int_key);
 
 	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
 	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);
@@ -417,8 +414,11 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
                 controlBlk_p->addEventToProcQ(evt);
 
 	}
-	uint64_t xres = *(uint64_t *) (&ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val[0]);
-	uint64_t res  = *(uint64_t *) (&auth_resp.res.val[0]);
+	uint64_t xres = 0;
+    memcpy(&xres, 
+           ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val, sizeof(uint64_t));
+	uint64_t res = 0;
+    memcpy(&res, auth_resp.res.val, sizeof(uint64_t));
 	log_msg(LOG_DEBUG, "Auth response Comparing received result from UE " 
                        " (%lu) with xres (%lu). Length %d", res, xres, auth_resp.res.len);
 
@@ -451,7 +451,28 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 	ProcedureStats::num_of_auth_reject_sent ++;
 	return ActStatus::HALT;
 }
+
+ActStatus ActionHandlers::select_sec_alg(UEContext *ue_ctxt)
+{
+	log_msg(LOG_DEBUG, "Inside select_sec_alg \n");
+
+	uint8_t eea;
+    uint8_t eia;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
+    memcpy(&eea, 
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[0],sizeof(uint8_t));
+    memcpy(&eia, 
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[1],sizeof(uint8_t));
+
+    int_alg = (nas_int_algo_enum)MmeCommonUtils::select_preferred_int_algo(eia);
+    sec_alg = (nas_ciph_algo_enum)MmeCommonUtils::select_preferred_sec_algo(eea);
+
+    ue_ctxt->getUeSecInfo().setSelectedIntAlg(int_alg);
+    ue_ctxt->getUeSecInfo().setSelectedSecAlg(sec_alg);
 	
+	return ActStatus::PROCEED;
+}
 
 ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 {
@@ -463,12 +484,20 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "sec_mode_cmd_to_ue: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+    E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
+	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 	sec_mode_Q_msg sec_mode_msg;
 	sec_mode_msg.msg_type  = sec_mode_command;
 	sec_mode_msg.ue_idx = ue_ctxt->getContextID();
 	sec_mode_msg.enb_fd = ue_ctxt->getEnbFd();
 	sec_mode_msg.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
-	
+
+    select_sec_alg(ue_ctxt);
+	SecUtils::create_integrity_key(ue_ctxt->getUeSecInfo().getSelectIntAlg(), 
+                                   secVect->kasme.val, secInfo.int_key);
+    sec_mode_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+    sec_mode_msg.sec_alg = ue_ctxt->getUeSecInfo().getSelectSecAlg();
 	memcpy(&(sec_mode_msg.ue_network), &(ue_ctxt->getUeNetCapab().ue_net_capab_m),
 		sizeof(struct UE_net_capab));
 
@@ -481,8 +510,9 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	memcpy(&(sec_mode_msg.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 
-	sec_mode_msg.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->setDwnLnkSeqNo(sec_mode_msg.dl_seq_no + 1);
+	sec_mode_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    sec_mode_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -518,8 +548,6 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 
 	if (msgBuf == NULL)
 		return ActStatus::HALT;
-
-	ue_ctxt->setUpLnkSeqNo(0);
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const secmode_resp_Q_msg &secmode_resp = s1_msg_data->msg_data.secmode_resp_Q_msg_m;
@@ -610,10 +638,11 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	esmreq.enb_fd = ue_ctxt->getEnbFd();
 	esmreq.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
 	esmreq.pti = sessionCtxt->getPti();
-	esmreq.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	esmreq.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
-	ue_ctxt->setDwnLnkSeqNo(esmreq.dl_seq_no+1);
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -850,7 +879,13 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	unsigned int nas_count = 0;
+	/* 33.401 7.2.6.2	Establishment of keys for cryptographically protected 
+       radio bearers
+       Only in case of AKA procedures having run. the nas_count(Uplink) is used
+       as 0. In case when no AKA has run, the nas_count should be used from 
+       current security context. : This is not done yet. But should be added.
+     */
+    unsigned int nas_count = 0;
 	E_UTRAN_sec_vector* secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
@@ -874,7 +909,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	icr_msg.bearer_id = bearerCtxt->getBearerId();
 
-	icr_msg.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	icr_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(icr_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(icr_msg.gtp_teid), &(bearerCtxt->getS1uSgwUserFteid().fteid_m), sizeof(struct fteid));
 	memcpy(&(icr_msg.apn), &(sessionCtxt->getAccessPtName().apnname_m), sizeof(struct apn_name));
@@ -885,7 +922,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 			KENB_SIZE);	
 	icr_msg.pti = sessionCtxt->getPti();
         icr_msg.m_tmsi = ue_ctxt->getMTmsi();
-	ue_ctxt->setDwnLnkSeqNo(icr_msg.dl_seq_no+1);
 
 	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
 	if(procedure_p->getPcoOptionsLen() > 0)
@@ -1013,7 +1049,7 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	ue_ctxt->getUeSecInfo().increment_uplink_count();
 
 	ProcedureStats::num_of_processed_attach_cmp_from_ue ++;
 	log_msg(LOG_DEBUG, "Leaving handle_attach_cmp_from_ue \n");
@@ -1054,7 +1090,9 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_fd = ue_ctxt->getEnbFd();
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
-    	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+        temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+        temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+        ue_ctxt->getUeSecInfo().increment_downlink_count();
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
      	* all TACs

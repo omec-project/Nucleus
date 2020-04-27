@@ -50,8 +50,9 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	ni_detach_req.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 	ni_detach_req.detach_type = 00000010;
 	
-	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
-	ni_detach_req.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	ni_detach_req.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    ni_detach_req.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	
 	memcpy(&(ni_detach_req.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
 	
@@ -79,7 +80,7 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	ue_ctxt->getUeSecInfo().increment_uplink_count();
 	
 	log_msg(LOG_DEBUG, "Leaving process_detach_accept_from_ue \n");
 	ProcedureStats::num_of_detach_accept_from_ue ++;
