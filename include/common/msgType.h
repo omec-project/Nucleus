@@ -17,6 +17,10 @@
 #ifndef INCLUDE_COMMON_MSGTYPE_H_
 #define INCLUDE_COMMON_MSGTYPE_H_
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include "common_proc_info.h"
 #include "err_codes.h"
 #include "s11_structs.h"
@@ -475,6 +479,7 @@ struct s6a_Q_msg {
 	unsigned int ue_idx;
 };
 #define S6A_REQ_Q_MSG_SIZE sizeof(struct s6a_Q_msg)
+#define RESET_S6A_REQ_MSG(msg)  {msg.auts.len = 0; msg.ue_idx=0;}
 
 struct s6a_purge_Q_msg {
 	int ue_idx;
@@ -550,5 +555,8 @@ typedef struct s6_incoming_msg_data_t {
 }s6_incoming_msg_data_t;
 
 #define S6_READ_MSG_BUF_SIZE sizeof(s6_incoming_msg_data_t)
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INCLUDE_COMMON_MSGTYPE_H_ */

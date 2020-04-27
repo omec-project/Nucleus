@@ -32,6 +32,14 @@ parse_s11_conf()
 	g_s11_cfg.egtp_def_port = get_int_scalar("s11.egtp_default_port");
 	if(-1 == g_s11_cfg.egtp_def_port) return -1;
 
+	char *logging = get_string_scalar((char *)("mme.logging"));
+	if(NULL == logging) 
+    { 
+      logging = (char *)calloc(1, strlen("debug")+1);
+      strncpy(logging, "debug", strlen("debug")+1);
+    } 
+    set_logging_level(logging); 
+
 	struct local_config { char *name; unsigned int *addr;};
 	struct local_config config_addr[] = 
 	{

@@ -8,6 +8,7 @@
 #include "json_data.h"
 #include "s1ap_config.h"
 #include "err_codes.h"
+#include "log.h"
 
 s1ap_config g_s1ap_cfg;
 
@@ -63,6 +64,14 @@ parse_s1ap_conf()
 	g_s1ap_cfg.mme_plmn_id.idx[0] = mcc_dig2 << 4 | mcc_dig1;
 	g_s1ap_cfg.mme_plmn_id.idx[1] = mnc_dig1 << 4 | mcc_dig3;
 	g_s1ap_cfg.mme_plmn_id.idx[2] = mnc_dig3 << 4 | mnc_dig2;
+
+	char *logging = get_string_scalar((char *)("mme.logging"));
+	if(NULL == logging) 
+    { 
+      logging = (char *)calloc(1, strlen("debug")+1);
+      strncpy(logging, "debug", strlen("debug")+1);
+    } 
+    set_logging_level(logging); 
 
 	return SUCCESS;
 }

@@ -9,6 +9,7 @@
 		"egtp_default_hostname": "sutlej.ccin.ccpu.com",
 		"group_id": 1,
 		"code": 1,
+		"logging": "debug",
 		"__comment__": "Here is comment",
 		"mcc": {
 			"dig1": 2,

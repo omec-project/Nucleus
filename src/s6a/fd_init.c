@@ -58,8 +58,6 @@ dump_fd_msg(struct msg *msg)
 	//char *buf = NULL;
 	//int len = 0;
 
-	g_nolog = true;
-
 	if (g_nolog) return;
 
 	//TODO: correct - fprintf(stderr, "%s\n", fd_msg_dump_treeview(&buf, &len, NULL, msg,
