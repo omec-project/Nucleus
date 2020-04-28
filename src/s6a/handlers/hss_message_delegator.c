@@ -40,17 +40,10 @@ hss_resp_handler(void *message)
 		handle_perf_hss_ula(msg->ue_idx,
 				(struct hss_ula_msg *)&(msg->data.ula));
 		break;
-#if 0
+
 	case HSS_PURGE_RESP_MSG:
 		handle_perf_hss_purge_resp(msg->ue_idx);
 		break;
-#endif
-	//NI Detach
-/*	case HSS_CLR_MSG:
-		log_msg(LOG_INFO,"clr msg from TC\n");
-		handle_perf_hss_clr(msg->ue_idx,
-				(struct hss_clr_msg *)&(msg->data.clr));
-		break;*/
 
 	default:
 		log_msg(LOG_ERROR, "Unknown message received from HSS - %d\n",

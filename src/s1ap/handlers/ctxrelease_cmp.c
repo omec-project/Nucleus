@@ -31,7 +31,6 @@
 #include "msgType.h"
 
 
-extern int g_enb_fd;
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
@@ -54,7 +53,7 @@ s1_ctx_release_complete_handler(SuccessfulOutcome_t *msg)
 	                release_complete.ue_idx = s1_ctx_release_ies.data[i].val.mme_ue_s1ap_id;
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_ctx_release_ies.data[i].IE_type);
         }
     }
 

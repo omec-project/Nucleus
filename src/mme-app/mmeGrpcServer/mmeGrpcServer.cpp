@@ -270,11 +270,19 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         reply->set_total_num_of_subscribers(ProcedureStats::total_num_of_subscribers);
         reply->set_num_of_subscribers_detached(ProcedureStats::num_of_subscribers_detached); 	
 	reply->set_num_of_tau_response_to_ue_sent(ProcedureStats::num_of_tau_response_to_ue_sent);
+	reply->set_num_of_service_request_received(ProcedureStats::num_of_service_request_received);
 	reply->set_num_of_service_reject_sent(ProcedureStats::num_of_service_reject_sent);
 	reply->set_num_of_attach_reject_sent(ProcedureStats::num_of_attach_reject_sent);
 	reply->set_num_of_emm_info_sent(ProcedureStats::num_of_emm_info_sent);
 	reply->set_num_of_ddn_received(ProcedureStats::num_of_ddn_received);
 	reply->set_num_of_ddn_ack_sent(ProcedureStats::num_of_ddn_ack_sent);
+	reply->set_num_of_attach_req_received(ProcedureStats::num_of_attach_req_received);
+	reply->set_num_of_detach_req_received(ProcedureStats::num_of_detach_req_received);
+	reply->set_num_of_tau_req_received(ProcedureStats::num_of_tau_req_received);
+	reply->set_num_of_paging_request_sent(ProcedureStats::num_of_paging_request_sent);
+	reply->set_num_of_id_req_sent(ProcedureStats::num_of_id_req_sent);
+	reply->set_num_of_id_resp_received(ProcedureStats::num_of_id_resp_received);
+	reply->set_num_of_auth_reject_sent(ProcedureStats::num_of_auth_reject_sent);
 
         return Status::OK;
   }

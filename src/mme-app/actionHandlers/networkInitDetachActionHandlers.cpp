@@ -155,8 +155,10 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
     }
 
+    ProcedureStats::num_of_s1_rel_comp_received ++;
     ProcedureStats::num_of_subscribers_detached ++;
-    ProcedureStats::num_of_subscribers_attached --;
+    if (ProcedureStats::num_of_subscribers_attached > 0)
+    	ProcedureStats::num_of_subscribers_attached --;
 
     log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp_for_detach \n");
 

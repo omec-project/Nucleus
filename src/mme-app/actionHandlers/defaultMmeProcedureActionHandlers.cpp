@@ -108,7 +108,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		cb.setFastAccessBlock(ueCtxt_p, 1);
 	}
 
-	MmeProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeProcedureCtxt();
+	MmeAttachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeAttachProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Procedure Context \n");
@@ -183,6 +183,8 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		}
 	}
 
+	ProcedureStats::num_of_attach_req_received ++;
+	
 	return ActStatus::PROCEED;
 }
 
@@ -230,6 +232,8 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	SM::Event evt(DETACH_REQ_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 
+	ProcedureStats::num_of_detach_req_received ++;
+
 	return ActStatus::PROCEED;
 }
 
@@ -269,6 +273,9 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
     
 	SM::Event evt(DDN_FROM_SGW, NULL);
 	cb.addEventToProcQ(evt);
+
+	ProcedureStats::num_of_ddn_received ++;
+
 	return ActStatus::PROCEED;
 }
 
@@ -323,7 +330,9 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 	SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
 
-    return ActStatus::PROCEED;
+    	ProcedureStats::num_of_service_request_received ++;
+	
+	return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -372,7 +381,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	SM::Event evt(CLR_FROM_HSS, NULL);
 	cb.addEventToProcQ(evt);
 	
-    return ActStatus::PROCEED;
+	return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -380,7 +389,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 {	
-	MmeProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeProcedureCtxt();
+	MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt \n");
@@ -454,6 +463,9 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 
 	SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
 	cb.addEventToProcQ(evt);
+	
+	ProcedureStats::num_of_tau_req_received ++;
+	
 	return ActStatus::PROCEED;
 }
 

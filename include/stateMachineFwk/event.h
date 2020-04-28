@@ -20,6 +20,8 @@
 #include <string>
 #include <map>
 
+#include <eventMessage.h>
+
 using namespace std;
 
 namespace SM
@@ -28,7 +30,7 @@ namespace SM
 	{
    	public:
 		Event();
-      		Event(uint16_t evtID, void* eventData);
+      		Event(uint16_t evtID, cmn::EventMessage * eventData);
       		virtual ~Event();
 
       		inline uint16_t getEventId()const
@@ -36,13 +38,12 @@ namespace SM
       			return eventID;
       		}
 
-      		void* getEventData() const;
-
+      		cmn::EventMessage * getEventData() const;
       		virtual void display();
  
    	private:
-      		uint16_t eventID;
-	      	void * eventData_p;
+	      	uint16_t eventID;
+	      	cmn::EventMessage * eventData_p;
 	};
 }
 

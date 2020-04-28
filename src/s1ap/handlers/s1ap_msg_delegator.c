@@ -694,6 +694,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
 		for (int i = 0; i < protocolIes->list.count; i++) {
 			InitialUEMessage_IEs_t *ie_p;
 			ie_p = protocolIes->list.array[i];
+            log_msg(LOG_INFO, "IEs = %d\n", ie_p->id);
 			switch(ie_p->id) {
 				case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
 					{

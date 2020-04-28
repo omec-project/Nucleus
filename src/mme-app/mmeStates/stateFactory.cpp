@@ -33,6 +33,8 @@
 #include "mmeStates/defaultMmeState.h"
 #include "mmeStates/detachStart.h"
 #include "mmeStates/detachWfDelSessionResp.h"
+#include "mmeStates/detachWfPurgeResp.h"
+#include "mmeStates/detachWfPurgeRespDelSessionResp.h"
 #include "mmeStates/niDetachStart.h"
 #include "mmeStates/niDetachWfDelSessResp.h"
 #include "mmeStates/niDetachWfDetAccptDelSessResp.h"
@@ -98,6 +100,8 @@ void StateFactory::initialize()
 	DefaultMmeState::Instance()->initialize();
 	DetachStart::Instance()->initialize();
 	DetachWfDelSessionResp::Instance()->initialize();
+	DetachWfPurgeResp::Instance()->initialize();
+	DetachWfPurgeRespDelSessionResp::Instance()->initialize();
 	NiDetachStart::Instance()->initialize();
 	NiDetachWfDelSessResp::Instance()->initialize();
 	NiDetachWfDetAccptDelSessResp::Instance()->initialize();

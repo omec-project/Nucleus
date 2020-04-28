@@ -91,7 +91,9 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 
 	mmeIpcIf_g->dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
 
-    return ActStatus::PROCEED;
+    	ProcedureStats::num_of_id_req_sent ++;
+	
+	return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
@@ -140,7 +142,9 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 
 	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
 
-    return ActStatus::PROCEED;
+    	ProcedureStats::num_of_id_resp_received ++;
+	
+	return ActStatus::PROCEED;
 }
 
 
@@ -309,6 +313,12 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	
 	ue_ctxt->setAmbr(Ambr(ambr));
 	
+	struct PAA pdn_addr;
+	pdn_addr.pdn_type = 1;
+	pdn_addr.ip_type.ipv4.s_addr = ntohl(ula_msg.static_addr); // network byte order
+	
+	ue_ctxt->setPdnAddr(Paa(pdn_addr));
+	
 	ProcedureStats::num_of_processed_ula ++;
 	log_msg(LOG_DEBUG, "Leaving handle_ula_v \n");
 	
@@ -435,6 +445,8 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_auth_reject: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+	ProcedureStats::num_of_auth_reject_sent ++;
 	return ActStatus::HALT;
 }
 	
@@ -539,7 +551,7 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
@@ -620,7 +632,7 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-    MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
     if (procedure_p == NULL)
     {
         log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
@@ -645,7 +657,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (ue_ctxt == NULL  || procCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: UE context or Procedure Context is NULL \n");
@@ -706,7 +718,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	// TODO: ApnSelection
 	// Set the subscribed apn to selected apn for now
 	sessionCtxt->setAccessPtName(apnName);
-	memcpy(&(cs_msg.apn), &(apnName.apnname_m), sizeof(struct apn_name));
+	memcpy(&(cs_msg.selected_apn), &(apnName.apnname_m), sizeof(struct apn_name));
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
 	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
@@ -717,6 +729,10 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 
 	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl;
 	cs_msg.max_requested_bw_ul = ambr.max_requested_bw_ul;
+	
+	const PAA& pdn_addr = ue_ctxt->getPdnAddr().paa_m;
+	
+	cs_msg.paa_v4_addr = pdn_addr.ip_type.ipv4.s_addr; /* host order */
 
 	memset(cs_msg.MSISDN, 0, BINARY_IMSI_LEN);
 	
@@ -745,7 +761,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -802,7 +818,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -889,7 +905,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside process_init_ctxt_resp \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 
 	if (ue_ctxt == NULL || procCtxt == NULL)
 	{
@@ -1098,7 +1114,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
                 return ActStatus::HALT;
         }
 
-        MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
         if (procCtxt == NULL)
         {
                 log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
@@ -1125,5 +1141,5 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
 	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
-    	return ActStatus::PROCEED;
+	return ActStatus::PROCEED;
 }

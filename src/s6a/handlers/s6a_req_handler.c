@@ -313,14 +313,14 @@ AIR_processing(struct s6a_Q_msg * air_msg)
 	if(HSS_FD == g_s6a_cfg.hss_type) {
 		if(air_msg->msg_type == auth_info_request)
 			/*post to next processing*/
-			send_FD_AIR(air_msg, air_msg->imsi);
+			send_FD_AIR(air_msg, (char *)air_msg-> imsi);
 		else if(air_msg->msg_type == update_loc_request)
-			send_FD_ULR(air_msg, air_msg->imsi);
-
+			send_FD_ULR(air_msg, (char *)air_msg-> imsi);
 	} else {
 		log_msg(LOG_INFO, "Sending over IPC\n");
-		send_rpc_AIR(air_msg, air_msg->imsi);
-		send_rpc_ULR(air_msg, air_msg->imsi);
+		send_rpc_AIR(air_msg, (char *) air_msg->imsi);
+		send_rpc_ULR(air_msg, (char *) air_msg->imsi);
+
 	}
 
 	return SUCCESS;
@@ -334,9 +334,7 @@ S6Req_handler(void *data)
 {
 	log_msg(LOG_INFO, "AIR Q handler ready.\n");
 
-	char *msg = ((char *) data) + ((sizeof(uint32_t)) * 2);
-	
-	AIR_processing((struct s6a_Q_msg *)msg);
+	AIR_processing((struct s6a_Q_msg *)data);
 	
 	return NULL;
 }

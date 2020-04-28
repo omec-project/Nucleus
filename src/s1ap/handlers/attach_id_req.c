@@ -72,11 +72,11 @@ get_attach_id_request_protoie_value(struct proto_IE *value,struct attachIdReq_in
 static int
 s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 {
-	struct Buffer g_buffer;
-	struct Buffer g_value_buffer;
-	struct Buffer g_nas_buffer;
+	struct Buffer g_buffer = {0};
+	struct Buffer g_value_buffer = {0};
+	struct Buffer g_nas_buffer = {0};
 
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
 
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;

@@ -542,13 +542,12 @@ s6a_fd_cb_reg(void)
 	CHECK_FCT_DO(fd_disp_register(ula_resp_callback, DISP_HOW_CC, &data,
 			NULL, NULL),
 			return S6A_FD_ERROR);
-
-#if 0	
+	
 	data.command = g_fd_dict_objs.PUA;
 	CHECK_FCT_DO(fd_disp_register(purge_resp_callback, DISP_HOW_CC, &data,
 	                     NULL, NULL),
 	                     return S6A_FD_ERROR);
-#endif
+
 	//NI Detach
 	data.command = g_fd_dict_objs.CLR;
         CHECK_FCT_DO(fd_disp_register(clr_resp_callback, DISP_HOW_CC, &data,
