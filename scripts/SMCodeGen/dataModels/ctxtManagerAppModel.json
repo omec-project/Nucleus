@@ -388,6 +388,11 @@
 								"Key": "No"
 							},
 							{
+								"Name": "eUtranCgi",
+								"Type": "Cgi",
+								"Key": "No"
+							},                            
+							{
 								"Name": "enbFd",
 								"Type": "int",
 								"Key": "No"
@@ -409,7 +414,7 @@
 								"Key": "No"
 							},
 							{
-								"Name": "targetEnbFd",
+								"Name": "targetEnbContextId",
 								"Type": "int",
 								"Key": "No"
 							},
@@ -449,7 +454,7 @@
 								"Key": "No"
 							},
 							{
-								"Name": "srcEnbFd",
+								"Name": "srcEnbContextId",
 								"Type": "int",
 								"Key": "No"
 							},

@@ -29,11 +29,11 @@ handover_request_processing(struct handover_request_Q_msg *g_ho_req)
         return E_FAIL;
     }
 
-	length = send_sctp_msg(g_ho_req->enb_fd, buffer, length, 1);
+	length = send_sctp_msg(g_ho_req->target_enb_context_id, buffer, length, 1);
 
 	log_msg(LOG_INFO,
 	        "HO Request Sent. Num of bytes - %d, enb_fd - %d\n",
-	        length, g_ho_req->enb_fd);
+	        length, g_ho_req->target_enb_context_id);
 	
 	return SUCCESS;
 }

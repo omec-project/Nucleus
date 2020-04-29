@@ -217,8 +217,8 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
     memset(&mme_status_trans, 0, sizeof(struct mme_status_transfer_Q_msg));
 
     mme_status_trans.msg_type = mme_status_transfer;
-    mme_status_trans.enb_fd = ho_ctxt->getTargetEnbFd();
-    mme_status_trans.s1ap_enb_ue_id = ho_ctxt->getTargetEnbFd();
+    mme_status_trans.target_enb_context_id = ho_ctxt->getTargetEnbContextId();
+    mme_status_trans.s1ap_enb_ue_id = ho_ctxt->getTargetS1apEnbUeId();
     mme_status_trans.s1ap_mme_ue_id = ue_ctxt->getContextID();
     mme_status_trans.enB_status_transfer_transparent_containerlist.count =
     	enb_status_trans.enB_status_transfer_transparent_containerlist.count;
@@ -273,10 +273,14 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
 
     // The UE has synced to target cell. Set the current enb
     // to target enb.
-    ue_ctxt->setEnbFd(ho_ctxt->getTargetEnbFd());
+    ue_ctxt->setEnbFd(ho_ctxt->getTargetEnbContextId());
     ue_ctxt->setS1apEnbUeId(ho_ctxt->getTargetS1apEnbUeId());
 
     // Wait till TAU complete to overwrite TAI?
+    //TAI and CGI obtained from s1ap ies.
+    //Convert the PLMN in s1ap format to nas format before storing in procedure context.
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify.tai.plmn_id));
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify.utran_cgi.plmn_id));
     ho_ctxt->setTargetTai(Tai(ho_notify.tai));
     ho_ctxt->setTargetCgi(Cgi(ho_notify.utran_cgi));
 
@@ -365,7 +369,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
     s1relcmd.enb_s1ap_ue_id = ho_ctxt->getSrcS1apEnbUeId();
     s1relcmd.cause.present = s1apCause_PR_radioNetwork;
     s1relcmd.cause.choice.radioNetwork = s1apCauseRadioNetwork_successful_handover;
-    s1relcmd.enb_fd = ho_ctxt->getSrcEnbFd();
+    s1relcmd.enb_fd = ho_ctxt->getSrcEnbContextId();
 
     // Fire and forget s1 release to src enb
 
@@ -427,6 +431,7 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
         SM::Event evt(TAU_REQUIRED, NULL);
         cb.addEventToProcQ(evt);
     }
+
     return ActStatus::PROCEED;
 }
 

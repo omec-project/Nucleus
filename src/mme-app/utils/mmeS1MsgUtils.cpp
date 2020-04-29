@@ -40,7 +40,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     }
     hoReq.msg_type = handover_request;
     hoReq.s1ap_mme_ue_id = ueCtxt.getContextID();
-    hoReq.enb_fd = procCtxt.getTargetEnbFd();
+    hoReq.target_enb_context_id = procCtxt.getTargetEnbContextId();
 
     hoReq.handoverType = IntraLTE;
     hoReq.cause.present = s1apCause_PR_radioNetwork;
@@ -65,7 +65,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
 
     hoReq.gummei.mme_code = g_mme_cfg.mme_code;
     hoReq.gummei.mme_grp_id = g_mme_cfg.mme_group_id;
-    memcpy(hoReq.gummei.plmn_id.idx, g_mme_cfg.plmn_id.idx, 3);
+    memcpy(hoReq.gummei.plmn_id.idx, g_mme_cfg.plmns[1].idx, 3);
 
     secinfo& secInfo = const_cast<secinfo&>(ueCtxt.getUeSecInfo().secinfo_m);
     secInfo.next_hop_chaining_count = secInfo.next_hop_chaining_count + 1 ;
@@ -91,7 +91,7 @@ void MmeS1MsgUtils::populateHoCommand(SM::ControlBlock& cb,
 
 	hoCommand.s1ap_mme_ue_id = ueCtxt.getContextID();
 	hoCommand.s1ap_enb_ue_id = ueCtxt.getS1apEnbUeId();
-	hoCommand.enb_fd = ueCtxt.getEnbFd();
+	hoCommand.src_enb_context_id = procCtxt.getSrcEnbContextId();
 	hoCommand.handoverType = IntraLTE;
 	hoCommand.target_to_src_transparent_container =
 	        procCtxt.getTargetToSrcTransContainer();

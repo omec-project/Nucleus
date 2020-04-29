@@ -1138,6 +1138,7 @@ namespace mme
 	MmeTauProcedureCtxt::MmeTauProcedureCtxt():            
             s1apEnbUeId_m(0),
             tai_m(),
+            eUtranCgi_m(),
             enbFd_m(0)
 	
 	{	
@@ -1183,6 +1184,22 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	* sets eUtranCgi
+	******************************************************************************/
+	void MmeTauProcedureCtxt::setEUtranCgi( const Cgi& eUtranCgi_i )
+	{
+		eUtranCgi_m = eUtranCgi_i;
+	}
+	
+	/******************************************************************************
+	* returns eUtranCgi
+	******************************************************************************/	
+	const Cgi& MmeTauProcedureCtxt::getEUtranCgi() const
+	{
+		return eUtranCgi_m;
+	}
+	
+	/******************************************************************************
 	* sets enbFd
 	******************************************************************************/
 	void MmeTauProcedureCtxt::setEnbFd( int enbFd_i )
@@ -1209,7 +1226,7 @@ namespace mme
 	******************************************************************************/
 	S1HandoverProcedureContext::S1HandoverProcedureContext():            
             hoType_m(invalid_c),
-            targetEnbFd_m(0),
+            targetEnbContextId_m(0),
             targetS1apEnbUeId_m(0),
             targetTai_m(),
             targetCgi_m(),
@@ -1217,7 +1234,7 @@ namespace mme
             targetToSrcTransContainer_m(),
             erabAdmittedItem_m(),
             s1HoCause_m(),
-            srcEnbFd_m(0),
+            srcEnbContextId_m(0),
             srcS1apEnbUeId_m(0)
 	
 	{	
@@ -1247,19 +1264,19 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets targetEnbFd
+	* sets targetEnbContextId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setTargetEnbFd( int targetEnbFd_i )
+	void S1HandoverProcedureContext::setTargetEnbContextId( int targetEnbContextId_i )
 	{
-		targetEnbFd_m = targetEnbFd_i;
+		targetEnbContextId_m = targetEnbContextId_i;
 	}
 	
 	/******************************************************************************
-	* returns targetEnbFd
+	* returns targetEnbContextId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getTargetEnbFd() const
+	int S1HandoverProcedureContext::getTargetEnbContextId() const
 	{
-		return targetEnbFd_m;
+		return targetEnbContextId_m;
 	}
 	
 	/******************************************************************************
@@ -1375,19 +1392,19 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets srcEnbFd
+	* sets srcEnbContextId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setSrcEnbFd( int srcEnbFd_i )
+	void S1HandoverProcedureContext::setSrcEnbContextId( int srcEnbContextId_i )
 	{
-		srcEnbFd_m = srcEnbFd_i;
+		srcEnbContextId_m = srcEnbContextId_i;
 	}
 	
 	/******************************************************************************
-	* returns srcEnbFd
+	* returns srcEnbContextId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getSrcEnbFd() const
+	int S1HandoverProcedureContext::getSrcEnbContextId() const
 	{
-		return srcEnbFd_m;
+		return srcEnbContextId_m;
 	}
 	
 	/******************************************************************************

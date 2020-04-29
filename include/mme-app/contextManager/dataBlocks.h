@@ -1089,6 +1089,18 @@ namespace mme
 			const Tai& getTai()const;				
 			
 			/****************************************
+			* setEUtranCgi
+			*    set eUtranCgi to MmeTauProcedureCtxt
+			****************************************/
+			void setEUtranCgi(const Cgi& eUtranCgi_i);
+			
+			/****************************************
+			* getEUtranCgi
+			*    get eUtranCgi from MmeTauProcedureCtxt
+			****************************************/
+			const Cgi& getEUtranCgi()const;				
+			
+			/****************************************
 			* setEnbFd
 			*    set enbFd to MmeTauProcedureCtxt
 			****************************************/
@@ -1108,6 +1120,9 @@ namespace mme
 			
 			// DataName
 			Tai tai_m;
+			
+			// DataName
+			Cgi eUtranCgi_m;
 			
 			// DataName
 			int enbFd_m;
@@ -1143,16 +1158,16 @@ namespace mme
 			HoType getHoType()const;				
 			
 			/****************************************
-			* setTargetEnbFd
-			*    set targetEnbFd to S1HandoverProcedureContext
+			* setTargetEnbContextId
+			*    set targetEnbContextId to S1HandoverProcedureContext
 			****************************************/
-			void setTargetEnbFd(int targetEnbFd_i);
+			void setTargetEnbContextId(int targetEnbContextId_i);
 			
 			/****************************************
-			* getTargetEnbFd
-			*    get targetEnbFd from S1HandoverProcedureContext
+			* getTargetEnbContextId
+			*    get targetEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			int getTargetEnbFd()const;				
+			int getTargetEnbContextId()const;				
 			
 			/****************************************
 			* setTargetS1apEnbUeId
@@ -1239,16 +1254,16 @@ namespace mme
 			const S1apCause& getS1HoCause()const;				
 			
 			/****************************************
-			* setSrcEnbFd
-			*    set srcEnbFd to S1HandoverProcedureContext
+			* setSrcEnbContextId
+			*    set srcEnbContextId to S1HandoverProcedureContext
 			****************************************/
-			void setSrcEnbFd(int srcEnbFd_i);
+			void setSrcEnbContextId(int srcEnbContextId_i);
 			
 			/****************************************
-			* getSrcEnbFd
-			*    get srcEnbFd from S1HandoverProcedureContext
+			* getSrcEnbContextId
+			*    get srcEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			int getSrcEnbFd()const;				
+			int getSrcEnbContextId()const;				
 			
 			/****************************************
 			* setSrcS1apEnbUeId
@@ -1269,7 +1284,7 @@ namespace mme
 			HoType hoType_m;
 			
 			// DataName
-			int targetEnbFd_m;
+			int targetEnbContextId_m;
 			
 			// DataName
 			int targetS1apEnbUeId_m;
@@ -1293,7 +1308,7 @@ namespace mme
 			S1apCause s1HoCause_m;
 			
 			// DataName
-			int srcEnbFd_m;
+			int srcEnbContextId_m;
 			
 			// DataName
 			int srcS1apEnbUeId_m;

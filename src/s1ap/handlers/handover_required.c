@@ -152,8 +152,14 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 
         return E_FAIL;
     }
-    ho_required.msg_data.handover_required_Q_msg_m.target_enb_fd = cbIndex;
-    ho_required.msg_data.handover_required_Q_msg_m.enb_fd = enb_fd;
+    ho_required.msg_data.handover_required_Q_msg_m.target_enb_context_id = cbIndex;
+    cbIndex = findControlBlockWithEnbFd(enb_fd);
+    if (cbIndex == INVALID_CB_INDEX)
+    {
+	log_msg(LOG_ERROR, "No CB found for enb fd %d.\n", enb_fd);
+	return E_FAIL;
+    }
+    ho_required.msg_data.handover_required_Q_msg_m.src_enb_context_id = cbIndex;
 
     ho_required.msg_type = handover_required;
     ho_required.destInstAddr = htonl(mmeAppInstanceNum_c);

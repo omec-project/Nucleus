@@ -33,6 +33,7 @@
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <contextManager/dataBlocks.h>
+#include <utils/mmeCommonUtils.h>
 
 using namespace mme;
 using namespace SM;
@@ -82,7 +83,14 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
 	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
 	{
 		S1HandoverProcedureContext *s1HoPrCtxt = dynamic_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
-		s1HoPrCtxt->setTargetTai(tauReq.tai);
+
+		//TAI and CGI obtained from s1ap ies.
+		//Convert the plmn in s1ap format to nas format
+		//before storing in ue context/sending in tai list of tau response.
+		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
+		s1HoPrCtxt->setTargetTai(Tai(tauReq.tai));
+		s1HoPrCtxt->setTargetCgi(Cgi(tauReq.eUtran_cgi));
 	}
     return ActStatus::PROCEED;
 }
@@ -91,16 +99,16 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
 * Action handler : send_tau_response_to_ue
 ***************************************/
 ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
-{	
+{
 	log_msg(LOG_INFO,"Inside send_tau_response_to_ue\n");
-	
-	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());	
+
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_ERROR, "send_tau_response_to_ue: ue context is NULL\n",cb.getCBIndex());
 		return ActStatus::HALT;
 	}
-	
+
 	MmeProcedureCtxt* prcdCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 	if (prcdCtxt_p == NULL)
 	{
@@ -112,9 +120,10 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
 	{
 		S1HandoverProcedureContext *s1HoPrCtxt = static_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
-		tau_resp.enb_fd = s1HoPrCtxt->getTargetEnbFd();
+		tau_resp.enb_fd = s1HoPrCtxt->getTargetEnbContextId();
 		tau_resp.s1ap_enb_ue_id = s1HoPrCtxt->getTargetS1apEnbUeId();
 		memcpy(&tau_resp.tai, &(s1HoPrCtxt->getTargetTai().tai_m), sizeof(struct TAI));
+		ue_ctxt->setUtranCgi(s1HoPrCtxt->getTargetCgi());
 	}
 	else
 	{
@@ -122,6 +131,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 		tau_resp.enb_fd = tauPrCtxt->getEnbFd();
 		tau_resp.s1ap_enb_ue_id = tauPrCtxt->getS1apEnbUeId();
 		memcpy(&tau_resp.tai, &(tauPrCtxt->getTai().tai_m), sizeof(struct TAI));
+		ue_ctxt->setUtranCgi(tauPrCtxt->getEUtranCgi());
 	}
 
 	tau_resp.msg_type = tau_response;
@@ -135,9 +145,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
 	ue_ctxt->setTai(Tai(tau_resp.tai));
 	cmn::ipc::IpcAddress destAddr;
-        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;	
+    	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	mmeIpcIf_g->dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
-	
+
 	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
 	{
 		MmeContextManagerUtils::deallocateProcedureCtxt(cb, tau_c );

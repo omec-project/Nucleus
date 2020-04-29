@@ -152,8 +152,8 @@ struct service_req_Q_msg {
 struct handover_required_Q_msg {
 	int s1ap_enb_ue_id;
 	int s1ap_mme_ue_id;
-	int target_enb_fd;
-	int enb_fd;
+	int target_enb_context_id;
+	int src_enb_context_id;
 	enum handoverType handoverType;
 	struct s1apCause cause;
 	struct targetId target_id;
@@ -184,6 +184,7 @@ struct tauReq_Q_msg {
     int seq_num;
     int enb_fd;
     struct TAI tai;
+    struct CGI eUtran_cgi;
 };
 
 struct identityResp_Q_msg {
@@ -396,7 +397,7 @@ struct ue_emm_info {
 
 struct handover_request_Q_msg {
 	msg_type_t msg_type;
-	uint32_t enb_fd;
+	uint32_t target_enb_context_id;
 	uint32_t s1ap_mme_ue_id;
 	enum handoverType handoverType;
 	s1apCause_t cause;
@@ -411,7 +412,7 @@ struct handover_request_Q_msg {
 
 struct handover_command_Q_msg {
 	msg_type_t msg_type;
-    int enb_fd;
+    	int src_enb_context_id;
 	int s1ap_mme_ue_id;
 	int s1ap_enb_ue_id;
 	enum handoverType handoverType;
@@ -425,7 +426,7 @@ struct mme_status_transfer_Q_msg {
 	int s1ap_mme_ue_id;
 	int s1ap_enb_ue_id;
 	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
-	int enb_fd;
+	int target_enb_context_id;
 };
 #define S1AP_MME_STATUS_TRANSFER_BUF_SIZE sizeof(struct mme_status_transfer_Q_msg)
 

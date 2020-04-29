@@ -32,7 +32,7 @@ mme_status_transfer_processing(struct mme_status_transfer_Q_msg *g_mme_status)
     }
 
     length = send_sctp_msg(
-            g_mme_status->enb_fd, buffer, length, 1);
+            g_mme_status->target_enb_context_id, buffer, length, 1);
 
     log_msg(LOG_DEBUG, "MME-Status-Transfer sent. No. of bytes %d\n", length);
     return SUCCESS;

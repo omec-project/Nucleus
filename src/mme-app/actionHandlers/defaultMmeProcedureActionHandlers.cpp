@@ -461,7 +461,13 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 	tauReqProc_p->setNextState(TauStart::Instance());
 	tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	tauReqProc_p->setEnbFd(tauReq.enb_fd);
+
+	//TAI and CGI obtained from s1ap ies.
+	//Convert the PLMN in s1ap format to nas format before storing in procedure context.
+	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
 	tauReqProc_p->setTai(Tai(tauReq.tai));
+	tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
 	cb.setCurrentTempDataBlock(tauReqProc_p);	
 	ueCtxt->setUpLnkSeqNo(ueCtxt->getUpLnkSeqNo()+1);
 
@@ -511,11 +517,11 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	const struct handover_required_Q_msg &hoReq = (msgData_p->msg_data.handover_required_Q_msg_m);
 
 	hoReqProc_p->setS1apCause(hoReq.cause);
-	hoReqProc_p->setTargetEnbFd(hoReq.target_enb_fd);
+	hoReqProc_p->setTargetEnbContextId(hoReq.target_enb_context_id);
 	hoReqProc_p->setSrcToTargetTransContainer(hoReq.srcToTargetTranspContainer);
 	hoReqProc_p->setTargetTai(hoReq.target_id.selected_tai);
 	hoReqProc_p->setSrcS1apEnbUeId(hoReq.s1ap_enb_ue_id);
-	hoReqProc_p->setSrcEnbFd(hoReq.enb_fd);
+	hoReqProc_p->setSrcEnbContextId(hoReq.src_enb_context_id);
 
 	ProcedureStats::num_of_ho_required_received++;
 
