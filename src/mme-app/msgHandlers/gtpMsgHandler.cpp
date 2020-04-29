@@ -18,10 +18,11 @@
 
 #include <contextManager/subsDataGroupManager.h>
 #include <event.h>
+#include <eventMessage.h>
 #include <ipcTypes.h>
 #include <log.h>
 #include <mmeSmDefs.h>
-#include <eventMessage.h>
+#include <utils/mmeCommonUtils.h>
 
 using namespace SM;
 using namespace mme;
@@ -44,26 +45,27 @@ GtpMsgHandler* GtpMsgHandler::Instance()
 
 void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 {
-    	if (eMsg == NULL)
-        	return;
+    if (eMsg == NULL)
+        return;
 
-    	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
-   	if (msgBuf == NULL)
-    	{
-        	log_msg(LOG_INFO, "GTP Message Buffer is empty \n");
+    utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_INFO, "GTP Message Buffer is empty \n");
 
-        	delete eMsg;
-        	return;
-    	}
-    	if (msgBuf->getLength() < sizeof (gtp_incoming_msg_data_t))
-    	{
-        	log_msg(LOG_INFO, "Not enough bytes in gtp message \n");
+        delete eMsg;
+        return;
+    }
+    if (msgBuf->getLength() < sizeof(gtp_incoming_msg_data_t))
+    {
+        log_msg(LOG_INFO, "Not enough bytes in gtp message \n");
 
-        	delete eMsg;
-        	return;
-    	}
+        delete eMsg;
+        return;
+    }
 
-	const gtp_incoming_msg_data_t* msgData_p = (gtp_incoming_msg_data_t*)(msgBuf->getDataPointer());
+    const gtp_incoming_msg_data_t *msgData_p =
+            (gtp_incoming_msg_data_t*) (msgBuf->getDataPointer());
 
 	switch (msgData_p->msg_type)
 	{
@@ -170,10 +172,11 @@ void GtpMsgHandler::handleDdnMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO,"Inside handle DDN\n");
 
-	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+	SM::ControlBlock* controlBlk_p =
+	        MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
 	if(controlBlk_p == NULL)
 	{
-		log_msg(LOG_ERROR, "handleReleaseBearerResponse_v: "
+		log_msg(LOG_ERROR, "handleDdnMsg_v: "
 							"Failed to find UE context using idx %d\n",
 							ueIdx);
 		return;
