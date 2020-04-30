@@ -29,8 +29,8 @@ extern struct time_stat g_attach_stats[];
 int
 s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
 {
-	struct s1_incoming_msg_data_t ue_info = {0};
-    	int nas_index = 0;
+	s1_incoming_msg_data_t ue_info = {0};
+   	int nas_index = 0;
 
 	/*****Message structure***
 	*/
@@ -153,7 +153,7 @@ s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&ue_info, S1_READ_MSG_BUF_SIZE);
 
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Send to mme-app stage1.\n");
+	log_msg(LOG_INFO, "Send Attach UE message to mme-app. Msg size %d \n", S1_READ_MSG_BUF_SIZE);
 
 	return SUCCESS;
 }

@@ -39,7 +39,7 @@ extern struct time_stat g_attach_stats[];
 int
 s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
 {
-	struct s1_incoming_msg_data_t id_resp= {0};
+	s1_incoming_msg_data_t id_resp= {0};
 
 	/*****Message structure***
 	*/

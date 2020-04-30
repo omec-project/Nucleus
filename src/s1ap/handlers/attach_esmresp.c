@@ -28,7 +28,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_esm_resp_handler(struct proto_IE *s1_esm_resp_ies)
 {
-	struct s1_incoming_msg_data_t esm_resp= {0};
+	s1_incoming_msg_data_t esm_resp= {0};
 	esm_resp.msg_type = esm_info_response;
 
 	/*****Message structure***
@@ -61,7 +61,6 @@ s1_esm_resp_handler(struct proto_IE *s1_esm_resp_ies)
 	                    memcpy(&(esm_resp.msg_data.esm_resp_Q_msg_m.apn), &(s1_esm_resp_ies->data[i].val.nas.elements[0].pduElement.apn),
 		                       sizeof(struct apn_name));
                     }
-
                 }break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_esm_resp_ies->data[i].IE_type);

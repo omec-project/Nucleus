@@ -39,7 +39,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_ctx_release_request_handler(InitiatingMessage_t *msg)
 {
-	struct s1_incoming_msg_data_t release_request= {0};
+	s1_incoming_msg_data_t release_request= {0};
 	struct proto_IE s1_ctx_rel_req_ies;
 
 	log_msg(LOG_INFO, "Parse s1ap context release request message:--\n");

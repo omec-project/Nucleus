@@ -29,7 +29,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 detach_stage1_handler(struct proto_IE *detach_ies, bool retransmit)
 {
-	struct s1_incoming_msg_data_t req= {0};
+	s1_incoming_msg_data_t req= {0};
 
 	/*****Message structure***
 	*/
@@ -76,7 +76,7 @@ detach_stage1_handler(struct proto_IE *detach_ies, bool retransmit)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&req, S1_READ_MSG_BUF_SIZE);
 
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Send to mme-app stage1.\n");
+	log_msg(LOG_INFO, "Send detach request to mme-app \n");
 
 	return SUCCESS;
 }

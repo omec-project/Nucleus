@@ -30,7 +30,7 @@ int
 s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies)
 {
 	//TODO: use static instead of synamic for perf.
-	struct s1_incoming_msg_data_t secmode_resp= {0};
+	s1_incoming_msg_data_t secmode_resp= {0};
 
 	/*****Message structure***
 	*/
@@ -62,7 +62,6 @@ s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies)
                     {
                         secmode_resp.msg_data.secmode_resp_Q_msg_m.status = SUCCESS;
                     }
-
                 }break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_sec_resp_ies->data[i].IE_type);

@@ -83,6 +83,7 @@ typedef enum msg_type_t {
     tau_request,
     tau_response,
     emm_info_request,
+	raw_nas_msg,
     max_msg_type
 } msg_type_t;
 
@@ -108,34 +109,33 @@ struct ue_attach_info {
     unsigned char dns_present;
     uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
-	
-};
+}__attribute__ ((packed));
 
 struct authresp_Q_msg {
     int status;
     struct XRES res;
 	struct AUTS auts;
-};
+}__attribute__ ((packed));
 
 struct secmode_resp_Q_msg {
     int ue_idx;
     int status;
-};
+}__attribute__ ((packed));
 
 struct esm_resp_Q_msg {
     int status;
     struct apn_name apn;
-};
+}__attribute__ ((packed));
 
 struct initctx_resp_Q_msg{
     unsigned short 	eRAB_id;
     unsigned int 	transp_layer_addr;
     unsigned int 	gtp_teid;
-};
+}__attribute__ ((packed));
 
 struct attach_complete_Q_msg {
     unsigned short	status;
-};
+}__attribute__ ((packed));
 
 struct service_req_Q_msg {
 	int enb_fd;
@@ -145,23 +145,41 @@ struct service_req_Q_msg {
 	struct TAI tai;
 	struct CGI utran_cgi;
 	struct STMSI s_tmsi;
-};
+}__attribute__ ((packed));
 
 struct tauReq_Q_msg {
     int seq_num;
     int enb_fd;
-};
+}__attribute__ ((packed));
 
 struct identityResp_Q_msg {
 	int status;
 	unsigned char IMSI[BINARY_IMSI_LEN];
-};
+}__attribute__ ((packed));
 
 struct detach_req_Q_msg {
 	int ue_m_tmsi;
-};
+}__attribute__ ((packed));
 
-typedef union s1_incoming_msgs_t {
+struct s1apMsg_plus_raw_nas {
+	uint32_t	status;
+	uint32_t	criticality; /* not required */
+	uint32_t	s1ap_enb_ue_id;
+	uint32_t	enodeb_fd;
+	uint32_t 	gtp_teid;
+	uint16_t 	eRAB_id;
+	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
+	uint16_t 	nasMsgSize; 
+	uint32_t 	transp_layer_addr;
+	struct 		TAI tai;
+	struct 		CGI utran_cgi;
+	struct STMSI s_tmsi;
+}__attribute__ ((packed));
+
+union s1_incoming_msgs {
+#ifndef S1AP_DECODE_NAS
+	struct s1apMsg_plus_raw_nas	  rawMsg; 
+#endif
     struct ue_attach_info ue_attach_info_m;
     struct authresp_Q_msg authresp_Q_msg_m;
     struct secmode_resp_Q_msg secmode_resp_Q_msg_m;
@@ -172,16 +190,18 @@ typedef union s1_incoming_msgs_t {
     struct identityResp_Q_msg identityResp_Q_msg_m;
     struct tauReq_Q_msg tauReq_Q_msg_m;
     struct detach_req_Q_msg detachReq_Q_msg_m;
-}s1_incoming_msgs_t;
+}__attribute__ ((packed));
+typedef union s1_incoming_msgs s1_incoming_msgs_t;
 
-typedef struct s1_incoming_msg_data_t {
+struct s1_incoming_msg_data {
     uint32_t destInstAddr;
     uint32_t srcInstAddr;
     msg_type_t msg_type;
     int ue_idx;
     int s1ap_enb_ue_id;
     s1_incoming_msgs_t msg_data;
-}s1_incoming_msg_data_t;
+}__attribute__ ((packed));
+typedef struct s1_incoming_msg_data s1_incoming_msg_data_t;
 
 #define S1_READ_MSG_BUF_SIZE sizeof(s1_incoming_msg_data_t)
 

@@ -31,7 +31,7 @@ int
 s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
 {
 	//TODO: use static instead of synamic for perf.
-	struct s1_incoming_msg_data_t auth_resp= {0};
+	s1_incoming_msg_data_t auth_resp= {0};
 
 	/*****Message structure***
 	*/
@@ -67,6 +67,7 @@ s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
                     memcpy(&(auth_resp.msg_data.authresp_Q_msg_m.res), 
                            &(s1_auth_resp_ies->data[i].val.nas.elements[0].pduElement.auth_resp),
                            sizeof(struct XRES));
+
                 }break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_auth_resp_ies->data[i].IE_type);
@@ -90,7 +91,7 @@ int
 s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 {
 	//TODO: use static instead of synamic for perf.
-	struct s1_incoming_msg_data_t auth_resp={0};
+	s1_incoming_msg_data_t auth_resp={0};
 
 	/*****Message structure***
 	*/

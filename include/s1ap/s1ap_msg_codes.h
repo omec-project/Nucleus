@@ -37,6 +37,7 @@
 #define S1AP_IE_RRC_EST_CAUSE  134
 #define S1AP_ERAB_SETUP_CTX_SUR 51
 
+/* should be part of mme app only */
 /*NAS message type codes*/
 #define NAS_ESM_RESP 0xda
 #define NAS_AUTH_RESP 0x53

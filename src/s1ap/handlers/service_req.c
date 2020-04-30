@@ -38,7 +38,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
 {
-	struct  s1_incoming_msg_data_t req= {0};
+	s1_incoming_msg_data_t req= {0};
 
 	/*****Message structure***
 	*/

@@ -10,9 +10,10 @@
 #ifndef __S1AP_STRUCTS_H_
 #define __S1AP_STRUCTS_H_
 
+#include "nas_structs.h"
+#ifdef S1AP_DECODE_NAS
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "sec.h"
 #include "ProcedureCode.h"
 #include "Criticality.h"
@@ -283,6 +284,8 @@ typedef struct ESM_APN_AMBR {
 	uint8_t ulext2;
 	/* uint8_t ul_total; */
 } ESM_APN_AMBR;
+ 
+
 
 typedef struct guti {
 	uint8_t spare :4;
@@ -386,7 +389,7 @@ struct CGI {
 //Service Request
 struct STMSI {
 	uint8_t mme_code;
-        uint32_t m_TMSI;
+    uint32_t m_TMSI;
 
 };
 
@@ -638,7 +641,6 @@ typedef struct s1apCause {
     } choice;
 } s1apCause_t;
 
-
 typedef struct proto_IE_data {
 	int 			IE_type;
     union value{
@@ -762,7 +764,6 @@ typedef enum security_integrity_algo {
 	Algo_128EIA1 = 1,
 }security_integrity_algo;
 
-
 #define BUFFER_SIZE 255
 
 typedef struct Buffer {
@@ -770,4 +771,5 @@ typedef struct Buffer {
 	unsigned char pos;
 }Buffer;
 
+#endif
 #endif /*__S1AP_STRUCTS_H*/
