@@ -36,6 +36,7 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCauseUtils.h>
+#include "mmeNasUtils.h"
 
 using namespace SM;
 using namespace mme;
@@ -351,17 +352,35 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 
 	SecUtils::create_integrity_key(secVect->kasme.val, secInfo.int_key);
 
+#ifdef S1AP_ENCODE_NAS
 	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
 	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);
-	
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 2;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.message_type = AuthenticationRequest;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
+	memcpy(&(nas.elements[0].pduElement.rand[0]), &(secVect->rand.val[0]), NAS_RAND_SIZE);
+	memcpy(&(nas.elements[1].pduElement.autn[0]), &(secVect->autn.val[0]), NAS_AUTN_SIZE);
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas);
+	memcpy(&authreq.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	authreq.nasMsgSize = nasBuffer.pos;
+#endif
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
 	mmeIpcIf_g->dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 
+#ifndef S1AP_ENCODE_NAS
+	free(nas.elements);
+#endif
 	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v \n");
+	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v sent message of length %d\n",sizeof(authreq));
 		
 	return ActStatus::PROCEED;
 }

@@ -52,6 +52,12 @@ static void log_buffer_free(unsigned char** buffer)
         free(*buffer);
     *buffer = NULL;
 }
+static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
+{
+	memcpy(buffer->buf + buffer->pos , value, size);
+	buffer->pos += size;
+	return;
+}
 
 void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
@@ -700,4 +706,31 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 		}
 	}
 	return;
+}
+
+/* Encode NAS mesage */
+
+void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas)
+{
+	switch(nas->header.message_type)
+	{
+		case AuthenticationRequest:
+		{
+			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
+			uint8_t value = (nas->header.security_header_type) | nas->header.proto_discriminator;
+			nasBuffer->pos = 0;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			buffer_copy(nasBuffer, &nas->header.nas_security_param, sizeof(nas->header.nas_security_param));
+			buffer_copy(nasBuffer, &nas->elements[0].pduElement.rand,
+	     			sizeof(nas->elements[0].pduElement.rand));
+			uint8_t datalen = 16;
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			buffer_copy(nasBuffer, &nas->elements[1].pduElement.autn,
+	   					sizeof(nas->elements[1].pduElement.autn));
+			break;
+		}
+		default:
+			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
+	}
 }

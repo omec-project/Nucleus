@@ -90,6 +90,7 @@ APN name can be in range of min 3 octets to max 102 octets
 		public:
 			static void parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas);
 			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg);
+			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas);
 	};
 #endif
 #endif /*__S1AP_STRUCTS_H*/

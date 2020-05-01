@@ -162,14 +162,14 @@ struct detach_req_Q_msg {
 }__attribute__ ((packed));
 
 struct s1apMsg_plus_raw_nas {
+	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
+	uint16_t 	nasMsgSize; 
 	uint32_t	status;
 	uint32_t	criticality; /* not required */
 	uint32_t	s1ap_enb_ue_id;
 	uint32_t	enodeb_fd;
 	uint32_t 	gtp_teid;
 	uint16_t 	eRAB_id;
-	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
-	uint16_t 	nasMsgSize; 
 	uint32_t 	transp_layer_addr;
 	struct 		TAI tai;
 	struct 		CGI utran_cgi;
@@ -216,6 +216,8 @@ struct authreq_info {
     	unsigned char autn[NAS_AUTN_SIZE];
      	//struct TAI tai;
     	int enb_fd;
+		uint8_t 	nasMsgBuf[100]; 
+		uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
 };
 
 #define S1AP_AUTHREQ_STAGE2_BUF_SIZE sizeof(struct authreq_info)

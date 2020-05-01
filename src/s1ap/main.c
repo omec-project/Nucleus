@@ -297,7 +297,7 @@ void * tipc_msg_handler()
 		{
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
-			log_msg(LOG_INFO, "S1AP message received from mme-app");
+			log_msg(LOG_INFO, "S1AP message received from mme-app. Received Message size %d \n",bytesRead);
 			insert_job(g_tpool_tipc_reader, handle_mmeapp_message, tmpBuf);
 		}
 	}
