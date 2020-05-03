@@ -1218,7 +1218,9 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_fd = ue_ctxt->getEnbFd();
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
-    	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+    	unsigned char dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+		ue_ctxt->setDwnLnkSeqNo(dl_seq_no);
+#ifdef S1AP_ENCODE_NAS
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
      	* all TACs
@@ -1227,6 +1229,28 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	strcpy(temp.full_network_name, "Aether");
     	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
     	NAS_INT_KEY_SIZE);
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 1;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.security_header_type = IntegrityProtectedCiphered;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+	nas.header.seq_no = ue_ctxt->getDwnLnkSeqNo(); 
+	nas.header.message_type = EMMInformation;
+	/* passing network name in apn */
+	// TODO - network name configurable 
+	std::string network("Aether");
+	nas.elements[0].pduElement.apn.len = network.length(); 
+	strcpy((char *)nas.elements[0].pduElement.apn.val, (char *)network.c_str()); 
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&temp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	temp.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 
     	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

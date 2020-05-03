@@ -367,7 +367,6 @@ void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nas
 
                     if(0x27 == val)
                     {
-                        unsigned short int pco_offset =  msg_offset;
                         unsigned char pco_length = msg[msg_offset+1];
                         // element Id 1 byte and pco length 1 byte 
                         // Copy from - 1 byte header Extension + Configuration Protocol
@@ -776,6 +775,50 @@ copyU16(unsigned char *buffer, uint32_t val)
 	}
 }
 
+static int 
+encode_network_name_ie(char* network_name, char* enc_str)
+{
+  uint32_t          i;
+  uint32_t          bit_offset;
+  uint32_t          byte_offset;
+  uint32_t          name_length = strlen(network_name);
+
+  // We put limit on the number if characters in the network name.
+  assert(name_length <= 10);
+
+  bit_offset  = 0;
+  byte_offset = 2; // Min length; length  1 byte and 1 byte mandatory header field. 
+
+  unsigned char mask_1[8] = {0xff ,0xff, 0xfc, 0xf8, 0xf0, 0xe0, 0xc0,  0x80};
+  unsigned char mask_2[8] = {0xff, 0xff, 0x01, 0x03, 0x07, 0x0f, 0x1f,  0x3f};
+
+  for (i = 0; i < name_length; i++) {
+    // check if printable character. Except some special charaters are not allowed    
+    if (network_name[i] == 0x0A || network_name[i] == 0x0D || 
+       (network_name[i] >= 0x20 && network_name[i] <= 0x3F) ||
+       (network_name[i] >= 0x41 && network_name[i] <= 0x5A) || 
+       (network_name[i] >= 0x61 && network_name[i] <= 0x7A)) {
+      enc_str[byte_offset] |= ((network_name[i] << bit_offset) & mask_1[bit_offset]);
+      if(bit_offset >=1) {
+        byte_offset ++;
+        enc_str[byte_offset] |= ((network_name[i] >>(8-bit_offset)) & mask_2[bit_offset]);
+      }
+      bit_offset = (bit_offset+7) % 8; 
+    }
+    else {
+      return E_FAIL; //unsupported charater 
+    }
+  }
+  if (0 == bit_offset) {
+    enc_str[0] = byte_offset - 1;
+    enc_str[1] = 0x80 ; // ci not supported 
+  } else {
+    enc_str[0] = byte_offset;
+    enc_str[1] = 0x80 | ((8 - bit_offset) & 0x07);
+  }
+  return SUCCESS;
+}
+
 
 /* Encode NAS mesage */
 
@@ -993,6 +1036,44 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+
+			break;
+		}
+		case EMMInformation:
+		{
+    		nasBuffer->pos = 0; 
+    		unsigned char nas_sec_hdr[1] = { 0x27}; 
+    		buffer_copy(nasBuffer, nas_sec_hdr, 1);
+    		uint8_t mac_data_pos;
+    		char mac[4] = { 0x00, 0x00, 0x00, 0x00}; 
+    		buffer_copy(nasBuffer, mac, 4);
+    		mac_data_pos = nasBuffer->pos;
+
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+
+			unsigned char value = (Plain << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+   
+    		char bufBig[128] = {'\0'};
+    		bufBig[0] = 0x43;
+    		encode_network_name_ie((char *)nas->elements[0].pduElement.apn.val, &bufBig[1]);
+    		buffer_copy(nasBuffer, bufBig, bufBig[1] + 2);
+
+    		char bufShort[20] = {'\0'};
+    		bufShort[0] = 0x45;
+    		encode_network_name_ie((char *)nas->elements[0].pduElement.apn.val, &bufShort[1]);
+    		buffer_copy(nasBuffer, bufShort, bufShort[1] + 2);
+    
+    		/* Calculate mac */
+    		uint8_t direction = 1;
+    		uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+    		calculate_mac(int_key, nas->header.seq_no, direction,
+		    	bearer, &nasBuffer->buf[mac_data_pos],
+		    	nasBuffer->pos - mac_data_pos,
+		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
 
 			break;
 		}
