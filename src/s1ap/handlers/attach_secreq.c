@@ -36,6 +36,7 @@ get_secreq_protoie_value(struct proto_IE *value, struct sec_mode_Q_msg * g_secRe
 	value->data[0].val.mme_ue_s1ap_id = g_secReqInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_secReqInfo->enb_s1ap_ue_id;
 
+#ifdef S1AP_ENCODE_NAS
 	value->data[2].val.nas.header.security_header_type =
 			IntegrityProtectedEPSSecCntxt;
 
@@ -107,6 +108,7 @@ get_secreq_protoie_value(struct proto_IE *value, struct sec_mode_Q_msg * g_secRe
             memcpy(value->data[2].val.nas.elements->pduElement.ue_network.capab,
                g_secReqInfo->ue_network.capab, g_secReqInfo->ue_network.len);
 	}
+#endif
 
 	return SUCCESS;
 }
@@ -120,11 +122,9 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 {
 	Buffer g_sec_buffer = {0};
 	Buffer g_sec_value_buffer = {0};
-	Buffer g_sec_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
@@ -133,7 +133,9 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 
 	/* Copy values to g_sec_nas_buffer */
 
+#ifdef S1AP_ENCODE_NAS
 	/* id-NAS-PDU */
+	Buffer g_sec_nas_buffer = {0};
 	g_sec_nas_buffer.pos = 0;
 	nasPDU nas = s1apPDU.value.data[2].val.nas;
 
@@ -145,6 +147,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	/* placeholder for mac. mac value will be calculated later */
 	buffer_copy(&g_sec_nas_buffer, &nas.header.mac, MAC_SIZE);
 
+	uint8_t mac_data_pos;
 	mac_data_pos = g_sec_nas_buffer.pos;
 
 	buffer_copy(&g_sec_nas_buffer, &nas.header.seq_no,
@@ -183,6 +186,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 			direction, bearer, &g_sec_nas_buffer.buf[mac_data_pos],
 			g_sec_nas_buffer.pos - mac_data_pos,
 			&g_sec_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
+#endif
 
 	/* Copy values in g_sec_value_buffer */
 	g_sec_value_buffer.pos = 0;
@@ -234,6 +238,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 			sizeof(protocolIe_criticality));
 
 
+#ifdef S1AP_ENCODE_NAS
 	datalen = g_sec_nas_buffer.pos + 1;
 	buffer_copy(&g_sec_value_buffer, &datalen,
 			sizeof(datalen));
@@ -243,6 +248,18 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 
 	buffer_copy(&g_sec_value_buffer, &g_sec_nas_buffer,
 			g_sec_nas_buffer.pos);
+#else
+	log_msg(LOG_INFO, "Received Security Command  has nas message %d \n",g_secReqInfo->nasMsgSize);
+	datalen = g_secReqInfo->nasMsgSize + 1; 
+
+	buffer_copy(&g_sec_value_buffer, &datalen,
+						sizeof(datalen));
+
+	buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgBuf[0], g_secReqInfo->nasMsgSize);
+
+#endif
 
 	/* Copy values in g_sec_buffer */
 	g_sec_buffer.pos = 0;

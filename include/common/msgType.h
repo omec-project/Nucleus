@@ -212,12 +212,14 @@ struct authreq_info {
 		msg_type_t msg_type;
     	int ue_idx;
     	int enb_s1ap_ue_id;
+    	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     	unsigned char rand[NAS_RAND_SIZE];
     	unsigned char autn[NAS_AUTN_SIZE];
-     	//struct TAI tai;
-    	int enb_fd;
-		uint8_t 	nasMsgBuf[100]; 
+#else
+		uint8_t 	nasMsgBuf[300]; 
 		uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_AUTHREQ_STAGE2_BUF_SIZE sizeof(struct authreq_info)
@@ -226,12 +228,17 @@ struct sec_mode_Q_msg {
 		msg_type_t msg_type;
     	int ue_idx;
     	int enb_s1ap_ue_id;
+    	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     	struct UE_net_capab ue_network;
 		struct MS_net_capab  ms_net_capab;
     	struct KASME key;
     	uint8_t int_key[NAS_INT_KEY_SIZE];
     	uint32_t dl_seq_no;
-    	int enb_fd;
+#else
+		uint8_t 	nasMsgBuf[300]; 
+		uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_SECREQ_STAGE3_BUF_SIZE sizeof(struct sec_mode_Q_msg)
@@ -241,10 +248,15 @@ struct esm_req_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	int enb_s1ap_ue_id;
+	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
 	uint8_t pti;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned short dl_seq_no;
-	int enb_fd;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_ESMREQ_STAGE4_BUF_SIZE sizeof(struct esm_req_Q_msg)
@@ -253,22 +265,27 @@ struct init_ctx_req_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	int enb_s1ap_ue_id;
+	int enb_fd;
 	unsigned long exg_max_ul_bitrate;
 	unsigned long exg_max_dl_bitrate;
+	unsigned char sec_key[32];
 	struct fteid gtp_teid;
+	unsigned char bearer_id;
+#ifdef S1AP_ENCODE_NAS
 	struct TAI tai;
 	struct apn_name apn;
 	struct apn_name selected_apn;
 	struct PAA pdn_addr;
-	unsigned char sec_key[32];
-	unsigned char bearer_id;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
-	int enb_fd;
 	unsigned char pti;
 	unsigned int m_tmsi;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_ICSREQ_STAGE6_BUF_SIZE sizeof(struct init_ctx_req_Q_msg)

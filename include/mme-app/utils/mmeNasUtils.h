@@ -47,8 +47,6 @@
 #define SERVICE_REQ_SECURITY_HEADER 12
 
 
-#define MAX_PCO_OPTION_SIZE 260
-
 #define MSISDN_STR_LEN 10
 
 #define EMM_MAX_TAI_LIST 16
@@ -84,13 +82,15 @@ APN name can be in range of min 3 octets to max 102 octets
 
 	/****Information elements presentations **/
 	#define BCD_IMSI_STR_LEN 15
+class Secinfo;
 	
 	class MmeNasUtils
 	{
 		public:
 			static void parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas);
 			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg);
-			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas);
+			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, const Secinfo& secContext);
+			static void get_negotiated_qos_value(struct esm_qos *qos);
 	};
 #endif
 #endif /*__S1AP_STRUCTS_H*/

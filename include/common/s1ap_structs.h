@@ -49,7 +49,7 @@
 #define SHORT_MAC_SIZE 2
 
 
-#define MAX_PCO_OPTION_SIZE 260
+#define MAX_PCO_OPTION_SIZE 255
 
 #define MSISDN_STR_LEN 10
 
@@ -297,6 +297,7 @@ typedef struct guti {
 	uint32_t m_TMSI;
 } guti;
 
+// move this to nas file 
 typedef struct esm_msg_container {
 	uint8_t eps_bearer_id :4;
 	uint8_t proto_discriminator :4;
@@ -309,6 +310,7 @@ typedef struct esm_msg_container {
 	linked_transcation_id linked_ti;
 	esm_qos negotiated_qos;
 	ESM_APN_AMBR apn_ambr;
+	struct pco pco_opt;
 } esm_msg_container;
 
 typedef struct ue_sec_capabilities {
@@ -450,7 +452,7 @@ typedef struct eRAB_elements {
 
 struct pco 
 {
-    unsigned short int pco_length;
+    unsigned char pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 

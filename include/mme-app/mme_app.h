@@ -9,9 +9,13 @@
 #ifndef __MME_APP_H_
 #define __MME_APP_H_
 
-#include <stdbool.h>
+#ifdef __cplusplus
+extern "C"{
+#endif
 
+#include <stdbool.h>
 #include "s1ap_structs.h"
+
 /**
  * MME main application configuration parameters structures.
  * All fields in this will be filled in from input json file.
@@ -48,5 +52,9 @@ void stat_init();
 /* Register for config change trigger */
 void register_config_updates(void);
 void mme_parse_config(mme_config *);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /*__MME_APP_H_*/

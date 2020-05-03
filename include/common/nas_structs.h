@@ -34,10 +34,10 @@ struct esm_sec_info {
 	struct proto_conf proto_config;
 };
 
-#define MAX_PCO_OPTION_SIZE 260
+#define MAX_PCO_OPTION_SIZE 255
 struct pco 
 {
-    unsigned short int pco_length;
+    unsigned char pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
 
@@ -488,6 +488,7 @@ typedef struct esm_msg_container {
 	linked_transcation_id linked_ti;
 	esm_qos negotiated_qos;
 	ESM_APN_AMBR apn_ambr;
+    struct pco pco_opt;
 } esm_msg_container;
 
 

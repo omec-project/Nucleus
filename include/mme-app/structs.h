@@ -108,6 +108,7 @@ class Secinfo
 		Secinfo( const secinfo& secinfo_i );
 		~Secinfo();
 		void operator = ( const Secinfo& secinfo_i );		
+		void getIntKey(uint8_t *key) const { memcpy(key, &secinfo_m.int_key[0], NAS_INT_KEY_SIZE);}
 	public:
 		secinfo secinfo_m;
 };

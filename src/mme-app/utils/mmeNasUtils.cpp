@@ -1,7 +1,39 @@
 #include "log.h"
 #include "mmeNasUtils.h"
+#include "structs.h"
+#include "f9.h"
 
 #define NAS_SERVICE_REQUEST 0x4D
+
+void
+MmeNasUtils::get_negotiated_qos_value(struct esm_qos *qos)
+{
+	qos->delay_class = 1;
+	qos->reliability_class = 3;
+	qos->peak_throughput = 5;
+	qos->precedence_class = 2;
+	qos->mean_throughput = 31;
+	qos->traffic_class = 3;
+	qos->delivery_order = 2;
+	qos->delivery_err_sdu = 3;
+	qos->max_sdu_size = 140;
+	qos->mbr_ul = 254;
+	qos->mbr_dl = 86;
+	qos->residual_ber = 7;
+	qos->sdu_err_ratio = 6;
+	qos->transfer_delay = 18;
+	qos->trffic_prio = 3;
+	qos->gbr_ul = 86;
+	qos->gbr_dl = 86;
+	qos->sig_ind = 0;
+	qos->src_stat_desc = 0;
+	qos->mbr_dl_ext = 108;
+	qos->gbr_dl_ext = 0;
+	qos->mbr_ul_ext = 108;
+	qos->gbr_ul_ext = 0;
+
+	return;
+}
 
 static unsigned short get_length(unsigned char **msg) 
 {
@@ -52,6 +84,7 @@ static void log_buffer_free(unsigned char** buffer)
         free(*buffer);
     *buffer = NULL;
 }
+
 static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
 {
 	memcpy(buffer->buf + buffer->pos , value, size);
@@ -708,9 +741,45 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 	return;
 }
 
+static void
+calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
+        uint8_t bearer, uint8_t *data, uint16_t data_len,
+        uint8_t *mac)
+{
+    uint8_t *out;
+
+    out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
+
+    memcpy(mac, out, MAC_SIZE);
+
+    return;
+}
+
+static int
+copyU16(unsigned char *buffer, uint32_t val)
+{
+	if (val < 255) {
+		buffer[0] = (val >> 8) & 0xFF;
+		buffer[1] = val & 0xFF;
+		return 2;
+	} else if (val < 65535) {
+		buffer[0] = 0x40;
+		buffer[1] = (val >> 8) & 0xFF;
+		buffer[2] = val & 0xFF;
+		return 3;
+	} else {
+		buffer[0] = 0x80;
+		buffer[1] = (val >> 16) & 0xFF;
+		buffer[2] = (val >> 8) & 0xFF;
+		buffer[3] = val & 0xFF;
+		return 4;
+	}
+}
+
+
 /* Encode NAS mesage */
 
-void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas)
+void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, const Secinfo& secContext)
 {
 	switch(nas->header.message_type)
 	{
@@ -728,6 +797,203 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas)
 			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
 			buffer_copy(nasBuffer, &nas->elements[1].pduElement.autn,
 	   					sizeof(nas->elements[1].pduElement.autn));
+			break;
+		}
+		case ESMInformationRequest: 
+		{
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			value = (nas->header.eps_bearer_identity << 4 | EPSSessionManagementMessage);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.procedure_trans_identity, sizeof(nas->header.procedure_trans_identity));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no, direction,
+						  	bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+
+			break;
+		}
+		case SecurityModeCommand: 
+		{
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			unsigned char inner_security_header_type = Plain;
+			value = inner_security_header_type | nas->header.proto_discriminator;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			value = (nas->header.security_encryption_algo << 4 | nas->header.security_integrity_algo);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.nas_security_param, sizeof(nas->header.nas_security_param));
+			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.len,
+						sizeof(nas->elements->pduElement.ue_network.len));
+
+			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.capab,
+						nas->elements->pduElement.ue_network.len);
+
+ 			/* Request IMEI from the device */
+			uint8_t imei = 0xc1;
+			buffer_copy(nasBuffer, &imei, sizeof(imei));
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no,
+							direction, bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+
+			break;
+		}
+		case AttachAccept: 
+		{
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			value = (Plain << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+
+			/* eps attach result */
+			buffer_copy(nasBuffer, &(nas->elements[0].pduElement.attach_res), sizeof(unsigned char));
+
+			buffer_copy(nasBuffer, &(nas->elements[1].pduElement.t3412), sizeof(unsigned char));
+
+			/* TAI list */
+			unsigned char u8value = 6;
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			u8value = 32; /* TODO: use value from tai list */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			buffer_copy(nasBuffer, &(nas->elements[2].pduElement.tailist.partial_list[0].plmn_id.idx), 3);
+			buffer_copy(nasBuffer, &(nas->elements[2].pduElement.tailist.partial_list[0].tac), 2);
+
+			/* ESM container */
+			unsigned char esm_len_pos = nasBuffer->pos;
+			/* esm message container length */
+			char tmplen[2] = {0, 0};
+			buffer_copy(nasBuffer, tmplen, 2);
+
+			/* esm message bearer id and protocol discriminator */
+			u8value = (nas->elements[3].pduElement.esm_msg.eps_bearer_id << 4 | nas->elements[3].pduElement.esm_msg.proto_discriminator);
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+
+			/* esm message procedure identity */
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.procedure_trans_identity), sizeof(u8value));
+
+			/* esm message session management message */
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.session_management_msgs), sizeof(u8value));
+
+			/* eps qos */
+			uint8_t datalen = 1;
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.eps_qos), sizeof(datalen));
+
+			/* apn */
+			// There is one category of UE, they do not send not apn to MME.
+			// In this case, the apn length from esm will be 0.
+			// Then MME will use the selected apn name from HSS-DB.
+			if (nas->elements[3].pduElement.esm_msg.apn.len == 0 ) {
+#if 0
+				datalen = g_icsReqInfo->selected_apn.len + 1;
+				buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+				buffer_copy(nasBuffer, g_icsReqInfo->selected_apn.val, g_icsReqInfo->selected_apn.len);
+#endif
+
+			}else {
+				// Return the same apn sent by UE
+				datalen = nas->elements[3].pduElement.esm_msg.apn.len;
+				buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+				buffer_copy(nasBuffer, (char *)nas->elements[3].pduElement.esm_msg.apn.val, datalen);
+			}
+
+			/* pdn address */
+			datalen = 5; //sizeof(ies[3].esm_msg.pdn_addr);
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			u8value = 1;
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			//buffer_copy(&g_ics_buffer, &(ies[3].esm_msg.pdn_addr.pdn_type), 1);
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.pdn_addr.ipv4), datalen-1);
+
+			/* linked ti */
+			u8value = 0x5d; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			datalen = 1;//sizeof(ies[3].esm_msg.linked_ti);
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.linked_ti), datalen);
+
+			/* negotiated qos */
+			u8value = 0x30; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			datalen = 16;//sizeof(ies[3].esm_msg.negotiated_qos);
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.negotiated_qos), datalen);
+
+			/* apn ambr */
+			/* TODO: remove hardcoded values of apn ambr */
+			unsigned char apn_ambr[8] = {0x5e, 0x06, 0x80, 0x00, 0x04, 0x05, 0x06, 0x07};
+			buffer_copy(nasBuffer, apn_ambr, 8);
+
+			u8value = 0x27; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			uint8_t pco_length = nas->elements[3].pduElement.esm_msg.pco_opt.pco_length;
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.pco_opt.pco_length), sizeof(pco_length));
+			buffer_copy(nasBuffer, &nas->elements[3].pduElement.esm_msg.pco_opt.pco_options[0], pco_length);
+			/* ESM message container end */
+
+			/* Copy esm container length to esm container length field */
+			uint16_t esm_datalen = nasBuffer->pos - esm_len_pos - 2;
+			unsigned char esm_len[2];
+			copyU16(esm_len, esm_datalen);
+			nasBuffer->buf[esm_len_pos] = esm_len[0];
+			nasBuffer->buf[esm_len_pos + 1] = esm_len[1];
+
+			/* EPS mobile identity GUTI */
+			u8value = 0x50; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			datalen = 11;
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+
+			u8value = 246; /* TODO: remove hard coding */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			buffer_copy(nasBuffer, &(nas->elements[4].pduElement.mi_guti.plmn_id.idx), 3);
+			buffer_copy(nasBuffer, &(nas->elements[4].pduElement.mi_guti.mme_grp_id),
+					sizeof(nas->elements[4].pduElement.mi_guti.mme_grp_id));
+			buffer_copy(nasBuffer, &(nas->elements[4].pduElement.mi_guti.mme_code),
+					sizeof(nas->elements[4].pduElement.mi_guti.mme_code));
+			buffer_copy(nasBuffer, &(nas->elements[4].pduElement.mi_guti.m_TMSI),
+					sizeof(nas->elements[4].pduElement.mi_guti.m_TMSI));
+
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no, direction,
+						  	bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+
 			break;
 		}
 		default:
