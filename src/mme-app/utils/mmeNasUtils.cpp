@@ -1111,6 +1111,31 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			
 			break;
 		}
+		case DetachRequest:
+		{
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			value = (Plain << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			value = nas->header.detach_type; 
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no, direction,
+						  	bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+			break;
+		}
 		default:
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
 	}

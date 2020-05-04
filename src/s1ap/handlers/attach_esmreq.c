@@ -77,7 +77,6 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 {
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
@@ -87,6 +86,7 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 	/* Copy values to g_sec_nas_buffer */
 
 #ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
 
 	/* id-NAS-PDU */
 	g_esm_nas_buffer.pos = 0;

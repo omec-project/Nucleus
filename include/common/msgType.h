@@ -321,10 +321,15 @@ struct ni_detach_request_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
     int enb_s1ap_ue_id;
+    int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint16_t dl_seq_no;
-    int enb_fd;
     unsigned char detach_type;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 #define S1AP_NI_DTCHREQUEST_BUF_SIZE sizeof(struct ni_detach_request_Q_msg)
 

@@ -74,7 +74,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 {
 	struct Buffer g_buffer = {0};
 	struct Buffer g_value_buffer = {0};
-	struct Buffer g_nas_buffer = {0};
 
 	struct s1ap_PDU s1apPDU = {0};
 
@@ -152,6 +151,7 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 						sizeof(protocolIe_Id));
 
 #ifdef S1AP_ENCODE_NAS
+	struct Buffer g_nas_buffer = {0};
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 

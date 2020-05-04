@@ -23,6 +23,7 @@
 #include <msgBuffer.h>
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "mmeNasUtils.h"
 
 using namespace SM;
 using namespace mme;
@@ -48,12 +49,29 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	ni_detach_req.enb_fd = ue_ctxt->getEnbFd();
 	ni_detach_req.ue_idx = ue_ctxt->getContextID();
 	ni_detach_req.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
+#ifdef S1AP_ENCODE_NAS
 	ni_detach_req.detach_type = 00000010;
 	
 	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
 	ni_detach_req.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
 	
 	memcpy(&(ni_detach_req.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	nas.header.security_header_type = IntegrityProtectedCiphered;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	/* placeholder for mac. mac value will be calculated later */
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
+	nas.header.seq_no = ue_ctxt->getDwnLnkSeqNo();
+	nas.header.message_type = DetachRequest;
+	nas.header.detach_type = 00000002;
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&ni_detach_req.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	ni_detach_req.nasMsgSize = nasBuffer.pos;
+#endif
 	
 	/* Send message to S1app in S1q*/
 	cmn::ipc::IpcAddress destAddr;

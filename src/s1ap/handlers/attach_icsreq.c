@@ -23,6 +23,7 @@
 
 extern s1ap_config g_s1ap_cfg;
 
+#ifdef S1AP_ENCODE_NAS
 static void
 get_negotiated_qos_value(struct esm_qos *qos)
 {
@@ -52,6 +53,7 @@ get_negotiated_qos_value(struct esm_qos *qos)
 
 	return;
 }
+#endif
 
 /**
 * Get ProtocolIE value for ICS Request sent by mme-app
@@ -60,7 +62,6 @@ static int
 get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_icsReqInfo)
 {
 	uint8_t ieCnt = 0;
-	uint8_t nasIeCnt = 0;
 
 	value->no_of_IEs = ICS_REQ_NO_OF_IES;
 
@@ -102,6 +103,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	}
 
 #ifdef S1AP_ENCODE_NAS
+	uint8_t nasIeCnt = 0;
 	/* NAS PDU values start */
 	e_rab->nas.header.security_header_type =
 				IntegrityProtectedCiphered;
@@ -225,7 +227,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     Buffer g_s1ap_buffer = {0};
     Buffer g_rab1_buffer = {0};
     Buffer g_rab2_buffer = {0};
-    Buffer g_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
@@ -237,9 +238,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	//uint8_t erab_len_pos;
 	//uint8_t erab_item_len_pos;
 	//uint8_t nas_len_pos;
-	uint16_t esm_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_InitialContextSetup;
 	s1apPDU.criticality = CRITICALITY_REJECT;
@@ -407,6 +406,10 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 #endif
 
 #ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
+	uint16_t esm_len_pos;
+    Buffer g_nas_buffer = {0};
+
 	nas_pdu_header *nas_hdr = &(erab->nas.header);
 
     g_nas_buffer.pos = 0; 

@@ -68,9 +68,7 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t initiating_msg = 0;
 	uint8_t datalen = 0;
 	uint8_t s1ap_len_pos;
-	uint8_t nas_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	Buffer g_acpt_buffer = {0};
 
@@ -133,6 +131,9 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 					sizeof(protocolIe_criticality));
 
 #ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
+	uint8_t nas_len_pos;
+
 	nas_len_pos = g_acpt_buffer.pos;
 
 	datalen = 0;
