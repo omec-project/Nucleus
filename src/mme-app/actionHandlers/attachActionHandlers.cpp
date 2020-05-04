@@ -87,7 +87,24 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	idReqMsg.enb_fd = ueCtxt_p->getEnbFd();
 	idReqMsg.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
 	idReqMsg.ue_idx = ueCtxt_p->getContextID();
+#ifdef S1AP_ENCODE_NAS
 	idReqMsg.ue_type = ID_IMSI;
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 1;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.security_header_type = Plain;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	nas.header.message_type = IdentityRequest;
+	nas.elements[0].pduElement.ue_id_type = ID_IMSI; 
+	Secinfo secContext;
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+	memcpy(&idReqMsg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	idReqMsg.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

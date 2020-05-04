@@ -178,7 +178,7 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
     /* Now lets add NAS buffer to s1ap buffer */
     buffer_copy(&g_s1ap_buffer, &g_nas_buffer.buf[0], (g_nas_buffer.pos));
 #else
-	log_msg(LOG_INFO, "Received Authrequest has nas message %d \n",g_ueEmmInfoMsg->nasMsgSize);
+	log_msg(LOG_INFO, "Received EMM information request has nas message %d \n",g_ueEmmInfoMsg->nasMsgSize);
 	datalen = g_ueEmmInfoMsg->nasMsgSize + 1; 
 	buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
 	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));

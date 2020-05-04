@@ -514,7 +514,6 @@ void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nas
             log_msg(LOG_INFO, "NAS_DETACH_ACCEPT recvd\n");
             break;
         }
-
         default:
 		{
             log_msg(LOG_ERROR, "Unknown NAS Message type- 0x%x\n", nas->header.message_type);
@@ -1075,6 +1074,41 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		    	nasBuffer->pos - mac_data_pos,
 		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
 
+			break;
+		}
+		case IdentityRequest:
+		{
+			log_msg(LOG_DEBUG, "Encoding Identity Request NAS message in mme-app\n");
+			uint8_t value = (nas->header.security_header_type) | nas->header.proto_discriminator;
+			nasBuffer->pos = 0;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			buffer_copy(nasBuffer, &(nas->elements[0].pduElement.ue_id_type), sizeof(unsigned char));
+			break;
+		}
+		case DetachAccept:
+		{
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			value = (Plain << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no, direction,
+						  	bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+
+			
 			break;
 		}
 		default:
