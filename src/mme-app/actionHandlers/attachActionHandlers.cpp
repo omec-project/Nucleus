@@ -99,7 +99,6 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	nas.header.proto_discriminator = EPSMobilityManagementMessages;
 	nas.header.message_type = IdentityRequest;
 	nas.elements[0].pduElement.ue_id_type = ID_IMSI; 
-	Secinfo secContext;
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
 	memcpy(&idReqMsg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	idReqMsg.nasMsgSize = nasBuffer.pos;
@@ -1054,7 +1053,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.linked_ti.val = 0;
 	MmeNasUtils::get_negotiated_qos_value(&nas.elements[3].pduElement.esm_msg.negotiated_qos);
 
-        /* Send the allocated GUTI to UE  */
+    /* Send the allocated GUTI to UE  */
 	nas.elements[4].pduElement.mi_guti.odd_even_indication = 0;
 	nas.elements[4].pduElement.mi_guti.id_type = 6;
 
@@ -1335,6 +1334,21 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
         attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+#ifndef S1AP_ENCODE_NAS
+		struct Buffer nasBuffer;
+		struct nasPDU nas = {0};
+		const uint8_t num_nas_elements = 1;
+		nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+		nas.elements_len = num_nas_elements;
+		nas.header.security_header_type = Plain;
+		nas.header.proto_discriminator = EPSMobilityManagementMessages;
+		nas.header.message_type = AttachReject;
+		nas.elements[0].pduElement.attach_res = 0x09;
+		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+		attach_rej.nasMsgSize = nasBuffer.pos;
+		free(nas.elements);
+#endif
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

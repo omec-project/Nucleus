@@ -843,6 +843,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case ESMInformationRequest: 
 		{
+			log_msg(LOG_DEBUG, "Encoding ESM information request NAS message in mme-app\n");
 			nasBuffer->pos = 0;
 			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
 			buffer_copy(nasBuffer, &value, sizeof(value));
@@ -868,6 +869,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case SecurityModeCommand: 
 		{
+			log_msg(LOG_DEBUG, "Encoding Security Mode Command NAS message in mme-app\n");
 			nasBuffer->pos = 0;
 			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
 			buffer_copy(nasBuffer, &value, sizeof(value));
@@ -906,6 +908,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case AttachAccept: 
 		{
+			log_msg(LOG_DEBUG, "Encoding Attach Accept NAS message in mme-app\n");
 			nasBuffer->pos = 0;
 			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
 			buffer_copy(nasBuffer, &value, sizeof(value));
@@ -1040,6 +1043,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case EMMInformation:
 		{
+			log_msg(LOG_DEBUG, "Encoding EMM informaton NAS message in mme-app\n");
     		nasBuffer->pos = 0; 
     		unsigned char nas_sec_hdr[1] = { 0x27}; 
     		buffer_copy(nasBuffer, nas_sec_hdr, 1);
@@ -1088,6 +1092,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case DetachAccept:
 		{
+			log_msg(LOG_DEBUG, "Encoding detach Accept NAS message in mme-app\n");
 			nasBuffer->pos = 0;
 			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
 			buffer_copy(nasBuffer, &value, sizeof(value));
@@ -1113,6 +1118,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 		}
 		case DetachRequest:
 		{
+			log_msg(LOG_DEBUG, "Encoding detach request NAS message in mme-app\n");
 			nasBuffer->pos = 0;
 			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
 			buffer_copy(nasBuffer, &value, sizeof(value));
@@ -1136,6 +1142,92 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
 			break;
 		}
+		case AttachReject:
+		{
+			log_msg(LOG_DEBUG, "Encoding Attach Reject NAS message in mme-app\n");
+			uint8_t value = (nas->header.security_header_type) | nas->header.proto_discriminator;
+			nasBuffer->pos = 0;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			buffer_copy(nasBuffer, &(nas->elements[0].pduElement.attach_res), sizeof(unsigned char));
+			break;
+		}
+		case ServiceReject:
+		{
+			log_msg(LOG_DEBUG, "Encoding Service Reject NAS message in mme-app\n");
+			uint8_t value = (nas->header.security_header_type) | nas->header.proto_discriminator;
+			nasBuffer->pos = 0;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+			buffer_copy(nasBuffer, &(nas->elements[0].pduElement.attach_res), sizeof(unsigned char));
+			break;
+		}
+		case TauAccept:
+		{
+			log_msg(LOG_DEBUG, "Encoding TAU Accept NAS message in mme-app\n");
+			nasBuffer->pos = 0;
+			unsigned char value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			uint8_t mac_data_pos;
+			buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+			mac_data_pos = nasBuffer->pos;
+			buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+			value = (Plain << 4 | nas->header.proto_discriminator);
+			buffer_copy(nasBuffer, &value, sizeof(value));
+			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
+
+			/* I really want to make a loop here and not manual addition  */
+
+			/* add NAS IE - eps update result */
+			value = nas->elements[0].pduElement.eps_update_result = 0;
+			buffer_copy(nasBuffer, &value, sizeof(value));
+
+			/* add t3412 timer IE - eps update result */
+			uint8_t u8value = 0x5a; 
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			u8value = 0x21; /* Per Mins TAU */ 
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+
+    		/* adding nas IE GUTI */
+			u8value = 0x50; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			uint8_t datalen = 11;
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+
+			u8value = 246; /* TODO: remove hard coding */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.mi_guti.plmn_id.idx), 3);
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.mi_guti.mme_grp_id),
+					sizeof(nas->elements[3].pduElement.mi_guti.mme_grp_id));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.mi_guti.mme_code),
+					sizeof(nas->elements[3].pduElement.mi_guti.mme_code));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.mi_guti.m_TMSI),
+					sizeof(nas->elements[3].pduElement.mi_guti.m_TMSI));
+			
+#if 0
+			/* add MS identity - MTMSI */
+			u8value = 0x23; /* element id TODO: define macro or enum */
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			datalen = 0x05;
+			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+    		u8value = 0xf4; 
+			buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+    		mtmsi = htonl(g_tauRespInfo->ue_idx); 
+			buffer_copy(nasBuffer, &(mtmsi), sizeof(mtmsi));
+#endif
+
+			/* Calculate mac */
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			calculate_mac(int_key, nas->header.seq_no, direction,
+						  	bearer, &nasBuffer->buf[mac_data_pos],
+							nasBuffer->pos - mac_data_pos,
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+			break;
+		} 
+
 		default:
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
 	}

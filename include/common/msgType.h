@@ -218,7 +218,7 @@ struct authreq_info {
     	unsigned char autn[NAS_AUTN_SIZE];
 #else
 		uint8_t 	nasMsgBuf[300]; 
-		uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+		uint8_t 	nasMsgSize; 
 #endif
 };
 
@@ -237,7 +237,7 @@ struct sec_mode_Q_msg {
     	uint32_t dl_seq_no;
 #else
 		uint8_t 	nasMsgBuf[300]; 
-		uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+		uint8_t 	nasMsgSize; 
 #endif
 };
 
@@ -255,7 +255,7 @@ struct esm_req_Q_msg {
 	unsigned short dl_seq_no;
 #else
 	uint8_t 	nasMsgBuf[300]; 
-	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+	uint8_t 	nasMsgSize; 
 #endif
 };
 
@@ -328,7 +328,7 @@ struct ni_detach_request_Q_msg {
     unsigned char detach_type;
 #else
 	uint8_t 	nasMsgBuf[300]; 
-	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+	uint8_t 	nasMsgSize; 
 #endif
 };
 #define S1AP_NI_DTCHREQUEST_BUF_SIZE sizeof(struct ni_detach_request_Q_msg)
@@ -364,6 +364,10 @@ struct commonRej_info
   int s1ap_enb_ue_id;
   int enb_fd;
   unsigned char cause;
+#ifndef S1AP_ENCODE_NAS
+  uint8_t 	nasMsgBuf[300]; 
+  uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define S1AP_REQ_REJECT_BUF_SIZE sizeof(struct commonRej_info)
@@ -378,7 +382,7 @@ struct attachIdReq_info
     unsigned char ue_type;
 #else
 	uint8_t 	nasMsgBuf[300]; 
-	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+	uint8_t 	nasMsgSize; 
 #endif
 };
 #define S1AP_ID_REQ_BUF_SIZE sizeof(struct attachIdReq_info)
@@ -389,8 +393,13 @@ struct tauResp_Q_msg {
 	int enb_fd;
 	int s1ap_enb_ue_id;
 	int status;
+#ifdef S1AP_ENCODE_NAS
 	int dl_seq_no;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 	struct TAI tai;
 	unsigned int m_tmsi;
 };
@@ -408,7 +417,7 @@ struct ue_emm_info {
 	unsigned char dl_seq_no;
 #else
 	uint8_t 	nasMsgBuf[300]; 
-	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+	uint8_t 	nasMsgSize; 
 #endif
 };
 

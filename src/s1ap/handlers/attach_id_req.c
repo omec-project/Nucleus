@@ -56,11 +56,13 @@ get_attach_id_request_protoie_value(struct proto_IE *value,struct attachIdReq_in
 	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
 			g_attachIdReqInfo->ue_idx, g_attachIdReqInfo->s1ap_enb_ue_id);
 
+#ifdef S1AP_ENCODE_NAS
 	/* TODO: Add enum for security header type */
 	value->data[2].val.nas.header.security_header_type = 0;
 	value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
 	value->data[2].val.nas.header.message_type = IdentityRequest;
 	value->data[2].val.nas.header.nas_security_param = 0;
+#endif
 
 	return SUCCESS;
 }

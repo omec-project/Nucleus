@@ -33,11 +33,14 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "mmeNasUtils.h"
+#include "mme_app.h"
 
 using namespace mme;
 using namespace SM;
 using namespace cmn::utils;
 
+extern mme_config g_mme_cfg;
 extern MmeIpcInterface* mmeIpcIf_g;
 
 /***************************************
@@ -64,15 +67,53 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	struct tauResp_Q_msg tau_resp;
 
 	tau_resp.msg_type = tau_response;
-	tau_resp.status = 0;
 	tau_resp.ue_idx = ue_ctxt->getContextID();
 	tau_resp.enb_fd = tauPrcdCtxt_p->getEnbFd();
 	tau_resp.s1ap_enb_ue_id = tauPrcdCtxt_p->getS1apEnbUeId();	
-	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+#ifdef S1AP_ENCODE_NAS
+	tau_resp.status = 0;
+	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo(); // TODOBUG : why no increment in the sequence 
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 	memcpy(&tau_resp.tai, &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));	
 	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 5;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+
+	nas.header.security_header_type = IntegrityProtectedCiphered;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	/* placeholder for mac. mac value will be calculated later */
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
+	nas.header.seq_no = ue_ctxt->getDwnLnkSeqNo();
+	ue_ctxt->setDwnLnkSeqNo(nas.header.seq_no + 1 );
+	nas.header.message_type = TauAccept;
+	nas.elements[0].pduElement.eps_update_result = 0;
+	nas.elements[1].pduElement.t3412 = 0x21;
+	//nas.elements[2].pduElement.mi_guti = 0x21;
+	//nas.elements[3].pduElement.mi_guti = 0x21; TAI LIST 
+   /* Send the allocated GUTI to UE  */
+	nas.elements[3].pduElement.mi_guti.odd_even_indication = 0;
+	nas.elements[3].pduElement.mi_guti.id_type = 6;
+
+	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
+			&(ue_ctxt->getTai().tai_m.plmn_id), sizeof(struct PLMN));
+	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
+	nas.elements[3].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+
+
+	//nas.elements[4].pduElement. MS identity  tmsi 
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&tau_resp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	tau_resp.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 	
 	cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;	

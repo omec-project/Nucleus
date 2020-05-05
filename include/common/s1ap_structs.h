@@ -483,6 +483,8 @@ typedef union nas_pdu_elements_union {
 	unsigned char spare;
     struct pco pco_opt;
 	unsigned char ue_id_type;
+	unsigned char tau_timer;
+	unsigned char eps_update_result;
 }nas_pdu_elements_union;
 
 typedef struct nas_pdu_elements {
