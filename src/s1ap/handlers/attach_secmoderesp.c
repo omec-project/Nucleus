@@ -52,6 +52,7 @@ s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies)
                 {
 	                secmode_resp.ue_idx = s1_sec_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     if(s1_sec_resp_ies->data[i].val.nas.header.message_type != NAS_SEC_MODE_COMPLETE)
@@ -63,6 +64,7 @@ s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies)
                         secmode_resp.msg_data.secmode_resp_Q_msg_m.status = SUCCESS;
                     }
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_sec_resp_ies->data[i].IE_type);
         }

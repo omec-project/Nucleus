@@ -49,11 +49,13 @@ tau_request_handler(struct proto_IE *s1_tau_req_ies, int enb_fd)
 			req.ue_idx = s1_tau_req_ies->data[i].val.mme_ue_s1ap_id;	
 		}break;
 
+#ifdef S1AP_DECODE_NAS
         case S1AP_IE_NAS_PDU:
         {
            	nas_pdu_header *hdr = &s1_tau_req_ies->data[i].val.nas.header;
            	req.msg_data.tauReq_Q_msg_m.seq_num = hdr->seq_no;
         }break;
+#endif
         default:
 			// Once MME starts handlign this request we can parse and send the content 
 			log_msg(LOG_WARNING,"Unhandled IE In tau request %d",s1_tau_req_ies->data[i].IE_type);

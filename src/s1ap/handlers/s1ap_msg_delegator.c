@@ -27,6 +27,7 @@
 
 extern ipc_handle ipc_S1ap_Hndl;
 
+#if 0
 static void
 parse_erab_pdu(char *msg,  int nas_msg_len, struct eRAB_elements *erab)
 {
@@ -59,7 +60,9 @@ parse_erab_pdu(char *msg,  int nas_msg_len, struct eRAB_elements *erab)
 	log_msg(LOG_INFO, "eRAB - Teid : %d\n", erab->elements[0].su_res.gtp_teid);
 	//ntohl ??
 }
+#endif
 
+#ifdef S1AP_DECODE_NAS
 void
 parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		unsigned short proc_code)
@@ -547,6 +550,7 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 	}
 }
 
+#endif
 
 #if 0
 int

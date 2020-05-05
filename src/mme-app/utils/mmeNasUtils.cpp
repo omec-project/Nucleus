@@ -2,39 +2,11 @@
 #include "mmeNasUtils.h"
 #include "structs.h"
 #include "f9.h"
+#include "nas_headers.h"
 
 #define NAS_SERVICE_REQUEST 0x4D
 
-void
-MmeNasUtils::get_negotiated_qos_value(struct esm_qos *qos)
-{
-	qos->delay_class = 1;
-	qos->reliability_class = 3;
-	qos->peak_throughput = 5;
-	qos->precedence_class = 2;
-	qos->mean_throughput = 31;
-	qos->traffic_class = 3;
-	qos->delivery_order = 2;
-	qos->delivery_err_sdu = 3;
-	qos->max_sdu_size = 140;
-	qos->mbr_ul = 254;
-	qos->mbr_dl = 86;
-	qos->residual_ber = 7;
-	qos->sdu_err_ratio = 6;
-	qos->transfer_delay = 18;
-	qos->trffic_prio = 3;
-	qos->gbr_ul = 86;
-	qos->gbr_dl = 86;
-	qos->sig_ind = 0;
-	qos->src_stat_desc = 0;
-	qos->mbr_dl_ext = 108;
-	qos->gbr_dl_ext = 0;
-	qos->mbr_ul_ext = 108;
-	qos->gbr_ul_ext = 0;
-
-	return;
-}
-
+#ifndef S1AP_DECODE_NAS
 static unsigned short get_length(unsigned char **msg) 
 {
     /* get length and consume msg bytes accordingly */
@@ -83,13 +55,6 @@ static void log_buffer_free(unsigned char** buffer)
     if(*buffer != NULL)
         free(*buffer);
     *buffer = NULL;
-}
-
-static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
-{
-	memcpy(buffer->buf + buffer->pos , value, size);
-	buffer->pos += size;
-	return;
 }
 
 void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
@@ -738,6 +703,46 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 	}
 	return;
 }
+#endif
+
+#ifndef S1AP_ENCODE_NAS
+void
+MmeNasUtils::get_negotiated_qos_value(struct esm_qos *qos)
+{
+	qos->delay_class = 1;
+	qos->reliability_class = 3;
+	qos->peak_throughput = 5;
+	qos->precedence_class = 2;
+	qos->mean_throughput = 31;
+	qos->traffic_class = 3;
+	qos->delivery_order = 2;
+	qos->delivery_err_sdu = 3;
+	qos->max_sdu_size = 140;
+	qos->mbr_ul = 254;
+	qos->mbr_dl = 86;
+	qos->residual_ber = 7;
+	qos->sdu_err_ratio = 6;
+	qos->transfer_delay = 18;
+	qos->trffic_prio = 3;
+	qos->gbr_ul = 86;
+	qos->gbr_dl = 86;
+	qos->sig_ind = 0;
+	qos->src_stat_desc = 0;
+	qos->mbr_dl_ext = 108;
+	qos->gbr_dl_ext = 0;
+	qos->mbr_ul_ext = 108;
+	qos->gbr_ul_ext = 0;
+
+	return;
+}
+
+static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
+{
+	memcpy(buffer->buf + buffer->pos , value, size);
+	buffer->pos += size;
+	return;
+}
+
 
 static void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
@@ -1232,3 +1237,4 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
 	}
 }
+#endif

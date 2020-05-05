@@ -30,7 +30,6 @@ int
 s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
 {
 	s1_incoming_msg_data_t ue_info = {0};
-   	int nas_index = 0;
 
 	/*****Message structure***
 	*/
@@ -64,8 +63,10 @@ s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
                     memcpy(&(ue_info.msg_data.ue_attach_info_m.utran_cgi), &(s1_init_ies->data[i].val.utran_cgi),
                            sizeof(struct CGI));
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
+   					int nas_index = 0;
                     while(nas_index < s1_init_ies->data[i].val.nas.elements_len)
                     {
                         log_msg(LOG_INFO, "nasIndex %d, msgType %d\n",
@@ -142,6 +143,7 @@ s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
                     }
 
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n", s1_init_ies->data[i].IE_type);
         }

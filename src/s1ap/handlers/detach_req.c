@@ -62,10 +62,12 @@ detach_stage1_handler(struct proto_IE *detach_ies, bool retransmit)
                 {
                     req.s1ap_enb_ue_id = detach_ies->data[i].val.enb_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
-		   req.msg_data.detachReq_Q_msg_m.ue_m_tmsi = detach_ies->data[i].val.nas.elements[0].pduElement.mi_guti.m_TMSI;
+		   			req.msg_data.detachReq_Q_msg_m.ue_m_tmsi = detach_ies->data[i].val.nas.elements[0].pduElement.mi_guti.m_TMSI;
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n", detach_ies->data[i].IE_type);
         }
