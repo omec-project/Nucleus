@@ -304,7 +304,7 @@ typedef struct nasPDU {
 	nas_pdu_header header;
 	unsigned char elements_len;
 	nas_pdu_elements *elements;
-    unsigned int flags;
+  unsigned int flags;
 	unsigned int dl_count;
 } nasPDU;
 

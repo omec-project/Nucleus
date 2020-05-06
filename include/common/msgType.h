@@ -281,7 +281,7 @@ struct esm_req_Q_msg {
 	uint8_t pti;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned short dl_seq_no;
-    uint32_t dl_count;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 
@@ -328,7 +328,7 @@ struct detach_accept_Q_msg {
 #ifdef S1AP_ENCODE_NAS
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
-    uint32_t dl_count;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
@@ -447,8 +447,8 @@ struct ue_emm_info {
 	char     short_network_name[16];
 	char     full_network_name[128];
 	uint8_t int_key[NAS_INT_KEY_SIZE];
-	unsigned short dl_seq_no;
-    uint32_t dl_count;
+	unsigned char dl_seq_no;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 

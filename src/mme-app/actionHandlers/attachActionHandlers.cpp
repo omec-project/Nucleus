@@ -367,6 +367,10 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 
+	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
+
+	SecUtils::create_integrity_key(secVect->kasme.val, secInfo.int_key);
+
 #ifdef S1AP_ENCODE_NAS
 	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
 	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);
@@ -546,11 +550,11 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 			NAS_INT_KEY_SIZE);
 
 	sec_mode_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    sec_mode_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+  sec_mode_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 
-    sec_mode_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-    sec_mode_msg.sec_alg = ue_ctxt->getUeSecInfo().getSelectSecAlg();
+  sec_mode_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+  sec_mode_msg.sec_alg = ue_ctxt->getUeSecInfo().getSelectSecAlg();
 #else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
@@ -742,7 +746,7 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 #ifdef S1AP_ENCODE_NAS 
 	esmreq.pti = sessionCtxt->getPti();
 	esmreq.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+  esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
@@ -758,11 +762,9 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	memcpy(nas.header.mac, mac, MAC_SIZE);
 	nas.header.security_header_type = IntegrityProtectedCiphered;
 	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
-
 	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
 	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
-
 	nas.header.eps_bearer_identity = 0;
 	nas.header.procedure_trans_identity = sessionCtxt->getPti();
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
@@ -1047,9 +1049,10 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	memcpy(&(icr_msg.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
 	icr_msg.pti = sessionCtxt->getPti();
-    icr_msg.m_tmsi = ue_ctxt->getMTmsi();
+
+  icr_msg.m_tmsi = ue_ctxt->getMTmsi();
 	icr_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+  icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
 	if(procedure_p->getPcoOptionsLen() > 0)
@@ -1282,6 +1285,7 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_fd = ue_ctxt->getEnbFd();
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
+
 #ifdef S1AP_ENCODE_NAS
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
@@ -1291,9 +1295,10 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	strcpy(temp.full_network_name, "Aether");
     	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
     	NAS_INT_KEY_SIZE);
-        temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-        temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-        ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+      temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+      temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+      ue_ctxt->getUeSecInfo().increment_downlink_count();
 #else
 		struct Buffer nasBuffer;
 		struct nasPDU nas = {0};
