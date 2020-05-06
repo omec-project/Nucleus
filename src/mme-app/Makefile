@@ -35,19 +35,20 @@ LIBS :=	-lpthread \
         -lcrypto \
         -lcmnUtils \
         -ldatagroupmgr \
-	-ljson \
+		-ljson \
         -llog \
         -linterface \
         -lipcfwk \
-	-lmonitor_config \
-	-lusock \
-	-lthreadpool \
+		-lmonitor_config \
+		-lusock \
+		-lthreadpool \
         -lstatemachinefwk \
-	-lmmeGrpcProtoBuf \
-	-lgrpc++ \
+		-lmmeGrpcProtoBuf \
+		-lgrpc++ \
         -lgrpc \
         -lgpr \
         -lprotobuf \
+		-lsecutil
 
 SRCDIR := .
 SRCEXT := cpp

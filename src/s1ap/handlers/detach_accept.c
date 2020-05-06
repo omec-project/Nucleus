@@ -37,6 +37,7 @@ get_detach_accept_protoie_value(struct proto_IE *value, struct detach_accept_Q_m
 	value->data[ieCnt].val.enb_ue_s1ap_id = g_acptReqInfo->enb_s1ap_ue_id;
 	ieCnt++;
 
+#ifdef S1AP_ENCODE_NAS
 	struct nasPDU *nas = &(value->data[ieCnt].val.nas);
 	nas->header.security_header_type = IntegrityProtectedCiphered;
 	nas->header.proto_discriminator = EPSMobilityManagementMessages;
@@ -49,6 +50,7 @@ get_detach_accept_protoie_value(struct proto_IE *value, struct detach_accept_Q_m
 	nas->header.message_type = DetachAccept;
 
 	ieCnt++;
+#endif
 
 	return SUCCESS;
 }
@@ -66,9 +68,7 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t initiating_msg = 0;
 	uint8_t datalen = 0;
 	uint8_t s1ap_len_pos;
-	uint8_t nas_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	Buffer g_acpt_buffer = {0};
 
@@ -130,6 +130,10 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
+#ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
+	uint8_t nas_len_pos;
+
 	nas_len_pos = g_acpt_buffer.pos;
 
 	datalen = 0;
@@ -185,6 +189,13 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	/* Copy length to s1ap length field */
 	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
+#else
+	log_msg(LOG_INFO, "Received detach accept message  - encoded nas message size %d \n",g_acptReqInfo->nasMsgSize);
+	datalen = g_acptReqInfo->nasMsgSize + 1; 
+	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
+	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
+	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+#endif
 
 	/* TODO: temp fix */
 	//g_ics_buffer.buf[1] = 0x09;

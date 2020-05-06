@@ -71,7 +71,6 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 	
     Buffer g_buffer = {0};
     Buffer g_s1ap_buffer = {0};
-    Buffer g_nas_buffer = {0};
 
     struct s1ap_PDU s1apPDU = {0};
     
@@ -132,6 +131,9 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
     buffer_copy(&g_s1ap_buffer, &protocolIe_criticality,
 		    sizeof(protocolIe_criticality));
 
+
+#ifdef S1AP_ENCODE_NAS
+    Buffer g_nas_buffer = {0};
     g_nas_buffer.pos = 0; 
 
     unsigned char nas_sec_hdr[1] = { 0x27}; 
@@ -175,6 +177,14 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 
     /* Now lets add NAS buffer to s1ap buffer */
     buffer_copy(&g_s1ap_buffer, &g_nas_buffer.buf[0], (g_nas_buffer.pos));
+#else
+	log_msg(LOG_INFO, "Received EMM information request has nas message %d \n",g_ueEmmInfoMsg->nasMsgSize);
+	datalen = g_ueEmmInfoMsg->nasMsgSize + 1; 
+	buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
+	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));
+	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgBuf[0], g_ueEmmInfoMsg->nasMsgSize);
+
+#endif
 
     /* adding length of s1ap message before adding s1ap message */
 	uint8_t s1applen = g_s1ap_buffer.pos;

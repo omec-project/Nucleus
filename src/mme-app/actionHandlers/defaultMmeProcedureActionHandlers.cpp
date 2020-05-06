@@ -71,7 +71,9 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
+	/* Lets see what NAS message has */
 	const struct ue_attach_info &ue_info = (msgData_p->msg_data.ue_attach_info_m);
+	
 
 	AttachType attachType = MmeCommonUtils::getAttachType(ueCtxt_p, ue_info);
 	if (attachType == maxAttachType_c)
