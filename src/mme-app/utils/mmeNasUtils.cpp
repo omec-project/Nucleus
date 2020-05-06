@@ -3,9 +3,14 @@
 #include "structs.h"
 #include "f9.h"
 #include "nas_headers.h"
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
+#include <openssl/cmac.h>
 
 #define NAS_SERVICE_REQUEST 0x4D
-
+#define AES_128_KEY_SIZE 16
 #ifndef S1AP_DECODE_NAS
 static unsigned short get_length(unsigned char **msg) 
 {
@@ -743,6 +748,87 @@ static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
 	return;
 }
 
+void printBytes(unsigned char *buf, size_t len) {
+  for(unsigned int i=0; i<len; i++) {
+    log_msg(LOG_DEBUG,"%02x \n", buf[i]);
+  }
+  log_msg(LOG_DEBUG,"\n");
+}
+
+static void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac)
+{
+  unsigned char mact[16] = {0};
+  EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
+  const char cipher[] = "AES-128-CBC";
+  EVP_MAC_CTX *ctx = NULL;
+
+  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
+  log_msg(LOG_DEBUG,"nas data \n");
+  printBytes(data, data_len);
+  OSSL_PARAM params[3];
+  size_t params_n = 0;
+  size_t mactlen = 0;
+  unsigned char* message = (unsigned char*)calloc(data_len+8, sizeof(uint8_t));
+  uint32_t msg_len = 0;
+  if(message == NULL)
+  {
+      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
+      return;
+  }
+  else
+  {
+      uint32_t local_count = htonl(count);
+      msg_len = data_len + 8;
+      memcpy (&message[0], &local_count, 4);
+      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
+      memcpy(&message[8], data, data_len);
+  }
+
+  log_msg(LOG_DEBUG,"cipher %s %d\n",cipher, strlen(cipher));
+  printBytes(int_key, AES_128_KEY_SIZE);
+  log_msg(LOG_DEBUG,"key  %d\n", strlen((const char*)int_key));
+  params[params_n++] =
+      OSSL_PARAM_construct_utf8_string("cipher", (char*)cipher, strlen(cipher));
+  params[params_n++] =
+      OSSL_PARAM_construct_octet_string("key", int_key, AES_128_KEY_SIZE);
+  params[params_n] = OSSL_PARAM_construct_end();
+
+  ctx = EVP_MAC_CTX_new(mac_evp);
+  if(ctx==NULL)
+  {
+      log_msg(LOG_ERROR,"ctx null\n");
+      return;
+  }
+
+  if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
+  {
+      log_msg(LOG_ERROR,"set params fail\n");
+      return;
+  }
+
+  if(!EVP_MAC_init(ctx))
+  {
+      log_msg(LOG_ERROR,"init fail");
+      return;
+  }
+
+  printBytes(message, msg_len);
+  EVP_MAC_update(ctx, message, msg_len);
+  log_msg(LOG_DEBUG,"message length = %lu bytes (%lu bits)\n", 
+                strlen((const char*)message), strlen((const char*)message)*8);
+  EVP_MAC_final(ctx, mact, &mactlen, msg_len);
+  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
+
+  printBytes(mact, mactlen);
+  /* expected result T = 070a16b4 6b4d4144 f79bdd9d d04a287c */
+
+  EVP_MAC_CTX_free(ctx);
+  memcpy(mac, mact, MAC_SIZE);
+  return;
+}
 
 static void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
@@ -865,7 +951,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count, direction,
+			calculate_aes_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -904,7 +990,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count,
+			calculate_aes_mac(int_key, nas->dl_count,
 							direction, bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1039,7 +1125,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count, direction,
+			calculate_aes_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1078,7 +1164,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
     		uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-    		calculate_mac(int_key, nas->dl_count, direction,
+    		calculate_aes_mac(int_key, nas->dl_count, direction,
 		    	bearer, &nasBuffer->buf[mac_data_pos],
 		    	nasBuffer->pos - mac_data_pos,
 		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1113,7 +1199,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count, direction,
+			calculate_aes_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1141,7 +1227,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count, direction,
+			calculate_aes_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1226,7 +1312,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->dl_count, direction,
+			calculate_aes_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);

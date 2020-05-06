@@ -367,10 +367,6 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 
-	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
-
-	SecUtils::create_integrity_key(secVect->kasme.val, secInfo.int_key);
-
 #ifdef S1AP_ENCODE_NAS
 	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
 	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);

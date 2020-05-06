@@ -50,11 +50,6 @@ GRPC_ROOT=/tmp/grpc
 # NAS message 
 #CFLAGS += -DS1AP_ENCODE_NAS
 
-# to enable NAS message decoding at the S1AP enable following commented line, 
-#this will cause s1ap container to decoee NAS message and forward the decoded
-#messasge content to mme-app
-#CFLAGS += -DS1AP_DECODE_NAS
-
 CFLAGS += -D_FORTIFY_SOURCE=2 -fasynchronous-unwind-tables -fexceptions
 CFLAGS += -fstack-protector-all -fstack-protector-strong -Wall
 CFLAGS += -Werror=format-security -Werror=implicit-function-declaration

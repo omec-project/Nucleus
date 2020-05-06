@@ -601,7 +601,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_mac(g_icsReqInfo->int_key, g_icsReqInfo->dl_count,
+	calculate_aes_mac(g_icsReqInfo->int_key, g_icsReqInfo->dl_count,
 			direction, bearer, &g_nas_buffer.buf[mac_data_pos],
 			g_nas_buffer.pos - mac_data_pos,
 			&g_nas_buffer.buf[mac_data_pos - MAC_SIZE]);

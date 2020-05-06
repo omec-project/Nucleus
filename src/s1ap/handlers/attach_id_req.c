@@ -152,11 +152,11 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, tmpStr,
 						sizeof(protocolIe_Id));
 
-#ifdef S1AP_ENCODE_NAS
 	struct Buffer g_nas_buffer = {0};
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
+#ifdef S1AP_ENCODE_NAS
 	struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
 	uint8_t value = (nas->header.security_header_type) |
 			nas->header.proto_discriminator;
@@ -183,7 +183,7 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &g_nas_buffer,
 						g_nas_buffer.pos);
 #else
-	log_msg(LOG_INFO, "Received Authrequest has nas message %d \n",g_attachIdReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received Id Req has nas message %d \n",g_attachIdReqInfo->nasMsgSize);
 	datalen = g_attachIdReqInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_value_buffer, &datalen,

@@ -31,6 +31,11 @@
 #include "err_codes.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
+#include <openssl/cmac.h>
 
 /*Global and externs **/
 extern s1ap_config g_s1ap_cfg;
@@ -61,7 +66,7 @@ handle_mmeapp_message(void * data);
 
 #define MAX_ENB     10
 #define BUFFER_LEN  1024
-
+#define AES_128_KEY_SIZE 16
 /**
  * @brief Decode int value from the byte array received in the s1ap incoming
  * packet.
@@ -169,6 +174,88 @@ calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 	memcpy(mac, out, MAC_SIZE);
 
 	return;
+}
+
+void printBytes(unsigned char *buf, size_t len) {
+  for(int i=0; i<len; i++) {
+    log_msg(LOG_DEBUG,"%02x \n", buf[i]);
+  }
+  log_msg(LOG_DEBUG,"\n");
+}
+
+void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac)
+{
+  unsigned char mact[16] = {0};
+  EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
+  const char cipher[] = "AES-128-CBC";
+  EVP_MAC_CTX *ctx = NULL;
+
+  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
+  log_msg(LOG_DEBUG,"nas data \n");
+  printBytes(data, data_len);
+  OSSL_PARAM params[3];
+  size_t params_n = 0;
+  size_t mactlen = 0;
+  unsigned char* message = calloc(data_len+8, sizeof(uint8_t));
+  uint32_t msg_len = 0;
+  if(message == NULL)
+  {
+      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
+      return;
+  }
+  else
+  {
+      uint32_t local_count = htonl(count);
+      msg_len = data_len + 8;
+      memcpy (&message[0], &local_count, 4);
+      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
+      memcpy(&message[8], data, data_len);
+  }
+
+  log_msg(LOG_DEBUG,"cipher %s %d\n",cipher, strlen(cipher));
+  printBytes(int_key, AES_128_KEY_SIZE);
+  log_msg(LOG_DEBUG,"key  %d\n", strlen(int_key));
+  params[params_n++] =
+      OSSL_PARAM_construct_utf8_string("cipher", cipher, strlen(cipher));
+  params[params_n++] =
+      OSSL_PARAM_construct_octet_string("key", int_key, AES_128_KEY_SIZE);
+  params[params_n] = OSSL_PARAM_construct_end();
+
+  ctx = EVP_MAC_CTX_new(mac_evp);
+  if(ctx==NULL)
+  {
+      log_msg(LOG_ERROR,"ctx null\n");
+      return;
+  }
+
+  if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
+  {
+      log_msg(LOG_ERROR,"set params fail\n");
+      return;
+  }
+
+  if(!EVP_MAC_init(ctx))
+  {
+      log_msg(LOG_ERROR,"init fail");
+      return;
+  }
+
+  printBytes(message, msg_len);
+  EVP_MAC_update(ctx, message, msg_len);
+  log_msg(LOG_DEBUG,"message length = %lu bytes (%lu bits)\n", 
+                strlen((const char*)message), strlen((const char*)message)*8);
+  EVP_MAC_final(ctx, mact, &mactlen, msg_len);
+  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
+
+  printBytes(mact, mactlen);
+  /* expected result T = 070a16b4 6b4d4144 f79bdd9d d04a287c */
+
+  EVP_MAC_CTX_free(ctx);
+  memcpy(mac, mact, MAC_SIZE);
+  return;
 }
 
 int

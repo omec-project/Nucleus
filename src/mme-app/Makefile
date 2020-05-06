@@ -32,7 +32,6 @@ endif
 LIB_PATH +=-L../common/ 
 
 LIBS :=	-lpthread \
-        -lcrypto \
         -lcmnUtils \
         -ldatagroupmgr \
 		-ljson \
@@ -50,6 +49,7 @@ LIBS :=	-lpthread \
         -lprotobuf \
 		-lsecutil
 
+LIBS += -L/usr/local/bin/ -L/usr/local/lib -lcrypto
 SRCDIR := .
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')

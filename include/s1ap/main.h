@@ -85,8 +85,14 @@ void
 void
 *ics_req_paging_handler(void *);
 
+void printBytes(unsigned char *buf, size_t len);
 void
 calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac);
+
+void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 		uint8_t bearer, uint8_t *data, uint16_t data_len,
 		uint8_t *mac);
 

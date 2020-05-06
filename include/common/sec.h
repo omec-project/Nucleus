@@ -65,11 +65,11 @@ void create_integrity_key(uint8_t int_alg,
  * @brief Create ciphering key
  * @param[in] kasme key
  * @param[in] sec_alg Ciphering Algorithm Id
- * @param[out] int_key generated ciphering key
+ * @param[out] sec_key generated ciphering key
  * @return void
  */
-void create_integrity_key(uint8_t int_alg,
-                          unsigned char *kasme, unsigned char *int_key);
+void create_ciphering_key(uint8_t sec_alg,
+                          unsigned char *kasme, unsigned char *sec_key);
 
 /**
  * @brief Create eNodeB key to exchange in init ctx message
