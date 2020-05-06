@@ -23,6 +23,7 @@
 #include <contextManager/subsDataGroupManager.h>
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
+#include "mmeNasUtils.h"
 
 using namespace SM;
 using namespace mme;
@@ -60,6 +61,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	    	delete eMsg;
 	    	return;
 	}
+    log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_data_t))
 	{
             	log_msg(LOG_INFO, "Not enough bytes in s1 ipc message \n");
@@ -68,8 +70,19 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	    	return;
 	}
 
-	const s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
+	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
 
+#ifndef S1AP_DECODE_NAS
+	struct nasPDU nas={0};
+	/* Below function should take care of decryption and integrity check */
+	/* Get the control block and pass it to below function */
+	if(msgData_p->msg_type == raw_nas_msg)
+	{
+		s1apMsg_plus_raw_nas *nasMsg = &msgData_p->msg_data.rawMsg;
+		MmeNasUtils::parse_nas_pdu(nasMsg->nasMsgBuf, nasMsg->nasMsgSize, &nas);
+		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
+	}
+#endif
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{

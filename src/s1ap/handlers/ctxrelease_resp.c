@@ -27,9 +27,9 @@
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
-s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg)
+s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg) /* TODO : nobody is calling this ??*/
 {
-	struct s1_incoming_msg_data_t release_complete= {0};
+	s1_incoming_msg_data_t release_complete= {0};
 	struct proto_IE s1_ctx_release_ies;
 
 	log_msg(LOG_INFO, "Parse s1ap context release complete message:--\n");
