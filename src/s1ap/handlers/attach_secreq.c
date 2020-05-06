@@ -51,9 +51,9 @@ get_secreq_protoie_value(struct proto_IE *value, struct sec_mode_Q_msg * g_secRe
 
 	value->data[2].val.nas.header.message_type = SecurityModeCommand;
 
-	value->data[2].val.nas.header.security_encryption_algo = Algo_EEA0;
+	value->data[2].val.nas.header.security_encryption_algo = g_secReqInfo->sec_alg;
 
-	value->data[2].val.nas.header.security_integrity_algo = Algo_128EIA1;
+	value->data[2].val.nas.header.security_integrity_algo = g_secReqInfo->int_alg;
 
 	/* Security Param (1 octet) =
 	 * Spare half octet, Type of Security, NAS KSI
@@ -182,7 +182,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_mac(g_secReqInfo->int_key, nas.header.seq_no,
+	calculate_mac(g_secReqInfo->int_key, g_secReqInfo->dl_count,
 			direction, bearer, &g_sec_nas_buffer.buf[mac_data_pos],
 			g_sec_nas_buffer.pos - mac_data_pos,
 			&g_sec_nas_buffer.buf[mac_data_pos - MAC_SIZE]);

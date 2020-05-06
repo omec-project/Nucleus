@@ -273,12 +273,9 @@ typedef union nas_pdu_elements_union {
 	enum drx_params drx;
 	struct MS_net_capab ms_network;
 	struct UE_net_capab ue_network;
-
 	struct XRES   auth_resp; /*Authentication response*/
 	struct AUTS   auth_fail_resp; /*Authentication response*/
-
 	struct apn_name apn;
-
 	unsigned char attach_res;
 	unsigned char t3412;
 	tai_list tailist;
@@ -307,7 +304,8 @@ typedef struct nasPDU {
 	nas_pdu_header header;
 	unsigned char elements_len;
 	nas_pdu_elements *elements;
-    unsigned int flags;
+  unsigned int flags;
+	unsigned int dl_count;
 } nasPDU;
 
 

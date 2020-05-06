@@ -72,7 +72,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.s1ap_enb_ue_id = tauPrcdCtxt_p->getS1apEnbUeId();	
 #ifdef S1AP_ENCODE_NAS
 	tau_resp.status = 0;
-	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo(); // TODOBUG : why no increment in the sequence 
+	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+  tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 	memcpy(&tau_resp.tai, &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));	
@@ -89,9 +91,10 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	/* placeholder for mac. mac value will be calculated later */
 	uint8_t mac[MAC_SIZE] = {0};
 	memcpy(nas.header.mac, mac, MAC_SIZE);
-	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
-	nas.header.seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->setDwnLnkSeqNo(nas.header.seq_no + 1 );
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
 	nas.header.message_type = TauAccept;
 	nas.elements[0].pduElement.eps_update_result = 0;
 	nas.elements[1].pduElement.t3412 = 0x21;

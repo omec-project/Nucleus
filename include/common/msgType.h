@@ -24,12 +24,37 @@ extern "C"{
 #include "common_proc_info.h"
 #include "err_codes.h"
 #include "s11_structs.h"
+//#include "structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
 
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
+
+typedef enum nas_ciph_algo
+{
+    NAS_CIPH_ALGORITHMS_EEA0=0,
+    NAS_CIPH_ALGORITHMS_EEA1,
+    NAS_CIPH_ALGORITHMS_EEA2,
+    NAS_CIPH_ALGORITHMS_EEA3,
+    NAS_CIPH_ALGORITHMS_EEA4,
+    NAS_CIPH_ALGORITHMS_EEA5,
+    NAS_CIPH_ALGORITHMS_EEA6,
+    NAS_CIPH_ALGORITHMS_EEA7,
+}nas_ciph_algo_enum;
+
+typedef enum nas_int_algo
+{
+    NAS_INT_ALGORITHMS_EIA0=0,
+    NAS_INT_ALGORITHMS_EIA1,
+    NAS_INT_ALGORITHMS_EIA2,
+    NAS_INT_ALGORITHMS_EIA3,
+    NAS_INT_ALGORITHMS_EIA4,
+    NAS_INT_ALGORITHMS_EIA5,
+    NAS_INT_ALGORITHMS_EIA6,
+    NAS_INT_ALGORITHMS_EIA7,
+}nas_int_algo_enum;
 
 typedef enum msg_data_t
 {
@@ -235,6 +260,9 @@ struct sec_mode_Q_msg {
     	struct KASME key;
     	uint8_t int_key[NAS_INT_KEY_SIZE];
     	uint32_t dl_seq_no;
+    	uint32_t dl_count;
+        nas_int_algo_enum int_alg;
+        nas_ciph_algo_enum sec_alg;
 #else
 		uint8_t 	nasMsgBuf[300]; 
 		uint8_t 	nasMsgSize; 
@@ -253,6 +281,7 @@ struct esm_req_Q_msg {
 	uint8_t pti;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned short dl_seq_no;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 
@@ -278,6 +307,7 @@ struct init_ctx_req_Q_msg {
 	struct PAA pdn_addr;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
+	uint32_t dl_count;
 	unsigned char pti;
 	unsigned int m_tmsi;
 	uint16_t pco_length;
@@ -298,6 +328,7 @@ struct detach_accept_Q_msg {
 #ifdef S1AP_ENCODE_NAS
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
@@ -325,6 +356,7 @@ struct ni_detach_request_Q_msg {
 #ifdef S1AP_ENCODE_NAS
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint16_t dl_seq_no;
+    uint32_t dl_count;
     unsigned char detach_type;
 #else
 	uint8_t 	nasMsgBuf[300]; 
@@ -395,6 +427,7 @@ struct tauResp_Q_msg {
 	int status;
 #ifdef S1AP_ENCODE_NAS
 	int dl_seq_no;
+	uint32_t dl_count;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 #else
 	uint8_t 	nasMsgBuf[300]; 
@@ -415,6 +448,7 @@ struct ue_emm_info {
 	char     full_network_name[128];
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned char dl_seq_no;
+  uint32_t dl_count;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 

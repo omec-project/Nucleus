@@ -202,38 +202,6 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets dwnLnkSeqNo
-	******************************************************************************/
-	void UEContext::setDwnLnkSeqNo( unsigned short dwnLnkSeqNo_i )
-	{
-		dwnLnkSeqNo_m = dwnLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns dwnLnkSeqNo
-	******************************************************************************/	
-	unsigned short UEContext::getDwnLnkSeqNo() const
-	{
-		return dwnLnkSeqNo_m;
-	}
-	
-	/******************************************************************************
-	* sets upLnkSeqNo
-	******************************************************************************/
-	void UEContext::setUpLnkSeqNo( unsigned short upLnkSeqNo_i )
-	{
-		upLnkSeqNo_m = upLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns upLnkSeqNo
-	******************************************************************************/	
-	unsigned short UEContext::getUpLnkSeqNo() const
-	{
-		return upLnkSeqNo_m;
-	}
-	
-	/******************************************************************************
 	* sets ueState
 	******************************************************************************/
 	void UEContext::setUeState( UE_State_e ueState_i )
@@ -316,7 +284,7 @@ namespace mme
 	/******************************************************************************
 	* sets ueSecInfo
 	******************************************************************************/
-	void UEContext::setUeSecInfo( const Secinfo& ueSecInfo_i )
+	void UEContext::setUeSecInfo( Secinfo& ueSecInfo_i )
 	{
 		ueSecInfo_m = ueSecInfo_i;
 	}
@@ -324,7 +292,7 @@ namespace mme
 	/******************************************************************************
 	* returns ueSecInfo
 	******************************************************************************/	
-	const Secinfo& UEContext::getUeSecInfo() const
+	Secinfo& UEContext::getUeSecInfo() 
 	{
 		return ueSecInfo_m;
 	}

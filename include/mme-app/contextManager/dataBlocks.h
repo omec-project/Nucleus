@@ -165,30 +165,6 @@ namespace mme
 			const DigitRegister15& getMsisdn()const;				
 			
 			/****************************************
-			* setDwnLnkSeqNo
-			*    set dwnLnkSeqNo to UEContext
-			****************************************/
-			void setDwnLnkSeqNo(unsigned short dwnLnkSeqNo_i);
-			
-			/****************************************
-			* getDwnLnkSeqNo
-			*    get dwnLnkSeqNo from UEContext
-			****************************************/
-			unsigned short getDwnLnkSeqNo()const;				
-			
-			/****************************************
-			* setUpLnkSeqNo
-			*    set upLnkSeqNo to UEContext
-			****************************************/
-			void setUpLnkSeqNo(unsigned short upLnkSeqNo_i);
-			
-			/****************************************
-			* getUpLnkSeqNo
-			*    get upLnkSeqNo from UEContext
-			****************************************/
-			unsigned short getUpLnkSeqNo()const;				
-			
-			/****************************************
 			* setUeState
 			*    set ueState to UEContext
 			****************************************/
@@ -252,13 +228,13 @@ namespace mme
 			* setUeSecInfo
 			*    set ueSecInfo to UEContext
 			****************************************/
-			void setUeSecInfo(const Secinfo& ueSecInfo_i);
+			void setUeSecInfo(Secinfo& ueSecInfo_i);
 			
 			/****************************************
 			* getUeSecInfo
 			*    get ueSecInfo from UEContext
 			****************************************/
-			const Secinfo& getUeSecInfo()const;				
+			Secinfo& getUeSecInfo();
 			
 			/****************************************
 			* setAmbr

@@ -242,6 +242,10 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		log_msg(LOG_INFO, "NAS_SEC_MODE_COMPLETE recvd\n");
 		break;
 
+	case NAS_SEC_MODE_REJECT:
+		log_msg(LOG_INFO, "NAS_SEC_MODE_REJECT recvd\n");
+		break;
+
 	case NAS_AUTH_RESP:
 		log_msg(LOG_INFO, "NAS_AUTH_RESP recvd\n");
 		nas->elements_len = 1;
@@ -964,6 +968,7 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		break;
 
 	case NAS_SEC_MODE_COMPLETE:
+	case NAS_SEC_MODE_REJECT:
 		s1_secmode_resp_handler(&proto_ies);
 		break;
 

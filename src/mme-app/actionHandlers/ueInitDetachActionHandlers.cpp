@@ -48,7 +48,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	ue_ctxt->getUeSecInfo().increment_uplink_count();
 	
 	struct DS_Q_msg g_ds_msg;
 	g_ds_msg.msg_type = delete_session_request;
@@ -177,9 +177,9 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	detach_accpt.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 	
 #ifdef S1AP_ENCODE_NAS
-	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
-	detach_accpt.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	
+	detach_accpt.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+  detach_accpt.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(detach_accpt.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
 #else
 	struct Buffer nasBuffer;
@@ -188,8 +188,10 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	nas.header.proto_discriminator = EPSMobilityManagementMessages;
 	uint8_t mac[MAC_SIZE] = {0};
 	memcpy(nas.header.mac, mac, MAC_SIZE);
-	nas.header.seq_no = ue_ctxt->getDwnLnkSeqNo(); 
-	ue_ctxt->setDwnLnkSeqNo(nas.header.seq_no+1);
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
 	nas.header.message_type = DetachAccept;
 	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
 

@@ -28,6 +28,7 @@
 
 namespace mme
 {
+    class UEContext;
     class ActionHandlers
     {
 
@@ -246,7 +247,11 @@ namespace mme
         * Action handler : send_auth_reject
         ***********************************************/
         static SM::ActStatus send_auth_reject(SM::ControlBlock& cb);                
-
+        /**********************************************
+        * Action handler : select_sec_alg
+        ***********************************************/
+        static SM::ActStatus select_sec_alg(UEContext *ue_ctxt);
+        
         /**********************************************
         * Action handler : send_ddn_ack_to_sgw
         ***********************************************/

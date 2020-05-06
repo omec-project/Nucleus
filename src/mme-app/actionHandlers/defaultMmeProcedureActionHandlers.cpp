@@ -134,7 +134,6 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	ueCtxt_p->setUtranCgi(Cgi(ue_info.utran_cgi));
 	ueCtxt_p->setUeNetCapab(Ue_net_capab(ue_info.ue_net_capab));
 	ueCtxt_p->setMsNetCapab(Ms_net_capab(ue_info.ms_net_capab));
-	ueCtxt_p->setDwnLnkSeqNo(ue_info.seq_no);
 	prcdCtxt_p->setPti(ue_info.pti);
 	prcdCtxt_p->setPcoOptions(ue_info.pco_options, ue_info.pco_length);
 	prcdCtxt_p->setEsmInfoTxRequired(ue_info.esm_info_tx_required);

@@ -865,7 +865,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no, direction,
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -904,7 +904,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no,
+			calculate_mac(int_key, nas->dl_count,
 							direction, bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1039,7 +1039,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no, direction,
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1078,7 +1078,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
     		uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-    		calculate_mac(int_key, nas->header.seq_no, direction,
+    		calculate_mac(int_key, nas->dl_count, direction,
 		    	bearer, &nasBuffer->buf[mac_data_pos],
 		    	nasBuffer->pos - mac_data_pos,
 		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1113,7 +1113,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no, direction,
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1141,7 +1141,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no, direction,
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
@@ -1226,7 +1226,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_mac(int_key, nas->header.seq_no, direction,
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
