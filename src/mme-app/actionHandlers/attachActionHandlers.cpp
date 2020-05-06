@@ -564,8 +564,8 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 
-	nas.header.security_encryption_algo = Algo_EEA0;
-	nas.header.security_integrity_algo = Algo_128EIA1;
+	nas.header.security_encryption_algo = ue_ctxt->getUeSecInfo().getSelectSecAlg();
+	nas.header.security_integrity_algo = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
 	const uint8_t num_nas_elements = SEC_MODE_NO_OF_NAS_IES;
 	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
@@ -950,6 +950,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	}
 
 	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
+	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info.pco_options,csr_info.pco_length);
 	
 	sessionCtxt->setS11SgwCtrlFteid(Fteid(csr_info.s11_sgw_fteid));
 	sessionCtxt->setS5S8PgwCtrlFteid(Fteid(csr_info.s5s8_pgwc_fteid));
@@ -1090,7 +1091,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
 	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
 
-	nas.elements[3].pduElement.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
+	log_msg(LOG_DEBUG, "PCO length %d\n", procedure_p->getPcoOptionsLen());
+	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
 	memcpy(nas.elements[3].pduElement.esm_msg.pco_opt.pco_options, procedure_p->getPcoOptions(), nas.elements[3].pduElement.pco_opt.pco_length);
 
 	nas.elements[3].pduElement.esm_msg.pdn_addr.type = 1;
