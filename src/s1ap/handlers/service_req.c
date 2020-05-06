@@ -104,7 +104,7 @@ s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
                     }
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n", service_req_ies->data[i].IE_type);
         }
     }
 

@@ -60,7 +60,7 @@ static int
 detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 {
 	unsigned char tmpStr[4];
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
 	uint16_t protocolIe_Id;
 	uint8_t protocolIe_criticality = CRITICALITY_REJECT;
 	uint8_t initiating_msg = 0;
@@ -70,7 +70,7 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t u8value = 0;
 	uint8_t mac_data_pos;
 
-	Buffer g_acpt_buffer;
+	Buffer g_acpt_buffer = {0};
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;

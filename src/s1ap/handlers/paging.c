@@ -45,7 +45,7 @@ paging_processing(struct paging_req_Q_msg *g_paging)
     	uint8_t *buffer = NULL;
 	
 	Buffer g_paging_buffer = {0};
-	struct s1ap_common_req_Q_msg req= {0};
+	struct s1ap_common_req_Q_msg req = {0};
 
 	req.IE_type = S1AP_PAGING_REQ;
         req.enb_fd = g_paging->enb_fd;

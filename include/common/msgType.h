@@ -437,13 +437,13 @@ struct CS_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	unsigned char IMSI[BINARY_IMSI_LEN];
-	struct apn_name apn;
 	struct apn_name selected_apn;
 	struct TAI tai;
 	struct CGI utran_cgi;
 	unsigned char MSISDN[MSISDN_STR_LEN];
 	unsigned int max_requested_bw_dl;
 	unsigned int max_requested_bw_ul;
+	unsigned int  paa_v4_addr;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
@@ -592,6 +592,7 @@ struct ula_Q_msg {
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];
     struct apn_name selected_apn;
+    uint32_t static_addr;
 };
 
 struct purge_resp_Q_msg {

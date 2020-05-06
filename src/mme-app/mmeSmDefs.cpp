@@ -50,6 +50,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(INIT_CTXT_RESP_FROM_UE,"INIT_CTXT_RESP_FROM_UE");      
     smUtil->addEventToStrEntry(INTRA_S1HO_START,"INTRA_S1HO_START");      
     smUtil->addEventToStrEntry(MB_RESP_FROM_SGW,"MB_RESP_FROM_SGW");      
+    smUtil->addEventToStrEntry(PURGE_RESP_FROM_HSS,"PURGE_RESP_FROM_HSS");      
     smUtil->addEventToStrEntry(REL_AB_RESP_FROM_SGW,"REL_AB_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(S1_REL_REQ_FROM_UE,"S1_REL_REQ_FROM_UE");      
     smUtil->addEventToStrEntry(SEC_MODE_RESP_FROM_UE,"SEC_MODE_RESP_FROM_UE");      
@@ -84,6 +85,8 @@ void populateStateStringMap()
     smUtil->addStateToStrEntry(default_mme_state,"default_mme_state");
     smUtil->addStateToStrEntry(detach_start,"detach_start");
     smUtil->addStateToStrEntry(detach_wf_del_session_resp,"detach_wf_del_session_resp");
+    smUtil->addStateToStrEntry(detach_wf_purge_resp,"detach_wf_purge_resp");
+    smUtil->addStateToStrEntry(detach_wf_purge_resp_del_session_resp,"detach_wf_purge_resp_del_session_resp");
     smUtil->addStateToStrEntry(intra_s1_ho_start,"intra_s1_ho_start");
     smUtil->addStateToStrEntry(ni_detach_start,"ni_detach_start");
     smUtil->addStateToStrEntry(ni_detach_wf_del_sess_resp,"ni_detach_wf_del_sess_resp");

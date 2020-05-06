@@ -183,7 +183,12 @@ parse_ula_subscription_data(struct avp *avp_ptr, struct ula_Q_msg *ula)
 							ula->selected_apn.len =
 									apn_cfg_element->avp_value->os.len+1;
 						}
-
+						if (848 == apn_cfg_element->avp_code && ula->static_addr == 0){
+							struct sockaddr_in  temp;
+							int result = fd_dictfct_Address_interpret(apn_cfg_element->avp_value, &temp);
+							log_msg(LOG_INFO, "Served IP address found %d %s \n", result, inet_ntoa(temp.sin_addr)); 
+							ula->static_addr = temp.sin_addr.s_addr; // network order
+						} 
 						apn_cfg_prof_itr = apn_cfg_itr;
 
 						CHECK_FCT_DO(fd_msg_browse(apn_cfg_itr, MSG_BRW_NEXT,

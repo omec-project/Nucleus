@@ -25,7 +25,7 @@
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
 extern ipc_handle ipc_S1ap_Hndl;
-static Buffer g_buffer;
+static Buffer g_buffer = {0};
 static int
 get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRespInfo)
 {
@@ -79,7 +79,7 @@ static int
 tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 {
 
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
     
 	uint8_t nas_len_pos;
 	uint8_t s1ap_len_pos;

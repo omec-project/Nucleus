@@ -265,7 +265,6 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 
 	/*Create S1Setup response*/
     s1_setup_response(enb_fd, &matched_plmn);
-    //ut_ho(msg, cbIndex);
 
 	return SUCCESS;
 }

@@ -44,7 +44,7 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
     	uint8_t *buffer = NULL;
 	
 	Buffer g_ctxrel_buffer = {0};
-	struct s1ap_common_req_Q_msg req= {0};
+	struct s1ap_common_req_Q_msg req = {0};
 	
         log_msg(LOG_DEBUG,"Inside relcmd processing\n");	
 

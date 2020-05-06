@@ -173,8 +173,8 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.interfaceType = 7;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = ntohl(g_s11_cfg.pgw_ip);
 
-	msgData.accessPointName.apnValue.count = g_csReqInfo->apn.len;
-	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->apn.val, g_csReqInfo->apn.len);
+	msgData.accessPointName.apnValue.count = g_csReqInfo->selected_apn.len;
+	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->selected_apn.val, g_csReqInfo->selected_apn.len);
 
 	msgData.selectionModeIePresent = true;
 	msgData.selectionMode.selectionMode = 1;
@@ -184,7 +184,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	msgData.pdnAddressAllocationIePresent = true;
 	msgData.pdnAddressAllocation.pdnType = 1;
-	msgData.pdnAddressAllocation.ipV4Address.ipValue = 0;
+	msgData.pdnAddressAllocation.ipV4Address.ipValue = g_csReqInfo->paa_v4_addr; /* host order - Get value from MME */
 
 	msgData.maximumApnRestrictionIePresent = true;
 	msgData.maximumApnRestriction.restrictionValue = 0;

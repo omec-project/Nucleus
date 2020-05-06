@@ -45,7 +45,7 @@ namespace mme
             ambr_m(),
             aiaSecInfo_m(),
             mTmsi_m(0),
-            subscribedApn_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
+            subscribedApn_m(),pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
 	
 	{	
 	}
@@ -391,6 +391,22 @@ namespace mme
 	const Apn_name& UEContext::getSubscribedApn() const
 	{
 		return subscribedApn_m;
+	}
+	
+	/******************************************************************************
+	* sets pdnAddr
+	******************************************************************************/
+	void UEContext::setPdnAddr( const Paa& pdnAddr_i )
+	{
+		pdnAddr_m = pdnAddr_i;
+	}
+	
+	/******************************************************************************
+	* returns pdnAddr
+	******************************************************************************/	
+	const Paa& UEContext::getPdnAddr() const
+	{
+		return pdnAddr_m;
 	}
 	
 	/******************************************************************************

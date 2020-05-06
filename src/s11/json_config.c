@@ -31,6 +31,7 @@ parse_s11_conf()
 	if(-1 == g_s11_cfg.local_egtp_ip) return -1;
 	g_s11_cfg.egtp_def_port = get_int_scalar("s11.egtp_default_port");
 	if(-1 == g_s11_cfg.egtp_def_port) return -1;
+
 	struct local_config { char *name; unsigned int *addr;};
 	struct local_config config_addr[] = 
 	{
