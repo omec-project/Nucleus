@@ -61,8 +61,6 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ddn_ack_msg->s11_sgw_cp_teid;
 
-	g_s11_sequence++;
-
 	DownlinkDataNotificationAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
 
