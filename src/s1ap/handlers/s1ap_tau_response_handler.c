@@ -73,9 +73,7 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 static int
 tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 {
-
 	struct s1ap_PDU s1apPDU = {0};
-    
 	uint8_t s1ap_len_pos;
 	uint8_t datalen;
 	uint8_t u8value;
@@ -136,6 +134,8 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	  /* Copy length to s1ap length field */
 	  datalen = g_buffer.pos - s1ap_len_pos - 1;
 	  memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
+   	  send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
+      free(s1apPDU.value.data);
       return E_FAIL;
     }
 
@@ -335,6 +335,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 
    	send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
 	log_msg(LOG_INFO, "\nTAU RESP received from MME\n");
+    free(s1apPDU.value.data);
 	return SUCCESS;
 }
 

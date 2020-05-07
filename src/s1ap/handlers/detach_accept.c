@@ -22,7 +22,7 @@
 #include "msgType.h"
 
 static int
-get_detach_accept_protoie_value(struct proto_IE *value, struct detach_accept_Q_msg *g_acptReqInfo)
+get_detach_accept_protoie_value(struct proto_IE *value, const struct detach_accept_Q_msg *g_acptReqInfo)
 {
 	uint8_t ieCnt = 0;
 
@@ -59,7 +59,7 @@ get_detach_accept_protoie_value(struct proto_IE *value, struct detach_accept_Q_m
 * Stage specific message processing.
 */
 static int
-detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
+detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 {
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
@@ -204,6 +204,8 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	//g_ics_buffer.buf[1] = 0x09;
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
 
+	free(s1apPDU.value.data);
+
 	log_msg(LOG_INFO, "Detach Accept sent to UE.");
 
 	return SUCCESS;
@@ -213,7 +215,7 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 * essage processing for ue context release
 */
 static int
-ue_ctx_release_processing(struct detach_accept_Q_msg *g_acptReqInfo)
+ue_ctx_release_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 {
 	Buffer g_ctxrel_buffer;
 	unsigned char tmpStr[4];
@@ -228,6 +230,8 @@ ue_ctx_release_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	log_msg(LOG_INFO, "ue_ctx_release_processing \n");
 	s1apPDU.procedurecode = id_UEContexRelease;
 	s1apPDU.criticality = CRITICALITY_REJECT;
+
+	get_detach_accept_protoie_value(&s1apPDU.value, g_acptReqInfo);
 
 	g_ctxrel_buffer.pos = 0;
 
@@ -314,6 +318,7 @@ ue_ctx_release_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_ctxrel_buffer.buf, g_ctxrel_buffer.pos,1);
 
 	log_msg(LOG_INFO,"S1 Release sent to UE size = %d \n",g_ctxrel_buffer.pos);
+	free(s1apPDU.value.data);
 
 	return SUCCESS;
 }

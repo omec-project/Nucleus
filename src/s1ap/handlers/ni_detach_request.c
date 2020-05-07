@@ -221,6 +221,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
 
 	log_msg(LOG_INFO, "NI Detach Request sent to UE.");
+    free(s1apPDU.value.data);
 
 	return SUCCESS;
 }
