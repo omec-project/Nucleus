@@ -195,6 +195,9 @@ detach_accept_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
 	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
 	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+	/* Copy length to s1ap length field */
+	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
+	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 #endif
 
 	/* TODO: temp fix */
@@ -222,6 +225,7 @@ ue_ctx_release_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t s1ap_len_pos;
 	uint8_t u8value = 0;
 
+	log_msg(LOG_INFO, "ue_ctx_release_processing \n");
 	s1apPDU.procedurecode = id_UEContexRelease;
 	s1apPDU.criticality = CRITICALITY_REJECT;
 
@@ -302,13 +306,14 @@ ue_ctx_release_processing(struct detach_accept_Q_msg *g_acptReqInfo)
 	/* TODO : Revisit. cause : nas(2) and value : detach (2), why 0x24 ? */
 	u8value = 0x24;
 	buffer_copy(&g_ctxrel_buffer, &u8value, sizeof(u8value));
+	log_msg(LOG_INFO,"S1 Release sent to UE pos  = %d \n",g_ctxrel_buffer.pos);
 
 	/* Copy length to s1ap length field */
 	datalen = g_ctxrel_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_ctxrel_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_ctxrel_buffer.buf, g_ctxrel_buffer.pos,1);
 
-	log_msg(LOG_INFO,"S1 Release sent to UE");
+	log_msg(LOG_INFO,"S1 Release sent to UE size = %d \n",g_ctxrel_buffer.pos);
 
 	return SUCCESS;
 }
@@ -323,7 +328,7 @@ detach_accept_handler(void *data)
    struct detach_accept_Q_msg *msg = (struct detach_accept_Q_msg *)data;
 
    detach_accept_processing(msg);
-   //ue_ctx_release_processing(msg);
+   ue_ctx_release_processing(msg);
 
    return NULL;
 }
