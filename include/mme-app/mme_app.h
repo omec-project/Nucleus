@@ -49,6 +49,7 @@ typedef struct mme_config
 } mme_config;
 
 const size_t fifoQSize_c = 1000;
+const uint16_t MmeIpcInterfaceCompId = 1;
 
 void stat_init();
 

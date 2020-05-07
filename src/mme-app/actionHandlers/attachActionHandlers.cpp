@@ -16,6 +16,7 @@
 #include <3gpp_24008.h>
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include "mme_app.h"
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
@@ -38,9 +39,8 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
@@ -87,8 +87,9 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
+	mmeIpcIf.dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
 
     	ProcedureStats::num_of_id_req_sent ++;
 	
@@ -185,7 +186,8 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
+	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_air_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_air_to_hss \n");
@@ -217,8 +219,9 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_ulr_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_ulr_to_hss \n");
@@ -237,14 +240,13 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "handle_aia: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
-
-    MmeProcedureCtxt *procedure_p =
-            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-    if (procedure_p == NULL)
-    {
-        log_msg(LOG_DEBUG, "handle_aia: procedure context is NULL \n");
-        return ActStatus::HALT;
-    }
+	
+	MmeProcedureCtxt *procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	if (procedure_p == NULL)
+	{
+        	log_msg(LOG_DEBUG, "handle_aia: procedure context is NULL \n");
+        	return ActStatus::HALT;
+        }
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -256,10 +258,9 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 	if (msgData_p->msg_data.aia_Q_msg_m.res == S6A_AIA_FAILED)
 	{	
 		/* send attach reject and release UE */
-        log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
-        procedure_p->setMmeErrorCause(s6AiaFailure_c);
-        return ActStatus::ABORT;
-
+        	log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
+        	procedure_p->setMmeErrorCause(s6AiaFailure_c);
+        	return ActStatus::ABORT;
 	}
 
 	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->msg_data.aia_Q_msg_m.sec));
@@ -353,9 +354,9 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
-
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v \n");
@@ -483,8 +484,9 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
 	
 	ProcedureStats::num_of_sec_mode_cmd_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving sec_mode_cmd_to_ue \n");
@@ -615,7 +617,8 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
 
 	log_msg(LOG_DEBUG, "Leaving send_esm_info_req_to_ue \n");
 	ProcedureStats::num_of_esm_info_req_to_ue_sent ++;
@@ -631,12 +634,12 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-    MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
-    if (procedure_p == NULL)
-    {
-        log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
-        return ActStatus::HALT;
-    }
+    	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
+    	if (procedure_p == NULL)
+    	{
+        	log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
+        	return ActStatus::HALT;
+    	}
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -645,6 +648,11 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
+    
+    	if (esm_res.status != SUCCESS)
+    	{
+        	log_msg(LOG_ERROR, "ESM Response failed \n");
+    	}
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
 	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
@@ -743,7 +751,8 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
 
 	ProcedureStats::num_of_cs_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
@@ -894,8 +903,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 	
 	ProcedureStats::num_of_init_ctxt_req_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_init_ctxt_req_to_ue_v \n");
@@ -995,7 +1005,8 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 		
 	ProcedureStats::num_of_mb_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw \n");
@@ -1069,7 +1080,9 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
 
     	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-    	mmeIpcIf_g->dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
+    	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
 
     	ProcedureStats::num_of_emm_info_sent++;
     }
@@ -1137,7 +1150,9 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-        mmeIpcIf_g->dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
+        
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+        mmeIpcIf.dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
 
         ProcedureStats::num_of_attach_reject_sent ++;
 

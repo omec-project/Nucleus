@@ -15,6 +15,7 @@
 
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include "mme_app.h"
 #include "controlBlock.h" 
 #include "msgType.h"
 #include "procedureStats.h"
@@ -37,9 +38,8 @@
 
 using namespace mme;
 using namespace SM;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 /***************************************
 * Action handler : process_tau_request
@@ -146,7 +146,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	ue_ctxt->setTai(Tai(tau_resp.tai));
 	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
+
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
 
 	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
 	{

@@ -34,6 +34,12 @@ class MmeContextManagerUtils
 {
 public:
 
+    static MmeSvcReqProcedureCtxt*
+    allocateServiceRequestProcedureCtxt( SM::ControlBlock& cb_r, PagingTrigger pagingTrigger);
+
+    static MmeTauProcedureCtxt*
+    allocateTauProcedureCtxt(SM::ControlBlock& cb_r);
+
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 
 	static bool deleteProcedureCtxt(MmeProcedureCtxt* procedure_p);

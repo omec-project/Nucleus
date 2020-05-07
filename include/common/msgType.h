@@ -487,7 +487,7 @@ struct RB_Q_msg{
 
 struct DDN_ACK_Q_msg{
 	msg_type_t msg_type;
-	int ue_idx;
+	int s11_sgw_cp_teid;
 	uint32_t seq_no;
 	uint8_t cause;
 };

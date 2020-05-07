@@ -30,6 +30,7 @@ extern "C" {
 	#include "log.h"
 }
 
+using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
 
@@ -37,7 +38,7 @@ extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_
 
 MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
 {
-
+     compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }
 
 MmeIpcInterface::~MmeIpcInterface()

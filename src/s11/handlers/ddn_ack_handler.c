@@ -59,9 +59,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	gtpHeader.msgType =  GTP_DOWNLINK_DATA_NOTIFICATION_ACK;
 	gtpHeader.sequenceNumber = ddn_ack_msg->seq_no;
 	gtpHeader.teidPresent = true;
-	gtpHeader.teid = ddn_ack_msg->ue_idx;
-
-	g_s11_sequence++;
+	gtpHeader.teid = ddn_ack_msg->s11_sgw_cp_teid;
 
 	DownlinkDataNotificationAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
