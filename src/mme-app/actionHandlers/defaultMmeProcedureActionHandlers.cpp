@@ -228,6 +228,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	return ActStatus::HALT;
     }
 
+
     prcdCtxt_p->setCtxtType( ProcedureType::detach_c );
     prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c);
     ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
@@ -530,6 +531,12 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
                 tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
                 tauReqProc_p->setEnbFd(tauReq.enb_fd);
 
+                //TAI and CGI obtained from s1ap ies.
+                //Convert the PLMN in s1ap format to nas format before storing in procedure context.
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
+                tauReqProc_p->setTai(Tai(tauReq.tai));
+                tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
                 SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
                 cb.addEventToProcQ(evt);
             }
@@ -570,8 +577,8 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
-	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
     }
 
     return ActStatus::PROCEED;

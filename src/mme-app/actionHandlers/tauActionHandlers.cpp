@@ -18,6 +18,7 @@
 #include "mme_app.h"
 #include "controlBlock.h" 
 #include "msgType.h"
+#include <contextManager/dataBlocks.h>
 #include "procedureStats.h"
 #include "log.h"
 #include "secUtils.h"
@@ -33,7 +34,6 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
-#include <contextManager/dataBlocks.h>
 #include <utils/mmeCommonUtils.h>
 
 using namespace mme;

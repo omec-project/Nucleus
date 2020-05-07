@@ -15,6 +15,7 @@
 #include "actionHandlers/actionHandlers.h"
 #include "controlBlock.h"
 #include "msgType.h"
+#include "mme_app.h"
 #include "procedureStats.h"
 #include "log.h"
 #include "secUtils.h"
@@ -30,18 +31,13 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeCommonUtils.h>
-#include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeS1MsgUtils.h>
 #include <utils/mmeGtpMsgUtils.h>
 #include <contextManager/dataBlocks.h>
-#include "contextManager/subsDataGroupManager.h"
+#include <utils/mmeContextManagerUtils.h>
 
-using namespace mme;
-using namespace SM;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface *mmeIpcIf_g;
-
 using namespace mme;
 using namespace SM;
 
@@ -77,7 +73,8 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
 
     /*Send message to S1AP-APP*/
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
-    mmeIpcIf_g->dispatchIpcMsg((char*)&hoReq, sizeof(hoReq), destAddr);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
 
     log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb \n");
 
@@ -165,8 +162,8 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
     MmeS1MsgUtils::populateHoCommand(cb, *ue_ctxt, *ho_ctxt, ho_command);
 
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
-    mmeIpcIf_g->dispatchIpcMsg((char*) &ho_command, sizeof(ho_command),
-            destAddr);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &ho_command, sizeof(ho_command), destAddr);
 
     ProcedureStats::num_of_ho_command_to_src_enb_sent++;
     log_msg(LOG_DEBUG, "Leaving send_ho_command_to_src_enb\n");
@@ -227,8 +224,8 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
 	sizeof(struct enB_status_transfer_transparent_container));
 
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
-    mmeIpcIf_g->dispatchIpcMsg((char*) &mme_status_trans, sizeof(struct  mme_status_transfer_Q_msg),
-            destAddr);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &mme_status_trans, sizeof(mme_status_trans), destAddr);
     return ActStatus::PROCEED;
 }
 
@@ -325,7 +322,8 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
             cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
 
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s11AppInstanceNum_c};
-    mmeIpcIf_g->dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
     log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_ho \n");
@@ -375,7 +373,8 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
 
     /*Send message to S1AP-APP*/
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
-    mmeIpcIf_g->dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
     log_msg(LOG_DEBUG,"Leaving send_s1ap_ue_ctxt_rel_command_to_src_enb \n");

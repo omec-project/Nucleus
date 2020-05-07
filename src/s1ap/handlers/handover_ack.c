@@ -93,7 +93,7 @@ int s1_handover_ack_handler(SuccessfulOutcome_t *msg)
 
             memcpy(
                     handover_ack.msg_data.handover_req_acknowledge_Q_msg_m.targetToSrcTranspContainer.buffer,
-                    &(s1_ho_ack_ies.data[i].val.targetToSrcTranspContainer.buffer_p),
+                    s1_ho_ack_ies.data[i].val.targetToSrcTranspContainer.buffer_p,
                     s1_ho_ack_ies.data[i].val.targetToSrcTranspContainer.size);
         }
             break;
