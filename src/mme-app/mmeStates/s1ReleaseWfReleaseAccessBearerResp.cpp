@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "mmeSmDefs.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/s1ReleaseWfReleaseAccessBearerResp.h"	
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(s1_release_wf_release_access_bearer_resp)
+S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(s1_release_wf_release_access_bearer_resp, 0)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************

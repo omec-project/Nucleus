@@ -23,7 +23,7 @@ with open('dataModels/stateMachineAppModel.json') as jsonFile:
 with open('dataModels/ctxtManagerAppModel.json') as jsonFile:
     contextMgrAppModelJSON = json.load(jsonFile)
 
-def processTemplate(templateIp):
+def processTemplate(templateIp, appModelJSON):
     from template import Template
     
     utils.outputFileName = ''
@@ -35,15 +35,15 @@ def processTemplate(templateIp):
     utils.outputFileName = utils.outputFileName + utils.outputFileExt
 
     tt = Template({'EVAL_PYTHON':1, 'AUTO_RESET':1})
-    op = tt.process(utils.ttFileName, {'TemplateInputVar' : templateIp})
+    op = tt.process(utils.ttFileName, {'TemplateInputVar' : templateIp, 'AppModelJSON' : appModelJSON})
     utils.WriteFile(utils.outputDir, utils.outputFileName, op, utils.mode)
 
-def getTemplateIn(appModelItems, depth):
+def getTemplateIn(appModelItems, depth, appModelJSON):
     depthChanged = False
 
     if (depth == 0):
         print(appModelItems)
-        processTemplate(appModelItems)
+        processTemplate(appModelItems, appModelJSON)
         return
     
     if depthChanged == False:
@@ -51,7 +51,7 @@ def getTemplateIn(appModelItems, depth):
         depthChanged = True
         
     for item in appModelItems:
-        getTemplateIn(item, depth)
+        getTemplateIn(item, depth, appModelJSON)
       
 def genCppCode(genModel, appModelJSON):
     for item in genModel:
@@ -68,7 +68,7 @@ def genCppCode(genModel, appModelJSON):
             os.makedirs(utils.outputDir)
         
         appModelItems = utils.get_key_values(appModelJSON, keyWord) 
-        getTemplateIn(appModelItems, depth)
+        getTemplateIn(appModelItems, depth, appModelJSON)
             
 with open('dataModels/generationItem.json') as JSONFile:
     GenItemJSON = json.load(JSONFile)

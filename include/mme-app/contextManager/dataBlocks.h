@@ -1,4 +1,6 @@
 
+ 
+
 /*
  * Copyright 2019-present, Infosys Limited.
  *
@@ -27,6 +29,8 @@
 #include "structs.h"
 #include <utils/mmeCauseTypes.h>
 #include <utils/mmeProcedureTypes.h>
+#include <utils/mmeTimerTypes.h>
+
 namespace mme
 {
 	class UEContext;
@@ -318,7 +322,7 @@ namespace mme
 			* getPdnAddr
 			*    get pdnAddr from UEContext
 			****************************************/
-			const Paa& getPdnAddr()const;
+			const Paa& getPdnAddr()const;				
 			
 			/****************************************
 			* setMmContext
@@ -723,7 +727,7 @@ namespace mme
 			ProcedureType getCtxtType()const;				
 			
 			/****************************************
-			* set MmeErrorCause
+			* setMmeErrorCause
 			*    set mmeErrorCause to MmeProcedureCtxt
 			****************************************/
 			void setMmeErrorCause(MmeErrorCause mmeErrorCause_i);
@@ -745,6 +749,18 @@ namespace mme
 			*    get s1apCause from MmeProcedureCtxt
 			****************************************/
 			const S1apCause& getS1apCause()const;				
+			
+			/****************************************
+			* setStateGuardTimerCtxt
+			*    set stateGuardTimerCtxt to MmeProcedureCtxt
+			****************************************/
+			void setStateGuardTimerCtxt(MmeUeTimerContext* stateGuardTimerCtxt_i);
+			
+			/****************************************
+			* getStateGuardTimerCtxt
+			*    get stateGuardTimerCtxt from MmeProcedureCtxt
+			****************************************/
+			MmeUeTimerContext* getStateGuardTimerCtxt()const;				
 			
 			/****************************************
 			* setAuthRespStatus
@@ -781,6 +797,9 @@ namespace mme
 			
 			// DataName
 			S1apCause s1apCause_m;
+			
+			// DataName
+			MmeUeTimerContext* stateGuardTimerCtxt_m;
 			
 			// DataName
 			int authRespStatus_m;
@@ -845,7 +864,7 @@ namespace mme
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
 			****************************************/
-			uint16_t getPcoOptionsLen()const;							
+			uint16_t getPcoOptionsLen()const;				
 			
 			/****************************************
 			* setPti
