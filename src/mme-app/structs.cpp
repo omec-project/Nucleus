@@ -70,6 +70,11 @@ void Tai::operator = ( const Tai& tai_i )
 	memcpy( &tai_m, &(tai_i.tai_m), sizeof( tai_i.tai_m ));
 }
 
+bool Tai::operator==(const Tai &tai_i) const
+{
+    return (memcmp(&tai_m, &tai_i.tai_m, sizeof(struct TAI)) == 0);
+}
+
 /*******************************************************
  *CGI
 ********************************************************/

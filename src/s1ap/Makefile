@@ -9,7 +9,11 @@
 #SRCDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 include ../../Makefile.common
 
-LIB_PATH +=-L../common/ -L./asn1c/asnGenFiles
+LIB_PATH +=-L../common/ \
+	-L./asn1c/asnGenFiles \
+	-L./s1apContextManager \
+	-L../cmn \
+	-L../stateMachineFwk
 
 SRCDIR := .
 TARGET := $(BINDIR)/s1ap-app
@@ -36,10 +40,14 @@ LIBS := -lpthread \
 	-linterface \
 	-llog \
 	-lthreadpool \
-	-ljson \
+	-ls1apctxmgr \
+	-lstatemachinefwk \
+	-ldatagroupmgr \
+	-lcmnUtils \
 	-lasncodec \
-	-lsecutil \
-	-lmonitor_config
+	-ljson \
+	-lmonitor_config \
+	-lsecutil
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
@@ -48,6 +56,7 @@ $(TARGET): $(OBJECTS)
 
 $(OBJDIR)/s1ap/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(OBJDIR)/s1ap/handlers
+	@mkdir -p $(OBJDIR)/s1ap/s1apContextManager
 	$(CC) $(CFLAGS) $(INCS) -c -o $@ $<
 
 all:$(TARGET)

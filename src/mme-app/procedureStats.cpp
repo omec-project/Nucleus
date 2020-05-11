@@ -70,3 +70,10 @@ int ProcedureStats::num_of_paging_request_sent = 0;
 int ProcedureStats::num_of_id_req_sent = 0;
 int ProcedureStats::num_of_id_resp_received = 0;
 int ProcedureStats::num_of_auth_reject_sent = 0;
+int ProcedureStats::num_of_ho_required_received = 0;
+int ProcedureStats::num_of_ho_request_to_target_enb_sent = 0;
+int ProcedureStats::num_of_ho_request_ack_received = 0;
+int ProcedureStats::num_of_ho_command_to_src_enb_sent = 0;
+int ProcedureStats::num_of_ho_notify_received = 0;
+int ProcedureStats::num_of_ho_complete = 0;
+

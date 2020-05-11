@@ -29,9 +29,16 @@ namespace mme
 {
 
 class MmeProcedureCtxt;
+class S1HandoverProcedureContext;
 class MmeContextManagerUtils
 {
 public:
+
+    static MmeSvcReqProcedureCtxt*
+    allocateServiceRequestProcedureCtxt( SM::ControlBlock& cb_r, PagingTrigger pagingTrigger);
+
+    static MmeTauProcedureCtxt*
+    allocateTauProcedureCtxt(SM::ControlBlock& cb_r);
 
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 
@@ -41,6 +48,8 @@ public:
 
 	static void deleteUEContext(uint32_t cbIndex);
 	static void deleteSessionContext(SM::ControlBlock& cb_r);
+
+	static S1HandoverProcedureContext* allocateHoContext(SM::ControlBlock& cb_r);
 
 private:
 	MmeContextManagerUtils();

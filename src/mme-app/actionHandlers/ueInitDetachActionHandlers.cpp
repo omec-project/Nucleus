@@ -16,6 +16,7 @@
 #include "actionHandlers/actionHandlers.h"
 #include "contextManager/subsDataGroupManager.h"
 #include "contextManager/dataBlocks.h"
+#include "mme_app.h"
 #include "msgType.h"
 #include "controlBlock.h"
 #include "procedureStats.h"
@@ -31,9 +32,8 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 {
@@ -65,14 +65,15 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
 	ProcedureStats::num_of_del_session_req_sent ++;	
 	return ActStatus::PROCEED;
 
 }
-#if 0	
+
 ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside purge_req \n");
@@ -84,21 +85,25 @@ ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	s6a_purge_Q_msg g_purge_msg;
-	
-	g_purge_msg.ue_idx = ue_ctxt->getContextId();
-	memcpy(g_purge_msg.IMSI, ue_ctxt->getIMSIInfo(), BINARY_IMSI_LEN);
+	s6a_Q_msg purge_msg;
+	purge_msg.msg_type = purge_request;	
+	purge_msg.ue_idx = ue_ctxt->getContextID();
+	memset(purge_msg.imsi, '\0', sizeof(purge_msg.imsi));
+	ue_ctxt->getImsi().getImsiDigits(purge_msg.imsi);
 		
 	/* Send message to S6app in S6q*/
-	mmeS6If_gp->sendMessage_v((char*)(&g_purge_msg), purge_request);
-	
+	cmn::ipc::IpcAddress destAddr;
+	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
+
+        MmeIpcInterface &mmeIpcIf =static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));	
+	mmeIpcIf.dispatchIpcMsg((char *) &purge_msg, sizeof(purge_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving purge_req \n");
 	ProcedureStats::num_of_purge_req_sent ++;
 	return ActStatus::PROCEED;
 	
 }
-#endif
+
 
 ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 {
@@ -130,7 +135,7 @@ ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 	
 }
 
-#if 0
+
 ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_purge_resp \n");
@@ -148,12 +153,12 @@ ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 	 * increment the stats counter and changes the state*/
 	
 	
-	log_msg(LOG_DEBUG, "Leaving handle_purge_resp for UE-%d.\n", ue_ctxt->getContextId());
+	log_msg(LOG_DEBUG, "Leaving handle_purge_resp for UE-%d.\n", ue_ctxt->getContextID());
 	ProcedureStats::num_of_processed_pur_resp ++;
 	return ActStatus::PROCEED;
 	
 }
-#endif
+
 ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside send_detach_accept \n");
@@ -172,8 +177,8 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	detach_accpt.ue_idx = ue_ctxt->getContextID();
 	detach_accpt.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 	
-	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
 	detach_accpt.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
 	
 	memcpy(&(detach_accpt.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
 	
@@ -181,7 +186,8 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
 	
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c );
 

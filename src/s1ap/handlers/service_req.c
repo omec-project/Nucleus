@@ -32,13 +32,13 @@
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
 
-extern s1ap_config g_s1ap_cfg;
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
 s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
 {
 	struct  s1_incoming_msg_data_t req= {0};
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
 	/*****Message structure***
 	*/
@@ -89,7 +89,7 @@ s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
                 {
                     log_msg(LOG_INFO, "Service Req STMSI.\n");
                     if(service_req_ies->data[i].val.s_tmsi.mme_code 
-                       == g_s1ap_cfg.mme_code)
+                       == s1ap_cfg->mme_code)
                     {
                         log_msg(LOG_INFO, "Service Req MME Code matched.\n");
                         req.ue_idx = ntohl(service_req_ies->data[i].val.s_tmsi.m_TMSI);
@@ -104,13 +104,14 @@ s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
                     }
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n", service_req_ies->data[i].IE_type);
         }
     }
 
-	req.destInstAddr = htonl(mmeAppInstanceNum_c);
-        req.srcInstAddr = htonl(s1apAppInstanceNum_c);
-        send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&req, S1_READ_MSG_BUF_SIZE);
+    req.destInstAddr = htonl(mmeAppInstanceNum_c);
+    req.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char*) &req,
+            S1_READ_MSG_BUF_SIZE);
 
 	
 	/*Send Service req to mme-app*/

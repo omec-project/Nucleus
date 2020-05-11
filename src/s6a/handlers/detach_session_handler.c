@@ -39,50 +39,15 @@ ATTACH stages :
 
 /****Globals and externs ***/
 
-static int g_Q_detachread_fd;
-
+extern int g_Q_mme_S6a_fd;
+extern int g_our_hss_fd;
 /*Making global just to avoid stack passing*/
-
-static char buf[S6A_PURGEREQ_STAGE1_BUF_SIZE];
 
 extern s6a_config g_s6a_cfg;
 extern struct fd_dict_objects g_fd_dict_objs;
 extern struct fd_dict_data g_fd_dict_data;
 /****Global and externs end***/
 
-/**
-Initialize the stage settings, Q,
-destination communication etc.
-*/
-static void
-init_stage()
-{
-	log_msg(LOG_INFO, "Waiting for session detach initialiser  from mme-app\n");
-	if ((g_Q_detachread_fd  = open_ipc_channel(S6A_PURGEREQ_STAGE1_BUF_SIZE, IPC_READ)) == -1){
-		log_msg(LOG_ERROR, "Error in opening reader detach channel.\n");
-		pthread_exit(NULL);
-	}
-	return;
-}
-
-/**
-* Read next message from stage Q for processing.
-*/
-static int
-read_next_msg()
-{
-	int bytes_read=0;
-	memset(buf, 0, S6A_PURGEREQ_STAGE1_BUF_SIZE);
-	while (bytes_read < S6A_PURGEREQ_STAGE1_BUF_SIZE) {//TODO : Recheck condition
-		if ((bytes_read = read_ipc_channel(
-			g_Q_detachread_fd, buf, S6A_PURGEREQ_STAGE1_BUF_SIZE)) == -1) {
-			log_msg(LOG_ERROR, "Error in reading from AIR Q.\n");
-			/* TODO : Add proper error handling */
-		}
-		log_msg(LOG_INFO, "Purge msg received, len - %d\n", bytes_read);
-	}
-	return bytes_read;
-}
 
 /**
  * @brief Prepare PUR freediameter message, dump and post to HSS
@@ -91,13 +56,13 @@ read_next_msg()
  * @return int Sucess or failure code
  */
 static int
-send_purge(int ue_idx, char imsi[])
+send_purge(struct s6a_Q_msg *pur_msg, char imsi[])
 {
 	struct msg *fd_msg = NULL;
 	union avp_value val;
 	struct s6a_sess_info s6a_sess = {.sess_id="", .sess_id_len = 0};
 
-	if(SUCCESS != create_fd_sess_id(&s6a_sess, ue_idx)) return S6A_FD_ERROR;
+	if(SUCCESS != create_fd_sess_id(&s6a_sess, pur_msg->ue_idx)) return S6A_FD_ERROR;
 
 	CHECK_FCT_DO(fd_msg_new(g_fd_dict_objs.PUR, MSGFL_ALLOC_ETEID, &fd_msg),
 			return S6A_FD_ERROR);
@@ -144,60 +109,39 @@ send_purge(int ue_idx, char imsi[])
 }
 
 static void
-send_rpc_purge(int ue_idx, char imsi[])
+send_rpc_purge(struct s6a_Q_msg *pur_msg, char imsi[])
 {
-	/* TODO: For builitn HSS, we are not sending purge request to HSS,
-	 * returning dummy reply. Send request to builtin HSS and
-	 * handle response.
-	 */
-	handle_perf_hss_purge_resp(ue_idx);
-	return;
+	struct hss_req_msg msg;
+
+	msg.hdr = HSS_PURGE_MSG;
+	msg.ue_idx = pur_msg->ue_idx;
+
+	strncpy(msg.data.pur.imsi, imsi, IMSI_STR_LEN);
+
+	if (write(g_our_hss_fd, &msg, HSS_REQ_MSG_SIZE) < 0) {
+		log_msg(LOG_ERROR, "HSS PUR msg send failed.\n");
+		perror("writing on stream socket");
+	}
+	log_msg(LOG_INFO, "PUR msg send to hss\n");
 }
 
 /**
 * Stage specific message processing.
 */
 static int
-detach_processing()
+detach_processing(struct s6a_Q_msg * purge_msg)
 {
-	struct s6a_purge_Q_msg *purge_msg = (struct s6a_purge_Q_msg*)buf;
-	char imsi[16] = {0};
-
 	/*Parse and validate  the buffer*/
-	imsi_bin_to_str(purge_msg->IMSI, imsi);
-	log_msg(LOG_INFO, "IMSI recvd - %s\n", imsi);
-
+	log_msg(LOG_INFO, "IMSI recvd - %s\n",purge_msg-> imsi);
 	if (HSS_FD == g_s6a_cfg.hss_type)
-		send_purge(purge_msg->ue_idx, imsi);
+		send_purge(purge_msg, (char *)purge_msg-> imsi);
 	else {
 		log_msg(LOG_INFO, "Sending over IPC \n");
-		send_rpc_purge(purge_msg->ue_idx, imsi);
+		send_rpc_purge(purge_msg, (char *)purge_msg-> imsi);
 	}
 
 	return SUCCESS;
 }
-
-/**
-* Post message to next handler of the stage
-*/
-static int
-post_to_next()
-{
-	return SUCCESS;
-}
-
-/**
-* Thread exit function for future reference.
-*/
-void
-shutdown_detach()
-{
-	close_ipc_channel(g_Q_detachread_fd);
-	log_msg(LOG_INFO, "Shutdown detach handler \n");
-	pthread_exit(NULL);
-	return;
-}
-
 
 /**
 * Thread function for stage.
@@ -205,19 +149,10 @@ shutdown_detach()
 void*
 detach_handler(void *data)
 {
-	init_stage();
-
-	sleep(5);
 
 	log_msg(LOG_INFO, "Detach Q handler ready.\n");
 
-	while(1){
-		read_next_msg();
-
-		detach_processing();
-
-		post_to_next();
-	}
+	detach_processing((struct s6a_Q_msg *) data);
 
 	return NULL;
 }

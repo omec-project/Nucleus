@@ -69,7 +69,7 @@ s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
                            sizeof(struct XRES));
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_auth_resp_ies->data[i].IE_type);
         }
     }
 
@@ -103,8 +103,10 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 	/*Create Q structure for stage 1 to MME.
 	  contains init UE information.*/
 	  
-	  /* msg_type for auth_failure
-	  ?auth_resp.msg_type =?;*/
+	/* msg_type for auth_failure
+	?auth_resp.msg_type =?;*/
+	auth_resp.msg_type = auth_response;	
+	  
     for(int i = 0; i < s1_auth_resp_ies->no_of_IEs; i++)
     {
         switch(s1_auth_resp_ies->data[i].IE_type)
@@ -121,7 +123,7 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 		                   sizeof(struct AUTS));
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_auth_resp_ies->data[i].IE_type);
         }
     }
 	

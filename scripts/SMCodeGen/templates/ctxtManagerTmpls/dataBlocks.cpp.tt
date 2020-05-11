@@ -14,7 +14,13 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/dataBlocks.cpp.tt>
  ***************************************/
+[% FOREACH DataGroup = DataStore.DataGroups %]
+[%- IF DataGroup.DgName == 'Subs' -%]
 #include "contextManager/dataBlocks.h"
+[%- ELSE -%]
+#include "[% FILENAME(DataGroup.DgName) %]ContextManager/[%  FILENAME(DataGroup.DgName) %]DataBlocks.h"
+[%- END %]
+[%- END %]
 
 namespace mme
 {

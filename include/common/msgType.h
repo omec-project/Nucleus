@@ -17,12 +17,10 @@
 #ifndef INCLUDE_COMMON_MSGTYPE_H_
 #define INCLUDE_COMMON_MSGTYPE_H_
 
-#include "common_proc_info.h"
 #include "err_codes.h"
 #include "s11_structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
-
 
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
@@ -79,6 +77,14 @@ typedef enum msg_type_t {
     tau_request,
     tau_response,
     emm_info_request,
+    s1_reset,
+    handover_required,
+    handover_request,	
+    handover_request_acknowledge,
+    handover_command,	
+    enb_status_transfer,
+    mme_status_transfer,	
+    handover_notify,
     max_msg_type
 } msg_type_t;
 
@@ -143,9 +149,42 @@ struct service_req_Q_msg {
 	struct STMSI s_tmsi;
 };
 
+struct handover_required_Q_msg {
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	int target_enb_context_id;
+	int src_enb_context_id;
+	enum handoverType handoverType;
+	struct s1apCause cause;
+	struct targetId target_id;
+	struct src_target_transparent_container srcToTargetTranspContainer;
+};
+
+struct handover_req_acknowledge_Q_msg{
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	struct ERAB_admitted_list erab_admitted_list;
+	struct src_target_transparent_container targetToSrcTranspContainer;
+};
+
+struct handover_notify_Q_msg{
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	struct CGI utran_cgi;
+	struct TAI tai;
+};
+
+struct enb_status_transfer_Q_msg {
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
+};
+
 struct tauReq_Q_msg {
     int seq_num;
     int enb_fd;
+    struct TAI tai;
+    struct CGI eUtran_cgi;
 };
 
 struct identityResp_Q_msg {
@@ -168,6 +207,10 @@ typedef union s1_incoming_msgs_t {
     struct identityResp_Q_msg identityResp_Q_msg_m;
     struct tauReq_Q_msg tauReq_Q_msg_m;
     struct detach_req_Q_msg detachReq_Q_msg_m;
+    struct handover_required_Q_msg handover_required_Q_msg_m;
+    struct handover_req_acknowledge_Q_msg handover_req_acknowledge_Q_msg_m;
+    struct handover_notify_Q_msg handover_notify_Q_msg_m;
+    struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
 }s1_incoming_msgs_t;
 
 typedef struct s1_incoming_msg_data_t {
@@ -336,6 +379,7 @@ struct tauResp_Q_msg {
 	struct TAI tai;
 	unsigned int m_tmsi;
 };
+
 #define S1AP_TAURESP_BUF_SIZE sizeof(struct tauResp_Q_msg)
 
 struct ue_emm_info {
@@ -350,6 +394,42 @@ struct ue_emm_info {
 };
 
 #define UE_EMM_INFO_BUF_SIZE sizeof(struct ue_emm_info)
+
+struct handover_request_Q_msg {
+	msg_type_t msg_type;
+	uint32_t target_enb_context_id;
+	uint32_t s1ap_mme_ue_id;
+	enum handoverType handoverType;
+	s1apCause_t cause;
+	struct src_target_transparent_container src_to_target_transparent_container;
+	ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
+	struct ERABSetupList eRABSetupList;
+	struct security_context security_context;
+	struct gummei gummei;
+};
+
+#define S1AP_HO_REQUEST_BUF_SIZE sizeof(struct handover_request_Q_msg)
+
+struct handover_command_Q_msg {
+	msg_type_t msg_type;
+    	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	enum handoverType handoverType;
+	struct ERABs_Subject_to_Forwarding_List erabs_Subject_to_Forwarding_List;
+	struct src_target_transparent_container target_to_src_transparent_container;
+};
+#define S1AP_HO_COMMAND_BUF_SIZE sizeof(struct handover_command_Q_msg)
+
+struct mme_status_transfer_Q_msg {
+	msg_type_t msg_type;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
+	int target_enb_context_id;
+};
+#define S1AP_MME_STATUS_TRANSFER_BUF_SIZE sizeof(struct mme_status_transfer_Q_msg)
+
 /*************************
  * Outgoing GTP Messages
  *************************/
@@ -357,13 +437,13 @@ struct CS_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	unsigned char IMSI[BINARY_IMSI_LEN];
-	struct apn_name apn;
 	struct apn_name selected_apn;
 	struct TAI tai;
 	struct CGI utran_cgi;
 	unsigned char MSISDN[MSISDN_STR_LEN];
 	unsigned int max_requested_bw_dl;
 	unsigned int max_requested_bw_ul;
+	unsigned int  paa_v4_addr;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
 };
@@ -373,10 +453,14 @@ struct CS_Q_msg {
 struct MB_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
+	struct TAI tai;
+	struct CGI utran_cgi;
 	unsigned short indication[S11_MB_INDICATION_FLAG_SIZE];/*Provision*/
 	unsigned char bearer_id;
 	struct fteid s11_sgw_c_fteid;
 	struct fteid s1u_enb_fteid;
+	bool userLocationInformationIePresent;
+    	bool servingNetworkIePresent;
 };
 #define S11_MBREQ_STAGE7_BUF_SIZE sizeof(struct MB_Q_msg)
 
@@ -403,7 +487,7 @@ struct RB_Q_msg{
 
 struct DDN_ACK_Q_msg{
 	msg_type_t msg_type;
-	int ue_idx;
+	int s11_sgw_cp_teid;
 	uint32_t seq_no;
 	uint8_t cause;
 };
@@ -508,6 +592,7 @@ struct ula_Q_msg {
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];
     struct apn_name selected_apn;
+    uint32_t static_addr;
 };
 
 struct purge_resp_Q_msg {

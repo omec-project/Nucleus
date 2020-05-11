@@ -29,6 +29,7 @@ SUBDIRS 		 := src/cmn \
 					src/mmeGrpcProtos \
 					src/mmeGrpcClient \
 					src/mme-app \
+					src/s1ap/s1apContextManager \
 					src/s1ap \
 					src/s11 \
 					src/s6a

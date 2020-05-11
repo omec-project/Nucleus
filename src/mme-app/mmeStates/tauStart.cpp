@@ -52,6 +52,7 @@ void TauStart::initialize()
 {
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_tau_request);
                 actionTable.addAction(&ActionHandlers::send_tau_response_to_ue);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(TAU_REQUEST_FROM_UE, actionTable));
         }

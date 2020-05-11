@@ -70,11 +70,11 @@ get_authreq_protoie_value(struct proto_IE *value, struct authreq_info *g_authreq
 static int
 authreq_processing(struct authreq_info *g_authreqInfo)
 {
-	struct Buffer g_buffer;
-	struct Buffer g_value_buffer;
-	struct Buffer g_nas_buffer;
+	struct Buffer g_buffer = {0};
+	struct Buffer g_value_buffer = {0};
+	struct Buffer g_nas_buffer = {0};
 
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
 
 	/* Assigning values to s1apPDU */
 	s1apPDU.procedurecode = id_downlinkNASTransport;
