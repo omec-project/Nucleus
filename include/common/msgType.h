@@ -85,6 +85,10 @@ typedef enum msg_type_t {
     enb_status_transfer,
     mme_status_transfer,	
     handover_notify,
+    handover_failure,
+    handover_cancel,
+    handover_preparation_failure,
+    handover_cancel_ack,
     max_msg_type
 } msg_type_t;
 
@@ -180,6 +184,14 @@ struct enb_status_transfer_Q_msg {
 	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
 };
 
+struct handover_failure_Q_msg {
+	struct s1apCause cause;
+};
+
+struct handover_cancel_Q_msg {
+	struct s1apCause cause;
+};
+
 struct tauReq_Q_msg {
     int seq_num;
     int enb_fd;
@@ -211,6 +223,8 @@ typedef union s1_incoming_msgs_t {
     struct handover_req_acknowledge_Q_msg handover_req_acknowledge_Q_msg_m;
     struct handover_notify_Q_msg handover_notify_Q_msg_m;
     struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
+    struct handover_failure_Q_msg handover_failure_Q_msg_m;
+    struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
 }s1_incoming_msgs_t;
 
 typedef struct s1_incoming_msg_data_t {
@@ -429,6 +443,23 @@ struct mme_status_transfer_Q_msg {
 	int target_enb_context_id;
 };
 #define S1AP_MME_STATUS_TRANSFER_BUF_SIZE sizeof(struct mme_status_transfer_Q_msg)
+
+struct handover_preparation_failure_Q_msg {
+	msg_type_t msg_type;
+	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	s1apCause_t cause;
+};
+#define S1AP_HANDOVER_PREPARATION_FAILURE_BUF_SIZE sizeof(struct handover_preparation_failure_Q_msg)
+
+struct handover_cancel_ack_Q_msg {
+	msg_type_t msg_type;
+	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+};
+#define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
 
 /*************************
  * Outgoing GTP Messages

@@ -58,4 +58,25 @@ void S1HoWfHoRequestAck::initialize()
                 actionTable.setNextState(S1HoWfHoNotify::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_REQUEST_ACK_FROM_ENB, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_ho_failure);
+                actionTable.addAction(&ActionHandlers::send_ho_prep_failure_to_src_enb);
+                actionTable.addAction(&ActionHandlers::abort_handover);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_FAILURE_FROM_TARGET_ENB, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_target_enb);
+                actionTable.addAction(&ActionHandlers::send_ho_prep_failure_to_src_enb);
+                actionTable.addAction(&ActionHandlers::abort_handover);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_ho_cancel_req);
+                actionTable.addAction(&ActionHandlers::send_ho_cancel_ack_to_src_enb);
+                actionTable.addAction(&ActionHandlers::abort_handover);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_CANCEL_REQ_FROM_SRC_ENB, actionTable));
+        }
 }

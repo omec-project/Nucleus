@@ -33,6 +33,7 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeS1MsgUtils.h>
 #include <utils/mmeGtpMsgUtils.h>
+#include <utils/mmeCauseUtils.h>
 #include <contextManager/dataBlocks.h>
 #include <utils/mmeContextManagerUtils.h>
 
@@ -120,15 +121,27 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
     }
 
     const struct handover_req_acknowledge_Q_msg &ho_request_ack =
-    		(msgData_p->msg_data.handover_req_acknowledge_Q_msg_m);
+            (msgData_p->msg_data.handover_req_acknowledge_Q_msg_m);
 
     ho_ctxt->setTargetS1apEnbUeId(ho_request_ack.s1ap_enb_ue_id);
+    if (ho_request_ack.erab_admitted_list.count == 0)
+    {
+        log_msg(LOG_INFO, "HO Request ACK does not contain any eRAB Admitted Items.");
+
+        ho_ctxt->setMmeErrorCause(hoRequestAckFailure_c);
+       	S1apCause s1apCause = MmeCauseUtils::convertToS1apCause(
+                ho_ctxt->getMmeErrorCause());
+        ho_ctxt->setS1HoCause(s1apCause);
+
+        return ActStatus::ABORT;
+    }
     ho_ctxt->setTargetToSrcTransContainer(
-    		ho_request_ack.targetToSrcTranspContainer);
+            ho_request_ack.targetToSrcTranspContainer);
     ho_ctxt->setErabAdmittedItem(
             ho_request_ack.erab_admitted_list.erab_admitted[0]);
 
     ProcedureStats::num_of_ho_request_ack_received++;
+
     log_msg(LOG_DEBUG, "Leaving process_ho_request_ack\n");
     return ActStatus::PROCEED;
 }
@@ -358,7 +371,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: procedure ctxt is NULL \n");
         return ActStatus::HALT;
     }
     struct s1relcmd_info s1relcmd;
@@ -434,3 +447,213 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
+/***************************************
+ * Action handler : process_ho_failure
+ ***************************************/
+ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
+{
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_ho_failure: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
+    const s1_incoming_msg_data_t *msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const struct handover_failure_Q_msg &ho_failure =
+            (msgData_p->msg_data.handover_failure_Q_msg_m);
+    ho_ctxt->setS1HoCause(S1apCause(ho_failure.cause));
+
+    ProcedureStats::num_of_ho_failure_received++;
+
+    log_msg(LOG_INFO, "Leaving process_ho_failure\n");
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+ * Action handler : send_ho_prep_failure_to_src_enb
+ ***************************************/
+ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
+{
+    log_msg(LOG_DEBUG, "Inside send_ho_prep_failure_to_src_enb\n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_prep_failure_to_src_enb: ue ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_prep_failure_to_src_enb: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    struct handover_preparation_failure_Q_msg ho_prep_failure;
+    memset(&ho_prep_failure, 0,
+            sizeof(struct handover_preparation_failure_Q_msg));
+    ho_prep_failure.src_enb_context_id = ho_ctxt->getSrcEnbContextId();
+    ho_prep_failure.msg_type = handover_preparation_failure;
+    ho_prep_failure.s1ap_enb_ue_id = ho_ctxt->getSrcS1apEnbUeId();
+    ho_prep_failure.s1ap_mme_ue_id = ue_ctxt->getContextID();
+    ho_prep_failure.cause = ho_ctxt->getS1HoCause().s1apCause_m;
+
+    cmn::ipc::IpcAddress destAddr =
+    { TipcServiceInstance::s1apAppInstanceNum_c };
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+    mmeIpcIf.dispatchIpcMsg((char *) &ho_prep_failure, sizeof(ho_prep_failure), destAddr);
+    ProcedureStats::num_of_ho_prep_failure_sent++;
+    log_msg(LOG_DEBUG, "Leaving send_ho_prep_failure_to_src_enb\n");
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+ * Action handler : abort_handover
+ ***************************************/
+ActStatus ActionHandlers::abort_handover(ControlBlock &cb)
+{
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+ * Action handler : send_s1_rel_cmd_to_target_enb
+ ***************************************/
+ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
+{
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_target_enb\n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_s1_rel_cmd_to_target_enb: ue context is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_s1_rel_cmd_to_target_enb: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+   
+    struct s1relcmd_info s1relcmd;
+    s1relcmd.msg_type = s1_release_command;
+    s1relcmd.ue_idx = ue_ctxt->getContextID();
+    s1relcmd.enb_s1ap_ue_id = ho_ctxt->getTargetS1apEnbUeId();
+    s1relcmd.cause = ho_ctxt->getS1HoCause().s1apCause_m;
+    s1relcmd.enb_fd = ho_ctxt->getTargetEnbContextId();
+
+    // Fire and forget s1 release to target enb
+
+    /*Send message to S1AP-APP*/
+    cmn::ipc::IpcAddress destAddr =
+    { TipcServiceInstance::s1apAppInstanceNum_c };
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+    mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+
+    ProcedureStats::num_of_s1_rel_cmd_sent++;
+    log_msg(LOG_DEBUG, "Leaving send_s1_rel_cmd_to_target_enb \n");
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+ * Action handler : process_ho_cancel_req
+ ***************************************/
+ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
+{
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_ho_cancel_req: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
+    const s1_incoming_msg_data_t *msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const struct handover_cancel_Q_msg &ho_cancel =
+            (msgData_p->msg_data.handover_cancel_Q_msg_m);
+    ho_ctxt->setS1HoCause(S1apCause(ho_cancel.cause));
+
+    ProcedureStats::num_of_ho_cancel_received++;
+
+    log_msg(LOG_INFO, "Leaving process_ho_cancel_req\n");
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+ * Action handler : send_ho_cancel_ack_to_src_enb
+ ***************************************/
+ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
+{
+    log_msg(LOG_DEBUG, "Inside send_ho_cancel_ack_to_src_enb\n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_ho_cancel_ack_to_src_enb: ue ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_cancel_ack_to_src_enb: procedure ctxt is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    struct handover_cancel_ack_Q_msg ho_cancel_ack;
+    memset(&ho_cancel_ack, 0, sizeof(struct handover_cancel_ack_Q_msg));
+
+    ho_cancel_ack.src_enb_context_id = ho_ctxt->getSrcEnbContextId();
+    ho_cancel_ack.msg_type = handover_cancel_ack;
+    ho_cancel_ack.s1ap_enb_ue_id = ho_ctxt->getSrcS1apEnbUeId();
+    ho_cancel_ack.s1ap_mme_ue_id = ue_ctxt->getContextID();
+
+    cmn::ipc::IpcAddress destAddr =
+    { TipcServiceInstance::s1apAppInstanceNum_c };
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+    mmeIpcIf.dispatchIpcMsg((char *) &ho_cancel_ack, sizeof(ho_cancel_ack), destAddr);
+    ProcedureStats::num_of_ho_cancel_ack_sent++;
+    log_msg(LOG_DEBUG, "Leaving send_ho_cancel_ack_to_src_enb\n");
+
+    return ActStatus::PROCEED;
+}

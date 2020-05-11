@@ -218,6 +218,10 @@ class MmeGrpcCliClient {
 	    cout << "num_of_ho_command_to_src_enb_sent       " << reply.num_of_ho_command_to_src_enb_sent() << endl;
 	    cout << "num_of_ho_notify_received               " << reply.num_of_ho_notify_received() << endl;
 	    cout << "num_of_ho_complete     		     " << reply.num_of_ho_complete() << endl;
+	    cout << "num_of_ho_failure_received     		 " << reply.num_of_ho_failure_received() << endl;
+	    cout << "num_of_ho_prep_failure_sent     		 " << reply.num_of_ho_prep_failure_sent() << endl;
+	    cout << "num_of_ho_cancel_received     		     " << reply.num_of_ho_cancel_received() << endl;
+	    cout << "num_of_ho_cancel_ack_sent     		     " << reply.num_of_ho_cancel_ack_sent() << endl;
 
     } else {
       std::cout << status.error_code() << ": " << status.error_message()

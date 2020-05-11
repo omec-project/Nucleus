@@ -29,6 +29,7 @@ const MmeErrorCause ueContextNotFound_c = 0x01;
 const MmeErrorCause networkTimeout_c = 0x02;
 const MmeErrorCause secModeRespFailure_c = 0x03;
 const MmeErrorCause s6AiaFailure_c = 0x04;
+const MmeErrorCause hoRequestAckFailure_c = 0x05;
 }
 
 #endif /* INCLUDE_MME_APP_UTILS_MMECAUSETYPES_H_ */

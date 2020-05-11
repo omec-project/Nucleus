@@ -69,6 +69,10 @@ namespace mme
                 static int num_of_ho_command_to_src_enb_sent;
                 static int num_of_ho_notify_received;
                 static int num_of_ho_complete;
+                static int num_of_ho_failure_received;
+                static int num_of_ho_prep_failure_sent;
+                static int num_of_ho_cancel_received;
+                static int num_of_ho_cancel_ack_sent;
 
 
         };

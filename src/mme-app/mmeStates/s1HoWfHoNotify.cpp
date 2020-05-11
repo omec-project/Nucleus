@@ -65,4 +65,12 @@ void S1HoWfHoNotify::initialize()
                 actionTable.setNextState(S1HoWfHoNotify::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ENB_STATUS_TRANFER_FROM_SRC_ENB, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_ho_cancel_req);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_target_enb);
+                actionTable.addAction(&ActionHandlers::send_ho_cancel_ack_to_src_enb);
+                actionTable.addAction(&ActionHandlers::abort_handover);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_CANCEL_REQ_FROM_SRC_ENB, actionTable));
+        }
 }

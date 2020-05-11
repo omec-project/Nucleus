@@ -45,7 +45,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     hoReq.handoverType = IntraLTE;
     hoReq.cause.present = s1apCause_PR_radioNetwork;
     hoReq.cause.choice.radioNetwork =
-            procCtxt.getS1apCause().s1apCause_m.choice.radioNetwork;
+            procCtxt.getS1HoCause().s1apCause_m.choice.radioNetwork;
 
     memcpy(&(hoReq.src_to_target_transparent_container),
             &(procCtxt.getSrcToTargetTransContainer()),

@@ -1009,7 +1009,7 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 		s1_ctx_release_complete_handler(msg);
 		break;
 		
-	case S1AP_HANDOVER_ACKNOWLEDGE_CODE:
+	case S1AP_HANDOVER_RESOURCE_ALLOCATION_CODE:
 		s1_handover_ack_handler(msg);
 		break;
 		
@@ -1026,6 +1026,17 @@ int
 s1ap_mme_decode_unsuccessfull_outcome (UnsuccessfulOutcome_t *msg)
 {
     log_msg(LOG_DEBUG,"unsuccessful outcome decode : TBD");
+    log_msg(LOG_INFO, "proc code %d\n", msg->procedureCode);
+    switch (msg->procedureCode) {
+
+      case S1AP_HANDOVER_RESOURCE_ALLOCATION_CODE:
+    	  s1_handover_faliure_handler(msg);
+    	  break;
+      default:
+    	  log_msg(LOG_ERROR, "Unknown procedure code - %d\n",msg->procedureCode & 0x00FF);
+    	  break;
+    }
+
     return 0;
 }
 
@@ -1062,6 +1073,10 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 
 	case S1AP_ENB_STATUS_TRANSFER_CODE:
 		s1_enb_status_transfer_handler(initiating_p);
+		break;
+
+	case S1AP_HANDOVER_CANCEL_CODE:
+		s1_handover_cancel_handler(initiating_p);
 		break;
 
 	default:
@@ -2211,6 +2226,212 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
+            }
+        }
+    }
+
+    return 0;
+}
+
+int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
+        struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present == UnsuccessfulOutcome__value_PR_HandoverFailure)
+    {
+        ProtocolIE_Container_129P5_t *protocolIes =
+                &msg->value.choice.HandoverFailure.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+        if (proto_ies->data == NULL)
+        {
+            log_msg(LOG_ERROR, "calloc failed for protocol IE.");
+            return -1;
+        }
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            HandoverFailureIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+            case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+            {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (HandoverFailureIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p == NULL)
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+
+                proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                        s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                s1apMMEUES1APID_p = NULL;
+            }
+                break;
+            case ProtocolIE_ID_id_Cause:
+            {
+                Cause_t *s1apCause_p = NULL;
+                if (HandoverFailureIEs__value_PR_Cause == ie_p->value.present)
+                {
+                    s1apCause_p = &ie_p->value.choice.Cause;
+                }
+
+                if (s1apCause_p == NULL)
+                {
+                    log_msg(LOG_ERROR, "Decoding of IE Cause failed\n");
+                    return -1;
+                }
+
+                proto_ies->data[i].IE_type = S1AP_IE_CAUSE;
+                proto_ies->data[i].val.cause.present = s1apCause_p->present;
+                switch (s1apCause_p->present)
+                {
+                case Cause_PR_radioNetwork:
+                    log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
+                            s1apCause_p->choice.radioNetwork);
+                    proto_ies->data[i].val.cause.choice.radioNetwork =
+                            s1apCause_p->choice.radioNetwork;
+                    break;
+                default:
+                    log_msg(LOG_WARNING, "Unknown cause %d\n",
+                            s1apCause_p->present);
+
+                }
+                s1apCause_p = NULL;
+            }
+                break;
+            default:
+            {
+                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+            }
+
+            }
+        }
+    }
+    return 0;
+}
+
+int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
+        struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present == InitiatingMessage__value_PR_HandoverCancel)
+    {
+        ProtocolIE_Container_129P10_t *protocolIes =
+                &msg->value.choice.HandoverCancel.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+        if (proto_ies->data == NULL)
+        {
+            log_msg(LOG_ERROR, "calloc failed for protocol IE.");
+            return -1;
+        }
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            HandoverCancelIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+            case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
+            {
+                ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                if (HandoverCancelIEs__value_PR_ENB_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                }
+
+                if (s1apENBUES1APID_p == NULL)
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+
+                proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                        s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                s1apENBUES1APID_p = NULL;
+            }
+                break;
+            case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+            {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (HandoverCancelIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p == NULL)
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+
+                proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                        s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                s1apMMEUES1APID_p = NULL;
+            }
+                break;
+            case ProtocolIE_ID_id_Cause:
+            {
+                Cause_t *s1apCause_p = NULL;
+                if (HandoverCancelIEs__value_PR_Cause == ie_p->value.present)
+                {
+                    s1apCause_p = &ie_p->value.choice.Cause;
+                }
+
+                if (s1apCause_p == NULL)
+                {
+                    log_msg(LOG_ERROR, "Decoding of IE Cause failed\n");
+                    return -1;
+                }
+
+                proto_ies->data[i].IE_type = S1AP_IE_CAUSE;
+                proto_ies->data[i].val.cause.present = s1apCause_p->present;
+                switch (s1apCause_p->present)
+                {
+                case Cause_PR_radioNetwork:
+                    log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
+                            s1apCause_p->choice.radioNetwork);
+                    proto_ies->data[i].val.cause.choice.radioNetwork =
+                            s1apCause_p->choice.radioNetwork;
+                    break;
+                default:
+                    log_msg(LOG_WARNING, "Unknown cause %d\n",
+                            s1apCause_p->present);
+
+                }
+                s1apCause_p = NULL;
+            }
+                break;
+            default:
+            {
+                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+            }
             }
         }
     }

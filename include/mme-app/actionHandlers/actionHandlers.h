@@ -53,6 +53,11 @@ namespace mme
         static SM::ActStatus abort_attach(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_handover
+        ***********************************************/
+        static SM::ActStatus abort_handover(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_service_req_procedure
         ***********************************************/
         static SM::ActStatus abort_service_req_procedure(SM::ControlBlock& cb);                
@@ -183,6 +188,16 @@ namespace mme
         static SM::ActStatus process_esm_info_resp(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : process_ho_cancel_req
+        ***********************************************/
+        static SM::ActStatus process_ho_cancel_req(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : process_ho_failure
+        ***********************************************/
+        static SM::ActStatus process_ho_failure(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : process_ho_notify
         ***********************************************/
         static SM::ActStatus process_ho_notify(SM::ControlBlock& cb);                
@@ -298,9 +313,19 @@ namespace mme
         static SM::ActStatus send_esm_info_req_to_ue(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_ho_cancel_ack_to_src_enb
+        ***********************************************/
+        static SM::ActStatus send_ho_cancel_ack_to_src_enb(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_ho_command_to_src_enb
         ***********************************************/
         static SM::ActStatus send_ho_command_to_src_enb(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_ho_prep_failure_to_src_enb
+        ***********************************************/
+        static SM::ActStatus send_ho_prep_failure_to_src_enb(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_ho_request_to_target_enb
@@ -356,6 +381,11 @@ namespace mme
         * Action handler : send_s1_rel_cmd_to_src_enb_for_ho
         ***********************************************/
         static SM::ActStatus send_s1_rel_cmd_to_src_enb_for_ho(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_s1_rel_cmd_to_target_enb
+        ***********************************************/
+        static SM::ActStatus send_s1_rel_cmd_to_target_enb(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_s1_rel_cmd_to_ue

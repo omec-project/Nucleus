@@ -141,6 +141,14 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 			handleEnbStatusTransferMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
+		case msg_type_t::handover_cancel:
+			handleHandoverCancelMsg_v(eMsg, msgData_p->ue_idx);
+		    break;
+
+		case msg_type_t::handover_failure:
+			handleHandoverFailureMsg_v(eMsg, msgData_p->ue_idx);
+		    break;
+
 		default:
 			log_msg(LOG_INFO, "Unhandled S1 Message %d \n", msgData_p->msg_type);
 			delete eMsg;
@@ -452,7 +460,45 @@ void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEventMessage *eMsg,
         return;
     }
 
-    // Fire HO Notify event, insert cb to procedure queue
+    // Fire Enb Status Transfer event, insert cb to procedure queue
     SM::Event evt(ENB_STATUS_TRANFER_FROM_SRC_ENB, eMsg);
+    controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleHandoverCancelMsg_v(IpcEventMessage *eMsg,
+        uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleHandoverCancelMsg_v\n");
+
+    SM::ControlBlock *controlBlk_p =
+            SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+    if (controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleHandoverCancelMsg_v: "
+                "Failed to find UE Context using idx %d\n", ueIdx);
+        return;
+    }
+
+    // Fire Handover Cancel event, insert cb to procedure queue
+    SM::Event evt(HO_CANCEL_REQ_FROM_SRC_ENB, eMsg);
+    controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleHandoverFailureMsg_v(IpcEventMessage *eMsg,
+        uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleHandoverFailureMsg_v\n");
+
+    SM::ControlBlock *controlBlk_p =
+            SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+    if (controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleHandoverFailureMsg_v: "
+                "Failed to find UE Context using idx %d\n", ueIdx);
+        return;
+    }
+
+    // Fire Handover Failure event, insert cb to procedure queue
+    SM::Event evt(HO_FAILURE_FROM_TARGET_ENB, eMsg);
     controlBlk_p->addEventToProcQ(evt);
 }

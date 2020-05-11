@@ -98,6 +98,12 @@ void
 *mme_status_transfer_handler(void *);
 
 void
+*handover_preparation_failure_handler(void *);
+
+void
+*handover_cancel_ack_handler(void *);
+
+void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
 		uint8_t bearer, uint8_t *data, uint16_t data_len,
 		uint8_t *mac);

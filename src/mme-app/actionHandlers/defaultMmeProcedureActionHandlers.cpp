@@ -621,7 +621,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 
 	const struct handover_required_Q_msg &hoReq = (msgData_p->msg_data.handover_required_Q_msg_m);
 
-	hoReqProc_p->setS1apCause(hoReq.cause);
+	hoReqProc_p->setS1HoCause(hoReq.cause);
 	hoReqProc_p->setTargetEnbContextId(hoReq.target_enb_context_id);
 	hoReqProc_p->setSrcToTargetTransContainer(hoReq.srcToTargetTranspContainer);
 	hoReqProc_p->setTargetTai(hoReq.target_id.selected_tai);

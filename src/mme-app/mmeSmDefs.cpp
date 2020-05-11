@@ -41,6 +41,8 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(ESM_INFO_NOT_REQUIRED,"ESM_INFO_NOT_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_REQUIRED,"ESM_INFO_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_RESP_FROM_UE,"ESM_INFO_RESP_FROM_UE");      
+    smUtil->addEventToStrEntry(HO_CANCEL_REQ_FROM_SRC_ENB,"HO_CANCEL_REQ_FROM_SRC_ENB");      
+    smUtil->addEventToStrEntry(HO_FAILURE_FROM_TARGET_ENB,"HO_FAILURE_FROM_TARGET_ENB");      
     smUtil->addEventToStrEntry(HO_NOTIFY_FROM_ENB,"HO_NOTIFY_FROM_ENB");      
     smUtil->addEventToStrEntry(HO_REQUEST_ACK_FROM_ENB,"HO_REQUEST_ACK_FROM_ENB");      
     smUtil->addEventToStrEntry(HO_REQUIRED_FROM_ENB,"HO_REQUIRED_FROM_ENB");      

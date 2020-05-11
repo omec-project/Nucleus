@@ -42,6 +42,8 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies
 int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
 int convertHoNotifyToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
+int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 
 int
 s1_setup_handler(InitiatingMessage_t *msg, int enb_fd);
@@ -104,6 +106,12 @@ int
 s1_enb_status_transfer_handler(InitiatingMessage_t *msg);
 
 int
+s1_handover_faliure_handler(UnsuccessfulOutcome_t *msg);
+
+int
+s1_handover_cancel_handler(InitiatingMessage_t *msg);
+
+int
 detach_accept_from_ue_handler(struct proto_IE *detach_ies, bool retransmit);
 
 int s1ap_mme_encode_ue_context_release_command(
@@ -154,6 +162,14 @@ int s1ap_mme_encode_handover_mme_status_transfer(
         struct mme_status_transfer_Q_msg *s1apPDU,
         uint8_t **buffer,
         uint32_t *length);
+
+int s1ap_mme_encode_handover_prep_failure(
+        struct handover_preparation_failure_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_handover_cancel_ack(
+        struct handover_cancel_ack_Q_msg *s1apPDU,
+        uint8_t **buffer, uint32_t *length);
 
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd);

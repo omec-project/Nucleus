@@ -97,6 +97,12 @@ handle_mmeapp_message(void * data)
 	case mme_status_transfer:
 		mme_status_transfer_handler(msg);
 		break;
+	case handover_preparation_failure:
+		handover_preparation_failure_handler(msg);
+		break;
+	case handover_cancel_ack:
+		handover_cancel_ack_handler(msg);
+		break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

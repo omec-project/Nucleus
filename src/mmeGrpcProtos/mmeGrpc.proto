@@ -114,7 +114,11 @@ message ProcedureStatsRespBuf
 	uint32 num_of_ho_request_ack_received = 55;
 	uint32 num_of_ho_command_to_src_enb_sent = 56;
 	uint32 num_of_ho_notify_received = 57;
-	uint32 num_of_ho_complete = 58;	
+	uint32 num_of_ho_complete = 58;
+	uint32 num_of_ho_failure_received = 59;
+	uint32 num_of_ho_prep_failure_sent = 60;
+	uint32 num_of_ho_cancel_received = 61;
+	uint32 num_of_ho_cancel_ack_sent = 62;	
 }
 
 message Empty

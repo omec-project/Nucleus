@@ -76,4 +76,8 @@ int ProcedureStats::num_of_ho_request_ack_received = 0;
 int ProcedureStats::num_of_ho_command_to_src_enb_sent = 0;
 int ProcedureStats::num_of_ho_notify_received = 0;
 int ProcedureStats::num_of_ho_complete = 0;
+int ProcedureStats::num_of_ho_failure_received = 0;
+int ProcedureStats::num_of_ho_prep_failure_sent = 0;
+int ProcedureStats::num_of_ho_cancel_received = 0;
+int ProcedureStats::num_of_ho_cancel_ack_sent = 0;
 

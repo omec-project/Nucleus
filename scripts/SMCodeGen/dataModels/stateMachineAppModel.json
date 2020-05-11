@@ -681,6 +681,33 @@
                                     "SEND_HO_COMMAND_TO_SRC_ENB"
                                 ],
                                 "NextState":"s1_ho_wf_ho_notify"
+                            },
+                            {
+                                "Name":"HO_FAILURE_FROM_TARGET_ENB",
+                                "Actions":[
+                                    "PROCESS_HO_FAILURE",
+                                    "SEND_HO_PREP_FAILURE_TO_SRC_ENB",
+                                    "ABORT_HANDOVER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_TARGET_ENB",
+                                    "SEND_HO_PREP_FAILURE_TO_SRC_ENB",
+                                    "ABORT_HANDOVER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"HO_CANCEL_REQ_FROM_SRC_ENB",
+                                "Actions":[
+                                    "PROCESS_HO_CANCEL_REQ",
+                                    "SEND_HO_CANCEL_ACK_TO_SRC_ENB",
+                                    "ABORT_HANDOVER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -701,6 +728,16 @@
                                     "SEND_MME_STATUS_TRANFER_TO_TARGET_ENB"
                                 ],
                                 "NextState":"s1_ho_wf_ho_notify"
+                            },
+                            {
+                                "Name":"HO_CANCEL_REQ_FROM_SRC_ENB",
+                                "Actions":[
+                                    "PROCESS_HO_CANCEL_REQ",
+                                    "SEND_S1_REL_CMD_TO_TARGET_ENB",
+                                    "SEND_HO_CANCEL_ACK_TO_SRC_ENB",
+                                    "ABORT_HANDOVER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },

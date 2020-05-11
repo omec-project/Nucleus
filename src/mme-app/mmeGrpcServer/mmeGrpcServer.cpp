@@ -289,6 +289,11 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         reply->set_num_of_ho_command_to_src_enb_sent(ProcedureStats::num_of_ho_command_to_src_enb_sent);
         reply->set_num_of_ho_notify_received(ProcedureStats::num_of_ho_notify_received);
         reply->set_num_of_ho_complete(ProcedureStats::num_of_ho_complete);
+        reply->set_num_of_ho_failure_received(ProcedureStats::num_of_ho_failure_received);
+        reply->set_num_of_ho_prep_failure_sent(ProcedureStats::num_of_ho_prep_failure_sent);
+        reply->set_num_of_ho_cancel_received(ProcedureStats::num_of_ho_cancel_received);
+        reply->set_num_of_ho_cancel_ack_sent(ProcedureStats::num_of_ho_cancel_ack_sent);
+
 
 
         return Status::OK;
