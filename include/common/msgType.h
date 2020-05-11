@@ -19,6 +19,7 @@
 
 #include "common_proc_info.h"
 #include "err_codes.h"
+#include "s6_common_types.h"
 #include "s11_structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
@@ -473,6 +474,7 @@ struct s6a_Q_msg {
 	struct TAI tai;
 	struct AUTS auts;
 	unsigned int ue_idx;
+	supported_features supp_features;
 };
 #define S6A_REQ_Q_MSG_SIZE sizeof(struct s6a_Q_msg)
 
@@ -505,11 +507,15 @@ struct ula_Q_msg {
     int res;
     unsigned int max_requested_bw_dl;
     unsigned int max_requested_bw_ul;
+    unsigned int extended_max_requested_bw_dl;
+    unsigned int extended_max_requested_bw_ul;
     unsigned int apn_config_profile_ctx_id;
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];
     struct apn_name selected_apn;
     uint32_t static_addr;
+    supported_features supp_features;
+
 };
 
 struct purge_resp_Q_msg {
