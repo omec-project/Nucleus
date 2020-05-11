@@ -40,6 +40,8 @@ install_build_pkg_deps() {
 		unzip
 }
 
+
+
 install_freediameter() {
     $SUDO rm -rf /tmp/freediameter
 	git clone -q https://github.com/omec-project/freediameter.git /tmp/freediameter
@@ -57,10 +59,21 @@ install_grpc() {
     	CXXFLAGS='-Wno-error' make && make install && ldconfig
 }
 
+install_epctools() {
+    $SUDO rm -rf $PWD/ThirdParty/epctools
+        git clone -q https://github.com/brianwaters3/epctools.git $PWD/ThirdParty/epctools
+        pushd $PWD/ThirdParty/epctools
+        
+      	./configure &&  $SUDO make install && ldconfig
+}
+
+
 install_build_deps() {
+	
 	install_build_pkg_deps
 	install_freediameter
 	install_grpc
+	install_epctools
 }
 
 (return 2>/dev/null) && echo "Sourced" && return
