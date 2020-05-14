@@ -3,11 +3,17 @@
 #include "structs.h"
 #include "f9.h"
 #include "nas_headers.h"
+#include <utils/mmeCommonUtils.h>
+#include <contextManager/subsDataGroupManager.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
+
+using namespace SM;
+using namespace mme;
+using namespace cmn;
 
 #define NAS_SERVICE_REQUEST 0x4D
 #define AES_128_KEY_SIZE 16
@@ -55,6 +61,92 @@ static unsigned char *msg_to_hex_str(unsigned char *msg, int len, unsigned char 
   return local;
 }
 
+
+void printBytes(unsigned char *buf, size_t len) 
+{
+    //Can enable if needed to check encrypted bytes.
+#if 0
+  for(unsigned int i=0; i<len; i++) {
+    log_msg(LOG_DEBUG,"%02x \n", buf[i]);
+  }
+  log_msg(LOG_DEBUG,"\n");
+#endif
+}
+
+static void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac)
+{
+  unsigned char mact[16] = {0};
+  EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
+  const char cipher[] = "AES-128-CBC";
+  EVP_MAC_CTX *ctx = NULL;
+
+  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
+  log_msg(LOG_DEBUG,"nas data \n");
+  printBytes(data, data_len);
+  OSSL_PARAM params[3];
+  size_t params_n = 0;
+  size_t mactlen = 0;
+  unsigned char* message = (unsigned char*)calloc(data_len+8, sizeof(uint8_t));
+  uint32_t msg_len = 0;
+  if(message == NULL)
+  {
+      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
+      return;
+  }
+  else
+  {
+      uint32_t local_count = htonl(count);
+      msg_len = data_len + 8;
+      memcpy (&message[0], &local_count, 4);
+      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
+      memcpy(&message[8], data, data_len);
+  }
+
+  log_msg(LOG_DEBUG,"cipher %s %d\n",cipher, strlen(cipher));
+  printBytes(int_key, AES_128_KEY_SIZE);
+  log_msg(LOG_DEBUG,"key  %d\n", strlen((const char*)int_key));
+  params[params_n++] =
+      OSSL_PARAM_construct_utf8_string("cipher", (char*)cipher, strlen(cipher));
+  params[params_n++] =
+      OSSL_PARAM_construct_octet_string("key", int_key, AES_128_KEY_SIZE);
+  params[params_n] = OSSL_PARAM_construct_end();
+
+  ctx = EVP_MAC_CTX_new(mac_evp);
+  if(ctx==NULL)
+  {
+      log_msg(LOG_ERROR,"ctx null\n");
+      return;
+  }
+
+  if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
+  {
+      log_msg(LOG_ERROR,"set params fail\n");
+      return;
+  }
+
+  if(!EVP_MAC_init(ctx))
+  {
+      log_msg(LOG_ERROR,"init fail");
+      return;
+  }
+
+  printBytes(message, msg_len);
+  EVP_MAC_update(ctx, message, msg_len);
+  log_msg(LOG_DEBUG,"message length = %lu bytes (%lu bits)\n", 
+                strlen((const char*)message), strlen((const char*)message)*8);
+  EVP_MAC_final(ctx, mact, &mactlen, msg_len);
+  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
+
+  printBytes(mact, mactlen);
+  /* expected result T = 070a16b4 6b4d4144 f79bdd9d d04a287c */
+
+  EVP_MAC_CTX_free(ctx);
+  memcpy(mac, mact, MAC_SIZE);
+  return;
+}
 static void log_buffer_free(unsigned char** buffer)
 {
     if(*buffer != NULL)
@@ -62,7 +154,7 @@ static void log_buffer_free(unsigned char** buffer)
     *buffer = NULL;
 }
 
-void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
+int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
    	unsigned short msg_len = nas_msg_len;
    	unsigned char* msg_end = msg + nas_msg_len;
@@ -77,6 +169,7 @@ void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nas
 
    	unsigned char sec_header_type;
    	unsigned char protocol_discr;
+    bool skip_mac_check = false;
 
    	sec_header_type = (msg[0] >> 4) & 0x0F;
    	protocol_discr = msg[0] & 0x0F;
@@ -99,15 +192,114 @@ void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nas
                 msg += 1;
                 memcpy(nas->header.short_mac, msg, SHORT_MAC_SIZE);
                 nas->header.message_type = NAS_SERVICE_REQUEST;
-                return;
+        }
+        else
+        {
+            memcpy(&nas_header_sec, msg, sizeof(nas_pdu_header_sec));
+            if(sec_header_type == 1)
+            {
+                log_msg(LOG_DEBUG,"header type Integrity protected.\n");
+                log_msg(LOG_INFO, "seq no=%x\n", nas_header_sec.seq_no);
+                nas->header.seq_no = nas_header_sec.seq_no; 
+                unsigned char *msg_ptr = msg + 6;
+
+                sec_header_type = msg_ptr[0] >> 4;
+                protocol_discr = msg_ptr[0] & 0x0F;
+                unsigned char is_EMM = ((unsigned short)protocol_discr == 0x07);  // see TS 24.007
+                log_msg(LOG_INFO, "Security header=%d\n", sec_header_type);
+                log_msg(LOG_INFO, "Protocol discriminator=%d\n", protocol_discr);
+                log_msg(LOG_INFO, "is_EMM=%d\n", is_EMM);
+                if(is_EMM){
+                    log_msg(LOG_INFO, "NAS PDU is EMM\n");
+                    memcpy(&nas_header_short, msg_ptr, sizeof(nas_header_short)); /*copy only till msg type*/
+                    msg_ptr += 2;
+
+                    nas->header.security_header_type = nas_header_short.security_header_type;
+                    nas->header.proto_discriminator = nas_header_short.proto_discriminator;
+                    nas->header.message_type = nas_header_short.message_type;
+                }
+
+                if((NAS_IDENTITY_RESPONSE == nas->header.message_type)
+                   || (NAS_AUTH_RESP == nas->header.message_type)
+                   || (NAS_AUTH_FAILURE == nas->header.message_type)
+                   || (NAS_TAU_REQUEST == nas->header.message_type)
+                   || (NAS_DETACH_REQUEST == nas->header.message_type))
+                {
+                    log_msg(LOG_DEBUG,"No Need for mac check.\n");
+                    skip_mac_check = true;
+                }
+            }
         }
 
-        memcpy(&nas_header_sec, msg, sizeof(nas_pdu_header_sec));
+        if(!skip_mac_check)
+        {
+            SM::ControlBlock* controlBlk_p = NULL;
+            if(nas->header.message_type == NAS_SERVICE_REQUEST)
+            {
+			    uint32_t cbIndex = 
+                    SubsDataGroupManager::Instance()->findCBWithmTmsi(
+                                                            msg_data->ue_idx);
+                controlBlk_p = 
+                    SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+            }
+            else
+            {
+                controlBlk_p = 
+                    SubsDataGroupManager::Instance()->findControlBlock(
+                                                            msg_data->ue_idx);
+            }
 
-        unsigned char *buffer = NULL;
-        log_msg(LOG_INFO, "mac=%s\n", msg_to_hex_str((unsigned char *)nas_header_sec.mac, MAC_SIZE, &buffer));
-        log_buffer_free(&buffer);
+            if(controlBlk_p != NULL)
+            {
+                UEContext* ueCtxt_p = static_cast<UEContext*>(
+                                            controlBlk_p->getPermDataBlock());
+                if(ueCtxt_p != NULL)
+                {
+                    Secinfo &secContext = ueCtxt_p->getUeSecInfo();
+                    unsigned char *buffer = NULL;
+                    log_msg(LOG_INFO, "mac=%s\n", msg_to_hex_str((unsigned char *)nas_header_sec.mac, MAC_SIZE, &buffer));
+                    log_buffer_free(&buffer);
+                    /* calculate mac and compare with received mac */
+                    unsigned char int_key[NAS_INT_KEY_SIZE];
+                    unsigned char calc_mac[MAC_SIZE] = {0};
+                    uint32_t ul_count = secContext.getUplinkCount();
+                    uint8_t direction = SEC_DIRECTION_UPLINK;
+                    uint8_t bearer = 0;
+                    buffer = msg + sizeof(nas_pdu_header_sec) - sizeof(uint8_t);
+                    int buf_len = nas_msg_len - sizeof(nas_pdu_header_sec) + sizeof(uint8_t);
+                    secContext.getIntKey(&int_key[0]);
+                    calculate_aes_mac(int_key, ul_count,
+                                      direction, bearer, buffer, buf_len,
+                                      calc_mac);
 
+                    if(nas->header.message_type == NAS_SERVICE_REQUEST)
+                    {
+                        log_msg(LOG_DEBUG, "Check Service Req Short mac.\n");
+                        unsigned char short_mac_local[SHORT_MAC_SIZE] = {0};
+                        memcpy(short_mac_local, calc_mac, SHORT_MAC_SIZE);
+                        if(memcmp(nas->header.short_mac, 
+                                  short_mac_local, SHORT_MAC_SIZE))
+                        {
+                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
+                            return E_FAIL;
+                        }
+                        else
+                        {
+                            log_msg(LOG_DEBUG, "MAC matched for service req.\n");
+                            return SUCCESS;
+                        }
+                    }
+                    if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
+                    {
+                        log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
+                        return E_FAIL;
+                    }
+
+                    secContext.increment_uplink_count();
+                }
+            }
+        }
+        
         log_msg(LOG_INFO, "seq no=%x\n", nas_header_sec.seq_no);
         nas->header.seq_no = nas_header_sec.seq_no; 
         msg += 6;
@@ -491,6 +683,8 @@ void MmeNasUtils::parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nas
 
         }
 	}
+
+    return SUCCESS;
 }
 
 void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg)
@@ -748,88 +942,7 @@ static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
 	return;
 }
 
-void printBytes(unsigned char *buf, size_t len) {
-  for(unsigned int i=0; i<len; i++) {
-    log_msg(LOG_DEBUG,"%02x \n", buf[i]);
-  }
-  log_msg(LOG_DEBUG,"\n");
-}
-
-static void
-calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
-		uint8_t bearer, uint8_t *data, uint16_t data_len,
-		uint8_t *mac)
-{
-  unsigned char mact[16] = {0};
-  EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
-  const char cipher[] = "AES-128-CBC";
-  EVP_MAC_CTX *ctx = NULL;
-
-  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
-  log_msg(LOG_DEBUG,"nas data \n");
-  printBytes(data, data_len);
-  OSSL_PARAM params[3];
-  size_t params_n = 0;
-  size_t mactlen = 0;
-  unsigned char* message = (unsigned char*)calloc(data_len+8, sizeof(uint8_t));
-  uint32_t msg_len = 0;
-  if(message == NULL)
-  {
-      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
-      return;
-  }
-  else
-  {
-      uint32_t local_count = htonl(count);
-      msg_len = data_len + 8;
-      memcpy (&message[0], &local_count, 4);
-      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
-      memcpy(&message[8], data, data_len);
-  }
-
-  log_msg(LOG_DEBUG,"cipher %s %d\n",cipher, strlen(cipher));
-  printBytes(int_key, AES_128_KEY_SIZE);
-  log_msg(LOG_DEBUG,"key  %d\n", strlen((const char*)int_key));
-  params[params_n++] =
-      OSSL_PARAM_construct_utf8_string("cipher", (char*)cipher, strlen(cipher));
-  params[params_n++] =
-      OSSL_PARAM_construct_octet_string("key", int_key, AES_128_KEY_SIZE);
-  params[params_n] = OSSL_PARAM_construct_end();
-
-  ctx = EVP_MAC_CTX_new(mac_evp);
-  if(ctx==NULL)
-  {
-      log_msg(LOG_ERROR,"ctx null\n");
-      return;
-  }
-
-  if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
-  {
-      log_msg(LOG_ERROR,"set params fail\n");
-      return;
-  }
-
-  if(!EVP_MAC_init(ctx))
-  {
-      log_msg(LOG_ERROR,"init fail");
-      return;
-  }
-
-  printBytes(message, msg_len);
-  EVP_MAC_update(ctx, message, msg_len);
-  log_msg(LOG_DEBUG,"message length = %lu bytes (%lu bits)\n", 
-                strlen((const char*)message), strlen((const char*)message)*8);
-  EVP_MAC_final(ctx, mact, &mactlen, msg_len);
-  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
-
-  printBytes(mact, mactlen);
-  /* expected result T = 070a16b4 6b4d4144 f79bdd9d d04a287c */
-
-  EVP_MAC_CTX_free(ctx);
-  memcpy(mac, mact, MAC_SIZE);
-  return;
-}
-
+#if 0
 static void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
         uint8_t bearer, uint8_t *data, uint16_t data_len,
@@ -843,6 +956,7 @@ calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
 
     return;
 }
+#endif
 
 static int
 copyU16(unsigned char *buffer, uint32_t val)

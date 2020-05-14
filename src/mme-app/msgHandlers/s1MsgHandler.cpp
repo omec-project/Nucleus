@@ -78,8 +78,15 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	/* Get the control block and pass it to below function */
 	if(msgData_p->msg_type == raw_nas_msg)
 	{
-		s1apMsg_plus_raw_nas *nasMsg = &msgData_p->msg_data.rawMsg;
-		MmeNasUtils::parse_nas_pdu(nasMsg->nasMsgBuf, nasMsg->nasMsgSize, &nas);
+        s1apMsg_plus_raw_nas *nasMsg = &msgData_p->msg_data.rawMsg;
+
+		if(E_FAIL == MmeNasUtils::parse_nas_pdu(msgData_p,
+                                    nasMsg->nasMsgBuf, 
+                                    nasMsg->nasMsgSize, &nas))
+        {
+            log_msg(LOG_ERROR,"NAS pdu parse failed.\n");
+            return;
+        }
 		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
 	}
 #endif

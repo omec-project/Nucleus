@@ -101,7 +101,7 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->getUeSecInfo().increment_uplink_count();
+	//ue_ctxt->getUeSecInfo().increment_uplink_count();
 	
 	log_msg(LOG_DEBUG, "Leaving process_detach_accept_from_ue \n");
 	ProcedureStats::num_of_detach_accept_from_ue ++;

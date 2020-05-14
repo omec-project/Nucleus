@@ -48,7 +48,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->getUeSecInfo().increment_uplink_count();
+	//ue_ctxt->getUeSecInfo().increment_uplink_count();
 	
 	struct DS_Q_msg g_ds_msg;
 	g_ds_msg.msg_type = delete_session_request;
