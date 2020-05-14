@@ -286,7 +286,7 @@ get_ue_idx_from_fd_resp(unsigned char *sid, int sidlen);
 short
 create_fd_sess_id(struct s6a_sess_info *s6a_sess, int ue_idx);
 
-void 
+int 
 parse_supported_features_avp(struct avp *avp_ptr, supported_features *supp_features);
 
 int

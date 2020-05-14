@@ -261,7 +261,12 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
                     } break;
                     case SUPP_FEAT_AVP_CODE:
                     {
-                        parse_supported_features_avp(avp, &s6_incoming_msgs.msg_data.ula_Q_msg_m.supp_features);
+			supported_features_list *supp_features_list = &s6_incoming_msgs.msg_data.ula_Q_msg_m.supp_features_list;
+                        if(supp_features_list->count < 2) {
+                            int ret = parse_supported_features_avp(avp, &supp_features_list->supp_features[supp_features_list->count]);
+                            if(ret == SUCCESS)
+                                supp_features_list->count ++;
+                        }
                     } break;
                     default:
                         goto next;

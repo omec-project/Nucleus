@@ -474,7 +474,7 @@ struct s6a_Q_msg {
 	struct TAI tai;
 	struct AUTS auts;
 	unsigned int ue_idx;
-	supported_features supp_features;
+	supported_features_list supp_features_list;
 };
 #define S6A_REQ_Q_MSG_SIZE sizeof(struct s6a_Q_msg)
 
@@ -514,7 +514,7 @@ struct ula_Q_msg {
     char MSISDN[MSISDN_STR_LEN];
     struct apn_name selected_apn;
     uint32_t static_addr;
-    supported_features supp_features;
+    supported_features_list supp_features_list;
 
 };
 
