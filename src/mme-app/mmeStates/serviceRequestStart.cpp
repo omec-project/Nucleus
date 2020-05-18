@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestStart::ServiceRequestStart():State(service_request_start, 0)
+ServiceRequestStart::ServiceRequestStart():State(service_request_start)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

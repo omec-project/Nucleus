@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAuthRespValidate::AttachWfAuthRespValidate():State(attach_wf_auth_resp_validate, 0)
+AttachWfAuthRespValidate::AttachWfAuthRespValidate():State(attach_wf_auth_resp_validate)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

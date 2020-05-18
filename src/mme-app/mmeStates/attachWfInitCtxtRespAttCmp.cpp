@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfInitCtxtRespAttCmp::AttachWfInitCtxtRespAttCmp():State(attach_wf_init_ctxt_resp_att_cmp, 0)
+AttachWfInitCtxtRespAttCmp::AttachWfInitCtxtRespAttCmp():State(attach_wf_init_ctxt_resp_att_cmp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

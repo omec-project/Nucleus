@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DefaultMmeState::DefaultMmeState():State(default_mme_state, 0)
+DefaultMmeState::DefaultMmeState():State(default_mme_state)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

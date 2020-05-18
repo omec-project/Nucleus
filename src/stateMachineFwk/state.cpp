@@ -26,6 +26,16 @@ using namespace std;
 
 namespace SM
 {
+    State::State(uint16_t sID)
+          :stateID(sID),
+           eventToActionsMap(),
+           stateEntryAction(NULL),
+           stateExitAction(NULL),
+           eventValidator(NULL),
+           stateGuardTimeoutDuration_m(0)
+    {
+    }
+
 	State::State(uint16_t sID, uint32_t duration)
 	      :stateID(sID),
 	       eventToActionsMap(),

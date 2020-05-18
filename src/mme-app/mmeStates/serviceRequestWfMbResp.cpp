@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp, 0)
+ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

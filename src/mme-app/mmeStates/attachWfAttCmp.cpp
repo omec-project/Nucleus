@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAttCmp::AttachWfAttCmp():State(attach_wf_att_cmp, 0)
+AttachWfAttCmp::AttachWfAttCmp():State(attach_wf_att_cmp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

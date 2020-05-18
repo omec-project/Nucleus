@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfEsmInfoCheck::AttachWfEsmInfoCheck():State(attach_wf_esm_info_check, 0)
+AttachWfEsmInfoCheck::AttachWfEsmInfoCheck():State(attach_wf_esm_info_check)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

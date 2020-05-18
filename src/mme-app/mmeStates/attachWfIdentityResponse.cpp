@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfIdentityResponse::AttachWfIdentityResponse():State(attach_wf_identity_response, 0)
+AttachWfIdentityResponse::AttachWfIdentityResponse():State(attach_wf_identity_response)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

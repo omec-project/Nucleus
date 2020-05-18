@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAia::ServiceRequestWfAia():State(service_request_wf_aia, 0)
+ServiceRequestWfAia::ServiceRequestWfAia():State(service_request_wf_aia)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

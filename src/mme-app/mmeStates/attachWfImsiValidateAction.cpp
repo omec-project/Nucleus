@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(attach_wf_imsi_validate_action, 0)
+AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(attach_wf_imsi_validate_action)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

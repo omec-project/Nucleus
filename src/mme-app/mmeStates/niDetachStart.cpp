@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachStart::NiDetachStart():State(ni_detach_start, 0)
+NiDetachStart::NiDetachStart():State(ni_detach_start)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

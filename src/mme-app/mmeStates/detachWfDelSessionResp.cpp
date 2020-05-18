@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfDelSessionResp::DetachWfDelSessionResp():State(detach_wf_del_session_resp, 0)
+DetachWfDelSessionResp::DetachWfDelSessionResp():State(detach_wf_del_session_resp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

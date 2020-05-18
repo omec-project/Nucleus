@@ -1,6 +1,7 @@
  [%- PROCESS templates/stateMachineTmpls/macros.tt %]
  [%- State = TemplateInputVar %]
  [%- stateClassName = CLASSNAME(State.Name) %]
+ [%- stateGuardTimerDuration = GET_STATE_GUARD_TIMER_VAL(State.Name, AppModelJSON) %]
 /*
  * Copyright 2020-present Infosys Limited
  *
@@ -35,7 +36,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-[% stateClassName %]::[% stateClassName %]():State([% State.Name %], [% GET_STATE_GUARD_TIMER_VAL(State.Name, AppModelJSON) %])
+[%- IF stateGuardTimerDuration == '0' %]
+[% stateClassName %]::[% stateClassName %]():State([% State.Name %])
+[%- ELSE %]
+[% stateClassName %]::[% stateClassName %]():State([% State.Name %], [% stateGuardTimerDuration %])
+[%- END %]
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

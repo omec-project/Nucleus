@@ -76,13 +76,13 @@ namespace mme
 			* setS1apEnbUeId
 			*    set s1apEnbUeId to UEContext
 			****************************************/
-			void setS1apEnbUeId(int s1apEnbUeId_i);
+			void setS1apEnbUeId(uint32_t s1apEnbUeId_i);
 			
 			/****************************************
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from UEContext
 			****************************************/
-			int getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;				
 			
 			/****************************************
 			* setSubscriptionStatus
@@ -355,7 +355,7 @@ namespace mme
 			int enbFd_m;
 			
 			// DataName
-			int s1apEnbUeId_m;
+			uint32_t s1apEnbUeId_m;
 			
 			// DataName
 			int subscriptionStatus_m;
@@ -1100,13 +1100,13 @@ namespace mme
 			* setS1apEnbUeId
 			*    set s1apEnbUeId to MmeTauProcedureCtxt
 			****************************************/
-			void setS1apEnbUeId(int s1apEnbUeId_i);
+			void setS1apEnbUeId(uint32_t s1apEnbUeId_i);
 			
 			/****************************************
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from MmeTauProcedureCtxt
 			****************************************/
-			int getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;				
 			
 			/****************************************
 			* setTai
@@ -1136,7 +1136,7 @@ namespace mme
 		private:
 		
 			// DataName
-			int s1apEnbUeId_m;
+			uint32_t s1apEnbUeId_m;
 			
 			// DataName
 			Tai tai_m;

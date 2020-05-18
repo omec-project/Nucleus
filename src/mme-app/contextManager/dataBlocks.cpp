@@ -78,7 +78,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void UEContext::setS1apEnbUeId( int s1apEnbUeId_i )
+	void UEContext::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -86,7 +86,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int UEContext::getS1apEnbUeId() const
+	uint32_t UEContext::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}
@@ -1179,7 +1179,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void MmeTauProcedureCtxt::setS1apEnbUeId( int s1apEnbUeId_i )
+	void MmeTauProcedureCtxt::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -1187,7 +1187,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int MmeTauProcedureCtxt::getS1apEnbUeId() const
+	uint32_t MmeTauProcedureCtxt::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}

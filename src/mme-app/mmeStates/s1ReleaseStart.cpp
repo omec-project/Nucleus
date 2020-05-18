@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseStart::S1ReleaseStart():State(s1_release_start, 0)
+S1ReleaseStart::S1ReleaseStart():State(s1_release_start)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

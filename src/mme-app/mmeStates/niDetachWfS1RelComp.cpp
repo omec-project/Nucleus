@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfS1RelComp::NiDetachWfS1RelComp():State(ni_detach_wf_s1_rel_comp, 0)
+NiDetachWfS1RelComp::NiDetachWfS1RelComp():State(ni_detach_wf_s1_rel_comp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

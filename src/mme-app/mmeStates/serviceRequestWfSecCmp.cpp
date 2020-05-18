@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(service_request_wf_sec_cmp, 0)
+ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(service_request_wf_sec_cmp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

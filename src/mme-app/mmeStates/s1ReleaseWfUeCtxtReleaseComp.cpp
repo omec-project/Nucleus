@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(s1_release_wf_ue_ctxt_release_comp, 0)
+S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(s1_release_wf_ue_ctxt_release_comp)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

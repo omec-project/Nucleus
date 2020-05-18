@@ -22,7 +22,7 @@
 							},
 							{
 								"Name": "s1apEnbUeId",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "subscriptionStatus",
@@ -328,7 +328,7 @@
 						"Data": [
 							{
 								"Name": "s1apEnbUeId",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "tai",

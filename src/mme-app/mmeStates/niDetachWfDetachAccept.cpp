@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(ni_detach_wf_detach_accept, 0)
+NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(ni_detach_wf_detach_accept)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

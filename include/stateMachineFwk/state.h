@@ -29,6 +29,8 @@ namespace SM
 	class State
 	{
   	public:
+	        State(uint16_t sID);
+
 	        State(uint16_t sID, uint32_t duration);
 
       		virtual ~State();
