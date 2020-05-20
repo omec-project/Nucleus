@@ -21,7 +21,7 @@ class Secinfo;
 	{
 		public:
 #ifndef S1AP_DECODE_NAS
-			static void parse_nas_pdu(unsigned char *msg,  int nas_msg_len, struct nasPDU *nas);
+			static int parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *nas_msg,  int nas_msg_len, struct nasPDU *nas);
 			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg);
 #endif
 #ifndef S1AP_ENCODE_NAS 

@@ -16,8 +16,10 @@
 
 #define AUTH_REQ_NO_OF_NAS_IES 2
 #define SEC_MODE_NO_OF_NAS_IES 1
-#define ICS_REQ_NO_OF_NAS_IES 5
-#define TAU_RSP_NO_OF_NAS_IES 2
+#define ICS_REQ_NO_OF_NAS_IES  5
+#define TAU_RSP_NO_OF_NAS_IES  2
+#define SEC_DIRECTION_UPLINK   0
+#define SEC_DIRECTION_DOWNLINK 1
 
 /* ESM messages */
 #define ESM_MSG_ACTV_DEF_BEAR__CTX_REQ 0xc1
