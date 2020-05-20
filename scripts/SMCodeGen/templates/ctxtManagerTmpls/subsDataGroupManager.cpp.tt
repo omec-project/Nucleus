@@ -1,6 +1,6 @@
 [%- DataGroup = TemplateInputVar %]
 [%- USE String %]
-[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt -%]
+[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim -%]
 /*
  * Copyright 2019-present Infosys Limited
  *

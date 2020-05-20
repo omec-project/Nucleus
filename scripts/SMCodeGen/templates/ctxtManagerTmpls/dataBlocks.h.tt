@@ -1,7 +1,7 @@
 [%- USE String %]
 [%- DataStore = TemplateInputVar %]
 [%- includeList = includes %]
-[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt %]
+[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim %]
 /*
  * Copyright 2019-present, Infosys Limited.
  *
@@ -78,7 +78,7 @@ namespace mme
 			* get[% String.new(Data.Name).capital.text() %]Len
 			*    get [% Data.Name %]Len from [% dataBlockClassName %]
 			****************************************/
-			uint16_t get[% String.new(Data.Name).capital.text() %]Len()const;				
+			uint16_t get[% String.new(Data.Name).capital.text() %]Len()const;	
 [%- END %]			
 			[%- END %]
 			
@@ -102,7 +102,11 @@ namespace mme
 			[%- DataName = CLASSNAME(Data.Name) %]
 			// DataName
 			[%-IF Data.Cardinality=='' %]
+			[%- IF Data.Type.search("enum") %]
+			[% Data.Type.substr(5) %] [% Data.Name %]_m;
+			[%- ELSE %]
 			[% Data.Type %] [% Data.Name %]_m;
+			[%- END %]
 			[%-ELSE%]
 			uint16_t [% Data.Name %]Len_m;
 			[% Data.Type %] [% Data.Name %]_m[[% Data.Cardinality %]];

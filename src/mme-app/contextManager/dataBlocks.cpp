@@ -24,7 +24,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	UEContext::UEContext():            
+	UEContext::UEContext():           
             enbFd_m(0),
             s1apEnbUeId_m(0),
             subscriptionStatus_m(0),
@@ -45,8 +45,8 @@ namespace mme
             ambr_m(),
             aiaSecInfo_m(),
             mTmsi_m(0),
-            subscribedApn_m(),pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
-	
+            subscribedApn_m(),
+            pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
 	{	
 	}
 	
@@ -76,7 +76,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void UEContext::setS1apEnbUeId( int s1apEnbUeId_i )
+	void UEContext::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -84,7 +84,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int UEContext::getS1apEnbUeId() const
+	uint32_t UEContext::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}
@@ -448,10 +448,9 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmContext::MmContext():            
+	MmContext::MmContext():           
             mmState_m(InvalidState),
             ecmState_m(ecmUnknown_c)
-	
 	{	
 	}
 	
@@ -503,7 +502,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	SessionContext::SessionContext():            
+	SessionContext::SessionContext():           
             sessionId_m(0),
             s11SgwCtrlFteid_m(),
             s5S8PgwCtrlFteid_m(),
@@ -511,7 +510,6 @@ namespace mme
             accessPtName_m(),
             apnConfigProfileCtxId_m(0),
             pti_m(0),BearerContext_mp(NULL)
-	
 	{	
 	}
 	
@@ -658,12 +656,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	BearerContext::BearerContext():            
+	BearerContext::BearerContext():           
             s1uSgwUserFteid_m(),
             s5S8PgwUserFteid_m(),
             s1uEnbUserFteid_m(),
             bearerId_m(0)
-	
 	{	
 	}
 	
@@ -747,13 +744,13 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeProcedureCtxt::MmeProcedureCtxt():            
+	MmeProcedureCtxt::MmeProcedureCtxt():           
             ctxtType_m(invalidProcedureType_c),
             mmeErrorCause_m(noError_c),
             s1apCause_m(),
+            stateGuardTimerCtxt_m(NULL),
             authRespStatus_m(0),
             auts_m()
-	
 	{	
 	}
 	
@@ -813,6 +810,22 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	* sets stateGuardTimerCtxt
+	******************************************************************************/
+	void MmeProcedureCtxt::setStateGuardTimerCtxt( MmeUeTimerContext* stateGuardTimerCtxt_i )
+	{
+		stateGuardTimerCtxt_m = stateGuardTimerCtxt_i;
+	}
+	
+	/******************************************************************************
+	* returns stateGuardTimerCtxt
+	******************************************************************************/	
+	MmeUeTimerContext* MmeProcedureCtxt::getStateGuardTimerCtxt() const
+	{
+		return stateGuardTimerCtxt_m;
+	}
+	
+	/******************************************************************************
 	* sets authRespStatus
 	******************************************************************************/
 	void MmeProcedureCtxt::setAuthRespStatus( int authRespStatus_i )
@@ -853,13 +866,12 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeAttachProcedureCtxt::MmeAttachProcedureCtxt():            
+	MmeAttachProcedureCtxt::MmeAttachProcedureCtxt():           
             esmInfoTxRequired_m(false),
             attachType_m(invalidAttachType_c),
             pcoOptionsLen_m(0),
             pti_m(0),
             requestedApn_m()
-	
 	{
 		memset(pcoOptions_m,0,sizeof(pcoOptions_m));
 	
@@ -969,10 +981,9 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeDetachProcedureCtxt::MmeDetachProcedureCtxt():            
+	MmeDetachProcedureCtxt::MmeDetachProcedureCtxt():           
             detachType_m(invalidDetachType_c),
             cancellationType_m(INVALID_TYPE)
-	
 	{	
 	}
 	
@@ -1024,9 +1035,8 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():            
+	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():           
             s1ReleaseTrigger_m(noTrigger_c)
-	
 	{	
 	}
 	
@@ -1062,12 +1072,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeSvcReqProcedureCtxt::MmeSvcReqProcedureCtxt():            
+	MmeSvcReqProcedureCtxt::MmeSvcReqProcedureCtxt():           
             ddnSeqNo_m(0),
             pagingTrigger_m(none_c),
             epsBearerId_m(0),
             arp_m()
-	
 	{	
 	}
 	
@@ -1151,12 +1160,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeTauProcedureCtxt::MmeTauProcedureCtxt():            
+	MmeTauProcedureCtxt::MmeTauProcedureCtxt():           
             s1apEnbUeId_m(0),
             tai_m(),
             eUtranCgi_m(),
             enbFd_m(0)
-	
 	{	
 	}
 	
@@ -1170,7 +1178,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void MmeTauProcedureCtxt::setS1apEnbUeId( int s1apEnbUeId_i )
+	void MmeTauProcedureCtxt::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -1178,7 +1186,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int MmeTauProcedureCtxt::getS1apEnbUeId() const
+	uint32_t MmeTauProcedureCtxt::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}
@@ -1240,7 +1248,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	S1HandoverProcedureContext::S1HandoverProcedureContext():            
+	S1HandoverProcedureContext::S1HandoverProcedureContext():           
             hoType_m(invalid_c),
             targetEnbContextId_m(0),
             targetS1apEnbUeId_m(0),
@@ -1252,7 +1260,6 @@ namespace mme
             s1HoCause_m(),
             srcEnbContextId_m(0),
             srcS1apEnbUeId_m(0)
-	
 	{	
 	}
 	

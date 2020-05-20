@@ -314,6 +314,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -377,6 +382,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -418,6 +428,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             },
@@ -493,6 +508,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             },
@@ -636,6 +656,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -654,10 +679,15 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
-                "Name":"INTRA_S1_HANDOVER",
+                "Name":"S1_HANDOVER",
                 "States":[
                     {
                         "Name":"intra_s1_ho_start",
@@ -785,6 +815,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             }

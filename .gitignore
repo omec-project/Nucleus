@@ -65,4 +65,4 @@ __pycache__/
 output
 
 /.ptp-sync/
-*.ptp-sync-folder
+*ptp-sync-folder

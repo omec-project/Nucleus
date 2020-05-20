@@ -24,13 +24,12 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	EnbContext::EnbContext():            
+	EnbContext::EnbContext():           
             enbFd_m(0),
             enbId_m(0),
             s1apEnbUeId_m(0),
             contextID_m(0),
             tai_m()
-	
 	{	
 	}
 	

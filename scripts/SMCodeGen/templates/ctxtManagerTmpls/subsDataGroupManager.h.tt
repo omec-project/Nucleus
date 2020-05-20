@@ -1,6 +1,6 @@
  [%- DataGroup = TemplateInputVar %]
  [%- USE String %]
- [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt -%]
+ [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim -%]
  [%- ifdefStr = String.new(DataGroup.DgName).upper.text() -%]
 /*
  * Copyright 2019-present, Infosys Limited.

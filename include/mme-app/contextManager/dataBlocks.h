@@ -74,13 +74,13 @@ namespace mme
 			* setS1apEnbUeId
 			*    set s1apEnbUeId to UEContext
 			****************************************/
-			void setS1apEnbUeId(int s1apEnbUeId_i);
+			void setS1apEnbUeId(uint32_t s1apEnbUeId_i);
 			
 			/****************************************
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from UEContext
 			****************************************/
-			int getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;				
 			
 			/****************************************
 			* setSubscriptionStatus
@@ -320,7 +320,7 @@ namespace mme
 			* getPdnAddr
 			*    get pdnAddr from UEContext
 			****************************************/
-			const Paa& getPdnAddr()const;
+			const Paa& getPdnAddr()const;				
 			
 			/****************************************
 			* setMmContext
@@ -353,7 +353,7 @@ namespace mme
 			int enbFd_m;
 			
 			// DataName
-			int s1apEnbUeId_m;
+			uint32_t s1apEnbUeId_m;
 			
 			// DataName
 			int subscriptionStatus_m;
@@ -749,6 +749,18 @@ namespace mme
 			const S1apCause& getS1apCause()const;				
 			
 			/****************************************
+			* setStateGuardTimerCtxt
+			*    set stateGuardTimerCtxt to MmeProcedureCtxt
+			****************************************/
+			void setStateGuardTimerCtxt(MmeUeTimerContext* stateGuardTimerCtxt_i);
+			
+			/****************************************
+			* getStateGuardTimerCtxt
+			*    get stateGuardTimerCtxt from MmeProcedureCtxt
+			****************************************/
+			MmeUeTimerContext* getStateGuardTimerCtxt()const;				
+			
+			/****************************************
 			* setAuthRespStatus
 			*    set authRespStatus to MmeProcedureCtxt
 			****************************************/
@@ -783,6 +795,9 @@ namespace mme
 			
 			// DataName
 			S1apCause s1apCause_m;
+			
+			// DataName
+			MmeUeTimerContext* stateGuardTimerCtxt_m;
 			
 			// DataName
 			int authRespStatus_m;
@@ -847,7 +862,7 @@ namespace mme
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
 			****************************************/
-			uint16_t getPcoOptionsLen()const;							
+			uint16_t getPcoOptionsLen()const;				
 			
 			/****************************************
 			* setPti
@@ -1083,13 +1098,13 @@ namespace mme
 			* setS1apEnbUeId
 			*    set s1apEnbUeId to MmeTauProcedureCtxt
 			****************************************/
-			void setS1apEnbUeId(int s1apEnbUeId_i);
+			void setS1apEnbUeId(uint32_t s1apEnbUeId_i);
 			
 			/****************************************
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from MmeTauProcedureCtxt
 			****************************************/
-			int getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;				
 			
 			/****************************************
 			* setTai
@@ -1131,7 +1146,7 @@ namespace mme
 		private:
 		
 			// DataName
-			int s1apEnbUeId_m;
+			uint32_t s1apEnbUeId_m;
 			
 			// DataName
 			Tai tai_m;
