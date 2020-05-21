@@ -24,15 +24,14 @@
 #include "s1ap_structs.h"
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
-extern ipc_handle ipc_S1ap_Hndl;
-static Buffer g_buffer = {0};
+
 static int
 get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRespInfo)
 {
     
 	value->no_of_IEs = TAU_RSP_NO_OF_IES;
 
-	value->data = (proto_IEs *) malloc(TAU_RSP_NO_OF_IES*
+	value->data = (proto_IEs *) calloc(TAU_RSP_NO_OF_IES,
 			sizeof(proto_IEs));
 
 	value->data[0].val.mme_ue_s1ap_id = g_tauRespInfo->ue_idx;
@@ -56,7 +55,7 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 	value->data[2].val.nas.header.eps_bearer_identity = 0;
 	value->data[2].val.nas.header.procedure_trans_identity = 1;
 	value->data[2].val.nas.elements_len = TAU_RSP_NO_OF_NAS_IES;
-	value->data[2].val.nas.elements = (nas_pdu_elements *) malloc(TAU_RSP_NO_OF_NAS_IES * sizeof(nas_pdu_elements));
+	value->data[2].val.nas.elements = (nas_pdu_elements *) calloc(TAU_RSP_NO_OF_NAS_IES, sizeof(nas_pdu_elements));
 	nas_pdu_elements *nasIEs = value->data[2].val.nas.elements;
 	uint8_t nasIeCnt = 0;
 	nasIEs[nasIeCnt].pduElement.eps_res = 0; /* TA updated */
@@ -72,6 +71,9 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 			&(g_tauRespInfo->tai), sizeof(g_tauRespInfo->tai));
 	nasIeCnt++;
 
+	free(value->data[2].val.nas.elements);
+	free(value->data);
+
 	return SUCCESS;
 }
 
@@ -80,6 +82,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 {
 
 	struct s1ap_PDU s1apPDU = {0};
+	Buffer g_buffer = {0};
     
 	uint8_t nas_len_pos;
 	uint8_t s1ap_len_pos;
