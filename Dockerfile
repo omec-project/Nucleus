@@ -41,6 +41,7 @@ RUN make -C src/s6a
 COPY src/mme-app ./src/mme-app
 RUN make -C src/mme-app
 COPY src/s1ap ./src/s1ap
+RUN make -C src/s1ap/s1apContextManager
 RUN make -C src/s1ap
 
 RUN make install

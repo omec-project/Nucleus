@@ -85,4 +85,9 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::default_tau_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(TAU_REQUEST_FROM_UE, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_s1_ho_handler);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_REQUIRED_FROM_ENB, actionTable));
+        }
 }

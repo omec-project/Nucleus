@@ -24,9 +24,10 @@
  ***************************************/
 #include "permDataBlock.h"
 #include "tempDataBlock.h"
-#include "structs.h"
+#include <structs.h>
 #include <utils/mmeCauseTypes.h>
 #include <utils/mmeProcedureTypes.h>
+
 namespace mme
 {
 	class UEContext;
@@ -39,6 +40,7 @@ namespace mme
 	class MmeS1RelProcedureCtxt;
 	class MmeSvcReqProcedureCtxt;
 	class MmeTauProcedureCtxt;
+	class S1HandoverProcedureContext;
 	 
 	class UEContext:public SM::PermDataBlock
 	{
@@ -699,7 +701,7 @@ namespace mme
 			ProcedureType getCtxtType()const;				
 			
 			/****************************************
-			* set MmeErrorCause
+			* setMmeErrorCause
 			*    set mmeErrorCause to MmeProcedureCtxt
 			****************************************/
 			void setMmeErrorCause(MmeErrorCause mmeErrorCause_i);
@@ -1078,6 +1080,18 @@ namespace mme
 			const Tai& getTai()const;				
 			
 			/****************************************
+			* setEUtranCgi
+			*    set eUtranCgi to MmeTauProcedureCtxt
+			****************************************/
+			void setEUtranCgi(const Cgi& eUtranCgi_i);
+			
+			/****************************************
+			* getEUtranCgi
+			*    get eUtranCgi from MmeTauProcedureCtxt
+			****************************************/
+			const Cgi& getEUtranCgi()const;				
+			
+			/****************************************
 			* setEnbFd
 			*    set enbFd to MmeTauProcedureCtxt
 			****************************************/
@@ -1099,7 +1113,196 @@ namespace mme
 			Tai tai_m;
 			
 			// DataName
+			Cgi eUtranCgi_m;
+			
+			// DataName
 			int enbFd_m;
+			
+	};
+	 
+	class S1HandoverProcedureContext:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* S1HandoverProcedureContext
+			*    constructor
+			****************************************/
+			S1HandoverProcedureContext();
+			
+			/****************************************
+			* ~S1HandoverProcedureContext
+			*    destructor
+			****************************************/
+			~S1HandoverProcedureContext();
+			
+			/****************************************
+			* setHoType
+			*    set hoType to S1HandoverProcedureContext
+			****************************************/
+			void setHoType(HoType hoType_i);
+			
+			/****************************************
+			* getHoType
+			*    get hoType from S1HandoverProcedureContext
+			****************************************/
+			HoType getHoType()const;				
+			
+			/****************************************
+			* setTargetEnbContextId
+			*    set targetEnbContextId to S1HandoverProcedureContext
+			****************************************/
+			void setTargetEnbContextId(int targetEnbContextId_i);
+			
+			/****************************************
+			* getTargetEnbContextId
+			*    get targetEnbContextId from S1HandoverProcedureContext
+			****************************************/
+			int getTargetEnbContextId()const;				
+			
+			/****************************************
+			* setTargetS1apEnbUeId
+			*    set targetS1apEnbUeId to S1HandoverProcedureContext
+			****************************************/
+			void setTargetS1apEnbUeId(int targetS1apEnbUeId_i);
+			
+			/****************************************
+			* getTargetS1apEnbUeId
+			*    get targetS1apEnbUeId from S1HandoverProcedureContext
+			****************************************/
+			int getTargetS1apEnbUeId()const;				
+			
+			/****************************************
+			* setTargetTai
+			*    set targetTai to S1HandoverProcedureContext
+			****************************************/
+			void setTargetTai(const Tai& targetTai_i);
+			
+			/****************************************
+			* getTargetTai
+			*    get targetTai from S1HandoverProcedureContext
+			****************************************/
+			const Tai& getTargetTai()const;				
+			
+			/****************************************
+			* setTargetCgi
+			*    set targetCgi to S1HandoverProcedureContext
+			****************************************/
+			void setTargetCgi(const Cgi& targetCgi_i);
+			
+			/****************************************
+			* getTargetCgi
+			*    get targetCgi from S1HandoverProcedureContext
+			****************************************/
+			const Cgi& getTargetCgi()const;				
+			
+			/****************************************
+			* setSrcToTargetTransContainer
+			*    set srcToTargetTransContainer to S1HandoverProcedureContext
+			****************************************/
+			void setSrcToTargetTransContainer(const src_target_transparent_container& srcToTargetTransContainer_i);
+			
+			/****************************************
+			* getSrcToTargetTransContainer
+			*    get srcToTargetTransContainer from S1HandoverProcedureContext
+			****************************************/
+			const src_target_transparent_container& getSrcToTargetTransContainer()const;				
+			
+			/****************************************
+			* setTargetToSrcTransContainer
+			*    set targetToSrcTransContainer to S1HandoverProcedureContext
+			****************************************/
+			void setTargetToSrcTransContainer(const src_target_transparent_container& targetToSrcTransContainer_i);
+			
+			/****************************************
+			* getTargetToSrcTransContainer
+			*    get targetToSrcTransContainer from S1HandoverProcedureContext
+			****************************************/
+			const src_target_transparent_container& getTargetToSrcTransContainer()const;				
+			
+			/****************************************
+			* setErabAdmittedItem
+			*    set erabAdmittedItem to S1HandoverProcedureContext
+			****************************************/
+			void setErabAdmittedItem(const ERAB_admitted& erabAdmittedItem_i);
+			
+			/****************************************
+			* getErabAdmittedItem
+			*    get erabAdmittedItem from S1HandoverProcedureContext
+			****************************************/
+			const ERAB_admitted& getErabAdmittedItem()const;				
+			
+			/****************************************
+			* setS1HoCause
+			*    set s1HoCause to S1HandoverProcedureContext
+			****************************************/
+			void setS1HoCause(const S1apCause& s1HoCause_i);
+			
+			/****************************************
+			* getS1HoCause
+			*    get s1HoCause from S1HandoverProcedureContext
+			****************************************/
+			const S1apCause& getS1HoCause()const;				
+			
+			/****************************************
+			* setSrcEnbContextId
+			*    set srcEnbContextId to S1HandoverProcedureContext
+			****************************************/
+			void setSrcEnbContextId(int srcEnbContextId_i);
+			
+			/****************************************
+			* getSrcEnbContextId
+			*    get srcEnbContextId from S1HandoverProcedureContext
+			****************************************/
+			int getSrcEnbContextId()const;				
+			
+			/****************************************
+			* setSrcS1apEnbUeId
+			*    set srcS1apEnbUeId to S1HandoverProcedureContext
+			****************************************/
+			void setSrcS1apEnbUeId(int srcS1apEnbUeId_i);
+			
+			/****************************************
+			* getSrcS1apEnbUeId
+			*    get srcS1apEnbUeId from S1HandoverProcedureContext
+			****************************************/
+			int getSrcS1apEnbUeId()const;				
+			
+		
+		private:
+		
+			// DataName
+			HoType hoType_m;
+			
+			// DataName
+			int targetEnbContextId_m;
+			
+			// DataName
+			int targetS1apEnbUeId_m;
+			
+			// DataName
+			Tai targetTai_m;
+			
+			// DataName
+			Cgi targetCgi_m;
+			
+			// DataName
+			src_target_transparent_container srcToTargetTransContainer_m;
+			
+			// DataName
+			src_target_transparent_container targetToSrcTransContainer_m;
+			
+			// DataName
+			ERAB_admitted erabAdmittedItem_m;
+			
+			// DataName
+			S1apCause s1HoCause_m;
+			
+			// DataName
+			int srcEnbContextId_m;
+			
+			// DataName
+			int srcS1apEnbUeId_m;
 			
 	};
 	

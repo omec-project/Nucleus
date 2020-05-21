@@ -15,7 +15,11 @@
 			"dig1": 0,
 			"dig2": 1,
 			"dig3": -1
-		}
+		},
+        "plmnlist": { 
+			"plmn1": "mcc=315,mnc=010",
+			"plmn2": "mcc=208,mnc=01"
+        }
 	},
 	"s1ap": {
 		"s1ap_local_addr": "192.168.1.55",

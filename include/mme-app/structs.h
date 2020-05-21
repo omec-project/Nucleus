@@ -37,11 +37,11 @@ struct secinfo {
     uint32_t next_hop_chaining_count;
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint8_t sec_key[NAS_SEC_KEY_SIZE];
-    uint8_t next_hop_nh[NAS_NEXT_HOP_SIZE];
     uint8_t kenb_key[KENB_SIZE];
     struct KASME kasme;
     struct nas_count uplink_count;
     struct nas_count downlink_count;
+    uint8_t next_hop_nh[KENB_SIZE]; /* merge issue ? ajaymerge - checkonce */
 };
 
 struct AMBR {
@@ -56,6 +56,7 @@ class Tai
 		Tai( const TAI& tai_i );
 		~Tai();
 		void operator = ( const Tai& tai_i );
+		bool operator== (const Tai& tai_i) const;
 	public:
 		TAI tai_m;
 };

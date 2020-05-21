@@ -1,14 +1,6 @@
 [%- DataGroup = TemplateInputVar %]
 [%- USE String %]
-[%- MACRO CLASSNAME(str) BLOCK %]
-[%- className =  String.new %]
-[%- strList =  String.new(str).split("_") %]
-[%- FOREACH str = strList %]
-[%-    token = className.append(String.new(str).capital.text()) %]
-[%- END %]
-[%- className = className.append( "Manager" ) %]
-[%- className %]
-[%- END -%]
+[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt -%]
 /*
  * Copyright 2019-present Infosys Limited
  *
@@ -22,20 +14,21 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt>
  ***************************************/
-#include "contextManager/subsDataGroupManager.h"
-#include "log.h"
-#include "mmeStates/defaultMmeState.h"
-#include <sstream>
+[%- IF DataGroup.DgName == 'Subs' %]
+#include "contextManager/[%  FILENAME(DataGroup.DgName, "") %]DataGroupManager.h"
+[%- ELSE %]
+#include "[% FILENAME(DataGroup.DgName, "") %]ContextManager/[%  FILENAME(DataGroup.DgName, "") %]DataGroupManager.h"
+[%- END %]
 
 namespace mme
 {
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	SubsDataGroupManager::SubsDataGroupManager()
+	[% DataGroup.DgName %]DataGroupManager::[% DataGroup.DgName %]DataGroupManager()
 	{
 		[%- FOREACH DataBlock = DataGroup.DataBlocks %]
-			[% CLASSNAME(DataBlock.BlockName) %]m_p = NULL;
+			[% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p = NULL;
 		[%- END %]
 
 			initialize();
@@ -44,43 +37,44 @@ namespace mme
 	/******************************************************************************
 	* Destructor
 	******************************************************************************/
-	SubsDataGroupManager::~SubsDataGroupManager()
+	[% DataGroup.DgName %]DataGroupManager::~[% DataGroup.DgName %]DataGroupManager()
 	{
 		[%- FOREACH DataBlock = DataGroup.DataBlocks %]
-			delete [% CLASSNAME(DataBlock.BlockName) %]m_p;
+			delete [% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p;
 		[%- END %]
 	}
 	
 	/******************************************
 	*  Initializes control block and pool managers
 	******************************************/
-	void SubsDataGroupManager::initialize()
+	void [% DataGroup.DgName %]DataGroupManager::initialize()
 	{
 		initializeCBStore([% DataGroup.PoolSize %]);
 
 		[%- FOREACH DataBlock = DataGroup.DataBlocks %]
-		[% CLASSNAME(DataBlock.BlockName) %]m_p = new [% CLASSNAME(DataBlock.BlockName) %]([% DataBlock.PoolSize %]);
+		[% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p = new [% CLASSNAME(DataBlock.BlockName, "Manager") %]([% DataBlock.PoolSize %]);
 		[%- END %]
 	}
 	
 	/******************************************************************************
 	* creates and returns static instance
 	******************************************************************************/
-	SubsDataGroupManager* SubsDataGroupManager::Instance()
+	[% DataGroup.DgName %]DataGroupManager* [% DataGroup.DgName %]DataGroupManager::Instance()
 	{
-			static SubsDataGroupManager subDataGroupMgr;
-			return &subDataGroupMgr;
+	        [%- instanceName_1 = String.new(DataGroup.DgName.substr(0,1)).lower.append(DataGroup.DgName.substr(1)) %]
+			static [% DataGroup.DgName %]DataGroupManager [% instanceName_1 %]DataGroupMgr;
+			return &[% instanceName_1 %]DataGroupMgr;
 	}
 
 	[%- FOREACH DataBlock = DataGroup.DataBlocks %]
-	[% DataBlock.BlockName %]* SubsDataGroupManager::get[% DataBlock.BlockName %]()
+	[% DataBlock.BlockName %]* [% DataGroup.DgName %]DataGroupManager::get[% DataBlock.BlockName %]()
 	{
-		return [% CLASSNAME(DataBlock.BlockName) %]m_p->allocate[% DataBlock.BlockName %]();
+		return [% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p->allocate[% DataBlock.BlockName %]();
 	}
 
-	void SubsDataGroupManager::delete[% DataBlock.BlockName %]([% DataBlock.BlockName %]* [% DataBlock.BlockName %]p )
+	void [% DataGroup.DgName %]DataGroupManager::delete[% DataBlock.BlockName %]([% DataBlock.BlockName %]* [% DataBlock.BlockName %]p )
 	{
-		[% CLASSNAME(DataBlock.BlockName) %]m_p->deallocate[% DataBlock.BlockName %]( [% DataBlock.BlockName %]p );
+		[% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p->deallocate[% DataBlock.BlockName %]( [% DataBlock.BlockName %]p );
 	}
 	[%- END %]
 	
@@ -90,7 +84,7 @@ namespace mme
 	/******************************************
 	* Add a [% Data.Name %] as key and cb index as value to [% Data.Name %]_cb_id_map
 	******************************************/
-	int SubsDataGroupManager::add[% Data.Name %]key( [% Data.Type %] key, int cb_index )
+	int [% DataGroup.DgName %]DataGroupManager::add[% Data.Name %]key( [% Data.Type %] key, int cb_index )
 	{
 		std::lock_guard<std::mutex> lock([% Data.Name %]_cb_id_map_mutex);
 
@@ -107,7 +101,7 @@ namespace mme
 	/******************************************
 	* Delete a [% Data.Name %] key from [% Data.Name %]_cb_id_map
 	******************************************/
-	int SubsDataGroupManager::delete[% Data.Name %]key( [% Data.Type %] key )
+	int [% DataGroup.DgName %]DataGroupManager::delete[% Data.Name %]key( [% Data.Type %] key )
 	{
 		std::lock_guard<std::mutex> lock([% Data.Name %]_cb_id_map_mutex);
  
@@ -118,7 +112,7 @@ namespace mme
 	* Find cb with given [% Data.Name %] from [% Data.Name %]_cb_id_map
 	* returns -1 if not found, else cb index
 	******************************************/ 
-	int SubsDataGroupManager::findCBWith[% Data.Name %]( [% Data.Type %] key )
+	int [% DataGroup.DgName %]DataGroupManager::findCBWith[% Data.Name %]( [% Data.Type %] key )
 	{
 		std::lock_guard<std::mutex> lock([% Data.Name %]_cb_id_map_mutex);
         

@@ -63,6 +63,37 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 
 	ModifyBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
+	struct TAI *tai = &(mb_msg->tai);
+	struct CGI *cgi = &(mb_msg->utran_cgi);
+
+	msgData.servingNetworkIePresent = mb_msg->servingNetworkIePresent;
+	msgData.servingNetwork.mccDigit1 = tai->plmn_id.idx[0] & 0x0F;
+	msgData.servingNetwork.mccDigit2 = (tai->plmn_id.idx[0] & 0xF0) >> 4;
+	msgData.servingNetwork.mccDigit3 = tai->plmn_id.idx[1] & 0x0F;
+	msgData.servingNetwork.mncDigit1 = tai->plmn_id.idx[2] & 0x0F;
+	msgData.servingNetwork.mncDigit2 = (tai->plmn_id.idx[2] & 0xF0) >> 4;
+	msgData.servingNetwork.mncDigit3 = (tai->plmn_id.idx[1] & 0xF0) >> 4;
+
+	msgData.userLocationInformationIePresent = mb_msg->userLocationInformationIePresent;
+	msgData.userLocationInformation.taipresent = true;
+	msgData.userLocationInformation.ecgipresent = true;
+
+	msgData.userLocationInformation.tai.trackingAreaCode = ntohs(tai->tac);
+	msgData.userLocationInformation.tai.mccDigit1 = tai->plmn_id.idx[0] & 0x0F;
+	msgData.userLocationInformation.tai.mccDigit2 = (tai->plmn_id.idx[0] & 0xF0) >> 4;
+	msgData.userLocationInformation.tai.mccDigit3 = tai->plmn_id.idx[1] & 0x0F;
+	msgData.userLocationInformation.tai.mncDigit1 = tai->plmn_id.idx[2] & 0x0F;
+	msgData.userLocationInformation.tai.mncDigit2 = (tai->plmn_id.idx[2] & 0xF0) >> 4;
+	msgData.userLocationInformation.tai.mncDigit3 = (tai->plmn_id.idx[1] & 0xF0) >> 4;
+
+	msgData.userLocationInformation.ecgi.eUtranCellId = ntohl(cgi->cell_id) >> 4;
+	msgData.userLocationInformation.ecgi.mccDigit1 = cgi->plmn_id.idx[0] & 0x0F;
+	msgData.userLocationInformation.ecgi.mccDigit2 = (cgi->plmn_id.idx[0] & 0xF0) >> 4;
+	msgData.userLocationInformation.ecgi.mccDigit3 = cgi->plmn_id.idx[1] & 0x0F;
+	msgData.userLocationInformation.ecgi.mncDigit1 = cgi->plmn_id.idx[2] & 0x0F;
+	msgData.userLocationInformation.ecgi.mncDigit2 = (cgi->plmn_id.idx[2] & 0xF0) >> 4;
+	msgData.userLocationInformation.ecgi.mncDigit3 = (cgi->plmn_id.idx[1] & 0xF0) >> 4;
+
 	msgData.bearerContextsToBeModifiedCount = 1;
 	msgData.bearerContextsToBeModified[0].epsBearerId.epsBearerId = 5;
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeidIePresent = true;

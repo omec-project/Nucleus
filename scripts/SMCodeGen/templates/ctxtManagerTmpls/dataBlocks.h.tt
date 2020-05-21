@@ -1,5 +1,6 @@
 [%- USE String %]
 [%- DataStore = TemplateInputVar %]
+[%- includeList = includes %]
 [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt %]
 /*
  * Copyright 2019-present, Infosys Limited.
@@ -26,9 +27,10 @@
  ***************************************/
 #include "permDataBlock.h"
 #include "tempDataBlock.h"
-#include "structs.h"
-#include <utils/mmeCauseTypes.h>
-#include <utils/mmeProcedureTypes.h>
+
+[%- FOREACH header IN includeList.split(',') -%]
+#include <[% header %]>
+[% END %]
 namespace mme
 {
 	[%- FOREACH DataGroup = DataStore.DataGroups %]
