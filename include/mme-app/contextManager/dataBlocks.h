@@ -27,6 +27,7 @@
 #include <structs.h>
 #include <utils/mmeCauseTypes.h>
 #include <utils/mmeProcedureTypes.h>
+#include <utils/mmeTimerTypes.h>
 
 namespace mme
 {
