@@ -24,6 +24,7 @@
 /* ESM messages */
 #define ESM_MSG_ACTV_DEF_BEAR__CTX_REQ 0xc1
 
+#define AUTH_RESPONSE 53
 #define AUTH_SYNC_FAILURE 21
 
 #include "sec.h"
@@ -40,6 +41,10 @@ struct esm_sec_info {
 	struct proto_conf proto_config;
 };
 
+/* Should we put this in NAS header ?*/
+/* sec. 10.5.6.3 of 3GPP TS 24.008 has following statement:
+ * The protocol configuration options is a type 4 information element with a minimum length of 3 octets and a maximum length of 253 octets.
+ */
 #define MAX_PCO_OPTION_SIZE 255
 struct pco 
 {
@@ -163,6 +168,13 @@ typedef enum s1apCauseNas {
 /*36.413: 9.2.3.8 - MCC, MCN : Only 3 bytes are used*/
 struct PLMN {
 	unsigned char  idx[3];
+    /*Start should always be idx. Dont move down */
+    unsigned char  mnc_digits;
+};
+
+struct PLMN_C {
+	uint16_t mcc;
+	uint16_t mnc; 
 };
 
 typedef struct guti {

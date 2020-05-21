@@ -6,6 +6,7 @@
 
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include "mme_app.h"
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
@@ -27,9 +28,8 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 {
@@ -81,7 +81,8 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &ni_detach_req, sizeof(ni_detach_req), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &ni_detach_req, sizeof(ni_detach_req), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving ni_detach_req_to_ue \n");
 	ProcedureStats::num_of_detach_req_to_ue_sent ++;
@@ -130,12 +131,14 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
     s1relcmd.enb_fd = ue_ctxt->getEnbFd();
     s1relcmd.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     s1relcmd.cause.present = s1apCause_PR_nas;
-    s1relcmd.cause.choice.radioNetwork = s1apCauseNas_detach;
+    s1relcmd.cause.choice.nas = s1apCauseNas_detach;
 
     /*Send message to S1AP-APP*/
     cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-    mmeIpcIf_g->dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+    
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue \n");
 
@@ -172,8 +175,8 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     else
     {
     	mmCtxt->setMmState( EpsDetached );
-	    mmCtxt->setEcmState( ecmIdle_c );
-	    ueCtxt->setS1apEnbUeId(0);
+	mmCtxt->setEcmState( ecmIdle_c );
+	ueCtxt->setS1apEnbUeId(0);
     	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
     }
 

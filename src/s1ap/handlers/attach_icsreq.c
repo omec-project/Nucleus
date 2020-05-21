@@ -21,7 +21,6 @@
 #include "s1ap.h"
 #include "msgType.h"
 
-extern s1ap_config g_s1ap_cfg;
 
 #ifdef S1AP_ENCODE_NAS
 static void
@@ -104,6 +103,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 
 #ifdef S1AP_ENCODE_NAS
 	uint8_t nasIeCnt = 0;
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 	/* NAS PDU values start */
 	e_rab->nas.header.security_header_type =
 				IntegrityProtectedCiphered;
@@ -154,11 +154,6 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 			ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
 	nasIEs[nasIeCnt].pduElement.esm_msg.eps_qos = 9;
 
-	/* TODO: Remove hardcoded value */
-	/*char apnname[4] = "apn1";
-	memcpy(&(nasIEs[nasIeCnt].esm_msg.apn.val), apnname, 4);
-	nasIEs[nasIeCnt].esm_msg.apn.len =  4;
-	*/
 	nasIEs[nasIeCnt].pduElement.esm_msg.apn.len = g_icsReqInfo->apn.len;
 	memcpy(nasIEs[nasIeCnt].pduElement.esm_msg.apn.val,
 			g_icsReqInfo->apn.val, g_icsReqInfo->apn.len);
@@ -177,9 +172,9 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	nasIEs[nasIeCnt].pduElement.mi_guti.id_type = 6;
 
 	memcpy(&(nasIEs[nasIeCnt].pduElement.mi_guti.plmn_id),
-			&(g_icsReqInfo->tai.plmn_id), sizeof(struct PLMN));
-	nasIEs[nasIeCnt].pduElement.mi_guti.mme_grp_id = htons(g_s1ap_cfg.mme_group_id);
-	nasIEs[nasIeCnt].pduElement.mi_guti.mme_code = g_s1ap_cfg.mme_code;
+			&(g_icsReqInfo->tai.plmn_id), 3); // ajaymerge - dont usesizeof(struct PLMN)); plmn struct has some more fields
+	nasIEs[nasIeCnt].pduElement.mi_guti.mme_grp_id = htons(s1ap_cfg->mme_group_id);
+	nasIEs[nasIeCnt].pduElement.mi_guti.mme_code = s1ap_cfg->mme_code;
 	/* TODO : Revisit, temp fix for handling detach request retransmit.
 	 * M-TMSI should come from MME */
 	nasIEs[nasIeCnt].pduElement.mi_guti.m_TMSI = htonl(g_icsReqInfo->m_tmsi);
@@ -492,9 +487,11 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	// In this case, the apn length from esm will be 0.
 	// Then MME will use the selected apn name from HSS-DB.
 	if (ies[3].pduElement.esm_msg.apn.len == 0 ) {
-		datalen = g_icsReqInfo->selected_apn.len + 1;
+		datalen = g_icsReqInfo->selected_apn.len+1;
 		buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-		buffer_copy(&g_nas_buffer + 1, g_icsReqInfo->selected_apn.val,
+		datalen = g_icsReqInfo->selected_apn.len;
+		buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen)); 
+		buffer_copy(&g_nas_buffer, g_icsReqInfo->selected_apn.val,
 				g_icsReqInfo->selected_apn.len);
 
 	}else {
@@ -609,6 +606,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	/* Copy nas length to nas length field */
     //uint16_t nas_pay_len = g_nas_buffer.pos - nas_len_pos - 1;
 	log_msg(LOG_INFO, "NAS payload length %d\n", g_nas_buffer.pos);
+	log_msg(LOG_INFO, "RAB2 payload length before appending NAS %d\n", g_rab2_buffer.pos);
 
 
     /* start: RAB2 + NAS start */
@@ -618,6 +616,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	  /* datalen = g_nas_buffer.pos - nas_len_pos - 1; */
         datalen = g_nas_buffer.pos;
 	    buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "RAB2 payload length after adding NAS length  %d\n", g_rab2_buffer.pos);
     }
     else
     {
@@ -626,6 +625,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = nas_pay_len >> 8;
         lenStr[1] = nas_pay_len & 0xff;
 	    buffer_copy(&g_rab2_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "RAB2 payload length after adding NAS length  %d\n", g_rab2_buffer.pos);
     }
 	buffer_copy(&g_rab2_buffer, &g_nas_buffer.buf[0], g_nas_buffer.pos);
     /* end : RAB2 + NAS done */
@@ -642,11 +642,14 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 
 #endif
 	log_msg(LOG_INFO, "RAB2 payload length %d\n", g_rab2_buffer.pos);
+	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %d\n", g_rab1_buffer.pos);
     /* Now lets append rab2 to rab1 */ 
     if(g_rab2_buffer.pos <= 127)
     {
         datalen = g_rab2_buffer.pos;
 	    buffer_copy(&g_rab1_buffer, &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
+    /* Now lets append rab2 to rab1 */ 
     }
     else
     {
@@ -655,6 +658,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab2_pay_len >> 8;
         lenStr[1] = rab2_pay_len & 0xff;
 	    buffer_copy(&g_rab1_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
     }
 	buffer_copy(&g_rab1_buffer, &g_rab2_buffer.buf[0], g_rab2_buffer.pos);
 
@@ -665,10 +669,12 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     /*g_s1ap_buffer is having rab appended to it.. */
 
 	log_msg(LOG_INFO, "RAB1 payload length %d\n", g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length before appending RAB1 %d\n", g_s1ap_buffer.pos);
     if(g_rab1_buffer.pos <= 127)
     {
         datalen = g_rab1_buffer.pos;
 	    buffer_copy(&(g_s1ap_buffer), &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
     }
     else
     {
@@ -677,8 +683,10 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab1_pay_len >> 8;
         lenStr[1] = rab1_pay_len & 0xff;
 	    buffer_copy(&g_s1ap_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
     }
 	buffer_copy(&g_s1ap_buffer, &g_rab1_buffer.buf[0], g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length after appending RAB1 %d\n", g_s1ap_buffer.pos);
     /* RAB is appended to s1ap payload now */ 
 
 	/* id-UESecurityCapabilities */

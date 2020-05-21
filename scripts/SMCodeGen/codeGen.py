@@ -18,11 +18,6 @@ import json, sys, os
 from os.path import join
 import utils
 
-with open('dataModels/stateMachineAppModel.json') as jsonFile:
-    stateMachineAppModelJSON = json.load(jsonFile)
-with open('dataModels/ctxtManagerAppModel.json') as jsonFile:
-    contextMgrAppModelJSON = json.load(jsonFile)
-
 def processTemplate(templateIp):
     from template import Template
     
@@ -35,7 +30,11 @@ def processTemplate(templateIp):
     utils.outputFileName = utils.outputFileName + utils.outputFileExt
 
     tt = Template({'EVAL_PYTHON':1, 'AUTO_RESET':1})
-    op = tt.process(utils.ttFileName, {'TemplateInputVar' : templateIp})
+    op = tt.process(utils.ttFileName,
+                    {
+                        'TemplateInputVar' : templateIp,
+                        'includes' : utils.includeSet
+                    })
     utils.WriteFile(utils.outputDir, utils.outputFileName, op, utils.mode)
 
 def getTemplateIn(appModelItems, depth):
@@ -57,6 +56,10 @@ def genCppCode(genModel, appModelJSON):
     for item in genModel:
         keyWord = item["appModelKeyword"]
         depth = item["appModelValueDepth"]
+        if 'includes' in item:
+            utils.includeSet = item["includes"]
+        else :
+            utils.includeSet = ""
         utils.ttFileName = item["templateFile"]
         utils.outputDir = item["outputPath"]
         utils.outputFile = item["outputFile"]
@@ -66,14 +69,13 @@ def genCppCode(genModel, appModelJSON):
         
         if not os.path.exists(utils.outputDir):
             os.makedirs(utils.outputDir)
-        
-        appModelItems = utils.get_key_values(appModelJSON, keyWord) 
+
+        appModelItems = utils.get_key_values(appModelJSON, keyWord)
         getTemplateIn(appModelItems, depth)
             
 with open('dataModels/generationItem.json') as JSONFile:
     GenItemJSON = json.load(JSONFile)
-    if 'Model1' in GenItemJSON:
-        genCppCode(GenItemJSON['Model1'], stateMachineAppModelJSON)
-    if "Model2" in GenItemJSON:
-        genCppCode(GenItemJSON['Model2'], contextMgrAppModelJSON)
-    
+    for model in GenItemJSON['Models']:
+        with open(model['AppModel']) as jsonFile:
+            appModelJson = json.load(jsonFile)
+            genCppCode(model['genCode'], appModelJson)

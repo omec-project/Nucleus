@@ -17,9 +17,58 @@
 #include <controlBlock.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <log.h>
+#include <mmeStates/pagingStart.h>
+#include <mmeStates/serviceRequestStart.h>
+#include <mmeStates/tauStart.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <mmeStates/intraS1HoStart.h>
 
 using namespace mme;
+
+MmeSvcReqProcedureCtxt*
+MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb_r, PagingTrigger pagingTrigger)
+{
+    log_msg(LOG_DEBUG, "allocateServiceRequestProcedureCtxt: Entry");
+
+    MmeSvcReqProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeSvcReqProcedureCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::serviceRequest_c);
+        prcdCtxt_p->setPagingTrigger(pagingTrigger);
+
+        if (pagingTrigger == ddnInit_c)
+        {
+            prcdCtxt_p->setNextState(PagingStart::Instance());
+        }
+        else
+        {
+            prcdCtxt_p->setNextState(ServiceRequestStart::Instance());
+        }
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+
+    }
+    return prcdCtxt_p;
+}
+
+MmeTauProcedureCtxt*
+MmeContextManagerUtils::allocateTauProcedureCtxt(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateTauRequestProcedureCtxt: Entry");
+
+    MmeTauProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeTauProcedureCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::tau_c);
+        prcdCtxt_p->setNextState(TauStart::Instance());
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
 
 bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 {
@@ -79,6 +128,15 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 					static_cast<MmeTauProcedureCtxt*>(procedure_p);
 
 			subsDgMgr_p->deleteMmeTauProcedureCtxt(tauProc_p);
+
+			break;
+		}
+		case s1Handover_c:
+		{
+			S1HandoverProcedureContext* s1HoProc_p =
+					static_cast<S1HandoverProcedureContext*>(procedure_p);
+
+			subsDgMgr_p->deleteS1HandoverProcedureContext(s1HoProc_p);
 
 			break;
 		}
@@ -255,4 +313,21 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex)
     }
 
     SubsDataGroupManager::Instance()->deAllocateCB(cb_p->getCBIndex());
+}
+
+S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateHoProcedureCtxt: Entry");
+
+    S1HandoverProcedureContext *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
+        prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
+        prcdCtxt_p->setHoType(intraMmeS1Ho_c);
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
 }

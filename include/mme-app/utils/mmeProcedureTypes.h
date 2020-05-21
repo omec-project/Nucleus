@@ -40,6 +40,7 @@ namespace mme
     	s1Release_c,
     	serviceRequest_c,
     	tau_c,
+    	s1Handover_c,
 
     	maxProcedureType_c
  };
@@ -89,6 +90,13 @@ namespace mme
        mmeInit_c,
        maxS1ReleaseTrigger_c
  };
+
+ enum HoType
+ {
+ 	invalid_c,
+ 	intraMmeS1Ho_c
+ };
+
 
 }
 

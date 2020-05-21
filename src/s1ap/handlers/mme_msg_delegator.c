@@ -85,6 +85,24 @@ handle_mmeapp_message(void * data)
 	case emm_info_request:
 	    emm_info_req_handler(msg);
 	    break;
+	case s1_reset:
+	    gen_reset_request_handler(msg);
+	    break;
+	case handover_request:
+		handover_request_handler(msg);
+		break;
+	case handover_command:
+		handover_command_handler(msg);
+		break;
+	case mme_status_transfer:
+		mme_status_transfer_handler(msg);
+		break;
+	case handover_preparation_failure:
+		handover_preparation_failure_handler(msg);
+		break;
+	case handover_cancel_ack:
+		handover_cancel_ack_handler(msg);
+		break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

@@ -1,21 +1,7 @@
  [%- DataGroup = TemplateInputVar %]
  [%- USE String %]
- [%- MACRO CLASSNAME(str) BLOCK %]
- [%- className =  String.new %]
- [%- strList =  String.new(str).split("_") %]
- [%- FOREACH str = strList %]
- [%-    token = className.append(String.new(str).capital.text()) %]
- [%- END %]
- [%- className = className.append( "Manager" ) %]
- [%- className %]
- [%- END %]
- [%- MACRO FILENAME(str) BLOCK %]
- [%- fileName =  String.new %]
- [%- str = CLASSNAME(str) %]
- [%- fileName = fileName.append(str.substr(0,1)).lower %]
- [%- fileName = fileName.append(str.substr(1)) %]
- [%- fileName %]
- [%- END -%]
+ [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt -%]
+ [%- ifdefStr = String.new(DataGroup.DgName).upper.text() -%]
 /*
  * Copyright 2019-present, Infosys Limited.
  *
@@ -31,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef __SUBS_DATAGROUPMANAGER__
-#define __SUBS_DATAGROUPMANAGER__
+#ifndef __[% ifdefStr %]_DATAGROUPMANAGER__
+#define __[% ifdefStr %]_DATAGROUPMANAGER__
 /**************************************
  *
  * This is an auto generated file.
@@ -43,28 +29,35 @@
 #include <map>
 #include <mutex>
 #include "dataGroupManager.h"
+
+[%- IF DataGroup.DgName == 'Subs' %]
 #include "contextManager/dataBlocks.h"
-[%- IF DataGroup.DgName == 'SubscriberData' %]
 [%- FOREACH DataBlock = DataGroup.DataBlocks %]
-#include "contextManager/[% FILENAME(DataBlock.BlockName) %].h"
+#include "contextManager/[% FILENAME(DataBlock.BlockName, "Manager") %].h"
+[%- END %]
+[%- ELSE -%]
+#include "[% FILENAME(DataGroup.DgName) %]ContextManager/[%  FILENAME(DataGroup.DgName) %]DataBlocks.h"
+[%- FOREACH DataBlock = DataGroup.DataBlocks %]
+#include "[% FILENAME(DataGroup.DgName) %]ContextManager/[% FILENAME(DataBlock.BlockName, "Manager") %].h"
+[%- END %]
 [%- END %]
 namespace mme
 {	
-	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
+	class [% DataGroup.DgName %]DataGroupManager:public cmn::DGM::DataGroupManager
 	{
 		public:
 		
 			/******************************************
 			* Instance 
-			*    Creates static instance for the SubsDataGroupManager
+			*    Creates static instance for the [% DataGroup.DgName %]DataGroupManager
 			*******************************************/
-			static SubsDataGroupManager* Instance();
+			static [% DataGroup.DgName %]DataGroupManager* Instance();
 	
 			/****************************************
-			* SubsDataGroupManager
+			* [% DataGroup.DgName %]DataGroupManager
 			*    Destructor
 			****************************************/
-			virtual ~SubsDataGroupManager();
+			virtual ~[% DataGroup.DgName %]DataGroupManager();
 			
 			/******************************************
 			* initialize
@@ -114,16 +107,16 @@ namespace mme
 		private:
 			
 			/****************************************
-			* SubsDataGroupManager
+			* [% DataGroup.DgName %]DataGroupManager
 			*    Private constructor
 			****************************************/
-			SubsDataGroupManager();  
+			[% DataGroup.DgName %]DataGroupManager();
 			
 			[%- FOREACH DataBlock = DataGroup.DataBlocks %]
 			/****************************************
 			* [% DataBlock.BlockName %] Pool Manager
 			****************************************/
-			[% CLASSNAME(DataBlock.BlockName) %]* [% CLASSNAME(DataBlock.BlockName) %]m_p;
+			[% CLASSNAME(DataBlock.BlockName, "Manager") %]* [% CLASSNAME(DataBlock.BlockName, "Manager") %]m_p;
 			
 			[%- END %]
 			
@@ -144,6 +137,5 @@ namespace mme
 			[%- END %]
 	};
 };
-[% END %]
 
 #endif
