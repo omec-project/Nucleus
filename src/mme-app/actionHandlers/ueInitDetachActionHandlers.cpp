@@ -16,6 +16,7 @@
 #include "actionHandlers/actionHandlers.h"
 #include "contextManager/subsDataGroupManager.h"
 #include "contextManager/dataBlocks.h"
+#include "mme_app.h"
 #include "msgType.h"
 #include "controlBlock.h"
 #include "procedureStats.h"
@@ -32,9 +33,8 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 {
@@ -66,7 +66,8 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
 	ProcedureStats::num_of_del_session_req_sent ++;	
@@ -95,7 +96,8 @@ ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &purge_msg, sizeof(purge_msg), destAddr);
+        MmeIpcInterface &mmeIpcIf =static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));	
+	mmeIpcIf.dispatchIpcMsg((char *) &purge_msg, sizeof(purge_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving purge_req \n");
 	ProcedureStats::num_of_purge_req_sent ++;
@@ -178,7 +180,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	
 #ifdef S1AP_ENCODE_NAS
 	detach_accpt.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-  detach_accpt.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    detach_accpt.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(detach_accpt.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
 #else
@@ -204,7 +206,8 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
 	
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c );
 

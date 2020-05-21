@@ -28,6 +28,9 @@ class SecUtils
 	static void create_kenb_key(unsigned char *kasme, unsigned char *kenb_key,
 			unsigned int seq_no);
 
+	static void create_nh_key(const unsigned char *kasme, unsigned char *nh_key,
+            const unsigned char *old_nh_key);
+
 	static void calculate_hmac_sha256(const unsigned char *input_data,
 			int input_data_len, const unsigned char *key,
 			int key_length, void *output, unsigned int *out_len);

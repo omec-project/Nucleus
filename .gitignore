@@ -65,3 +65,5 @@ __pycache__/
 .idea
 output
 
+/.ptp-sync/
+*.ptp-sync-folder

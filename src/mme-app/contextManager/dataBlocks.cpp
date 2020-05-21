@@ -749,7 +749,7 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets 
+	* sets mmeErrorCause
 	******************************************************************************/
 	void MmeProcedureCtxt::setMmeErrorCause( MmeErrorCause mmeErrorCause_i )
 	{
@@ -757,7 +757,7 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* returns 
+	* returns mmeErrorCause
 	******************************************************************************/	
 	MmeErrorCause MmeProcedureCtxt::getMmeErrorCause() const
 	{
@@ -1122,6 +1122,7 @@ namespace mme
 	MmeTauProcedureCtxt::MmeTauProcedureCtxt():            
             s1apEnbUeId_m(0),
             tai_m(),
+            eUtranCgi_m(),
             enbFd_m(0)
 	
 	{	
@@ -1167,6 +1168,22 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	* sets eUtranCgi
+	******************************************************************************/
+	void MmeTauProcedureCtxt::setEUtranCgi( const Cgi& eUtranCgi_i )
+	{
+		eUtranCgi_m = eUtranCgi_i;
+	}
+	
+	/******************************************************************************
+	* returns eUtranCgi
+	******************************************************************************/	
+	const Cgi& MmeTauProcedureCtxt::getEUtranCgi() const
+	{
+		return eUtranCgi_m;
+	}
+	
+	/******************************************************************************
 	* sets enbFd
 	******************************************************************************/
 	void MmeTauProcedureCtxt::setEnbFd( int enbFd_i )
@@ -1180,6 +1197,214 @@ namespace mme
 	int MmeTauProcedureCtxt::getEnbFd() const
 	{
 		return enbFd_m;
+	}
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							S1HandoverProcedureContext
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	S1HandoverProcedureContext::S1HandoverProcedureContext():            
+            hoType_m(invalid_c),
+            targetEnbContextId_m(0),
+            targetS1apEnbUeId_m(0),
+            targetTai_m(),
+            targetCgi_m(),
+            srcToTargetTransContainer_m(),
+            targetToSrcTransContainer_m(),
+            erabAdmittedItem_m(),
+            s1HoCause_m(),
+            srcEnbContextId_m(0),
+            srcS1apEnbUeId_m(0)
+	
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	S1HandoverProcedureContext::~S1HandoverProcedureContext()
+	{
+	}	
+	
+	/******************************************************************************
+	* sets hoType
+	******************************************************************************/
+	void S1HandoverProcedureContext::setHoType( HoType hoType_i )
+	{
+		hoType_m = hoType_i;
+	}
+	
+	/******************************************************************************
+	* returns hoType
+	******************************************************************************/	
+	HoType S1HandoverProcedureContext::getHoType() const
+	{
+		return hoType_m;
+	}
+	
+	/******************************************************************************
+	* sets targetEnbContextId
+	******************************************************************************/
+	void S1HandoverProcedureContext::setTargetEnbContextId( int targetEnbContextId_i )
+	{
+		targetEnbContextId_m = targetEnbContextId_i;
+	}
+	
+	/******************************************************************************
+	* returns targetEnbContextId
+	******************************************************************************/	
+	int S1HandoverProcedureContext::getTargetEnbContextId() const
+	{
+		return targetEnbContextId_m;
+	}
+	
+	/******************************************************************************
+	* sets targetS1apEnbUeId
+	******************************************************************************/
+	void S1HandoverProcedureContext::setTargetS1apEnbUeId( int targetS1apEnbUeId_i )
+	{
+		targetS1apEnbUeId_m = targetS1apEnbUeId_i;
+	}
+	
+	/******************************************************************************
+	* returns targetS1apEnbUeId
+	******************************************************************************/	
+	int S1HandoverProcedureContext::getTargetS1apEnbUeId() const
+	{
+		return targetS1apEnbUeId_m;
+	}
+	
+	/******************************************************************************
+	* sets targetTai
+	******************************************************************************/
+	void S1HandoverProcedureContext::setTargetTai( const Tai& targetTai_i )
+	{
+		targetTai_m = targetTai_i;
+	}
+	
+	/******************************************************************************
+	* returns targetTai
+	******************************************************************************/	
+	const Tai& S1HandoverProcedureContext::getTargetTai() const
+	{
+		return targetTai_m;
+	}
+	
+	/******************************************************************************
+	* sets targetCgi
+	******************************************************************************/
+	void S1HandoverProcedureContext::setTargetCgi( const Cgi& targetCgi_i )
+	{
+		targetCgi_m = targetCgi_i;
+	}
+	
+	/******************************************************************************
+	* returns targetCgi
+	******************************************************************************/	
+	const Cgi& S1HandoverProcedureContext::getTargetCgi() const
+	{
+		return targetCgi_m;
+	}
+	
+	/******************************************************************************
+	* sets srcToTargetTransContainer
+	******************************************************************************/
+	void S1HandoverProcedureContext::setSrcToTargetTransContainer( const src_target_transparent_container& srcToTargetTransContainer_i )
+	{
+		srcToTargetTransContainer_m = srcToTargetTransContainer_i;
+	}
+	
+	/******************************************************************************
+	* returns srcToTargetTransContainer
+	******************************************************************************/	
+	const src_target_transparent_container& S1HandoverProcedureContext::getSrcToTargetTransContainer() const
+	{
+		return srcToTargetTransContainer_m;
+	}
+	
+	/******************************************************************************
+	* sets targetToSrcTransContainer
+	******************************************************************************/
+	void S1HandoverProcedureContext::setTargetToSrcTransContainer( const src_target_transparent_container& targetToSrcTransContainer_i )
+	{
+		targetToSrcTransContainer_m = targetToSrcTransContainer_i;
+	}
+	
+	/******************************************************************************
+	* returns targetToSrcTransContainer
+	******************************************************************************/	
+	const src_target_transparent_container& S1HandoverProcedureContext::getTargetToSrcTransContainer() const
+	{
+		return targetToSrcTransContainer_m;
+	}
+	
+	/******************************************************************************
+	* sets erabAdmittedItem
+	******************************************************************************/
+	void S1HandoverProcedureContext::setErabAdmittedItem( const ERAB_admitted& erabAdmittedItem_i )
+	{
+		erabAdmittedItem_m = erabAdmittedItem_i;
+	}
+	
+	/******************************************************************************
+	* returns erabAdmittedItem
+	******************************************************************************/	
+	const ERAB_admitted& S1HandoverProcedureContext::getErabAdmittedItem() const
+	{
+		return erabAdmittedItem_m;
+	}
+	
+	/******************************************************************************
+	* sets s1HoCause
+	******************************************************************************/
+	void S1HandoverProcedureContext::setS1HoCause( const S1apCause& s1HoCause_i )
+	{
+		s1HoCause_m = s1HoCause_i;
+	}
+	
+	/******************************************************************************
+	* returns s1HoCause
+	******************************************************************************/	
+	const S1apCause& S1HandoverProcedureContext::getS1HoCause() const
+	{
+		return s1HoCause_m;
+	}
+	
+	/******************************************************************************
+	* sets srcEnbContextId
+	******************************************************************************/
+	void S1HandoverProcedureContext::setSrcEnbContextId( int srcEnbContextId_i )
+	{
+		srcEnbContextId_m = srcEnbContextId_i;
+	}
+	
+	/******************************************************************************
+	* returns srcEnbContextId
+	******************************************************************************/	
+	int S1HandoverProcedureContext::getSrcEnbContextId() const
+	{
+		return srcEnbContextId_m;
+	}
+	
+	/******************************************************************************
+	* sets srcS1apEnbUeId
+	******************************************************************************/
+	void S1HandoverProcedureContext::setSrcS1apEnbUeId( int srcS1apEnbUeId_i )
+	{
+		srcS1apEnbUeId_m = srcS1apEnbUeId_i;
+	}
+	
+	/******************************************************************************
+	* returns srcS1apEnbUeId
+	******************************************************************************/	
+	int S1HandoverProcedureContext::getSrcS1apEnbUeId() const
+	{
+		return srcS1apEnbUeId_m;
 	}
 	
 } // mme

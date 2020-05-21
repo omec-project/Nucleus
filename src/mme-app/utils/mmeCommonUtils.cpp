@@ -206,16 +206,16 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					{
 						log_msg(LOG_ERROR, "Failed to find control block with mTmsi.\n");
 
-                        // allocate new cb and proceed?
-                        cb = SubsDataGroupManager::Instance()->allocateCB();
-                        cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+                                                // allocate new cb and proceed?
+                                                cb = SubsDataGroupManager::Instance()->allocateCB();
+                                                cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 					}
 				}
-                else
-                {
-                    cb = SubsDataGroupManager::Instance()->allocateCB();
-                    cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
-                }
+				else
+                                {
+                                        cb = SubsDataGroupManager::Instance()->allocateCB();
+                    			cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+                		}
 			}
 			break;
 		}
@@ -229,6 +229,16 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			else
 			{
 				log_msg(LOG_INFO, "Failed to find control block with mTmsi.\n");
+			}
+
+			if (cb == NULL)
+			{
+                            log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
+                                              " Allocate a temporary control block\n", msgData_p->ue_idx);
+			    
+			    // Respond  with Service Reject from default Service Request event handler
+			    cb = SubsDataGroupManager::Instance()->allocateCB();
+			    cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;
@@ -253,7 +263,14 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
 			
 			if (cb == NULL)
-				log_msg(LOG_INFO, "Failed to retrieve CB using idx %d.\n", msgData_p->ue_idx);
+			{
+                            log_msg(LOG_INFO, "Failed to find control block using index %d."
+                                              " Allocate a temporary control block\n", msgData_p->ue_idx);
+
+                            // Respond  with TAU Reject from default TAU event handler
+			    cb = SubsDataGroupManager::Instance()->allocateCB();
+			    cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+			}
 
 			break;
 		}
@@ -264,6 +281,46 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 	}
 
 	return cb;
+}
+
+ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* msg_p)
+{
+    ControlBlock* cb_p = NULL;
+
+    const gtp_incoming_msg_data_t* msgData_p = (gtp_incoming_msg_data_t*)(msg_p->getDataPointer());
+    if(msgData_p == NULL)
+    {
+        log_msg(LOG_INFO, "GTP message data is NULL .\n");
+        return cb_p;
+    }
+
+    switch (msgData_p->msg_type)
+    {
+        case downlink_data_notification:
+        {
+            if (msgData_p->ue_idx == 0)
+            {
+                log_msg(LOG_INFO, "UE Index in DDN message data is 0.\n");
+                return cb_p;
+            }
+
+            cb_p = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
+            if (cb_p == NULL)
+            {
+                log_msg(LOG_INFO, "Failed to find control block using index %d."
+                        " Allocate a temporary control block\n", msgData_p->ue_idx);
+
+                // Respond  with DDN failure from default DDN event handler
+                cb_p = SubsDataGroupManager::Instance()->allocateCB();
+                cb_p->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+            }
+        }break;
+        default:
+        {
+            log_msg(LOG_INFO, "Unhandled message type\n");
+        }
+    }
+    return cb_p;
 }
 
 bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt)
@@ -279,4 +336,6 @@ bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeP
 	}
 	return rc;
 }
+
+
 

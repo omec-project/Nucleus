@@ -14,10 +14,13 @@
  ******************************************************************************/
 
 #include <actionHandlers/actionHandlers.h>
-#include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>
+#include <mme_app.h>
 #include <controlBlock.h>
 #include <event.h>
+#include <gtpCauseTypes.h>
+#include <interfaces/mmeIpcInterface.h>
+#include <ipcTypes.h>
 #include <mmeSmDefs.h>
 #include <mmeStates/attachStart.h>
 #include <mmeStates/detachStart.h>
@@ -26,6 +29,7 @@
 #include <mmeStates/s1ReleaseStart.h>
 #include <mmeStates/serviceRequestStart.h>
 #include <mmeStates/tauStart.h>
+#include <mmeStates/intraS1HoStart.h>
 #include <msgBuffer.h>
 #include <msgType.h>
 #include <log.h>
@@ -34,13 +38,15 @@
 #include <state.h>
 #include <string.h>
 #include <sstream>
+#include <tipcTypes.h>
 #include <typeinfo>
-#include <utils/mmeProcedureTypes.h>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "contextManager/dataBlocks.h"
 
 using namespace mme;
 using namespace SM;
+using namespace cmn;
 
 /***************************************
 * Action handler : default_attach_req_handler
@@ -216,26 +222,26 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
-	MmeDetachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeDetachProcedureCtxt();
-	if( prcdCtxt_p == NULL )
-	{
-		log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
+    MmeDetachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeDetachProcedureCtxt();
+    if( prcdCtxt_p == NULL )
+    {
+	log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
+	return ActStatus::HALT;
+    }
 
-		return ActStatus::HALT;
-	}
 
-	prcdCtxt_p->setCtxtType( ProcedureType::detach_c );
-	prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c);
-	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-	prcdCtxt_p->setNextState(DetachStart::Instance());
-	cb.setCurrentTempDataBlock(prcdCtxt_p);
-
-	SM::Event evt(DETACH_REQ_FROM_UE, NULL);
-	cb.addEventToProcQ(evt);
-
-	ProcedureStats::num_of_detach_req_received ++;
-
-	return ActStatus::PROCEED;
+    prcdCtxt_p->setCtxtType( ProcedureType::detach_c );
+    prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c);
+    ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
+    prcdCtxt_p->setNextState(DetachStart::Instance());
+    cb.setCurrentTempDataBlock(prcdCtxt_p);
+    
+    SM::Event evt(DETACH_REQ_FROM_UE, NULL);
+    cb.addEventToProcQ(evt);
+    
+    ProcedureStats::num_of_detach_req_received ++;
+    
+    return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -243,97 +249,172 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 {
-	MmeSvcReqProcedureCtxt* svcReqProc_p = SubsDataGroupManager::Instance()->getMmeSvcReqProcedureCtxt();
-	if (svcReqProc_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Failed to allocate procedure context"
-				" for DDN handling cbIndex %d\n", cb.getCBIndex());
+    ProcedureStats::num_of_ddn_received++;
 
-		return ActStatus::HALT;
-	}
-	
-	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_INFO, "default_ddn_handler: msgBuf is NULL \n");
+        return ActStatus::PROCEED;
+    }
 
-	if (msgBuf == NULL)
-	{
-	    log_msg(LOG_DEBUG,"process_ddn: msgBuf is NULL \n");
-	    return ActStatus::HALT;
-   	}
+    const gtp_incoming_msg_data_t *gtp_msg_data =
+            static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    const struct ddn_Q_msg &ddn_info =
+            gtp_msg_data->msg_data.ddn_Q_msg_m;
 
-   	const gtp_incoming_msg_data_t* gtp_msg_data= static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
-   	const struct ddn_Q_msg& ddn_info = gtp_msg_data->msg_data.ddn_Q_msg_m;
+    uint8_t gtpCause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+    int sgw_cp_teid = 0;
 
-	svcReqProc_p->setCtxtType(ProcedureType::serviceRequest_c);
-	svcReqProc_p->setNextState(PagingStart::Instance());
-	svcReqProc_p->setPagingTrigger(ddnInit_c);
-	svcReqProc_p->setDdnSeqNo(ddn_info.seq_no);
-	svcReqProc_p->setArp(Arp(ddn_info.arp));
-	svcReqProc_p->setEpsBearerId(ddn_info.eps_bearer_id);
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        SessionContext *sess_p = ueCtxt->getSessionContext();
+        if (sess_p != NULL)
+        {
+            sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
 
-	cb.setCurrentTempDataBlock(svcReqProc_p);
-    
-	SM::Event evt(DDN_FROM_SGW, NULL);
-	cb.addEventToProcQ(evt);
+            MmeSvcReqProcedureCtxt *svcReqProc_p =
+                    MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
+                            cb, PagingTrigger::ddnInit_c);
+            if (svcReqProc_p != NULL)
+            {
+                svcReqProc_p->setDdnSeqNo(ddn_info.seq_no);
+                svcReqProc_p->setArp(Arp(ddn_info.arp));
+                svcReqProc_p->setEpsBearerId(ddn_info.eps_bearer_id);
 
-	ProcedureStats::num_of_ddn_received ++;
+                SM::Event evt(DDN_FROM_SGW, NULL);
+                cb.addEventToProcQ(evt);
+            }
+            else
+            {
+                log_msg(LOG_INFO,
+                        "default_ddn_handler: Failed to allocate procedure context \n");
+                gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
+            }
+        }
+        else
+        {
+            log_msg(LOG_INFO,
+                    "default_ddn_handler: Failed to find session context \n");
+            gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
+        }
+    }
+    else
+    {
+        log_msg(LOG_INFO,
+                "default_ddn_handler: Failed to find UE context \n");
 
-	return ActStatus::PROCEED;
+        gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (gtpCause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    {
+        struct DDN_ACK_Q_msg ddnAck =
+        {
+                ddn_acknowledgement,
+                sgw_cp_teid,
+                ddn_info.seq_no,
+                gtpCause
+        };
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+        
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
+        mmeIpcIf.dispatchIpcMsg((char *) &ddnAck, sizeof(ddnAck), destAddr);
+    }
+
+    return ActStatus::PROCEED;
 }
 
 /***************************************
 * Action handler : default_service_req_handler
 ***************************************/
 ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
-{	
-	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-	if (msgBuf == NULL)
-	{
-        	log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
-        	return ActStatus::HALT;
-    	}
-	const s1_incoming_msg_data_t* msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    	if (msgData_p == NULL)
-    	{
-        	log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        	return ActStatus::HALT;
-    	}
-    	MmeSvcReqProcedureCtxt* svcReqProc_p = SubsDataGroupManager::Instance()->getMmeSvcReqProcedureCtxt();
-	if (svcReqProc_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Failed to allocate procedure context"
-				" for service request cbIndex %d\n", cb.getCBIndex());
+{
+    log_msg(LOG_DEBUG, "default_service_req_handler \n");
 
-		return ActStatus::HALT;
-	}
+    ProcedureStats::num_of_service_request_received++;
 
-	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ueCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "ue context is NULL \n");
-		return ActStatus::HALT;
-	}
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
 
-	MmContext* mmCtxt = ueCtxt->getMmContext();
-	if (mmCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "mm context is NULL \n");
-		return ActStatus::HALT;
-	}
-	
-	mmCtxt->setEcmState(ecmConnected_c);
-	
-	svcReqProc_p->setCtxtType(ProcedureType::serviceRequest_c);
-	svcReqProc_p->setNextState(ServiceRequestStart::Instance());
-	ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-	cb.setCurrentTempDataBlock(svcReqProc_p);
+    s1_incoming_msg_data_t *msgData_p =
+            static_cast<s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+    struct service_req_Q_msg &serviceReq = msgData_p->msg_data.service_req_Q_msg_m;
 
-	SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
-	cb.addEventToProcQ(evt);
+    unsigned char emmCause = 0;
 
-    	ProcedureStats::num_of_service_request_received ++;
-	
-	return ActStatus::PROCEED;
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        MmContext *mmCtxt = ueCtxt->getMmContext();
+        if (mmCtxt != NULL)
+        {
+            MmeSvcReqProcedureCtxt *srvReqProc_p =
+                    MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(cb, none_c);
+            if (srvReqProc_p != NULL)
+            {
+                mmCtxt->setEcmState(ecmConnected_c);
+                ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
+
+                SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
+                cb.addEventToProcQ(evt);
+            }
+            else
+            {
+                log_msg(LOG_ERROR, "Failed to allocate procedure context \n");
+
+                emmCause = emmCause_network_failure;
+            }
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Invalid UE Context \n");
+
+            emmCause = emmCause_ue_id_not_derived_by_network;
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "UE Context is NULL \n");
+
+        emmCause = emmCause_ue_id_not_derived_by_network;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (emmCause != 0)
+    {
+        struct commonRej_info serviceRej =
+        {
+                service_reject,
+                msgData_p->ue_idx,
+                msgData_p->s1ap_enb_ue_id,
+                serviceReq.enb_fd,
+                emmCause
+        };
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+        
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &serviceRej, sizeof(struct commonRej_info), destAddr);
+    }
+
+    return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -414,12 +495,121 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 {
-	MmeTauProcedureCtxt* tauReqProc_p = SubsDataGroupManager::Instance()->getMmeTauProcedureCtxt();
-	if (tauReqProc_p == NULL)
+    log_msg(LOG_DEBUG, "default_tau_req_handler: Entry \n");
+
+    ProcedureStats::num_of_tau_req_received++;
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t *msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
+    unsigned char emmCause = 0;
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        MmContext *mmCtxt = ueCtxt->getMmContext();
+        if (mmCtxt != NULL)
+        {
+            MmeTauProcedureCtxt *tauReqProc_p =
+                    MmeContextManagerUtils::allocateTauProcedureCtxt(cb);
+            if (tauReqProc_p != NULL)
+            {
+                mmCtxt->setEcmState(ecmConnected_c);
+
+                tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
+                tauReqProc_p->setEnbFd(tauReq.enb_fd);
+
+                //TAI and CGI obtained from s1ap ies.
+                //Convert the PLMN in s1ap format to nas format before storing in procedure context.
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
+                tauReqProc_p->setTai(Tai(tauReq.tai));
+                tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
+                SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
+                cb.addEventToProcQ(evt);
+            }
+            else
+            {
+                log_msg(LOG_ERROR, "Failed to allocate procedure context \n");
+
+                emmCause = emmCause_network_failure;
+            }
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Invalid UE Context \n");
+
+            emmCause = emmCause_ue_id_not_derived_by_network;
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "UE Context is NULL \n");
+
+        emmCause = emmCause_ue_id_not_derived_by_network;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (emmCause != 0)
+    {
+        struct commonRej_info tauRej =
+        {
+                tau_response,
+		msgData_p->ue_idx,
+                msgData_p->s1ap_enb_ue_id,
+                tauReq.enb_fd,
+                emmCause
+        };
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+        
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
+    }
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : default_s1_ho_handler
+***************************************/
+ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
+{
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG,"process_handover_required: msgBuf is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+	S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+	if (hoReqProc_p == NULL)
 	{
 		log_msg(LOG_ERROR, "Failed to allocate procedure context"
-				" for tau request cbIndex %d\n", cb.getCBIndex());
-
+				" for ho required cbIndex %d\n", cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -430,43 +620,19 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmContext* mmCtxt = ueCtxt->getMmContext();
-	if (mmCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "mm context is NULL \n");
-		return ActStatus::HALT;
-	}
+	const struct handover_required_Q_msg &hoReq = (msgData_p->msg_data.handover_required_Q_msg_m);
 
-	mmCtxt->setEcmState(ecmConnected_c);
-	
-	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-	if (msgBuf == NULL)
-	{	
-            log_msg(LOG_DEBUG,"process_tau_req: msgBuf is NULL \n");
-            return ActStatus::HALT;
-	}
-	
-	const s1_incoming_msg_data_t* msgData_p =
-			static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	if (msgData_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-		return ActStatus::HALT;
-	}
+	hoReqProc_p->setS1HoCause(hoReq.cause);
+	hoReqProc_p->setTargetEnbContextId(hoReq.target_enb_context_id);
+	hoReqProc_p->setSrcToTargetTransContainer(hoReq.srcToTargetTranspContainer);
+	hoReqProc_p->setTargetTai(hoReq.target_id.selected_tai);
+	hoReqProc_p->setSrcS1apEnbUeId(hoReq.s1ap_enb_ue_id);
+	hoReqProc_p->setSrcEnbContextId(hoReq.src_enb_context_id);
 
-	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);	
-	
-	tauReqProc_p->setCtxtType(ProcedureType::tau_c);
-	tauReqProc_p->setNextState(TauStart::Instance());	
-	tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-	tauReqProc_p->setEnbFd(tauReq.enb_fd);
-	cb.setCurrentTempDataBlock(tauReqProc_p);	
+	ProcedureStats::num_of_ho_required_received++;
 
-	SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
+	SM::Event evt(INTRA_S1HO_START, NULL);
 	cb.addEventToProcQ(evt);
-	
-	ProcedureStats::num_of_tau_req_received ++;
-	
-	return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 }
 

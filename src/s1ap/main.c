@@ -37,8 +37,9 @@
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
 
+s1ap_instance_t *s1ap_inst;
+
 /*Global and externs **/
-extern s1ap_config g_s1ap_cfg;
 pthread_t s1ap_iam_t;
 
 int g_sctp_fd = 0;
@@ -65,7 +66,7 @@ extern void
 handle_mmeapp_message(void * data);
 
 #define MAX_ENB     10
-#define BUFFER_LEN  1024
+#define BUFFER_LEN  4096
 #define AES_128_KEY_SIZE 16
 /**
  * @brief Decode int value from the byte array received in the s1ap incoming
@@ -74,6 +75,7 @@ handle_mmeapp_message(void * data);
  * @param[in] len - Length of the bytes array from which to extract the int
  * @return Integer value extracted out of bytes array. 0 if failed.
  */
+
 char *msg_to_hex_str(const char *msg, int len, char **buffer) {
 
   char chars[]= "0123456789abcdef";
@@ -114,7 +116,14 @@ unsigned short get_length(char **msg) {
     (*msg)++;
     return ie_len;
 }
-	
+
+/**
+ * @brief Decode int value from the byte array received in the s1ap incoming
+ * packet.
+ * @param[in] bytes - Array of bytes in packet
+ * @param[in] len - Length of the bytes array from which to extract the int
+ * @return Integer value extracted out of bytes array. 0 if failed.
+ */
 int
 decode_int_val(unsigned char *bytes, short len)
 {
@@ -397,11 +406,13 @@ void * tipc_msg_handler()
 int
 init_sctp()
 {
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
+	
 	log_msg(LOG_INFO, "Create sctp sock, ip:%d, port:%d\n",
-			g_s1ap_cfg.s1ap_local_ip, g_s1ap_cfg.sctp_port);
+			s1ap_cfg->s1ap_local_ip, s1ap_cfg->sctp_port);
 	/*Create MME sctp listned socket*/
-	g_sctp_fd = create_sctp_socket(g_s1ap_cfg.s1ap_local_ip,
-					g_s1ap_cfg.sctp_port);
+	g_sctp_fd = create_sctp_socket(s1ap_cfg->s1ap_local_ip,
+					s1ap_cfg->sctp_port);
 
 	if (g_sctp_fd == -1) {
 		log_msg(LOG_ERROR, "Error in creating sctp socket. \n");
@@ -531,7 +542,10 @@ main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
-
+	
+	s1ap_inst = (s1ap_instance_t *) calloc(1, sizeof(s1ap_instance_t));
+	s1ap_inst->s1ap_config = (s1ap_config_t *) calloc(1, sizeof(s1ap_config_t));
+	
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
 		init_logging("container", NULL);
@@ -542,8 +556,8 @@ main(int argc, char **argv)
 	init_backtrace(argv[0]); 
 
 	parse_args(argc, argv);
-	init_parser("conf/s1ap.json");
-	parse_s1ap_conf();
+
+	s1ap_parse_config(s1ap_inst->s1ap_config);
 
 	if (init_writer_ipc() != SUCCESS) {
 		log_msg(LOG_ERROR, "Error in initializing writer ipc.\n");
@@ -569,20 +583,26 @@ main(int argc, char **argv)
 		log_msg(LOG_ERROR, "Error in initializing sctp server.\n");
 		return -E_FAIL_INIT;
 	}
-
-	log_msg(LOG_INFO, "Connection accespted from enb \n");
+	log_msg(LOG_INFO, "SCTP socket open - success \n");
 
 	if (start_sctp_threads() != SUCCESS) {
 		log_msg(LOG_ERROR, "Error in creating sctp reader/writer thread.\n");
 		return -E_FAIL_INIT;
 	}
-
 	log_msg(LOG_INFO, "sctp reader/writer thread started.\n");
-	
+
+	register_config_updates();
 
 	while (1) {
 		sleep(10);
 	}
 
 	return SUCCESS;
+}
+
+void s1ap_parse_config(s1ap_config_t *config)
+{
+	/*Read MME configurations*/
+	init_parser("conf/s1ap.json");
+	parse_s1ap_conf(config);
 }
