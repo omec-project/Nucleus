@@ -31,10 +31,20 @@
 #include "stateMachineEngine.h"
 #include <sys/types.h>
 #include "mmeThreads.h"
-#include "log.h"
+
 #include "json_data.h"
 #include "monitorSubscriber.h"
-
+#include "epc/epctools.h"                                                             
+#include "epc/etevent.h"                                                              
+#include "epc/esocket.h"                                                              
+#include "epc/einternal.h"                                                            
+                                                                                      
+#include "epc/emgmt.h"                                                                
+#include "epc/etimerpool.h"                                                           
+                                                                                      
+#include "epc/epcdns.h"                                                               
+#include "epc/dnscache.h" 
+#include "log.h"
 using namespace std;
 using namespace mme;
 
@@ -75,6 +85,18 @@ pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
 
+Void SetDNSConfiguration()
+{
+   DNS::Cache::setRefreshConcurrent( g_mme_cfg.dns_config.concurrent);
+   DNS::Cache::setRefreshPercent( g_mme_cfg.dns_config.percentage);
+   DNS::Cache::setRefreshInterval( g_mme_cfg.dns_config.interval_seconds );
+  // DNS::Cache::getInstance().addNamedServer(g_mme_cfg.dns_config.dns1_ip);
+    DNS::Cache::getInstance().addNamedServer("10.43.11.48");
+   DNS::Cache::getInstance().applyNamedServers();
+
+}
+
+
 void setThreadName(std::thread* thread, const char* threadName)
 {
    	auto handle = thread->native_handle();
@@ -86,6 +108,7 @@ void mme_parse_config(mme_config *config)
     /*Read MME configurations*/
     init_parser("conf/mme.json");
     parse_mme_conf(config);
+
     /* Lets apply logging setting */
     set_logging_level(config->logging);
 }
@@ -130,6 +153,12 @@ int main(int argc, char *argv[])
 	pthread_attr_destroy(&attr);
 
 	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
+	 //setup DNS server
+        if(g_mme_cfg.dns_config.dns_flag == 1)
+        {
+           //SetDNSConfiguration();
+        }
+
 
     /*if (init_sock() != SUCCESS)
     {

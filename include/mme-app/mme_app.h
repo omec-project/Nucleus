@@ -12,6 +12,20 @@
 #include <stdbool.h>
 
 #include "s1ap_structs.h"
+
+typedef struct dns_config
+{
+        unsigned int dns_flag;
+	unsigned int concurrent;
+	unsigned int percentage;
+	unsigned int interval_seconds;
+	unsigned int query_timeout_ms;
+	unsigned int query_tries;
+        char* dns1_ip;
+
+}dns_config_t;
+
+
 /**
  * MME main application configuration parameters structures.
  * All fields in this will be filled in from input json file.
@@ -25,7 +39,7 @@ typedef struct mme_config
 	unsigned short mme_egtp_def_port;
 	char  *mme_egtp_def_hostname;
 	char  *mme_name;
-    char  *logging;
+        char  *logging;
 
 	char  mcc_dig1;
 	char  mcc_dig2;
@@ -39,6 +53,7 @@ typedef struct mme_config
 	unsigned int mme_egtp_ip;
 	unsigned short mme_group_id;
 	unsigned char mme_code;
+        dns_config_t dns_config;
 } mme_config;
 
 const size_t fifoQSize_c = 1000;

@@ -21,7 +21,7 @@
 #include "contextManager/subsDataGroupManager.h"
 #include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
-#include "log.h"
+#include "mme_app.h"
 #include "secUtils.h"
 #include "state.h"
 #include <string.h>
@@ -36,11 +36,60 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 
+#include <locale>
+#include <memory.h>
+#include <signal.h>
+
+#include "epc/epctools.h"
+#include "epc/etevent.h"
+#include "epc/esocket.h"
+#include "epc/einternal.h"
+
+#include "epc/emgmt.h"
+#include "epc/etimerpool.h"
+
+#include "epc/epcdns.h"
+#include "epc/dnscache.h"
+
+#include "log.h"
+
+#define MCC_MNC_LEN 4
+#define LB_HB_LEN 8
+
 using namespace SM;
 using namespace mme;
 using namespace cmn::utils;
 
+extern mme_config g_mme_cfg;
 extern MmeIpcInterface* mmeIpcIf_g;
+
+template <class T>
+std::string hexFormatWithoutCommas(T value, int width = sizeof(T)*2)
+{
+   struct Numpunct : public std::numpunct<char>
+   {
+   protected:
+      virtual char do_thousands_sep() const { return ' '; }
+      virtual std::string do_grouping() const { return ""; }
+   };
+   std::stringstream ss;
+   ss.imbue({std::locale(), new Numpunct});
+   ss << std::setfill('0') << std::setw(width) << std::hex << value;
+   return ss.str();
+}
+
+
+extern "C" Void NodeSelector_test_callback(EPCDNS::NodeSelector &ns, cpVoid data)
+{
+   std::cout << "*********** Asynchronous Node Selector ***********" << std::endl;
+   std::cout << "NodeSelector_test_callback() - data = 0x" << hexFormatWithoutCommas((ULongLong)data) << std::endl;
+   ns.dump();
+   std::cout << "*************************************************" << std::endl;
+}
+
+
+
+
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
@@ -633,6 +682,8 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 {
+	uint8_t plmn_id[3] = {0};
+
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -690,7 +741,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	uint32_t formattedApnLen = formattedApn.str().length();
 	cs_msg.apn.len = formattedApnLen + 1;
 	cs_msg.apn.val[0] = apnStr.length();
-	memcpy(&cs_msg.apn.val[1], formattedApn.str().c_str(),
+	memcue_ctxt->getTai().tai_mpy(&cs_msg.apn.val[1], formattedApn.str().c_str(),
 	formattedApn.str().length()); */
 
 	const Apn_name &apnName = ue_ctxt->getSubscribedApn();
@@ -716,6 +767,58 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+	if(g_mme_cfg.dns_config.dns_flag == 1)	
+	{
+        
+
+        /* Query DNS based on lb and hb of tac */
+        char lb[LB_HB_LEN] = {0};
+        char hb[LB_HB_LEN] = {0};
+	char mnc[MCC_MNC_LEN] = {0};
+        char mcc[MCC_MNC_LEN] = {0};
+	short tac=0;
+
+    	char mccDigit1 =  ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0x0F;
+    	char mccDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0xF0) >> 4;
+    	char mccDigit3 = ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0x0F;
+    	char mncDigit1 = ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0x0F;
+    	char mncDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0xF0) >> 4;
+    	char mncDigit3 = (ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0xF0) >> 4;
+
+   
+
+        if (mncDigit3 == 15)
+                snprintf(mnc, MCC_MNC_LEN, "%u%u", mncDigit1,mncDigit2);
+        else
+                snprintf(mnc, MCC_MNC_LEN, "%u%u%u", mncDigit1,mncDigit2,mncDigit3);
+			
+
+        snprintf(mcc,MCC_MNC_LEN, "%u%u%u", mccDigit1, mccDigit2, mccDigit3);
+
+	log_msg(LOG_ERROR,"%u %u  %u %u %u %u mcc and mnc digits\n", mccDigit1, mccDigit2, mccDigit2, mncDigit1, mncDigit2, mncDigit3);
+        log_msg(LOG_ERROR, "%s %s: mnc and mcc\n", mnc,mcc);
+	memcpy(plmn_id, ue_ctxt->getTai().tai_m.plmn_id.idx, 3);
+	log_msg(LOG_ERROR, "%s %s: plmn_id\n", plmn_id,ue_ctxt->getTai().tai_m.plmn_id.idx);
+	tac = ntohs(ue_ctxt->getTai().tai_m.tac);
+	log_msg(LOG_ERROR, "%d %d tac value* \n",tac, ue_ctxt->getTai().tai_m.tac);
+
+      	 if ( tac != 1) {
+             log_msg(LOG_DEBUG, "Could not get SGW-U list using DNS query. TAC missing in CSR.\n");
+             return ActStatus::HALT;
+           }
+
+           sprintf(lb, "%u", ue_ctxt->getTai().tai_m.tac & 0xFF);
+	   sprintf(hb, "%u", (ue_ctxt->getTai().tai_m.tac >> 8) & 0xFF);	
+	 log_msg(LOG_ERROR, "%s %s lb and hb value is\n", lb,hb);
+	
+	
+	EPCDNS::SGWNodeSelector s2(lb, hb,mnc,mcc);
+  	s2.setNamedServerID(DNS::NS_DEFAULT);
+        s2.addDesiredProtocol( EPCDNS::SGWAppProtocolEnum::sgw_x_s11 );
+        s2.process(&s2, NodeSelector_test_callback);
+        std::cout << "sleeping for 2 seconds" << std::endl;
+        EThreadBasic::sleep(2000);
+ }
 
 	mmeIpcIf_g->dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
 

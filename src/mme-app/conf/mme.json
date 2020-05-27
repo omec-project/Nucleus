@@ -19,7 +19,23 @@
 			"dig1": 0,
 			"dig2": 1,
 			"dig3": -1
-		}
+		},
+		"dns":{
+                   "dns_enable": 1,
+                   "cache": {
+			     "concurrent" : 25,
+			     "percentage" : 80,
+			     "interval_seconds" : 60,
+			     "query_timeout_ms" :1000,
+			     "query_tries" : 1
+		           },
+		    "dns1" :{
+			      "address" : "10.43.11.48"
+
+			}		      
+
+                }
+
 	},
 	"enb": {
 		"enb_addr": "192.168.1.52",
@@ -34,4 +50,5 @@
 		"host": "hss.openair4G.eur",
 		"realm": "openair4G.eur"
 	}
+
 }
