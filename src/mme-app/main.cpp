@@ -101,10 +101,10 @@ int main(int argc, char *argv[])
 
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
-		init_logging("container", NULL);
+		init_logging((char*)("container"), NULL);
 	}
 	else { 
-		init_logging("hostbased", "/tmp/mmelogs.txt");
+		init_logging((char*)("hostbased"), (char*)("/tmp/mmelogs.txt"));
 	}
 	
 	init_backtrace(argv[0]);
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
 
 	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
-    /*if (init_sock() != SUCCESS)
+    if (init_sock() != SUCCESS)
     {
         log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
         return -E_FAIL_INIT;
-    }*/
+    }
 
 	while(1)
 	{

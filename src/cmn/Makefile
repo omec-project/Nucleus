@@ -39,7 +39,8 @@ CMNUTILS_SRCS := ./cTime.cpp \
 		 ./debug.cpp \
 		 ./msgBuffer.cpp \
 		 ./timerQueue.cpp \
-		 ./timeoutManager.cpp
+		 ./timeoutManager.cpp \
+		 ./componentDb.cpp
 		 
 
 SRCDIR := .

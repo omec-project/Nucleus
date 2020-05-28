@@ -16,6 +16,7 @@
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
 #include "controlBlock.h"
+#include "mme_app.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
 #include "contextManager/dataBlocks.h"
@@ -36,9 +37,8 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 {
@@ -77,7 +77,9 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 			
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
 
 	ProcedureStats::num_of_rel_access_bearer_req_sent ++;
 	
@@ -131,7 +133,9 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	/*Send message to S1AP-APP*/
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 	
 	ProcedureStats::num_of_s1_rel_cmd_sent ++;
 	

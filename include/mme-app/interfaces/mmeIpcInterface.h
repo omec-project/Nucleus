@@ -8,15 +8,16 @@
 #define INCLUDE_MME_APP_INTERFACES_MMEIPCINTERFACE_H_
 
 #include <ipcChannel.h>
+#include <componentDb.h>
 
 namespace cmn{
     class IpcEventMessage;
 namespace utils{
-	class MsgBuffer;
+    class MsgBuffer;
 }
 }
 
-class MmeIpcInterface {
+class MmeIpcInterface:public cmn::ComponentIf {
 
 public:
 	MmeIpcInterface();
