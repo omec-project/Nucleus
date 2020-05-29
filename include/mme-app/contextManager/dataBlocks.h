@@ -63,13 +63,13 @@ namespace mme
 			* setEnbFd
 			*    set enbFd to UEContext
 			****************************************/
-			void setEnbFd(int enbFd_i);
+			void setEnbFd(uint32_t enbFd_i);
 			
 			/****************************************
 			* getEnbFd
 			*    get enbFd from UEContext
 			****************************************/
-			int getEnbFd()const;				
+			uint32_t getEnbFd()const;				
 			
 			/****************************************
 			* setS1apEnbUeId
@@ -123,25 +123,25 @@ namespace mme
 			* setRauTauTimer
 			*    set rauTauTimer to UEContext
 			****************************************/
-			void setRauTauTimer(unsigned int rauTauTimer_i);
+			void setRauTauTimer(uint32_t rauTauTimer_i);
 			
 			/****************************************
 			* getRauTauTimer
 			*    get rauTauTimer from UEContext
 			****************************************/
-			unsigned int getRauTauTimer()const;				
+			uint32_t getRauTauTimer()const;				
 			
 			/****************************************
 			* setAccessRestrictionData
 			*    set accessRestrictionData to UEContext
 			****************************************/
-			void setAccessRestrictionData(unsigned int accessRestrictionData_i);
+			void setAccessRestrictionData(uint32_t accessRestrictionData_i);
 			
 			/****************************************
 			* getAccessRestrictionData
 			*    get accessRestrictionData from UEContext
 			****************************************/
-			unsigned int getAccessRestrictionData()const;				
+			uint32_t getAccessRestrictionData()const;				
 			
 			/****************************************
 			* setImsi
@@ -171,25 +171,25 @@ namespace mme
 			* setDwnLnkSeqNo
 			*    set dwnLnkSeqNo to UEContext
 			****************************************/
-			void setDwnLnkSeqNo(unsigned short dwnLnkSeqNo_i);
+			void setDwnLnkSeqNo(uint16_t dwnLnkSeqNo_i);
 			
 			/****************************************
 			* getDwnLnkSeqNo
 			*    get dwnLnkSeqNo from UEContext
 			****************************************/
-			unsigned short getDwnLnkSeqNo()const;				
+			uint16_t getDwnLnkSeqNo()const;				
 			
 			/****************************************
 			* setUpLnkSeqNo
 			*    set upLnkSeqNo to UEContext
 			****************************************/
-			void setUpLnkSeqNo(unsigned short upLnkSeqNo_i);
+			void setUpLnkSeqNo(uint16_t upLnkSeqNo_i);
 			
 			/****************************************
 			* getUpLnkSeqNo
 			*    get upLnkSeqNo from UEContext
 			****************************************/
-			unsigned short getUpLnkSeqNo()const;				
+			uint16_t getUpLnkSeqNo()const;				
 			
 			/****************************************
 			* setUeState
@@ -351,7 +351,7 @@ namespace mme
 		private:
 		
 			// DataName
-			int enbFd_m;
+			uint32_t enbFd_m;
 			
 			// DataName
 			uint32_t s1apEnbUeId_m;
@@ -366,10 +366,10 @@ namespace mme
 			uint32_t contextID_m;
 			
 			// DataName
-			unsigned int rauTauTimer_m;
+			uint32_t rauTauTimer_m;
 			
 			// DataName
-			unsigned int accessRestrictionData_m;
+			uint32_t accessRestrictionData_m;
 			
 			// DataName
 			DigitRegister15 imsi_m;
@@ -378,10 +378,10 @@ namespace mme
 			DigitRegister15 msisdn_m;
 			
 			// DataName
-			unsigned short dwnLnkSeqNo_m;
+			uint16_t dwnLnkSeqNo_m;
 			
 			// DataName
-			unsigned short upLnkSeqNo_m;
+			uint16_t upLnkSeqNo_m;
 			
 			// DataName
 			UE_State_e ueState_m;
@@ -555,13 +555,13 @@ namespace mme
 			* setApnConfigProfileCtxId
 			*    set apnConfigProfileCtxId to SessionContext
 			****************************************/
-			void setApnConfigProfileCtxId(unsigned int apnConfigProfileCtxId_i);
+			void setApnConfigProfileCtxId(uint32_t apnConfigProfileCtxId_i);
 			
 			/****************************************
 			* getApnConfigProfileCtxId
 			*    get apnConfigProfileCtxId from SessionContext
 			****************************************/
-			unsigned int getApnConfigProfileCtxId()const;				
+			uint32_t getApnConfigProfileCtxId()const;				
 			
 			/****************************************
 			* setPti
@@ -606,7 +606,7 @@ namespace mme
 			Apn_name accessPtName_m;
 			
 			// DataName
-			unsigned int apnConfigProfileCtxId_m;
+			uint32_t apnConfigProfileCtxId_m;
 			
 			// DataName
 			uint8_t pti_m;
@@ -672,13 +672,13 @@ namespace mme
 			* setBearerId
 			*    set bearerId to BearerContext
 			****************************************/
-			void setBearerId(unsigned char bearerId_i);
+			void setBearerId(uint8_t bearerId_i);
 			
 			/****************************************
 			* getBearerId
 			*    get bearerId from BearerContext
 			****************************************/
-			unsigned char getBearerId()const;				
+			uint8_t getBearerId()const;				
 			
 		
 		private:
@@ -693,7 +693,7 @@ namespace mme
 			Fteid s1uEnbUserFteid_m;
 			
 			// DataName
-			unsigned char bearerId_m;
+			uint8_t bearerId_m;
 			
 	};
 	 
@@ -852,13 +852,13 @@ namespace mme
 			* setPcoOptions
 			*    set pcoOptions to MmeAttachProcedureCtxt
 			****************************************/
-			void setPcoOptions(const unsigned char* pcoOptions_i,uint16_t len);
+			void setPcoOptions(const uint8_t* pcoOptions_i,uint16_t len);
 			
 			/****************************************
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
-			const unsigned char* getPcoOptions()const;							
+			const uint8_t* getPcoOptions()const;							
 			/****************************************
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
@@ -900,7 +900,7 @@ namespace mme
 			
 			// DataName
 			uint16_t pcoOptionsLen_m;
-			unsigned char pcoOptions_m[256];
+			uint8_t pcoOptions_m[256];
 			
 			
 			// DataName
@@ -1042,13 +1042,13 @@ namespace mme
 			* setEpsBearerId
 			*    set epsBearerId to MmeSvcReqProcedureCtxt
 			****************************************/
-			void setEpsBearerId(unsigned char epsBearerId_i);
+			void setEpsBearerId(uint8_t epsBearerId_i);
 			
 			/****************************************
 			* getEpsBearerId
 			*    get epsBearerId from MmeSvcReqProcedureCtxt
 			****************************************/
-			unsigned char getEpsBearerId()const;				
+			uint8_t getEpsBearerId()const;				
 			
 			/****************************************
 			* setArp
@@ -1072,7 +1072,7 @@ namespace mme
 			PagingTrigger pagingTrigger_m;
 			
 			// DataName
-			unsigned char epsBearerId_m;
+			uint8_t epsBearerId_m;
 			
 			// DataName
 			Arp arp_m;
@@ -1135,13 +1135,13 @@ namespace mme
 			* setEnbFd
 			*    set enbFd to MmeTauProcedureCtxt
 			****************************************/
-			void setEnbFd(int enbFd_i);
+			void setEnbFd(uint32_t enbFd_i);
 			
 			/****************************************
 			* getEnbFd
 			*    get enbFd from MmeTauProcedureCtxt
 			****************************************/
-			int getEnbFd()const;				
+			uint32_t getEnbFd()const;				
 			
 		
 		private:
@@ -1156,7 +1156,7 @@ namespace mme
 			Cgi eUtranCgi_m;
 			
 			// DataName
-			int enbFd_m;
+			uint32_t enbFd_m;
 			
 	};
 	 
@@ -1192,25 +1192,25 @@ namespace mme
 			* setTargetEnbContextId
 			*    set targetEnbContextId to S1HandoverProcedureContext
 			****************************************/
-			void setTargetEnbContextId(int targetEnbContextId_i);
+			void setTargetEnbContextId(uint32_t targetEnbContextId_i);
 			
 			/****************************************
 			* getTargetEnbContextId
 			*    get targetEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			int getTargetEnbContextId()const;				
+			uint32_t getTargetEnbContextId()const;				
 			
 			/****************************************
 			* setTargetS1apEnbUeId
 			*    set targetS1apEnbUeId to S1HandoverProcedureContext
 			****************************************/
-			void setTargetS1apEnbUeId(int targetS1apEnbUeId_i);
+			void setTargetS1apEnbUeId(uint32_t targetS1apEnbUeId_i);
 			
 			/****************************************
 			* getTargetS1apEnbUeId
 			*    get targetS1apEnbUeId from S1HandoverProcedureContext
 			****************************************/
-			int getTargetS1apEnbUeId()const;				
+			uint32_t getTargetS1apEnbUeId()const;				
 			
 			/****************************************
 			* setTargetTai
@@ -1288,25 +1288,25 @@ namespace mme
 			* setSrcEnbContextId
 			*    set srcEnbContextId to S1HandoverProcedureContext
 			****************************************/
-			void setSrcEnbContextId(int srcEnbContextId_i);
+			void setSrcEnbContextId(uint32_t srcEnbContextId_i);
 			
 			/****************************************
 			* getSrcEnbContextId
 			*    get srcEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			int getSrcEnbContextId()const;				
+			uint32_t getSrcEnbContextId()const;				
 			
 			/****************************************
 			* setSrcS1apEnbUeId
 			*    set srcS1apEnbUeId to S1HandoverProcedureContext
 			****************************************/
-			void setSrcS1apEnbUeId(int srcS1apEnbUeId_i);
+			void setSrcS1apEnbUeId(uint32_t srcS1apEnbUeId_i);
 			
 			/****************************************
 			* getSrcS1apEnbUeId
 			*    get srcS1apEnbUeId from S1HandoverProcedureContext
 			****************************************/
-			int getSrcS1apEnbUeId()const;				
+			uint32_t getSrcS1apEnbUeId()const;				
 			
 		
 		private:
@@ -1315,10 +1315,10 @@ namespace mme
 			HoType hoType_m;
 			
 			// DataName
-			int targetEnbContextId_m;
+			uint32_t targetEnbContextId_m;
 			
 			// DataName
-			int targetS1apEnbUeId_m;
+			uint32_t targetS1apEnbUeId_m;
 			
 			// DataName
 			Tai targetTai_m;
@@ -1339,10 +1339,10 @@ namespace mme
 			S1apCause s1HoCause_m;
 			
 			// DataName
-			int srcEnbContextId_m;
+			uint32_t srcEnbContextId_m;
 			
 			// DataName
-			int srcS1apEnbUeId_m;
+			uint32_t srcS1apEnbUeId_m;
 			
 	};
 	

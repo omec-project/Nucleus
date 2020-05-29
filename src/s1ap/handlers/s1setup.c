@@ -51,7 +51,7 @@ s1_setup_response(int enb_fd, struct PLMN *plmn)
 	local_plmn_id.idx[1] = plmn->idx[1];
 	local_plmn_id.idx[2] = plmn->idx[2];
 	log_msg(LOG_DEBUG,"Number of mnc digits %d \n", plmn->mnc_digits);
-    memcpy(&rsp_msg.mme_plmn_id, &local_plmn_id, sizeof(struct PLMN));
+    memcpy(&rsp_msg.mme_plmn_id, &local_plmn_id, 3);
     rsp_msg.rel_cap = s1ap_cfg->rel_cap;
 
     int ret = s1ap_mme_encode_outcome(&rsp_msg, &buffer, &length);

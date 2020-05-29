@@ -18,7 +18,7 @@
 						"Data": [
 							{
 								"Name": "enbFd",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "s1apEnbUeId",
@@ -38,11 +38,11 @@
 							},
 							{
 								"Name": "rauTauTimer",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "accessRestrictionData",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "imsi",
@@ -55,11 +55,11 @@
 							},
 							{
 								"Name": "dwnLnkSeqNo",
-								"Type": "unsigned short"
+								"Type": "uint16_t"
 							},
 							{
 								"Name": "upLnkSeqNo",
-								"Type": "unsigned short"
+								"Type": "uint16_t"
 							},
 							{
 								"Name": "ueState",
@@ -161,7 +161,7 @@
 							},
 							{
 								"Name": "apnConfigProfileCtxId",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "pti",
@@ -190,7 +190,7 @@
 							},
 							{
 								"Name": "bearerId",
-								"Type": "unsigned char"
+								"Type": "uint8_t"
 							}
 						]
 					},
@@ -246,7 +246,7 @@
 							},
 							{
 								"Name": "pcoOptions",
-								"Type": "unsigned char",
+								"Type": "uint8_t",
 								"Cardinality": "256"
 							},
 							{
@@ -310,7 +310,7 @@
 							},
 							{
 								"Name": "epsBearerId",
-								"Type": "unsigned char"
+								"Type": "uint8_t"
 							},
 							{
 								"Name": "arp",
@@ -340,7 +340,7 @@
 							},                            
 							{
 								"Name": "enbFd",
-								"Type": "int"
+								"Type": "uint32_t"
 							}
 						]
 					},
@@ -358,11 +358,11 @@
 							},
 							{
 								"Name": "targetEnbContextId",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "targetS1apEnbUeId",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "targetTai",
@@ -390,11 +390,11 @@
 							},
 							{
 								"Name": "srcEnbContextId",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "srcS1apEnbUeId",
-								"Type": "int"
+								"Type": "uint32_t"
 							}
 						]
 					}

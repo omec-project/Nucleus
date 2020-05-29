@@ -331,6 +331,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     }
 
     struct MB_Q_msg mb_msg;
+    memset(&mb_msg, 0, sizeof(struct MB_Q_msg));
     MmeGtpMsgUtils::populateModifyBearerRequestHo(
             cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
 
