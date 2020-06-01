@@ -26,9 +26,23 @@ using namespace std;
 
 namespace SM
 {
-	State::State(uint16_t sID)
+    State::State(uint16_t sID)
+          :stateID(sID),
+           eventToActionsMap(),
+           stateEntryAction(NULL),
+           stateExitAction(NULL),
+           eventValidator(NULL),
+           stateGuardTimeoutDuration_m(0)
+    {
+    }
+
+	State::State(uint16_t sID, uint32_t duration)
 	      :stateID(sID),
-	       eventToActionsMap()
+	       eventToActionsMap(),
+	       stateEntryAction(NULL),
+	       stateExitAction(NULL),
+	       eventValidator(NULL),
+	       stateGuardTimeoutDuration_m(duration)
 	{
 	}
 
@@ -46,6 +60,37 @@ namespace SM
 		}
 	}
 
+    void State::setEntryAction(ActionPointer entryAction)
+    {
+        stateEntryAction = entryAction;
+    }
+    void State::setExitAction(ActionPointer exitAction)
+    {
+        stateEntryAction = exitAction;
+    }
+    void State::OnEntry(ControlBlock& cb)
+    {
+        stateEntryAction(cb);
+    }
+    void State::OnExit(ControlBlock& cb)
+    {
+        stateExitAction(cb);
+    }
+    EventStatus State::validateEvent(ControlBlock& cb, TempDataBlock* tempData, Event& event)
+    {
+        return eventValidator(cb, tempData, event);
+    }
+
+    void State::setStateGuardTimeoutDuration(uint32_t duration)
+    {
+        stateGuardTimeoutDuration_m = duration;
+    }
+
+    uint32_t State::getStateGuardTimeoutDuration() const
+    {
+        return stateGuardTimeoutDuration_m;
+    }
+
 	uint16_t State::getStateId()const
 	{
 	    return stateID;
@@ -58,7 +103,7 @@ namespace SM
 		if (itr != eventToActionsMap.end())
 		{
 			ActionTable& actions_r = itr->second;
-			return actions_r.executeActions(cb);
+			return actions_r.executeActions(cb, this);
 		}
 		else
 			return ActStatus::HALT;

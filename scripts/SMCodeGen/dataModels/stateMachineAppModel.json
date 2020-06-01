@@ -307,6 +307,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -370,6 +375,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -411,6 +421,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             },
@@ -486,6 +501,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             },
@@ -629,6 +649,11 @@
                             }
                         ]
                     }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
                 ]
             },
             {
@@ -645,6 +670,11 @@
                                 "NextState":"end_state"
                             }
                         ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
                     }
                 ]
             }

@@ -73,6 +73,11 @@ namespace mme
         static SM::ActStatus auth_response_validate(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : check_and_send_emm_info
+        ***********************************************/
+        static SM::ActStatus check_and_send_emm_info(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : check_esm_info_req_required
         ***********************************************/
         static SM::ActStatus check_esm_info_req_required(SM::ControlBlock& cb);                
@@ -251,11 +256,6 @@ namespace mme
         * Action handler : send_ddn_ack_to_sgw
         ***********************************************/
         static SM::ActStatus send_ddn_ack_to_sgw(SM::ControlBlock& cb);                
-
-        /**********************************************
-        * Action handler : check_and_send_emm_info
-        ***********************************************/
-        static SM::ActStatus check_and_send_emm_info(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_esm_info_req_to_ue
