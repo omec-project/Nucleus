@@ -71,7 +71,7 @@ bool TipcSocket::bindTipcSocket(IpcAddress myAddress)
 
     if (0 != bind(ipcHdl_m.u32, (sockaddr*)&server, sizeof(server)))
     {
-    	log_msg(LOG_ERROR, "Failed to bind TIPC socket. error: %s", strerror(errno));
+    	log_msg(LOG_ERROR, "Failed to bind TIPC socket. error: %s\n", strerror(errno));
         rc = false;
     }
     return rc;
@@ -90,11 +90,11 @@ void TipcSocket::sendMsgTo(void * buffer, uint32_t len, IpcAddress destAddress)
 
    if (0 > sendto(ipcHdl_m.u32, buffer, len, 0, (sockaddr*)&dest, sizeof(dest)))
    {
-	   log_msg(LOG_ERROR, "Failed to send message via TIPC socket. error: %s", strerror(errno));
+	   log_msg(LOG_ERROR, "Failed to send message via TIPC socket. error: %s\n", strerror(errno));
    }
    else
    {
-	   log_msg(LOG_INFO, "Message sent successfully");
+	   log_msg(LOG_INFO, "Message sent successfully\n");
    }
 }
 

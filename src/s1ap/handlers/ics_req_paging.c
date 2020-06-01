@@ -86,7 +86,7 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
         	return E_FAIL;
     	}
 
-	buffer_copy(&g_ics_req_buffer, buffer, length);
+	buffer_copy(g_ics_req_buffer.buf, buffer, length);
 	send_sctp_msg(g_icsreq->enb_fd, g_ics_req_buffer.buf, g_ics_req_buffer.pos,1);
 	log_msg(LOG_INFO, "\n----ICS Req for paging sent to UE.---\n");
 	return SUCCESS;
