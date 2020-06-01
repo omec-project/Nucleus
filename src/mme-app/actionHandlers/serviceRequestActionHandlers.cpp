@@ -20,7 +20,6 @@
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
-#include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
 #include "log.h"
 #include "secUtils.h"
@@ -187,7 +186,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
         secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
         SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
-
+    	secInfo.next_hop_chaining_count = 0;
+    	memcpy(secInfo.next_hop_nh, secInfo.kenb_key, KENB_SIZE);
         ics_req_paging_Q_msg icr_msg;
         icr_msg.msg_type = ics_req_paging;
         icr_msg.ue_idx = ue_ctxt->getContextID();
@@ -301,7 +301,8 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
 
         memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
                 sizeof(struct fteid));
-
+	mb_msg.servingNetworkIePresent = false;
+	mb_msg.userLocationInformationIePresent = false;
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;

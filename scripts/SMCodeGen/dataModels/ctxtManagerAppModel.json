@@ -2,7 +2,7 @@
 	"DataStore": {
 		"DataGroups": [
 			{
-				"DgName": "SubscriberData",
+				"DgName": "Subs",
 				"PoolSize": "8000",
 				"DataBlocks": [
 					{
@@ -18,7 +18,7 @@
 						"Data": [
 							{
 								"Name": "enbFd",
-								"Type": "int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "s1apEnbUeId",
@@ -38,11 +38,11 @@
 							},
 							{
 								"Name": "rauTauTimer",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "accessRestrictionData",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "imsi",
@@ -55,11 +55,11 @@
 							},
 							{
 								"Name": "dwnLnkSeqNo",
-								"Type": "unsigned short"
+								"Type": "uint16_t"
 							},
 							{
 								"Name": "upLnkSeqNo",
-								"Type": "unsigned short"
+								"Type": "uint16_t"
 							},
 							{
 								"Name": "ueState",
@@ -113,8 +113,7 @@
 						"BlockName": "MmContext",
 						"BlockType": "Permanent",
 						"Parent": "UEContext",
-						"Children": [
-						],
+						"Children": [],
 						"PoolSize": "8000",
 						"Cardinality": "1",
 						"Data": [
@@ -162,7 +161,7 @@
 							},
 							{
 								"Name": "apnConfigProfileCtxId",
-								"Type": "unsigned int"
+								"Type": "uint32_t"
 							},
 							{
 								"Name": "pti",
@@ -191,7 +190,7 @@
 							},
 							{
 								"Name": "bearerId",
-								"Type": "unsigned char"
+								"Type": "uint8_t"
 							}
 						]
 					},
@@ -247,7 +246,7 @@
 							},
 							{
 								"Name": "pcoOptions",
-								"Type": "unsigned char",
+								"Type": "uint8_t",
 								"Cardinality": "256"
 							},
 							{
@@ -311,7 +310,7 @@
 							},
 							{
 								"Name": "epsBearerId",
-								"Type": "unsigned char"
+								"Type": "uint8_t"
 							},
 							{
 								"Name": "arp",
@@ -335,8 +334,67 @@
 								"Type": "Tai"
 							},
 							{
+								"Name": "eUtranCgi",
+								"Type": "Cgi",
+								"Key": "No"
+							},                            
+							{
 								"Name": "enbFd",
-								"Type": "int"
+								"Type": "uint32_t"
+							}
+						]
+					},
+					{
+						"BlockName": "S1HandoverProcedureContext",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "hoType",
+								"Type": "enum HoType",
+								"DefaultVal": "invalid_c"
+							},
+							{
+								"Name": "targetEnbContextId",
+								"Type": "uint32_t"
+							},
+							{
+								"Name": "targetS1apEnbUeId",
+								"Type": "uint32_t"
+							},
+							{
+								"Name": "targetTai",
+								"Type": "Tai"
+							},
+							{
+								"Name": "targetCgi",
+								"Type": "Cgi"
+							},
+							{
+								"Name": "srcToTargetTransContainer",
+								"Type": "src_target_transparent_container"
+							},
+							{
+								"Name": "targetToSrcTransContainer",
+								"Type": "src_target_transparent_container"
+							},
+							{
+								"Name": "erabAdmittedItem",
+								"Type": "ERAB_admitted"
+							},
+							{
+								"Name": "s1HoCause",
+								"Type": "S1apCause"
+							},
+							{
+								"Name": "srcEnbContextId",
+								"Type": "uint32_t"
+							},
+							{
+								"Name": "srcS1apEnbUeId",
+								"Type": "uint32_t"
 							}
 						]
 					}

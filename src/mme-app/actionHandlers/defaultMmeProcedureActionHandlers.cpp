@@ -14,7 +14,6 @@
  ******************************************************************************/
 
 #include <actionHandlers/actionHandlers.h>
-#include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <mme_app.h>
 #include <controlBlock.h>
@@ -30,6 +29,7 @@
 #include <mmeStates/s1ReleaseStart.h>
 #include <mmeStates/serviceRequestStart.h>
 #include <mmeStates/tauStart.h>
+#include <mmeStates/intraS1HoStart.h>
 #include <msgBuffer.h>
 #include <msgType.h>
 #include <log.h>
@@ -42,6 +42,7 @@
 #include <typeinfo>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "contextManager/dataBlocks.h"
 
 using namespace mme;
 using namespace SM;
@@ -226,6 +227,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 	log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
 	return ActStatus::HALT;
     }
+
 
     prcdCtxt_p->setCtxtType( ProcedureType::detach_c );
     prcdCtxt_p->setDetachType( DetachType::ueInitDetach_c);
@@ -529,6 +531,12 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
                 tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
                 tauReqProc_p->setEnbFd(tauReq.enb_fd);
 
+                //TAI and CGI obtained from s1ap ies.
+                //Convert the PLMN in s1ap format to nas format before storing in procedure context.
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+                MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
+                tauReqProc_p->setTai(Tai(tauReq.tai));
+                tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
                 SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
                 cb.addEventToProcQ(evt);
             }
@@ -569,10 +577,61 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
-	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
     }
 
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : default_s1_ho_handler
+***************************************/
+ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
+{
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG,"process_handover_required: msgBuf is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+	S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+	if (hoReqProc_p == NULL)
+	{
+		log_msg(LOG_ERROR, "Failed to allocate procedure context"
+				" for ho required cbIndex %d\n", cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	if (ueCtxt == NULL)
+	{
+		log_msg(LOG_DEBUG, "ue context is NULL \n");
+		return ActStatus::HALT;
+	}
+
+	const struct handover_required_Q_msg &hoReq = (msgData_p->msg_data.handover_required_Q_msg_m);
+
+	hoReqProc_p->setS1HoCause(hoReq.cause);
+	hoReqProc_p->setTargetEnbContextId(hoReq.target_enb_context_id);
+	hoReqProc_p->setSrcToTargetTransContainer(hoReq.srcToTargetTranspContainer);
+	hoReqProc_p->setTargetTai(hoReq.target_id.selected_tai);
+	hoReqProc_p->setSrcS1apEnbUeId(hoReq.s1ap_enb_ue_id);
+	hoReqProc_p->setSrcEnbContextId(hoReq.src_enb_context_id);
+
+	ProcedureStats::num_of_ho_required_received++;
+
+	SM::Event evt(INTRA_S1HO_START, NULL);
+	cb.addEventToProcQ(evt);
     return ActStatus::PROCEED;
 }
 
