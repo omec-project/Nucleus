@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-PROJECT_NAME		 := openmme
+PROJECT_NAME		 := Nucleus
 VERSION                  ?= $(shell cat ./VERSION)
 
 TOPTARGETS 		 := all clean install
