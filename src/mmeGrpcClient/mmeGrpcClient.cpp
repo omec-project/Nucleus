@@ -161,9 +161,9 @@ class MmeGrpcCliClient {
     // Act upon its status.
     if (status.ok()) {
             cout << endl << "-----procedure stats-----" << endl;
-	        cout << "num_of_subs_attached                    " << reply.num_of_subscribers_attached() << endl;
+	     cout << "num_of_subs_attached                    " << reply.num_of_subscribers_attached() << endl;
             cout << "num_of_air_sent                         " << reply.num_of_air_sent() << endl;
-			cout << "num_of_ulr_sent                         " << reply.num_of_ulr_sent() << endl;
+	     cout << "num_of_ulr_sent                         " << reply.num_of_ulr_sent() << endl;
             cout << "num_of_processed_aia                    " << reply.num_of_processed_aia() << endl;
             cout << "num_of_processed_ula                    " << reply.num_of_processed_ula() << endl;
             cout << "num_of_auth_req_to_ue_sent              " << reply.num_of_auth_req_to_ue_sent() << endl;
@@ -188,7 +188,7 @@ class MmeGrpcCliClient {
             cout << "num_of_processed_detach_accept          " << reply.num_of_processed_detach_accept() << endl;
             cout << "num_of_ue_ctxt_release                  " << reply.num_of_ue_ctxt_release() << endl;
             cout << "num_of_processed_ctxt_rel_resp          " << reply.num_of_processed_ctxt_rel_resp() << endl;
- 	    cout << "num_of_rel_access_bearer_req_sent       " << reply.num_of_rel_access_bearer_req_sent() << endl;											    cout << "num_of_rel_access_bearer_resp_received  " << reply.num_of_rel_access_bearer_resp_received() << endl;
+	    cout << "num_of_rel_access_bearer_req_sent       " << reply.num_of_rel_access_bearer_req_sent() << endl;											    cout << "num_of_rel_access_bearer_resp_received  " << reply.num_of_rel_access_bearer_resp_received() << endl;
 	    cout << "num_of_s1_rel_req_received              " << reply.num_of_s1_rel_req_received() << endl;
 	    cout << "num_of_s1_rel_cmd_sent                  " << reply.num_of_s1_rel_cmd_sent() << endl;
 	    cout << "num_of_s1_rel_comp_received             " << reply.num_of_s1_rel_comp_received() << endl;
@@ -203,15 +203,26 @@ class MmeGrpcCliClient {
 	    cout << "num_of_tau_response_to_ue_sent          " << reply.num_of_tau_response_to_ue_sent() << endl;
 	    cout << "num_of_service_request_received	     " << reply.num_of_service_request_received() << endl;
 	    cout << "num_of_service_reject_sent	             " << reply.num_of_service_reject_sent() << endl;
-    	    cout << "num_of_attach_reject_sent               " << reply.num_of_attach_reject_sent() << endl;	    
+	    cout << "num_of_attach_reject_sent               " << reply.num_of_attach_reject_sent() << endl;
 	    cout << "num_of_emm_info_sent		     " << reply.num_of_emm_info_sent() << endl;
-	    cout << "num_of_attach_req_received		     " << reply.num_of_attach_req_received() << endl;
-	    cout << "num_of_detach_req_received              " << reply.num_of_detach_req_received() << endl;
-	    cout << "num_of_tau_req_received                 " << reply.num_of_tau_req_received() << endl;
-	    cout << "num_of_paging_request_sent              " << reply.num_of_paging_request_sent() << endl;
-	    cout << "num_of_id_req_sent			     " << reply.num_of_id_req_sent() << endl;
-	    cout << "num_of_id_resp_received		     " << reply.num_of_id_resp_received() << endl;
-	    cout << "num_of_auth_reject_sent		     " << reply.num_of_auth_reject_sent() << endl;   
+        cout << "num_of_attach_req_received          " << reply.num_of_attach_req_received() << endl;
+        cout << "num_of_detach_req_received              " << reply.num_of_detach_req_received() << endl;
+        cout << "num_of_tau_req_received                 " << reply.num_of_tau_req_received() << endl;
+        cout << "num_of_paging_request_sent              " << reply.num_of_paging_request_sent() << endl;
+        cout << "num_of_id_req_sent              " << reply.num_of_id_req_sent() << endl;
+        cout << "num_of_id_resp_received             " << reply.num_of_id_resp_received() << endl;
+        cout << "num_of_auth_reject_sent             " << reply.num_of_auth_reject_sent() << endl;
+	    cout << "num_of_ho_required_received    	     " << reply.num_of_ho_required_received() << endl;
+	    cout << "num_of_ho_request_to_target_enb_sent    " << reply.num_of_ho_request_to_target_enb_sent() << endl;
+	    cout << "num_of_ho_request_ack_received          " << reply.num_of_ho_request_ack_received() << endl;
+	    cout << "num_of_ho_command_to_src_enb_sent       " << reply.num_of_ho_command_to_src_enb_sent() << endl;
+	    cout << "num_of_ho_notify_received               " << reply.num_of_ho_notify_received() << endl;
+	    cout << "num_of_ho_complete     		     " << reply.num_of_ho_complete() << endl;
+	    cout << "num_of_ho_failure_received     		 " << reply.num_of_ho_failure_received() << endl;
+	    cout << "num_of_ho_prep_failure_sent     		 " << reply.num_of_ho_prep_failure_sent() << endl;
+	    cout << "num_of_ho_cancel_received     		     " << reply.num_of_ho_cancel_received() << endl;
+	    cout << "num_of_ho_cancel_ack_sent     		     " << reply.num_of_ho_cancel_ack_sent() << endl;
+
     } else {
       std::cout << status.error_code() << ": " << status.error_message()
                 << std::endl;

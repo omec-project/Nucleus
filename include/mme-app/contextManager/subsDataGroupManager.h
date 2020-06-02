@@ -25,6 +25,7 @@
 #include <map>
 #include <mutex>
 #include "dataGroupManager.h"
+
 #include "contextManager/dataBlocks.h"
 #include "contextManager/uEContextManager.h"
 #include "contextManager/mmContextManager.h"
@@ -36,6 +37,7 @@
 #include "contextManager/mmeS1RelProcedureCtxtManager.h"
 #include "contextManager/mmeSvcReqProcedureCtxtManager.h"
 #include "contextManager/mmeTauProcedureCtxtManager.h"
+#include "contextManager/s1HandoverProcedureContextManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -170,6 +172,17 @@ namespace mme
 			 *  Delete a MmeTauProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeTauProcedureCtxt(MmeTauProcedureCtxt* MmeTauProcedureCtxtp );
+			/******************************************
+			 * getS1HandoverProcedureContext
+			 * Get S1HandoverProcedureContext data block
+			 ******************************************/
+			S1HandoverProcedureContext* getS1HandoverProcedureContext();
+			
+			/******************************************
+			 * deleteS1HandoverProcedureContext
+			 *  Delete a S1HandoverProcedureContext data block
+			 ******************************************/
+			void deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp );
 			
 			/******************************************
 			* addimsikey
@@ -213,7 +226,7 @@ namespace mme
 			* SubsDataGroupManager
 			*    Private constructor
 			****************************************/
-			SubsDataGroupManager();  
+			SubsDataGroupManager();
 			
 			/****************************************
 			* UEContext Pool Manager
@@ -265,6 +278,11 @@ namespace mme
 			****************************************/
 			MmeTauProcedureCtxtManager* MmeTauProcedureCtxtManagerm_p;
 			
+			/****************************************
+			* S1HandoverProcedureContext Pool Manager
+			****************************************/
+			S1HandoverProcedureContextManager* S1HandoverProcedureContextManagerm_p;
+			
 			
 			/****************************************
 			* imsi Key Map
@@ -286,6 +304,5 @@ namespace mme
 			std::mutex mTmsi_cb_id_map_mutex;
 	};
 };
-
 
 #endif

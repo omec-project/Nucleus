@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "mmeSmDefs.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/defaultMmeState.h"
 
@@ -27,6 +30,9 @@ using namespace SM;
 ******************************************************************************/
 DefaultMmeState::DefaultMmeState():State(default_mme_state)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -84,5 +90,10 @@ void DefaultMmeState::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_tau_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(TAU_REQUEST_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_s1_ho_handler);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_REQUIRED_FROM_ENB, actionTable));
         }
 }

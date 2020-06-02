@@ -65,13 +65,13 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
         	return E_FAIL;
     	}
 
+
 	buffer_copy(&g_ctxrel_buffer, buffer, length);
 	send_sctp_msg(g_uectxtrelcmd->enb_fd, g_ctxrel_buffer.buf, g_ctxrel_buffer.pos,1);
-	log_msg(LOG_INFO, "\n-----S1 Release Command sent to UE.---\n");
+	log_msg(LOG_INFO, "\n-----S1 Release Command sent to UE. len %d ret %d---\n", length, ret);
 	return SUCCESS;
 	
 }
-
 
 /**
 * Thread function for stage.

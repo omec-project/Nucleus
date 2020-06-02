@@ -80,6 +80,12 @@ S1apCause MmeCauseUtils::convertToS1apCause(MmeErrorCause mmeErrorCause)
             s1apCause.s1apCause_m.choice.misc = s1apCauseMisc_unknown_PLMN;
             break;
         }
+        case hoRequestAckFailure_c:
+        {
+            s1apCause.s1apCause_m.present = s1apCause_PR_radioNetwork;
+            s1apCause.s1apCause_m.choice.radioNetwork = s1apCauseRadioNetwork_ho_failure_in_target_EPC_eNB_or_target_system;
+            break;
+        }
         default:
         {
             s1apCause.s1apCause_m.present = s1apCause_PR_nas;
