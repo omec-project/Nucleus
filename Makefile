@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-PROJECT_NAME		 := Nucleus
+PROJECT_NAME		 := nucleus
 VERSION                  ?= $(shell cat ./VERSION)
 
 TOPTARGETS 		 := all clean install
