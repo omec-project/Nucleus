@@ -18,7 +18,7 @@ import json, sys, os
 from os.path import join
 import utils
 
-def processTemplate(templateIp):
+def processTemplate(templateIp, appModelJSON):
     from template import Template
     
     utils.outputFileName = ''
@@ -33,16 +33,17 @@ def processTemplate(templateIp):
     op = tt.process(utils.ttFileName,
                     {
                         'TemplateInputVar' : templateIp,
-                        'includes' : utils.includeSet
+                        'includes' : utils.includeSet,
+                        'AppModelJSON' : appModelJSON
                     })
     utils.WriteFile(utils.outputDir, utils.outputFileName, op, utils.mode)
 
-def getTemplateIn(appModelItems, depth):
+def getTemplateIn(appModelItems, depth, appModelJSON):
     depthChanged = False
 
     if (depth == 0):
         print(appModelItems)
-        processTemplate(appModelItems)
+        processTemplate(appModelItems, appModelJSON)
         return
     
     if depthChanged == False:
@@ -50,7 +51,7 @@ def getTemplateIn(appModelItems, depth):
         depthChanged = True
         
     for item in appModelItems:
-        getTemplateIn(item, depth)
+        getTemplateIn(item, depth, appModelJSON)
       
 def genCppCode(genModel, appModelJSON):
     for item in genModel:
@@ -69,9 +70,9 @@ def genCppCode(genModel, appModelJSON):
         
         if not os.path.exists(utils.outputDir):
             os.makedirs(utils.outputDir)
-
-        appModelItems = utils.get_key_values(appModelJSON, keyWord)
-        getTemplateIn(appModelItems, depth)
+        
+        appModelItems = utils.get_key_values(appModelJSON, keyWord) 
+        getTemplateIn(appModelItems, depth, appModelJSON)
             
 with open('dataModels/generationItem.json') as JSONFile:
     GenItemJSON = json.load(JSONFile)

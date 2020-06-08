@@ -47,12 +47,85 @@ typedef struct Buffer {
 }Buffer;
 
 
+typedef struct ue_sec_capabilities {
+	uint8_t eea1 :1;
+	uint8_t eea2 :1;
+	uint8_t eea3 :1;
+	uint8_t eea4 :1;
+	uint8_t eea5 :1;
+	uint8_t eea6_128 :1;
+	uint8_t eea7_128 :1;
+	uint8_t eea8 :1;
+
+	uint8_t eia1 :1;
+	uint8_t eia2 :1;
+	uint8_t eia3 :1;
+	uint8_t eia4 :1;
+	uint8_t eia5 :1;
+	uint8_t eia6_128 :1;
+	uint8_t eia8_128 :1;
+	uint8_t eia8 :1;
+
+	uint8_t uea1 :1;
+	uint8_t uea2 :1;
+	uint8_t uea3 :1;
+	uint8_t uea4 :1;
+	uint8_t uea5 :1;
+	uint8_t uea6 :1;
+	uint8_t uea7 :1;
+	uint8_t uea8 :1;
+
+	uint8_t uia1 :1;
+	uint8_t uia2 :1;
+	uint8_t uia3 :1;
+	uint8_t uia4 :1;
+	uint8_t uia5 :1;
+	uint8_t uia6 :1;
+	uint8_t uia7 :1;
+	uint8_t spare1 :1;
+
+	uint8_t gea1 :1;
+	uint8_t gea2 :1;
+	uint8_t gea3 :1;
+	uint8_t gea4 :1;
+	uint8_t gea5 :1;
+	uint8_t gea6 :1;
+	uint8_t gea7 :1;
+	uint8_t spare2 :1;
+} ue_sec_capabilities;
+
+#pragma pack()
+
+/****Information elements presentations **/
+#define BINARY_IMSI_LEN 8 /*same as packet capture. TODO: Write macros*/
+#define BCD_IMSI_STR_LEN 15
+#define MME_NAME_STR_LEN 30
+
+/*36.413: 9.1.8.4*/
+#define ENB_NAME_SIZE 150
+struct ie_enb_name {
+	char enb_name[ENB_NAME_SIZE];
+};
+
+/*36.413: 9.2.1.37*/
+#define MACRO_ENB_ID_SIZE 20
+struct ie_global_enb_id {
+	int plmn;
+	char macro_enb_id[MACRO_ENB_ID_SIZE];
+	/*TODO: make union of enb IDs*/
+};
+
+
 typedef struct ERABs_Subject_to_Forwarding {
 	uint8_t e_RAB_ID;
 	uint32_t dL_transportLayerAddress;
 	uint32_t dL_gtp_teid;
 } ERABs_Subject_to_Forwarding;
 
+struct ERABs_Subject_to_Forwarding_List{
+	int count;
+	ERABs_Subject_to_Forwarding eRABs_Subject_to_Forwarding[10];
+};
 enum s1ap_cn_domain
 {
     CN_DOMAIN_PS,
@@ -78,20 +151,6 @@ typedef struct ERAB_admitted{
         uint32_t dL_gtp_teid;
 
 }ERAB_admitted;
-
-/*36.413: 9.1.8.4*/
-#define ENB_NAME_SIZE 150
-struct ie_enb_name {
-	char enb_name[ENB_NAME_SIZE];
-};
-
-/*36.413: 9.2.1.37*/
-#define MACRO_ENB_ID_SIZE 20
-struct ie_global_enb_id {
-	int plmn;
-	char macro_enb_id[MACRO_ENB_ID_SIZE];
-	/*TODO: make union of enb IDs*/
-};
 
 typedef struct targetId{
         struct ie_global_enb_id global_enb_id;
@@ -141,11 +200,7 @@ struct gummei {
 	uint8_t mme_code;
 };
 
-struct ERABs_Subject_to_Forwarding_List{
-	int count;
-	ERABs_Subject_to_Forwarding eRABs_Subject_to_Forwarding[10];
-};
-
+#pragma pack()
 /* Dependencies */
 typedef enum s1apCause_PR {
     s1apCause_PR_NOTHING,   /* No components present */
@@ -331,54 +386,6 @@ struct ERABSetupList{
 };
 
 
-typedef struct ue_sec_capabilities {
-	uint8_t eea1 :1;
-	uint8_t eea2 :1;
-	uint8_t eea3 :1;
-	uint8_t eea4 :1;
-	uint8_t eea5 :1;
-	uint8_t eea6_128 :1;
-	uint8_t eea7_128 :1;
-	uint8_t eea8 :1;
-
-	uint8_t eia1 :1;
-	uint8_t eia2 :1;
-	uint8_t eia3 :1;
-	uint8_t eia4 :1;
-	uint8_t eia5 :1;
-	uint8_t eia6_128 :1;
-	uint8_t eia8_128 :1;
-	uint8_t eia8 :1;
-
-	uint8_t uea1 :1;
-	uint8_t uea2 :1;
-	uint8_t uea3 :1;
-	uint8_t uea4 :1;
-	uint8_t uea5 :1;
-	uint8_t uea6 :1;
-	uint8_t uea7 :1;
-	uint8_t uea8 :1;
-
-	uint8_t uia1 :1;
-	uint8_t uia2 :1;
-	uint8_t uia3 :1;
-	uint8_t uia4 :1;
-	uint8_t uia5 :1;
-	uint8_t uia6 :1;
-	uint8_t uia7 :1;
-	uint8_t spare1 :1;
-
-	uint8_t gea1 :1;
-	uint8_t gea2 :1;
-	uint8_t gea3 :1;
-	uint8_t gea4 :1;
-	uint8_t gea5 :1;
-	uint8_t gea6 :1;
-	uint8_t gea7 :1;
-	uint8_t spare2 :1;
-} ue_sec_capabilities;
-
-
 #define SECURITY_KEY_SIZE 32
 typedef struct proto_IE_data {
 	int 			IE_type;
@@ -459,4 +466,15 @@ struct s1ap_header{
 	unsigned char criticality;
 };
 
+#if 0
+// ajaymerge - need to delete following code ? 
+//TBD: changing the pos to uint16_t is
+// creating NAS encode failures. Need to revisit this change.
+#define BUFFER_SIZE 1000 /* S1AP packet max size */
+
+typedef struct Buffer {
+	unsigned char buf[BUFFER_SIZE];
+	unsigned char pos;
+}Buffer;
+#endif
 #endif /*__S1AP_STRUCTS_H*/
