@@ -30,7 +30,6 @@ namespace mme
             s1apEnbUeId_m(0),
             contextID_m(0),
             tai_m()
-	
 	{	
 	}
 	

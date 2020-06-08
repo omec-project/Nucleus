@@ -45,7 +45,6 @@ using namespace cmn;
 using namespace cmn::utils;
 
 extern mme_config g_mme_cfg;
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {

@@ -97,7 +97,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
-	gtpHeader.teid = g_csReqInfo->ue_idx;
+	gtpHeader.teid = 0; 
 	
 	g_s11_sequence++;
 	
@@ -160,8 +160,6 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.ratType.ratType = 6;
 
 	msgData.indicationFlagsIePresent = true;
-	msgData.indicationFlags.iDFI = true;
-	msgData.indicationFlags.iMSV = true;
 
 	msgData.senderFTeidForControlPlane.ipv4present = true;
 	msgData.senderFTeidForControlPlane.interfaceType = 10;
