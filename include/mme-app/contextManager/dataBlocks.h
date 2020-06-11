@@ -177,7 +177,13 @@ namespace mme
 			* getDwnLnkSeqNo
 			*    get dwnLnkSeqNo from UEContext
 			****************************************/
-			uint16_t getDwnLnkSeqNo()const;				
+			uint16_t getDwnLnkSeqNo()const;	
+		
+			/****************************************
+			* incrementDwnLnkSeqNo
+			*    increment dwnLnkSeqNo to UEContext
+			****************************************/
+			void incrementDwnLnkSeqNo();			
 			
 			/****************************************
 			* setUpLnkSeqNo
@@ -189,7 +195,13 @@ namespace mme
 			* getUpLnkSeqNo
 			*    get upLnkSeqNo from UEContext
 			****************************************/
-			uint16_t getUpLnkSeqNo()const;				
+			uint16_t getUpLnkSeqNo()const;	
+		
+			/****************************************
+			* incrementUpLnkSeqNo
+			*    increment upLnkSeqNo to UEContext
+			****************************************/
+			void incrementUpLnkSeqNo();			
 			
 			/****************************************
 			* setUeState
@@ -858,7 +870,8 @@ namespace mme
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
-			const uint8_t* getPcoOptions()const;							
+			const uint8_t* getPcoOptions()const;	
+
 			/****************************************
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
@@ -901,7 +914,6 @@ namespace mme
 			// DataName
 			uint16_t pcoOptionsLen_m;
 			uint8_t pcoOptions_m[256];
-			
 			
 			// DataName
 			uint8_t pti_m;

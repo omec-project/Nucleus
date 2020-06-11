@@ -672,7 +672,6 @@
                             {
                                 "Name":"TAU_REQUEST_FROM_UE",
                                 "Actions":[
-                                    "PROCESS_TAU_REQUEST",
                                     "SEND_TAU_RESPONSE_TO_UE"
                                 ],
                                 "NextState":"end_state"

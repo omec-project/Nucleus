@@ -396,6 +396,60 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
 }
 
 /***************************************
+ * Action handler : process_tau_request
+ ***************************************/
+ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
+{
+    log_msg(LOG_INFO, "Inside process_tau_request\n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_ERROR, "process_tau_request: ue context is NULL\n",
+                cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext* s1HoPrCtxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (s1HoPrCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "process_tau_request: S1HandoverProcedureContext is NULL\n");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL \n");
+        return ActStatus::HALT;
+    }
+
+    const s1_incoming_msg_data_t* msgData_p =
+            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
+    const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
+    ue_ctxt->incrementUpLnkSeqNo();
+
+    //TAI and CGI obtained from s1ap ies.
+    //Convert the plmn in s1ap format to nas format
+    //before storing in ue context/sending in tai list of tau response.
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+    MmeCommonUtils::formatS1apPlmnId(
+            const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
+    s1HoPrCtxt->setTargetTai(Tai(tauReq.tai));
+    s1HoPrCtxt->setTargetCgi(Cgi(tauReq.eUtran_cgi));
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
  * Action handler : ho_complete
  ***************************************/
 ActStatus ActionHandlers::ho_complete(ControlBlock &cb)

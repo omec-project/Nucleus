@@ -55,11 +55,13 @@
 							},
 							{
 								"Name": "dwnLnkSeqNo",
-								"Type": "uint16_t"
+								"Type": "uint16_t",
+                                				"Properties" : [ {"metrics":"counter"}]
 							},
 							{
 								"Name": "upLnkSeqNo",
-								"Type": "uint16_t"
+								"Type": "uint16_t",
+                                				"Properties" : [ {"metrics":"counter"}]
 							},
 							{
 								"Name": "ueState",

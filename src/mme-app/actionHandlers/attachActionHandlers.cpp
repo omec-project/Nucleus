@@ -480,7 +480,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 			NAS_INT_KEY_SIZE);
 
 	sec_mode_msg.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->setDwnLnkSeqNo(sec_mode_msg.dl_seq_no + 1);
+	ue_ctxt->incrementDwnLnkSeqNo();
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -612,7 +612,7 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	esmreq.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
 	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
-	ue_ctxt->setDwnLnkSeqNo(esmreq.dl_seq_no+1);
+	ue_ctxt->incrementDwnLnkSeqNo();
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -655,7 +655,7 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
     	}
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	ue_ctxt->incrementUpLnkSeqNo();
 
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
@@ -895,7 +895,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 			KENB_SIZE);	
 	icr_msg.pti = sessionCtxt->getPti();
         icr_msg.m_tmsi = ue_ctxt->getMTmsi();
-	ue_ctxt->setDwnLnkSeqNo(icr_msg.dl_seq_no+1);
+	ue_ctxt->incrementDwnLnkSeqNo();
 
 	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
 	if(procedure_p->getPcoOptionsLen() > 0)
@@ -1026,7 +1026,7 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	ue_ctxt->incrementUpLnkSeqNo();
 
 	ProcedureStats::num_of_processed_attach_cmp_from_ue ++;
 	log_msg(LOG_DEBUG, "Leaving handle_attach_cmp_from_ue \n");
@@ -1068,7 +1068,7 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
     	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-    	ue_ctxt->setDwnLnkSeqNo(temp.dl_seq_no+1);
+    	ue_ctxt->incrementDwnLnkSeqNo();
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
      	* all TACs
