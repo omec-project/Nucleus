@@ -7,11 +7,12 @@
 #ifndef TIMERS_TIMEOUTMANAGER_H_
 #define TIMERS_TIMEOUTMANAGER_H_
 
+#include <componentDb.h>
 #include "timerQueue.h"
 
 #include <thread>
 
-class TimeoutManager
+class TimeoutManager:public cmn::ComponentIf
 {
 public:
     TimeoutManager(Callback cb);

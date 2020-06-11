@@ -42,6 +42,7 @@ namespace mme
 	class MmeSvcReqProcedureCtxt;
 	class MmeTauProcedureCtxt;
 	class S1HandoverProcedureContext;
+	class MmeErabModIndProcedureCtxt;
 	 
 	class UEContext:public SM::PermDataBlock
 	{
@@ -951,6 +952,30 @@ namespace mme
 			****************************************/
 			CancellationType getCancellationType()const;				
 			
+			/****************************************
+			* setNasDetachType
+			*    set nasDetachType to MmeDetachProcedureCtxt
+			****************************************/
+			void setNasDetachType(uint32_t nasDetachType_i);
+			
+			/****************************************
+			* getNasDetachType
+			*    get nasDetachType from MmeDetachProcedureCtxt
+			****************************************/
+			uint32_t getNasDetachType()const;				
+			
+			/****************************************
+			* setDetachCause
+			*    set detachCause to MmeDetachProcedureCtxt
+			****************************************/
+			void setDetachCause(uint32_t detachCause_i);
+			
+			/****************************************
+			* getDetachCause
+			*    get detachCause from MmeDetachProcedureCtxt
+			****************************************/
+			uint32_t getDetachCause()const;				
+			
 		
 		private:
 		
@@ -959,6 +984,12 @@ namespace mme
 			
 			// DataName
 			CancellationType cancellationType_m;
+			
+			// DataName
+			uint32_t nasDetachType_m;
+			
+			// DataName
+			uint32_t detachCause_m;
 			
 	};
 	 
@@ -1343,6 +1374,71 @@ namespace mme
 			
 			// DataName
 			uint32_t srcS1apEnbUeId_m;
+			
+	};
+	 
+	class MmeErabModIndProcedureCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* MmeErabModIndProcedureCtxt
+			*    constructor
+			****************************************/
+			MmeErabModIndProcedureCtxt();
+			
+			/****************************************
+			* ~MmeErabModIndProcedureCtxt
+			*    destructor
+			****************************************/
+			~MmeErabModIndProcedureCtxt();
+			
+			/****************************************
+			* setErabToBeModifiedList
+			*    set erabToBeModifiedList to MmeErabModIndProcedureCtxt
+			****************************************/
+			void setErabToBeModifiedList(const erab_to_be_modified_item* erabToBeModifiedList_i,uint16_t len);
+			
+			/****************************************
+			* getErabToBeModifiedList
+			*    get erabToBeModifiedList from MmeErabModIndProcedureCtxt
+			****************************************/
+			const erab_to_be_modified_item* getErabToBeModifiedList()const;							
+			/****************************************
+			* getErabToBeModifiedListLen
+			*    get erabToBeModifiedListLen from MmeErabModIndProcedureCtxt
+			****************************************/
+			uint16_t getErabToBeModifiedListLen()const;				
+			
+			/****************************************
+			* setErabModifiedList
+			*    set erabModifiedList to MmeErabModIndProcedureCtxt
+			****************************************/
+			void setErabModifiedList(const uint8_t* erabModifiedList_i,uint16_t len);
+			
+			/****************************************
+			* getErabModifiedList
+			*    get erabModifiedList from MmeErabModIndProcedureCtxt
+			****************************************/
+			const uint8_t* getErabModifiedList()const;							
+			/****************************************
+			* getErabModifiedListLen
+			*    get erabModifiedListLen from MmeErabModIndProcedureCtxt
+			****************************************/
+			uint16_t getErabModifiedListLen()const;				
+			
+		
+		private:
+		
+			// DataName
+			uint16_t erabToBeModifiedListLen_m;
+			erab_to_be_modified_item erabToBeModifiedList_m[10];
+			
+			
+			// DataName
+			uint16_t erabModifiedListLen_m;
+			uint8_t erabModifiedList_m[10];
+			
 			
 	};
 	

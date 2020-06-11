@@ -23,6 +23,7 @@
 #include <gtpV2StackWrappers.h>
 /*Globals and externs*/
 extern int g_resp_fd;
+extern struct GtpV2Stack* gtpStack_gp;
 
 /*End : globals and externs*/
 
@@ -41,6 +42,18 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	/*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
 	mbr_info.ue_idx = hdr->teid;
 	mbr_info.msg_type = modify_bearer_response;
+
+	ModifyBearerResponseMsgData msgData;
+	memset(&msgData, 0, sizeof(ModifyBearerResponseMsgData));
+
+	bool rc = GtpV2Stack_decodeMessage(gtpStack_gp, hdr, message, &msgData);
+	if (rc == false)
+	{
+		log_msg(LOG_ERROR, "s11_MB_resp_handler: "
+				"Failed to decode MB_resp Msg %d\n", hdr->teid);
+		return E_PARSING_FAILED;
+	}
+	mbr_info.msg_data.MB_resp_Q_msg_m.cause = msgData.cause.causeValue;
 
 	mbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);

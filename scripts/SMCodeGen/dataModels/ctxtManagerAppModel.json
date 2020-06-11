@@ -275,6 +275,14 @@
 								"Name": "cancellationType",
 								"Type": "enum CancellationType",
 								"DefaultVal": "INVALID_TYPE"
+							},
+							{
+								"Name": "nasDetachType",
+								"Type": "uint32_t"
+							},
+							{
+								"Name": "detachCause",
+								"Type": "uint32_t"
 							}
 						]
 					},
@@ -397,7 +405,27 @@
 								"Type": "uint32_t"
 							}
 						]
-					}
+					},
+					{
+                                                "BlockName": "MmeErabModIndProcedureCtxt",
+                                                "BlockType": "Temporary",
+                                                "Parent": "MmeProcedureCtxt",
+                                                "PoolSize": "8000",
+                                                "Cardinality": "1",
+                                                "Data": [
+							{
+                                                                "Name": "erabToBeModifiedList",
+                                                                "Type": "erab_to_be_modified_item",
+                                                                "Cardinality": "10"
+                                                        },
+						        {
+                                                                "Name": "erabModifiedList",
+                                                                "Type": "uint8_t",
+                                                                "Cardinality": "10"
+                                                        }
+
+                                                ]
+                                        }
 				]
 			}
 		]

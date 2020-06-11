@@ -41,6 +41,7 @@ namespace mme
     	serviceRequest_c,
     	tau_c,
     	s1Handover_c,
+        erabModInd_c,
 
     	maxProcedureType_c
  };

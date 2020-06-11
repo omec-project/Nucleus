@@ -383,6 +383,7 @@ typedef struct nas_pdu_header {
 	unsigned char eps_bearer_identity;
 	unsigned char procedure_trans_identity;
 	unsigned char detach_type;
+	unsigned char emm_cause;
 } nas_pdu_header;
 
 #pragma pack()
@@ -538,6 +539,22 @@ typedef struct ERABSetup {
 	uint32_t gtp_teid;
 	struct nasPDU nas;
 } ERABSetup;
+
+typedef struct erab_to_be_modified_item {
+	uint8_t e_RAB_ID;
+	uint32_t transportLayerAddress;
+        uint32_t dl_gtp_teid;
+} erab_to_be_modified_item;
+
+typedef struct erab_to_be_modified_list {
+	uint8_t count;
+	erab_to_be_modified_item erab_to_be_mod_item[MAX_ERAB_SIZE];
+} erab_to_be_modified_list;
+
+typedef struct erab_modified_list {
+	uint8_t count;
+	uint8_t erab_id[MAX_ERAB_SIZE];
+} erab_modified_list;
 
 typedef struct ERABs_Subject_to_Forwarding {
 	uint8_t e_RAB_ID;
@@ -722,8 +739,15 @@ typedef enum s1apCauseMisc {
 
 typedef enum emmCause {
     emmCause_ue_id_not_derived_by_network   = 9,
-    emmCause_network_failure = 11
+    emmCause_network_failure = 17
 } e_emmCause;
+
+typedef enum nasDetachType {
+    invalidDetachType = 0,
+    reattachRequired = 1,
+    reattachNotRequired = 2,
+    imsiDetach = 3
+} e_nasDetachType;
 
 /* s1apCauseMisc */
 typedef long     s1apCauseMisc_t;
@@ -764,6 +788,7 @@ typedef struct proto_IE_data {
         struct eRAB_elements 	erab;
         ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
         ERABSetup E_RABToBeSetupItemCtxtSUReq;
+        erab_to_be_modified_list erab_to_be_mod_list;
         ue_sec_capabilities ue_sec_capab;
         uint8_t sec_key[SECURITY_KEY_SIZE];
         struct targetId target_id;
