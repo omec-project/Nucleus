@@ -44,7 +44,6 @@ using namespace cmn;
 using namespace cmn::utils;
 
 extern mme_config g_mme_cfg;
-extern MmeIpcInterface* mmeIpcIf_g; // ajaymerge --- remove this 
 
 /***************************************
 * Action handler : process_tau_request

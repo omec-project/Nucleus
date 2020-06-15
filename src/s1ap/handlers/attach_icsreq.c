@@ -172,7 +172,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	nasIEs[nasIeCnt].pduElement.mi_guti.id_type = 6;
 
 	memcpy(&(nasIEs[nasIeCnt].pduElement.mi_guti.plmn_id),
-			&(g_icsReqInfo->tai.plmn_id), 3); // ajaymerge - dont usesizeof(struct PLMN)); plmn struct has some more fields
+			&(g_icsReqInfo->tai.plmn_id), 3); 
 	nasIEs[nasIeCnt].pduElement.mi_guti.mme_grp_id = htons(s1ap_cfg->mme_group_id);
 	nasIEs[nasIeCnt].pduElement.mi_guti.mme_code = s1ap_cfg->mme_code;
 	/* TODO : Revisit, temp fix for handling detach request retransmit.
@@ -607,7 +607,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     //uint16_t nas_pay_len = g_nas_buffer.pos - nas_len_pos - 1;
 	log_msg(LOG_INFO, "NAS payload length %d\n", g_nas_buffer.pos);
 	log_msg(LOG_INFO, "RAB2 payload length before appending NAS %d\n", g_rab2_buffer.pos);
-
 
     /* start: RAB2 + NAS start */
     /* Now lets append NAS buffer to rab2....so rab2 = rab2_buf + nas_length + nas_buf  */

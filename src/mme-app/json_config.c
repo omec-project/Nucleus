@@ -177,8 +177,6 @@ parse_mme_conf(mme_config *config)
 	if(E_PARSING_FAILED == config->mcc_dig1) return E_PARSING_FAILED;
     getIntAlgOrder(int_alg_list, config->integrity_alg_order);
     getSecAlgOrder(sec_alg_list, config->ciphering_alg_order);
-	return SUCCESS;
-
 	uint16_t count=1;
 	while(1) {
 		char name[100] = {'\0'};

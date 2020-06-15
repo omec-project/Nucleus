@@ -24,7 +24,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	UEContext::UEContext():            
+	UEContext::UEContext():           
             enbFd_m(0),
             s1apEnbUeId_m(0),
             subscriptionStatus_m(0),
@@ -45,8 +45,8 @@ namespace mme
             ambr_m(),
             aiaSecInfo_m(),
             mTmsi_m(0),
-            subscribedApn_m(),pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
-	
+            subscribedApn_m(),
+            pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
 	{	
 	}
 	
@@ -60,7 +60,7 @@ namespace mme
 	/******************************************************************************
 	* sets enbFd
 	******************************************************************************/
-	void UEContext::setEnbFd( int enbFd_i )
+	void UEContext::setEnbFd( uint32_t enbFd_i )
 	{
 		enbFd_m = enbFd_i;
 	}
@@ -68,7 +68,7 @@ namespace mme
 	/******************************************************************************
 	* returns enbFd
 	******************************************************************************/	
-	int UEContext::getEnbFd() const
+	uint32_t UEContext::getEnbFd() const
 	{
 		return enbFd_m;
 	}
@@ -76,7 +76,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void UEContext::setS1apEnbUeId( int s1apEnbUeId_i )
+	void UEContext::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -84,7 +84,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int UEContext::getS1apEnbUeId() const
+	uint32_t UEContext::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}
@@ -140,7 +140,7 @@ namespace mme
 	/******************************************************************************
 	* sets rauTauTimer
 	******************************************************************************/
-	void UEContext::setRauTauTimer( unsigned int rauTauTimer_i )
+	void UEContext::setRauTauTimer( uint32_t rauTauTimer_i )
 	{
 		rauTauTimer_m = rauTauTimer_i;
 	}
@@ -148,7 +148,7 @@ namespace mme
 	/******************************************************************************
 	* returns rauTauTimer
 	******************************************************************************/	
-	unsigned int UEContext::getRauTauTimer() const
+	uint32_t UEContext::getRauTauTimer() const
 	{
 		return rauTauTimer_m;
 	}
@@ -156,7 +156,7 @@ namespace mme
 	/******************************************************************************
 	* sets accessRestrictionData
 	******************************************************************************/
-	void UEContext::setAccessRestrictionData( unsigned int accessRestrictionData_i )
+	void UEContext::setAccessRestrictionData( uint32_t accessRestrictionData_i )
 	{
 		accessRestrictionData_m = accessRestrictionData_i;
 	}
@@ -164,7 +164,7 @@ namespace mme
 	/******************************************************************************
 	* returns accessRestrictionData
 	******************************************************************************/	
-	unsigned int UEContext::getAccessRestrictionData() const
+	uint32_t UEContext::getAccessRestrictionData() const
 	{
 		return accessRestrictionData_m;
 	}
@@ -416,10 +416,9 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmContext::MmContext():            
+	MmContext::MmContext():           
             mmState_m(InvalidState),
             ecmState_m(ecmUnknown_c)
-	
 	{	
 	}
 	
@@ -471,7 +470,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	SessionContext::SessionContext():            
+	SessionContext::SessionContext():           
             sessionId_m(0),
             s11SgwCtrlFteid_m(),
             s5S8PgwCtrlFteid_m(),
@@ -479,7 +478,6 @@ namespace mme
             accessPtName_m(),
             apnConfigProfileCtxId_m(0),
             pti_m(0),BearerContext_mp(NULL)
-	
 	{	
 	}
 	
@@ -573,7 +571,7 @@ namespace mme
 	/******************************************************************************
 	* sets apnConfigProfileCtxId
 	******************************************************************************/
-	void SessionContext::setApnConfigProfileCtxId( unsigned int apnConfigProfileCtxId_i )
+	void SessionContext::setApnConfigProfileCtxId( uint32_t apnConfigProfileCtxId_i )
 	{
 		apnConfigProfileCtxId_m = apnConfigProfileCtxId_i;
 	}
@@ -581,7 +579,7 @@ namespace mme
 	/******************************************************************************
 	* returns apnConfigProfileCtxId
 	******************************************************************************/	
-	unsigned int SessionContext::getApnConfigProfileCtxId() const
+	uint32_t SessionContext::getApnConfigProfileCtxId() const
 	{
 		return apnConfigProfileCtxId_m;
 	}
@@ -626,12 +624,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	BearerContext::BearerContext():            
+	BearerContext::BearerContext():           
             s1uSgwUserFteid_m(),
             s5S8PgwUserFteid_m(),
             s1uEnbUserFteid_m(),
             bearerId_m(0)
-	
 	{	
 	}
 	
@@ -693,7 +690,7 @@ namespace mme
 	/******************************************************************************
 	* sets bearerId
 	******************************************************************************/
-	void BearerContext::setBearerId( unsigned char bearerId_i )
+	void BearerContext::setBearerId( uint8_t bearerId_i )
 	{
 		bearerId_m = bearerId_i;
 	}
@@ -701,7 +698,7 @@ namespace mme
 	/******************************************************************************
 	* returns bearerId
 	******************************************************************************/	
-	unsigned char BearerContext::getBearerId() const
+	uint8_t BearerContext::getBearerId() const
 	{
 		return bearerId_m;
 	}
@@ -715,13 +712,13 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeProcedureCtxt::MmeProcedureCtxt():            
+	MmeProcedureCtxt::MmeProcedureCtxt():           
             ctxtType_m(invalidProcedureType_c),
             mmeErrorCause_m(noError_c),
             s1apCause_m(),
+            stateGuardTimerCtxt_m(NULL),
             authRespStatus_m(0),
             auts_m()
-	
 	{	
 	}
 	
@@ -781,6 +778,22 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	* sets stateGuardTimerCtxt
+	******************************************************************************/
+	void MmeProcedureCtxt::setStateGuardTimerCtxt( MmeUeTimerContext* stateGuardTimerCtxt_i )
+	{
+		stateGuardTimerCtxt_m = stateGuardTimerCtxt_i;
+	}
+	
+	/******************************************************************************
+	* returns stateGuardTimerCtxt
+	******************************************************************************/	
+	MmeUeTimerContext* MmeProcedureCtxt::getStateGuardTimerCtxt() const
+	{
+		return stateGuardTimerCtxt_m;
+	}
+	
+	/******************************************************************************
 	* sets authRespStatus
 	******************************************************************************/
 	void MmeProcedureCtxt::setAuthRespStatus( int authRespStatus_i )
@@ -821,13 +834,12 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeAttachProcedureCtxt::MmeAttachProcedureCtxt():            
+	MmeAttachProcedureCtxt::MmeAttachProcedureCtxt():           
             esmInfoTxRequired_m(false),
             attachType_m(invalidAttachType_c),
             pcoOptionsLen_m(0),
             pti_m(0),
             requestedApn_m()
-	
 	{
 		memset(pcoOptions_m,0,sizeof(pcoOptions_m));
 	
@@ -875,7 +887,7 @@ namespace mme
 	/******************************************************************************
 	* sets pcoOptions
 	******************************************************************************/
-	void MmeAttachProcedureCtxt::setPcoOptions( const unsigned char* pcoOptions_i,uint16_t len )
+	void MmeAttachProcedureCtxt::setPcoOptions( const uint8_t* pcoOptions_i,uint16_t len )
 	{
 		pcoOptionsLen_m=len;
 		memcpy(pcoOptions_m, pcoOptions_i, pcoOptionsLen_m);
@@ -884,7 +896,7 @@ namespace mme
 	/******************************************************************************
 	* returns pcoOptions
 	******************************************************************************/	
-	const unsigned char* MmeAttachProcedureCtxt::getPcoOptions() const
+	const uint8_t* MmeAttachProcedureCtxt::getPcoOptions() const
 	{
 		return pcoOptions_m;
 	}
@@ -937,10 +949,9 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeDetachProcedureCtxt::MmeDetachProcedureCtxt():            
+	MmeDetachProcedureCtxt::MmeDetachProcedureCtxt():           
             detachType_m(invalidDetachType_c),
             cancellationType_m(INVALID_TYPE)
-	
 	{	
 	}
 	
@@ -992,9 +1003,8 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():            
+	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():           
             s1ReleaseTrigger_m(noTrigger_c)
-	
 	{	
 	}
 	
@@ -1030,12 +1040,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeSvcReqProcedureCtxt::MmeSvcReqProcedureCtxt():            
+	MmeSvcReqProcedureCtxt::MmeSvcReqProcedureCtxt():           
             ddnSeqNo_m(0),
             pagingTrigger_m(none_c),
             epsBearerId_m(0),
             arp_m()
-	
 	{	
 	}
 	
@@ -1081,7 +1090,7 @@ namespace mme
 	/******************************************************************************
 	* sets epsBearerId
 	******************************************************************************/
-	void MmeSvcReqProcedureCtxt::setEpsBearerId( unsigned char epsBearerId_i )
+	void MmeSvcReqProcedureCtxt::setEpsBearerId( uint8_t epsBearerId_i )
 	{
 		epsBearerId_m = epsBearerId_i;
 	}
@@ -1089,7 +1098,7 @@ namespace mme
 	/******************************************************************************
 	* returns epsBearerId
 	******************************************************************************/	
-	unsigned char MmeSvcReqProcedureCtxt::getEpsBearerId() const
+	uint8_t MmeSvcReqProcedureCtxt::getEpsBearerId() const
 	{
 		return epsBearerId_m;
 	}
@@ -1119,12 +1128,11 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	MmeTauProcedureCtxt::MmeTauProcedureCtxt():            
+	MmeTauProcedureCtxt::MmeTauProcedureCtxt():           
             s1apEnbUeId_m(0),
             tai_m(),
             eUtranCgi_m(),
             enbFd_m(0)
-	
 	{	
 	}
 	
@@ -1138,7 +1146,7 @@ namespace mme
 	/******************************************************************************
 	* sets s1apEnbUeId
 	******************************************************************************/
-	void MmeTauProcedureCtxt::setS1apEnbUeId( int s1apEnbUeId_i )
+	void MmeTauProcedureCtxt::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
 	{
 		s1apEnbUeId_m = s1apEnbUeId_i;
 	}
@@ -1146,7 +1154,7 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int MmeTauProcedureCtxt::getS1apEnbUeId() const
+	uint32_t MmeTauProcedureCtxt::getS1apEnbUeId() const
 	{
 		return s1apEnbUeId_m;
 	}
@@ -1186,7 +1194,7 @@ namespace mme
 	/******************************************************************************
 	* sets enbFd
 	******************************************************************************/
-	void MmeTauProcedureCtxt::setEnbFd( int enbFd_i )
+	void MmeTauProcedureCtxt::setEnbFd( uint32_t enbFd_i )
 	{
 		enbFd_m = enbFd_i;
 	}
@@ -1194,7 +1202,7 @@ namespace mme
 	/******************************************************************************
 	* returns enbFd
 	******************************************************************************/	
-	int MmeTauProcedureCtxt::getEnbFd() const
+	uint32_t MmeTauProcedureCtxt::getEnbFd() const
 	{
 		return enbFd_m;
 	}
@@ -1208,7 +1216,7 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	S1HandoverProcedureContext::S1HandoverProcedureContext():            
+	S1HandoverProcedureContext::S1HandoverProcedureContext():           
             hoType_m(invalid_c),
             targetEnbContextId_m(0),
             targetS1apEnbUeId_m(0),
@@ -1220,7 +1228,6 @@ namespace mme
             s1HoCause_m(),
             srcEnbContextId_m(0),
             srcS1apEnbUeId_m(0)
-	
 	{	
 	}
 	
@@ -1250,7 +1257,7 @@ namespace mme
 	/******************************************************************************
 	* sets targetEnbContextId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setTargetEnbContextId( int targetEnbContextId_i )
+	void S1HandoverProcedureContext::setTargetEnbContextId( uint32_t targetEnbContextId_i )
 	{
 		targetEnbContextId_m = targetEnbContextId_i;
 	}
@@ -1258,7 +1265,7 @@ namespace mme
 	/******************************************************************************
 	* returns targetEnbContextId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getTargetEnbContextId() const
+	uint32_t S1HandoverProcedureContext::getTargetEnbContextId() const
 	{
 		return targetEnbContextId_m;
 	}
@@ -1266,7 +1273,7 @@ namespace mme
 	/******************************************************************************
 	* sets targetS1apEnbUeId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setTargetS1apEnbUeId( int targetS1apEnbUeId_i )
+	void S1HandoverProcedureContext::setTargetS1apEnbUeId( uint32_t targetS1apEnbUeId_i )
 	{
 		targetS1apEnbUeId_m = targetS1apEnbUeId_i;
 	}
@@ -1274,7 +1281,7 @@ namespace mme
 	/******************************************************************************
 	* returns targetS1apEnbUeId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getTargetS1apEnbUeId() const
+	uint32_t S1HandoverProcedureContext::getTargetS1apEnbUeId() const
 	{
 		return targetS1apEnbUeId_m;
 	}
@@ -1378,7 +1385,7 @@ namespace mme
 	/******************************************************************************
 	* sets srcEnbContextId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setSrcEnbContextId( int srcEnbContextId_i )
+	void S1HandoverProcedureContext::setSrcEnbContextId( uint32_t srcEnbContextId_i )
 	{
 		srcEnbContextId_m = srcEnbContextId_i;
 	}
@@ -1386,7 +1393,7 @@ namespace mme
 	/******************************************************************************
 	* returns srcEnbContextId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getSrcEnbContextId() const
+	uint32_t S1HandoverProcedureContext::getSrcEnbContextId() const
 	{
 		return srcEnbContextId_m;
 	}
@@ -1394,7 +1401,7 @@ namespace mme
 	/******************************************************************************
 	* sets srcS1apEnbUeId
 	******************************************************************************/
-	void S1HandoverProcedureContext::setSrcS1apEnbUeId( int srcS1apEnbUeId_i )
+	void S1HandoverProcedureContext::setSrcS1apEnbUeId( uint32_t srcS1apEnbUeId_i )
 	{
 		srcS1apEnbUeId_m = srcS1apEnbUeId_i;
 	}
@@ -1402,7 +1409,7 @@ namespace mme
 	/******************************************************************************
 	* returns srcS1apEnbUeId
 	******************************************************************************/	
-	int S1HandoverProcedureContext::getSrcS1apEnbUeId() const
+	uint32_t S1HandoverProcedureContext::getSrcS1apEnbUeId() const
 	{
 		return srcS1apEnbUeId_m;
 	}

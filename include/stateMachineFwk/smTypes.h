@@ -24,14 +24,26 @@ using namespace std;
 namespace SM{
 
 class ControlBlock;
-class State;
 class ActionTable;
+class TempDataBlock;
+class Event;
 
 enum ActStatus
 {
 	PROCEED,
 	HALT,
 	ABORT
+};
+
+/* IGNORE : Event will be ignored by the current procedure
+ * CONSUME: Event will be processed by the current procedure */
+enum EventStatus
+{
+    IGNORE,
+    CONSUME
+    // TODO: Concurrent procedure support
+    // FORWARD,
+    // CONSUME_AND_FORWARD,
 };
 
 enum ControlBlockState
@@ -50,6 +62,7 @@ const uint16_t STATE_GUARD_TIMEOUT = 2;
 const uint16_t default_state = 0;
 
 using ActionPointer = ActStatus(*)(ControlBlock&);
+using EventValidator = EventStatus(*)(ControlBlock&, TempDataBlock*, Event &event);
 using EventToActionTableMap = std::map <uint16_t, ActionTable>;
 using EventIdToStringMap = std::map <uint16_t, std::string>;
 using StateIdToStringMap = std::map <uint16_t, std::string>;

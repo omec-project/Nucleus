@@ -37,7 +37,7 @@ namespace SM
 
 		virtual void display();
 
-		ActStatus executeActions(ControlBlock& cb);
+		ActStatus executeActions(ControlBlock& cb, State* statep);
 		void addAction(ActionPointer act);
 		void setNextState(State*st);
 	private:
