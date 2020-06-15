@@ -229,7 +229,10 @@ s6a_fd_objs_init()
 					g_fd_dict_objs.subscription_data);
 
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Subscriber-Status",
-					g_fd_dict_objs.subscriber_status);
+                                        g_fd_dict_objs.subscriber_status);
+
+	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Supported-Features",
+					g_fd_dict_objs.supported_features);
 
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "MSISDN",
 					g_fd_dict_objs.MSISDN);
@@ -251,6 +254,22 @@ s6a_fd_objs_init()
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
 					"Max-Requested-Bandwidth-DL",
 					g_fd_dict_objs.max_req_bandwidth_DL);
+	
+	/*FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+                                        "Extended-Max-Requested-BW-UL",
+                                        g_fd_dict_objs.extended_max_req_bandwidth_UL);
+
+        FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+                                        "Extended-Max-Requested-BW-DL",
+                                        g_fd_dict_objs.extended_max_req_bandwidth_DL);*/
+
+	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+                                        "Feature-List-ID",
+                                        g_fd_dict_objs.feature_list_id);
+
+        FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+                                        "Feature-List",
+                                        g_fd_dict_objs.feature_list);
 
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
 					"APN-Configuration-Profile",
@@ -426,6 +445,10 @@ s6a_fd_data_init()
 				&g_fd_dict_data.subscriber_status),
 				return S6A_FD_ERROR);
 
+	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.supported_features,
+                                &g_fd_dict_data.supported_features),
+                                return S6A_FD_ERROR);
+
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.MSISDN,
 				&g_fd_dict_data.MSISDN),
 				return S6A_FD_ERROR);
@@ -449,6 +472,22 @@ s6a_fd_data_init()
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.max_req_bandwidth_DL,
 				&g_fd_dict_data.max_req_bandwidth_DL),
 				return S6A_FD_ERROR);
+
+/*	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.extended_max_req_bandwidth_UL,
+                                &g_fd_dict_data.extended_max_req_bandwidth_UL),
+                                return S6A_FD_ERROR);
+
+        CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.extended_max_req_bandwidth_DL,
+                                &g_fd_dict_data.extended_max_req_bandwidth_DL),
+                                return S6A_FD_ERROR); */
+
+	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.feature_list_id,
+                                &g_fd_dict_data.feature_list_id),
+                                return S6A_FD_ERROR);
+
+        CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.feature_list,
+                                &g_fd_dict_data.feature_list),
+                                return S6A_FD_ERROR);
 
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.APN_config_profile,
 				&g_fd_dict_data.APN_config_profile),

@@ -94,7 +94,10 @@ parse_ula_subscription_data(struct avp *avp_ptr, struct ula_Q_msg *ula)
 
 		/*AVP: AMBR(1435)*/
 			/*AVP: Max-Requested-Bandwidth-UL(516)
-			  AVP: Max-Requested-Bandwidth-DL(515*/
+			  AVP: Max-Requested-Bandwidth-DL(515)
+			  AVP: Extended-Max-Requested-BW-UL(555)
+                          AVP: Extended-Max-Requested-BW-DL(554)*/
+
 		if(g_fd_dict_data.AMBR.avp_code == element->avp_code) {
 			/*AMBR has its own child elements, iterate through those*/
 			struct avp *ambr_itr = NULL;
@@ -116,6 +119,14 @@ parse_ula_subscription_data(struct avp *avp_ptr, struct ula_Q_msg *ula)
 						ambr_element->avp_code) {
 					ula->max_requested_bw_dl = ambr_element->avp_value->u32;
 				}
+
+				if(EXT_MAX_REQ_BW_UL_AVP_CODE == ambr_element->avp_code) {
+                                        ula->extended_max_requested_bw_ul = ambr_element->avp_value->u32;
+                                }
+
+				if(EXT_MAX_REQ_BW_DL_AVP_CODE == ambr_element->avp_code) {
+                                        ula->extended_max_requested_bw_dl = ambr_element->avp_value->u32;
+                                }
 
 				CHECK_FCT_DO(fd_msg_browse(ambr_itr, MSG_BRW_NEXT,
 						&ambr_itr, NULL), return);
@@ -227,7 +238,7 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 	int sess_id_len, ue_idx;
 	unsigned char *sess_id= NULL;
 	struct s6_incoming_msg_data_t s6_incoming_msgs = {0};
-	struct avp *subsc_ptr = NULL;
+	struct avp *avp = NULL;
 
 	CHECK_FCT_DO(fd_sess_getsid(sess, &sess_id, (size_t*)&sess_id_len),
 		return S6A_FD_ERROR);
@@ -237,12 +248,33 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 	s6_incoming_msgs.msg_data.ula_Q_msg_m.res = SUCCESS;
 	ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
 
-	/*AVP: Subscription-Data(1400)*/
-	fd_msg_search_avp(*buf, g_fd_dict_objs.subscription_data, &subsc_ptr);
+	CHECK_FCT_DO(fd_msg_browse(*buf, MSG_BRW_FIRST_CHILD, &avp, NULL), return S6A_FD_ERROR);
+        while (avp) {
+                struct avp_hdr *hdr = NULL;
+                fd_msg_avp_hdr (avp, &hdr);
 
-	/*Parse fd message and extract ula information*/
-	if(NULL != subsc_ptr) parse_ula_subscription_data(subsc_ptr, &s6_incoming_msgs.msg_data.ula_Q_msg_m);
-
+                switch(hdr->avp_code)
+                {
+                    case SUB_DATA_AVP_CODE:
+                    {
+                        parse_ula_subscription_data(avp, &s6_incoming_msgs.msg_data.ula_Q_msg_m);
+                    } break;
+                    case SUPP_FEAT_AVP_CODE:
+                    {
+			supported_features_list *supp_features_list = &s6_incoming_msgs.msg_data.ula_Q_msg_m.supp_features_list;
+                        if(supp_features_list->count < 2) {
+                            int ret = parse_supported_features_avp(avp, &supp_features_list->supp_features[supp_features_list->count]);
+                            if(ret == SUCCESS)
+                                supp_features_list->count ++;
+                        }
+                    } break;
+                    default:
+                        goto next;
+                }
+                next:
+                    /* Go to next AVP */
+                    CHECK_FCT_DO(fd_msg_browse(avp, MSG_BRW_NEXT, &avp, NULL), return S6A_FD_ERROR);
+	}
 	fd_msg_free(*buf);
 	*buf = NULL;
     
