@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 #include "ipc_api.h"
 #include "s1ap.h"
@@ -101,7 +102,7 @@ int erab_mod_indication_handler(InitiatingMessage_t *msg)
             S1_READ_MSG_BUF_SIZE);
     if (i < 0)
     {
-        log_msg(LOG_ERROR, "Error To write in erab_mod_ind_handler\n");
+        log_msg(LOG_ERROR, "Error To write in erab_mod_ind_handler %s\n", strerror(errno));
     }
 
     log_msg(LOG_INFO, "ERAB Modification Indication sent to mme-app. Bytes sent %d\n", i);
