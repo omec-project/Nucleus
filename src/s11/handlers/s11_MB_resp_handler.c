@@ -57,7 +57,7 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 
 	mbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
-	/*Send CS response msg*/
+
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, GTP_READ_MSG_BUF_SIZE);
 	log_msg(LOG_INFO, "Send MB resp to mme-app stage8.\n");
 

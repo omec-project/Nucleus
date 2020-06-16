@@ -416,12 +416,12 @@
 							{
                                                                 "Name": "erabToBeModifiedList",
                                                                 "Type": "erab_to_be_modified_item",
-                                                                "Cardinality": "10"
+                                                                "Cardinality": "15"
                                                         },
 						        {
                                                                 "Name": "erabModifiedList",
                                                                 "Type": "uint8_t",
-                                                                "Cardinality": "10"
+                                                                "Cardinality": "15"
                                                         }
 
                                                 ]

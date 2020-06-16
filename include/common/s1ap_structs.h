@@ -72,7 +72,7 @@ APN name can be in range of min 3 octets to max 102 octets
 */
 #define MAX_APN_LEN 102
 
-#define MAX_ERAB_SIZE 10
+#define MAX_ERAB_SIZE 15
 
 struct apn_name {
 	unsigned char len;

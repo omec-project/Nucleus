@@ -1432,12 +1432,12 @@ namespace mme
 		
 			// DataName
 			uint16_t erabToBeModifiedListLen_m;
-			erab_to_be_modified_item erabToBeModifiedList_m[10];
+			erab_to_be_modified_item erabToBeModifiedList_m[15];
 			
 			
 			// DataName
 			uint16_t erabModifiedListLen_m;
-			uint8_t erabModifiedList_m[10];
+			uint8_t erabModifiedList_m[15];
 			
 			
 	};

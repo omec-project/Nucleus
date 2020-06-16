@@ -56,7 +56,8 @@ int erab_mod_indication_handler(InitiatingMessage_t *msg)
         case S1AP_IE_MME_UE_ID:
         {
             log_msg(LOG_INFO,
-                    "ERAB Modification Indication S1AP_IE_MME_UE_ID.\n");
+                    "ERAB Modification Indication S1AP_IE_MME_UE_ID %d\n", 
+		    erab_mod_ind_ies.data[i].val.mme_ue_s1ap_id);
 
             erab_mod_ind.ue_idx = erab_mod_ind_ies.data[i].val.mme_ue_s1ap_id;
         }
@@ -64,7 +65,8 @@ int erab_mod_indication_handler(InitiatingMessage_t *msg)
         case S1AP_IE_ENB_UE_ID:
         {
             log_msg(LOG_INFO,
-                    "ERAB Modification Indication S1AP_IE_ENB_UE_ID.\n");
+                    "ERAB Modification Indication S1AP_IE_ENB_UE_ID %d\n",
+		    erab_mod_ind_ies.data[i].val.enb_ue_s1ap_id);
 
             erab_mod_ind.s1ap_enb_ue_id = erab_mod_ind_ies.data[i].val.enb_ue_s1ap_id;
         }
@@ -72,7 +74,9 @@ int erab_mod_indication_handler(InitiatingMessage_t *msg)
         case S1AP_IE_E_RAB_TO_BE_MOD_LIST_BEARER_MOD_IND:
         {
             log_msg(LOG_INFO,
-                    "ERAB Modification Indication S1AP_IE_E_RAB_TO_BE_MOD_LIST_BEARER_MOD_IND.\n");
+                    "ERAB Modification Indication S1AP_IE_E_RAB_TO_BE_MOD_LIST_BEARER_MOD_IND\
+		    received with the count : %d\n", 
+		    erab_mod_ind_ies.data[i].val.erab_to_be_mod_list.count);
 
             erab_mod_ind.msg_data.erab_mod_ind_Q_msg_m.erab_to_be_mod_list.count =
                     erab_mod_ind_ies.data[i].val.erab_to_be_mod_list.count;
