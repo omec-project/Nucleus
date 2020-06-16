@@ -62,6 +62,7 @@ static int
 send_FD_ULR(struct s6a_Q_msg *aia_msg, char imsi[])
 {
 	struct msg *fd_msg = NULL;
+	struct avp *avp_ptr = NULL;
 	int res = SUCCESS;
 	struct s6a_sess_info s6a_sess = {.sess_id="", .sess_id_len = 0};
 	char event = 12;
@@ -115,7 +116,27 @@ send_FD_ULR(struct s6a_Q_msg *aia_msg, char imsi[])
 	val.os.data = (unsigned char*)aia_msg->tai.plmn_id.idx;
 	val.os.len = 3;
 	add_fd_msg(&val, g_fd_dict_objs.visited_PLMN_id, &fd_msg);
+	
+	for(int i = 0; i < aia_msg->supp_features_list.count ; i++)
+	{
+	    /*AVP: Supported Features*/
+            CHECK_FCT_DO(fd_msg_avp_new(
+		g_fd_dict_objs.supported_features, 0, &avp_ptr),
+                return -1);
+            CHECK_FCT_DO(fd_msg_avp_add(fd_msg, MSG_BRW_LAST_CHILD, avp_ptr), return -1);
 
+	    /*AVP: Supported Features
+             *----->AVP: Feature-List-Id*/
+            val.u32 = aia_msg->supp_features_list.supp_features[i].feature_list_id ;
+            add_fd_msg(&val, g_fd_dict_objs.feature_list_id,
+                            (struct msg**)&avp_ptr);
+
+            /*AVP: Supported Features
+             * ------>AVP: Feature-List*/
+            val.u32 = aia_msg->supp_features_list.supp_features[i].feature_list;
+            add_fd_msg(&val, g_fd_dict_objs.feature_list,
+                            (struct msg**)&avp_ptr);
+	}
 	dump_fd_msg(fd_msg);
 
 	/*Post ULR to HSS*/

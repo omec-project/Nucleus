@@ -21,6 +21,7 @@
 
 #include "err_codes.h"
 #include "s6a.h"
+#include "s6_common_types.h"
 
 /*Update location request(ULR) flag bitfields*/
 /* Single-Registration-Indication  -------1*/
@@ -39,6 +40,13 @@
 #define ULR_FLAG_PS_LCS_NOT_SUPPORTED_BY_UE (1<<6)
 /*SMS-Only-Indication:             1-------*/
 #define ULR_FLAG_SMS_ONLY_IND (1<<7)
+
+#define EXT_MAX_REQ_BW_DL_AVP_CODE 554
+#define EXT_MAX_REQ_BW_UL_AVP_CODE 555
+#define SUPP_FEAT_AVP_CODE 628
+#define FEAT_LIST_ID_AVP_CODE 629
+#define FEAT_LIST_AVP_CODE 630
+#define SUB_DATA_AVP_CODE 1400
 
 #define S6A_RAT_EUTRAN 1004
 
@@ -111,12 +119,15 @@ struct fd_dict_objects {
 	struct dict_object *ULA_flags;
 	struct dict_object *subscription_data;
 	struct dict_object *subscriber_status;
+	struct dict_object *supported_features;
 	struct dict_object *MSISDN;
 	struct dict_object *net_access_mode;
 	struct dict_object *access_restriction_data;
 	struct dict_object *AMBR;
 	struct dict_object *max_req_bandwidth_UL;
 	struct dict_object *max_req_bandwidth_DL;
+	struct dict_object *extended_max_req_bandwidth_UL;
+        struct dict_object *extended_max_req_bandwidth_DL;
 	struct dict_object *APN_config_profile;
 	struct dict_object *ctx_id;
 	struct dict_object *additional_ctx_id;
@@ -132,6 +143,8 @@ struct fd_dict_objects {
 	struct dict_object *location_area_id;
 	struct dict_object *tracking_area_id;
 	struct dict_object *subsc_periodic_RAU_TAU_tmr;
+	struct dict_object *feature_list_id;
+	struct dict_object *feature_list;
 
 	/*PUR elements*/
 	struct dict_object *PUR_flags;
@@ -187,12 +200,15 @@ struct fd_dict_data {
 	struct dict_avp_data ULA_flags;
 	struct dict_avp_data subscription_data;
 	struct dict_avp_data subscriber_status;
+	struct dict_avp_data supported_features;
 	struct dict_avp_data MSISDN;
 	struct dict_avp_data net_access_mode;
 	struct dict_avp_data access_restriction_data;
 	struct dict_avp_data AMBR;
 	struct dict_avp_data max_req_bandwidth_UL;
 	struct dict_avp_data max_req_bandwidth_DL;
+	struct dict_avp_data extended_max_req_bandwidth_UL;
+        struct dict_avp_data extended_max_req_bandwidth_DL;
 	struct dict_avp_data APN_config_profile;
 	struct dict_avp_data ctx_id;
 	struct dict_avp_data additional_ctx_id;
@@ -208,6 +224,8 @@ struct fd_dict_data {
 	struct dict_avp_data location_area_id;
 	struct dict_avp_data tracking_area_id;
 	struct dict_avp_data subsc_periodic_RAU_TAU_tmr;
+	struct dict_avp_data feature_list_id;
+	struct dict_avp_data feature_list;
 
 	/*PUR flags*/
 	struct dict_avp_data PUR_flags;
@@ -267,6 +285,9 @@ get_ue_idx_from_fd_resp(unsigned char *sid, int sidlen);
  */
 short
 create_fd_sess_id(struct s6a_sess_info *s6a_sess, int ue_idx);
+
+int 
+parse_supported_features_avp(struct avp *avp_ptr, supported_features *supp_features);
 
 int
 aia_resp_callback(struct msg **msg, struct avp *avp, struct session *sess,
