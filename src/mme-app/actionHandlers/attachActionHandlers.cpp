@@ -209,6 +209,7 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req;
+    memset(&s6a_req, 0, sizeof(s6a_req));
 
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
