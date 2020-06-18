@@ -51,7 +51,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 								hdr->teid);
 			return E_PARSING_FAILED;
 	}
-
+    csr_info.msg_data.csr_Q_msg_m.status = msgData.cause.causeValue;
 	csr_info.msg_data.csr_Q_msg_m.s11_sgw_fteid.header.iface_type = 11;
 	csr_info.msg_data.csr_Q_msg_m.s11_sgw_fteid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
 	csr_info.msg_data.csr_Q_msg_m.s11_sgw_fteid.header.v4 = 1;
