@@ -816,6 +816,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d in initial UE message ", ie_p->id);
                     }
 			}
@@ -946,7 +947,6 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	free(proto_ies.data);
 	return SUCCESS;
 }
-
 void
 handle_s1ap_message(void *msg)
 {
@@ -1200,6 +1200,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
                     }
 			}
@@ -1336,6 +1337,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
                     }
 			}
@@ -1405,6 +1407,7 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
                     }
 			}
@@ -1528,6 +1531,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
                     }
 			}
@@ -1733,6 +1737,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
             } break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
             }
@@ -1934,6 +1939,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
             }break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2062,6 +2068,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2223,6 +2230,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2316,6 +2324,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2430,6 +2439,7 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
             }

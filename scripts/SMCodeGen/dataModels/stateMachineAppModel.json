@@ -791,7 +791,14 @@
                                     "IS_TAU_REQUIRED"
                                 ],
                                 "NextState":"s1_ho_wf_tau_check"
-                            }
+                            },
+                            {
+                                "Name":"ENB_STATUS_TRANFER_FROM_SRC_ENB",
+                                "Actions":[
+                                    "SEND_MME_STATUS_TRANFER_TO_TARGET_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_modify_bearer_response"
+                             }
                         ]
                     },
                     {

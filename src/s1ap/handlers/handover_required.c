@@ -61,21 +61,20 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
         {
         case S1AP_IE_MME_UE_ID:
         {
-            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID.\n");
 
             ho_required.ue_idx = ho_required_ies.data[i].val.mme_ue_s1ap_id;
             ho_required.msg_data.handover_required_Q_msg_m.s1ap_mme_ue_id =
                     ho_required_ies.data[i].val.mme_ue_s1ap_id;
+            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID %u .\n",ho_required.ue_idx);
         }
             break;
         case S1AP_IE_ENB_UE_ID:
         {
-            log_msg(LOG_INFO,
-                    "handover handover required S1AP_IE_ENB_UE_ID.\n");
 
             ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id =
                     ho_required_ies.data[i].val.enb_ue_s1ap_id;
 
+            log_msg(LOG_INFO, "handover required S1AP_IE_ENB_UE_ID %u .\n",ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id);
         }
             break;
         case S1AP_IE_HANDOVER_TYPE:
