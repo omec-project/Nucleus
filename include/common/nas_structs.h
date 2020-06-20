@@ -261,7 +261,6 @@ typedef struct esm_msg_container {
     linked_transcation_id linked_ti;
     esm_qos negotiated_qos;
     ESM_APN_AMBR apn_ambr;
-    struct pco pco_opt; /* need this ?*/
 } esm_msg_container;
 
 #define NAS_RAND_SIZE 16
@@ -289,9 +288,6 @@ typedef union nas_pdu_elements_union {
     unsigned char eps_res;
     unsigned char spare;
     struct pco pco_opt;
-    unsigned char ue_id_type; /* need this  ?*/
-    unsigned char eps_update_result; /* need this ?*/
-    unsigned char tau_timer; /* need this ?*/
 }nas_pdu_elements_union;
 
 typedef struct nas_pdu_elements {
@@ -308,7 +304,6 @@ typedef struct nasPDU {
     unsigned char elements_len;
     nas_pdu_elements *elements;
     unsigned int flags;
-    unsigned int dl_count; /* need this ?*/
 } nasPDU;
 
 
