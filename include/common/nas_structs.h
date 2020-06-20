@@ -9,6 +9,10 @@
 
 #ifndef __NAS_STRUCTS_H_
 #define __NAS_STRUCTS_H_
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "ProcedureCode.h"
@@ -31,10 +35,10 @@
 
 /*TODO: Needed fro paging. Ignoring for now*/
 struct proto_conf {
-	int placeholder;
+    int placeholder;
 };
 struct esm_sec_info {
-	struct proto_conf proto_config;
+    struct proto_conf proto_config;
 };
 
 /* Should we put this in NAS header ?*/
@@ -49,63 +53,63 @@ struct pco
 };
 
 typedef struct pdn_address {
-	uint8_t spare :5;
-	uint8_t type :3;
-	uint32_t ipv4; /* TODO: Revisit 24.301 - 9.9.4.9.1 */
+    uint8_t spare :5;
+    uint8_t type :3;
+    uint32_t ipv4; /* TODO: Revisit 24.301 - 9.9.4.9.1 */
 } pdn_address;
 
 typedef struct linked_transcation_id {
-	uint8_t flag :1;
-	uint8_t val :7;
+    uint8_t flag :1;
+    uint8_t val :7;
 } linked_transcation_id;
 
 enum protocol_discriminator{
-	EPSSessionManagementMessage = 2,
+    EPSSessionManagementMessage = 2,
     EPSMobilityManagementMessages = 7,
 };
-	
+
 typedef struct esm_qos
 {
-	uint8_t reliability_class :3;
-	uint8_t delay_class :3;
-	uint8_t spare1 :2;
-	uint8_t precedence_class :3;
-	uint8_t spare2 :1;
-	uint8_t peak_throughput :4;
-	uint8_t mean_throughput :5;
-	uint8_t spare3 :3;
-	uint8_t delivery_err_sdu :3;
-	uint8_t delivery_order :2;
-	uint8_t traffic_class :3;
-	uint8_t max_sdu_size;
-	uint8_t mbr_ul;
-	uint8_t mbr_dl;
-	uint8_t sdu_err_ratio :4;
-	uint8_t residual_ber :4;
-	uint8_t trffic_prio :2;
-	uint8_t transfer_delay :6;
-	uint8_t gbr_ul;
-	uint8_t gbr_dl;
-	uint8_t src_stat_desc :4;
-	uint8_t sig_ind :1;
-	uint8_t spare4 :3;
-	uint8_t mbr_dl_ext;
-	uint8_t gbr_dl_ext;
-	uint8_t mbr_ul_ext;
-	uint8_t gbr_ul_ext;
+    uint8_t reliability_class :3;
+    uint8_t delay_class :3;
+    uint8_t spare1 :2;
+    uint8_t precedence_class :3;
+    uint8_t spare2 :1;
+    uint8_t peak_throughput :4;
+    uint8_t mean_throughput :5;
+    uint8_t spare3 :3;
+    uint8_t delivery_err_sdu :3;
+    uint8_t delivery_order :2;
+    uint8_t traffic_class :3;
+    uint8_t max_sdu_size;
+    uint8_t mbr_ul;
+    uint8_t mbr_dl;
+    uint8_t sdu_err_ratio :4;
+    uint8_t residual_ber :4;
+    uint8_t trffic_prio :2;
+    uint8_t transfer_delay :6;
+    uint8_t gbr_ul;
+    uint8_t gbr_dl;
+    uint8_t src_stat_desc :4;
+    uint8_t sig_ind :1;
+    uint8_t spare4 :3;
+    uint8_t mbr_dl_ext;
+    uint8_t gbr_dl_ext;
+    uint8_t mbr_ul_ext;
+    uint8_t gbr_ul_ext;
 
 } esm_qos;
 
 /* TODO : Revisit 24.301 - 9.9.4.2.1 */
 typedef struct ESM_APN_AMBR {
-	uint8_t dl;
-	uint8_t reserved;
-	uint8_t dlext;
-	uint8_t ulext;
-	uint8_t dlext2;
-	/* uint8_t dl_total; */
-	uint8_t ulext2;
-	/* uint8_t ul_total; */
+    uint8_t dl;
+    uint8_t reserved;
+    uint8_t dlext;
+    uint8_t ulext;
+    uint8_t dlext2;
+    /* uint8_t dl_total; */
+    uint8_t ulext2;
+    /* uint8_t ul_total; */
 } ESM_APN_AMBR;
 
 #define AUTHREQ_NAS_SECURITY_PARAM 0x01
@@ -115,14 +119,14 @@ typedef struct ESM_APN_AMBR {
 
 /* NAS Security Encryption Algorithm */
 typedef enum security_encryption_algo {
-	Algo_EEA0 = 0,
+    Algo_EEA0 = 0,
 
 }security_encryption_algo;
 
 /* NAS Security Integrity Algorithm */
 typedef enum security_integrity_algo {
-	Algo_EIA0 = 0,
-	Algo_128EIA1 = 1,
+    Algo_EIA0 = 0,
+    Algo_128EIA1 = 1,
 }security_integrity_algo;
 
 
@@ -138,7 +142,7 @@ typedef long     s1apCauseTransport_t;
 typedef long     s1apCauseRadioNetwork_t;
 
 
-	
+
 typedef enum emmCause {
     emmCause_ue_id_not_derived_by_network   = 9,
     emmCause_network_failure = 11
@@ -155,108 +159,108 @@ typedef enum s1apCauseNas {
 
 /*36.413: 9.2.3.8 - MCC, MCN : Only 3 bytes are used*/
 struct PLMN {
-	unsigned char  idx[3];
+    unsigned char  idx[3];
     /*Start should always be idx. Dont move down */
     unsigned char  mnc_digits;
 };
 
 struct PLMN_C {
-	uint16_t mcc;
-	uint16_t mnc; 
+    uint16_t mcc;
+    uint16_t mnc; 
 };
 
 typedef struct guti {
-	uint8_t spare :4;
-	uint8_t odd_even_indication :1;
-	uint8_t id_type :3;
-	struct PLMN plmn_id;
-	uint16_t mme_grp_id;
-	uint8_t mme_code;
-	uint32_t m_TMSI;
+    uint8_t spare :4;
+    uint8_t odd_even_indication :1;
+    uint8_t id_type :3;
+    struct PLMN plmn_id;
+    uint16_t mme_grp_id;
+    uint8_t mme_code;
+    uint32_t m_TMSI;
 } guti;
 
 
 struct TAI {
-	struct PLMN plmn_id; /* check imapact of PLMN structre on this structure */
-	short tac; /*2 bytes. 36.413: 9.2.3.7*/
+    struct PLMN plmn_id; /* check imapact of PLMN structre on this structure */
+    short tac; /*2 bytes. 36.413: 9.2.3.7*/
 };
 
 /*36.413 - 9.2.1.38*/
 struct CGI {
-	struct PLMN plmn_id; /* check impact of PLMN strucre here */
-	int cell_id;
+    struct PLMN plmn_id; /* check impact of PLMN strucre here */
+    int cell_id;
 };
 
 typedef struct MS_net_capab {
     bool          pres;
-	unsigned char element_id;
-	unsigned char len;
-	unsigned char capab[6];
+    unsigned char element_id;
+    unsigned char len;
+    unsigned char capab[6];
 }MS_net_capab;
 
 struct UE_net_capab {
-	unsigned char len;
-	unsigned char capab[6];
+    unsigned char len;
+    unsigned char capab[6];
 };
 
 /*24.008 - 10.5.6.1
-APN name can be in range of min 3 octets to max 102 octets
-*/
+  APN name can be in range of min 3 octets to max 102 octets
+ */
 #define MAX_APN_LEN 102
 
 struct apn_name {
-	unsigned char len;
-	unsigned char val[MAX_APN_LEN];/*TODO: Make dynamic as range is big 3-102*/
+    unsigned char len;
+    unsigned char val[MAX_APN_LEN];/*TODO: Make dynamic as range is big 3-102*/
 };
 
 #define MAC_SIZE 4
 #define SHORT_MAC_SIZE 2
 typedef struct nas_pdu_header {
-	unsigned char security_header_type:4;
-	unsigned char proto_discriminator:4;
-	unsigned char message_type;
-	unsigned char security_encryption_algo:4;
-	unsigned char security_integrity_algo:4;
-	unsigned char nas_security_param;
-	unsigned char mac[MAC_SIZE];
-	unsigned char short_mac[SHORT_MAC_SIZE];
-	unsigned char ksi;
-	unsigned char seq_no;
-	unsigned char eps_bearer_identity;
-	unsigned char procedure_trans_identity;
-	unsigned char detach_type;
+    unsigned char security_header_type:4;
+    unsigned char proto_discriminator:4;
+    unsigned char message_type;
+    unsigned char security_encryption_algo:4;
+    unsigned char security_integrity_algo:4;
+    unsigned char nas_security_param;
+    unsigned char mac[MAC_SIZE];
+    unsigned char short_mac[SHORT_MAC_SIZE];
+    unsigned char ksi;
+    unsigned char seq_no;
+    unsigned char eps_bearer_identity;
+    unsigned char procedure_trans_identity;
+    unsigned char detach_type;
 } nas_pdu_header;
 
 
 enum drx_params {
-	PAGINX_DRX32,
-	PAGINX_DRX64,
-	PAGINX_DRX128,
-	PAGINX_DRX256,
-	PAGINX_DRX512,
+    PAGINX_DRX32,
+    PAGINX_DRX64,
+    PAGINX_DRX128,
+    PAGINX_DRX256,
+    PAGINX_DRX512,
 };
 
 #define EMM_MAX_TAI_LIST 16
 typedef struct tai_list {
-	uint8_t spare :1;
-	uint8_t type :2;
-	uint8_t num_of_elements :4;
-	struct TAI partial_list[EMM_MAX_TAI_LIST];
+    uint8_t spare :1;
+    uint8_t type :2;
+    uint8_t num_of_elements :4;
+    struct TAI partial_list[EMM_MAX_TAI_LIST];
 } tai_list;
 
 
 typedef struct esm_msg_container {
-	uint8_t eps_bearer_id :4;
-	uint8_t proto_discriminator :4;
-	uint8_t procedure_trans_identity;
-	uint8_t session_management_msgs;
-	uint8_t eps_qos;  /* TODO: Revisit 24.301 - 9.9.4.3.1 */
-	struct apn_name apn;
-	struct apn_name selected_apn;
-	pdn_address pdn_addr;
-	linked_transcation_id linked_ti;
-	esm_qos negotiated_qos;
-	ESM_APN_AMBR apn_ambr;
+    uint8_t eps_bearer_id :4;
+    uint8_t proto_discriminator :4;
+    uint8_t procedure_trans_identity;
+    uint8_t session_management_msgs;
+    uint8_t eps_qos;  /* TODO: Revisit 24.301 - 9.9.4.3.1 */
+    struct apn_name apn;
+    struct apn_name selected_apn;
+    pdn_address pdn_addr;
+    linked_transcation_id linked_ti;
+    esm_qos negotiated_qos;
+    ESM_APN_AMBR apn_ambr;
     struct pco pco_opt; /* need this ?*/
 } esm_msg_container;
 
@@ -264,35 +268,35 @@ typedef struct esm_msg_container {
 #define NAS_AUTN_SIZE 16
 /**Information elements structs end**/
 typedef union nas_pdu_elements_union {
-	unsigned char rand[NAS_RAND_SIZE];
-	unsigned char autn[NAS_AUTN_SIZE];
-	unsigned char IMSI[BINARY_IMSI_LEN];
-	unsigned char short_mac[SHORT_MAC_SIZE];
-	struct esm_sec_info esm_info;
-	enum drx_params drx;
-	struct MS_net_capab ms_network;
-	struct UE_net_capab ue_network;
-	struct XRES   auth_resp; /*Authentication response*/
-	struct AUTS   auth_fail_resp; /*Authentication response*/
-	struct apn_name apn;
-	unsigned char attach_res;
-	unsigned char t3412;
-	tai_list tailist;
-	esm_msg_container esm_msg;
-	guti mi_guti;
-	bool esm_info_tx_required;
-	unsigned char pti;
-	unsigned char eps_res;
-	unsigned char spare;
+    unsigned char rand[NAS_RAND_SIZE];
+    unsigned char autn[NAS_AUTN_SIZE];
+    unsigned char IMSI[BINARY_IMSI_LEN];
+    unsigned char short_mac[SHORT_MAC_SIZE];
+    struct esm_sec_info esm_info;
+    enum drx_params drx;
+    struct MS_net_capab ms_network;
+    struct UE_net_capab ue_network;
+    struct XRES   auth_resp; /*Authentication response*/
+    struct AUTS   auth_fail_resp; /*Authentication response*/
+    struct apn_name apn;
+    unsigned char attach_res;
+    unsigned char t3412;
+    tai_list tailist;
+    esm_msg_container esm_msg;
+    guti mi_guti;
+    bool esm_info_tx_required;
+    unsigned char pti;
+    unsigned char eps_res;
+    unsigned char spare;
     struct pco pco_opt;
-	unsigned char ue_id_type; /* need this  ?*/
-	unsigned char eps_update_result; /* need this ?*/
-	unsigned char tau_timer; /* need this ?*/
+    unsigned char ue_id_type; /* need this  ?*/
+    unsigned char eps_update_result; /* need this ?*/
+    unsigned char tau_timer; /* need this ?*/
 }nas_pdu_elements_union;
 
 typedef struct nas_pdu_elements {
-   nas_ie_type msgType;
-   nas_pdu_elements_union pduElement;
+    nas_ie_type msgType;
+    nas_pdu_elements_union pduElement;
 }nas_pdu_elements;
 
 #define NAS_MSG_UE_IE_GUTI  0x00000001
@@ -315,31 +319,34 @@ typedef enum security_header_type {
     IntegrityProtectedCiphered,
     IntegrityProtectedEPSSecCntxt,
 }security_header_type;
-	
+
 typedef struct nas_pdu_header_sec {
-        unsigned char security_header_type:4;
-        unsigned char proto_discriminator:4;
-        unsigned char mac[MAC_SIZE];
-        unsigned char seq_no;
+    unsigned char security_header_type:4;
+    unsigned char proto_discriminator:4;
+    unsigned char mac[MAC_SIZE];
+    unsigned char seq_no;
 }nas_pdu_header_sec;
-	
+
 typedef struct nas_pdu_header_short {
-        unsigned char security_header_type:4;
-        unsigned char proto_discriminator:4;
-        unsigned char message_type;
+    unsigned char security_header_type:4;
+    unsigned char proto_discriminator:4;
+    unsigned char message_type;
 }nas_pdu_header_short;
 
 typedef struct nas_pdu_header_long {
-        unsigned char security_header_type:4;
-        unsigned char proto_discriminator:4;
-        unsigned char procedure_trans_identity;
-        unsigned char message_type;
+    unsigned char security_header_type:4;
+    unsigned char proto_discriminator:4;
+    unsigned char procedure_trans_identity;
+    unsigned char message_type;
 }nas_pdu_header_long;
 
 enum ie_fail_internal_cause {
-	AIA_FAIL,
-	SECURITY_MOD_REJECT_FAIL,
-	MAX_FAIL_CAUSE
+    AIA_FAIL,
+    SECURITY_MOD_REJECT_FAIL,
+    MAX_FAIL_CAUSE
 };
+#ifdef __cplusplus
+}
+#endif
 
-#endif /*__S1AP_STRUCTS_H*/
+#endif /*__NAS_STRUCTS_H_*/

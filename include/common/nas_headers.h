@@ -12,11 +12,11 @@ extern "C"{
 #endif
 
 
-/*uplink NAS Transport*/
+    /*uplink NAS Transport*/
 #define S1AP_UL_NAS_TX_MSG_CODE 13
 #define S1AP_INITIAL_CTX_RESP_CODE 9
 
-/*NAS message type codes*/
+    /*NAS message type codes*/
 #define NAS_ESM_RESP 0xda
 #define NAS_AUTH_RESP 0x53
 #define NAS_AUTH_REJECT 0x54
@@ -35,18 +35,18 @@ extern "C"{
 #define NAS_SERVICE_REQUEST 0x4D
 
 enum eps_nas_mesage_type {
-	AttachAccept = 0x42,
-	AttachReject = 0x44,
-	DetachRequest = 0x45,
-	DetachAccept = 0x46,
-	TauAccept    = 0x49,
+    AttachAccept = 0x42,
+    AttachReject = 0x44,
+    DetachRequest = 0x45,
+    DetachAccept = 0x46,
+    TauAccept    = 0x49,
     TauReject    = 0x4b,
-	ServiceReject = 0x4e,
-	AuthenticationRequest = 0x52,
+    ServiceReject = 0x4e,
+    AuthenticationRequest = 0x52,
     IdentityRequest       = 0x55,
-	SecurityModeCommand = 0x5d,
+    SecurityModeCommand = 0x5d,
     EMMInformation = 0x61,
-	ESMInformationRequest = 0xd9,
+    ESMInformationRequest = 0xd9,
 };
 
 /*NAS MSG IE CODES */
@@ -80,4 +80,4 @@ typedef enum
 #ifdef __cplusplus
 }
 #endif
-#endif /*__S1AP_MSG_CODES*/
+#endif /*__NAS_HEADERS_H_ */
