@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include "s1ap_structs.h"
+#include "nas_structs.h"
 #include "log.h"
 #include "s1ap_error.h"
 #include "defines.h"
