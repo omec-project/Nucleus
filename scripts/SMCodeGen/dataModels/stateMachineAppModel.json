@@ -259,7 +259,16 @@
                                     "SEND_INIT_CTXT_REQ_TO_UE"
                                 ],
                                 "NextState":"attach_wf_init_ctxt_resp_att_cmp"
-                            }
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
+                             }
                         ]
                     },
                     {
@@ -798,7 +807,14 @@
                                     "IS_TAU_REQUIRED"
                                 ],
                                 "NextState":"s1_ho_wf_tau_check"
-                            }
+                            },
+                            {
+                                "Name":"ENB_STATUS_TRANFER_FROM_SRC_ENB",
+                                "Actions":[
+                                    "SEND_MME_STATUS_TRANFER_TO_TARGET_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_modify_bearer_response"
+                             }
                         ]
                     },
                     {

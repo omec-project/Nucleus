@@ -21,7 +21,8 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/s1HoWfModifyBearerResponse.h"	
-#include "mmeStates/s1HoWfTauCheck.h"
+#include "mmeStates/s1HoWfTauCheck.h"	
+#include "mmeStates/s1HoWfModifyBearerResponse.h"
 
 using namespace mme;
 using namespace SM;
@@ -64,5 +65,11 @@ void S1HoWfModifyBearerResponse::initialize()
                 actionTable.addAction(&ActionHandlers::is_tau_required);
                 actionTable.setNextState(S1HoWfTauCheck::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_mme_status_tranfer_to_target_enb);
+                actionTable.setNextState(S1HoWfModifyBearerResponse::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ENB_STATUS_TRANFER_FROM_SRC_ENB, actionTable));
         }
 }
