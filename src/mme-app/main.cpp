@@ -67,7 +67,7 @@ extern "C"
 #include "thread_pool.h"
 int init_sock();
 }
-
+#include <csignal>
 extern JobFunction monitorConfigFunc_fpg;
 extern void init_backtrace();
 extern void init_parser(char *path);
@@ -82,17 +82,12 @@ pthread_t acceptUnix_t;
 
 mme_config g_mme_cfg;
 pthread_t stage_tid[5];
-
 MmeIpcInterface* mmeIpcIf_g = NULL;
 
-Void SetDNSConfiguration()
-{
-   DNS::Cache::setRefreshConcurrent( g_mme_cfg.dns_config.concurrent);
-   DNS::Cache::setRefreshPercent( g_mme_cfg.dns_config.percentage);
-   DNS::Cache::setRefreshInterval( g_mme_cfg.dns_config.interval_seconds );
-  // DNS::Cache::getInstance().addNamedServer(g_mme_cfg.dns_config.dns1_ip);
-    DNS::Cache::getInstance().addNamedServer("10.43.11.48");
-   DNS::Cache::getInstance().applyNamedServers();
+
+
+void signalHandler( int signum ) {
+   std::cout << "Interrupt signal (" << signum << ") received.\n";
 
 }
 
@@ -115,6 +110,9 @@ void mme_parse_config(mme_config *config)
 
 int main(int argc, char *argv[])
 {
+	// register signal real time signal and signal handler 
+   	signal(SIGRTMIN+1, signalHandler);  
+   	signal(SIGRTMIN, signalHandler);  
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 	
@@ -153,11 +151,6 @@ int main(int argc, char *argv[])
 	pthread_attr_destroy(&attr);
 
 	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
-	 //setup DNS server
-        if(g_mme_cfg.dns_config.dns_flag == 1)
-        {
-           //SetDNSConfiguration();
-        }
 
 
     /*if (init_sock() != SUCCESS)

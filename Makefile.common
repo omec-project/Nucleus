@@ -40,9 +40,9 @@ LIB_PATH := -L$(LIBDIR)
 
 CC := gcc
 
-DEBUG = false
+DEBUG = true
 
-GRPC_ROOT=/tmp/grpc
+GRPC_ROOT=$(TOPDIR)/third_party/grpc
 
 EPCTOOLS_ROOT=$(TOPDIR)/third_party/epctools
 

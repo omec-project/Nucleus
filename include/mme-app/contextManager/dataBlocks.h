@@ -76,8 +76,20 @@ namespace mme
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from UEContext
 			****************************************/
-			int getS1apEnbUeId()const;				
-			
+			int getS1apEnbUeId()const;							
+
+			/****************************************
+                        * setSgwIp
+                        *    set SgwIp to UEContext
+                        ****************************************/
+                        void setSgwIp(unsigned long SgwIp_i);
+
+                        /****************************************
+                        * getSgwIp
+                        *    get SgwIP from UEContext
+                        ****************************************/
+                        unsigned long getSgwIp()const;
+
 			/****************************************
 			* setSubscriptionStatus
 			*    set subscriptionStatus to UEContext
@@ -371,7 +383,10 @@ namespace mme
 			
 			// DataName
 			Tai tai_m;
-			
+		
+			//S gateway IP for CP
+			unsigned long SgwIp_m;
+
 			// DataName
 			Cgi utranCgi_m;
 			
@@ -401,6 +416,7 @@ namespace mme
 			
 			// SessionContext
 			SessionContext* SessionContext_mp;
+			
 			
 	};
 	 

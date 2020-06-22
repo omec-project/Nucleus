@@ -45,6 +45,7 @@ namespace mme
             ambr_m(),
             aiaSecInfo_m(),
             mTmsi_m(0),
+	    SgwIp_m(0),
             subscribedApn_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
 	
 	{	
@@ -104,6 +105,22 @@ namespace mme
 	{
 		return subscriptionStatus_m;
 	}
+
+	/******************************************************************************
+        * sets setSgwIp
+        ******************************************************************************/
+        void UEContext::setSgwIp( unsigned long SgwIp_i )
+        {
+                SgwIp_m = SgwIp_i;
+        }
+
+        /******************************************************************************
+        * returns enbFd
+        ******************************************************************************/
+        unsigned long UEContext::getSgwIp() const
+        {
+                return SgwIp_m;
+        }
 	
 	/******************************************************************************
 	* sets netAccessMode
@@ -1121,5 +1138,6 @@ namespace mme
 	{
 		return enbFd_m;
 	}
+
 	
 } // mme

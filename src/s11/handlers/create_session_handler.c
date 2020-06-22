@@ -1,5 +1,4 @@
-/*
- * Copyright 2019-present Open Networking Foundation
+/* Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation 
@@ -24,18 +23,17 @@
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
 #include <gtpV2StackWrappers.h>
-
 /************************************************************************
-Current file : Stage 5 handler.
-ATTACH stages :
-	Stage 1 : IAM-->[stage1 handler]-->AIR, ULR
-	Stage 2 : AIA, ULA -->[stage2 handler]--> Auth req
-	Stage 3 : Auth resp-->[stage3 handler]-->Sec mode cmd
-	Stage 4 : sec mode resp-->[stage4 handler]-->esm infor req
--->	Stage 5 : esm infor resp-->[stage5 handler]-->create session
-	Stage 6 : create session resp-->[stage6 handler]-->init ctx setup
-	Stage 7 : attach complete-->[stage7 handler]-->modify bearer
-**************************************************************************/
+  Current file : Stage 5 handler.
+  ATTACH stages :
+  Stage 1 : IAM-->[stage1 handler]-->AIR, ULR
+  Stage 2 : AIA, ULA -->[stage2 handler]--> Auth req
+  Stage 3 : Auth resp-->[stage3 handler]-->Sec mode cmd
+  Stage 4 : sec mode resp-->[stage4 handler]-->esm infor req
+  -->	Stage 5 : esm infor resp-->[stage5 handler]-->create session
+  Stage 6 : create session resp-->[stage6 handler]-->init ctx setup
+  Stage 7 : attach complete-->[stage7 handler]-->modify bearer
+ **************************************************************************/
 
 /****Globals and externs ***/
 
@@ -43,7 +41,7 @@ ATTACH stages :
 extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
-
+int dns_enabled;
 extern s11_config g_s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 
@@ -55,7 +53,7 @@ struct CS_Q_msg *g_csReqInfo;
 extern struct GtpV2Stack* gtpStack_gp;
 struct MsgBuffer*  csReqMsgBuf_p = NULL;
 
-void
+	void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
 	for (uint32_t i=0; i<len; i++)
@@ -64,7 +62,7 @@ bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 	return;
 }
 
-uint32_t
+	uint32_t
 convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
 	uint8_t msb_digit = 0;
@@ -90,9 +88,9 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 
 /**
-* Stage specific message processing.
-*/
-static int
+ * Stage specific message processing.
+ */
+	static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
 	GtpV2MessageHeader gtpHeader;
@@ -100,9 +98,9 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = g_csReqInfo->ue_idx;
-	
+
 	g_s11_sequence++;
-	
+
 	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
 
 	CreateSessionRequestMsgData msgData;
@@ -110,12 +108,12 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	msgData.imsiIePresent = true;
 	memset(msgData.imsi.imsiValue.digits, 0x0f, 16);
-	
+
 
 	uint8_t imsi_len =
-			convert_imsi_to_digits_array(g_csReqInfo->IMSI,
-					msgData.imsi.imsiValue.digits,
-					BINARY_IMSI_LEN);
+		convert_imsi_to_digits_array(g_csReqInfo->IMSI,
+				msgData.imsi.imsiValue.digits,
+				BINARY_IMSI_LEN);
 
 	msgData.imsi.imsiValue.length = imsi_len;
 	log_msg(LOG_INFO, "IMSI Len: %d\n", imsi_len);
@@ -214,18 +212,22 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.aggregateMaximumBitRate.maxMbrUplink = g_csReqInfo->max_requested_bw_ul;
 	msgData.aggregateMaximumBitRate.maxMbrDownlink = g_csReqInfo->max_requested_bw_dl;
 
-    log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
-    if(g_csReqInfo->pco_length > 0)
-    {
-        msgData.protocolConfigurationOptionsIePresent = true;
-        msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
-        memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
-    }
+	log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
+	if(g_csReqInfo->pco_length > 0)
+	{
+		msgData.protocolConfigurationOptionsIePresent = true;
+		msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
+		memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
+	}
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
-
+	if(1 == dns_enabled){
+		g_s11_cp_addr.sin_addr.s_addr = ntohl(g_csReqInfo->sgw_ip);
+		log_msg(LOG_ERROR,"%ul gatway address  g_s11_cp_addr.sin_addr.s_addr\n", g_s11_cp_addr.sin_addr.s_addr);
+		log_msg(LOG_ERROR,"%ul gatway address g_csReqInfo->sgw_ip\n", g_csReqInfo->sgw_ip);
+	}
 	int res = sendto (
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),
@@ -245,9 +247,9 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 }
 
 /**
-* Thread function for stage.
-*/
-void*
+ * Thread function for stage.
+ */
+	void*
 create_session_handler(void *data)
 {
 	log_msg(LOG_INFO, "Create Session Request handler\n");
