@@ -31,9 +31,15 @@
 #include "err_codes.h"
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
+#include <openssl/cmac.h>
+
+s1ap_instance_t *s1ap_inst;
 
 /*Global and externs **/
-extern s1ap_config g_s1ap_cfg;
 pthread_t s1ap_iam_t;
 
 int g_sctp_fd = 0;
@@ -60,8 +66,8 @@ extern void
 handle_mmeapp_message(void * data);
 
 #define MAX_ENB     10
-#define BUFFER_LEN  1024
-
+#define BUFFER_LEN  4096
+#define AES_128_KEY_SIZE 16
 /**
  * @brief Decode int value from the byte array received in the s1ap incoming
  * packet.
@@ -69,6 +75,7 @@ handle_mmeapp_message(void * data);
  * @param[in] len - Length of the bytes array from which to extract the int
  * @return Integer value extracted out of bytes array. 0 if failed.
  */
+
 char *msg_to_hex_str(const char *msg, int len, char **buffer) {
 
   char chars[]= "0123456789abcdef";
@@ -109,7 +116,14 @@ unsigned short get_length(char **msg) {
     (*msg)++;
     return ie_len;
 }
-	
+
+/**
+ * @brief Decode int value from the byte array received in the s1ap incoming
+ * packet.
+ * @param[in] bytes - Array of bytes in packet
+ * @param[in] len - Length of the bytes array from which to extract the int
+ * @return Integer value extracted out of bytes array. 0 if failed.
+ */
 int
 decode_int_val(unsigned char *bytes, short len)
 {
@@ -158,17 +172,99 @@ copyU16(unsigned char *buffer, uint32_t val)
 }
 
 void
-calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
+calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 		uint8_t bearer, uint8_t *data, uint16_t data_len,
 		uint8_t *mac)
 {
 	uint8_t *out;
 
-	out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
+	out = f9(int_key, count, bearer, direction, data, data_len * 8);
 
 	memcpy(mac, out, MAC_SIZE);
 
 	return;
+}
+
+void printBytes(unsigned char *buf, size_t len) {
+  for(int i=0; i<len; i++) {
+    log_msg(LOG_DEBUG,"%02x \n", buf[i]);
+  }
+  log_msg(LOG_DEBUG,"\n");
+}
+
+void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac)
+{
+  unsigned char mact[16] = {0};
+  EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
+  const char cipher[] = "AES-128-CBC";
+  EVP_MAC_CTX *ctx = NULL;
+
+  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
+  log_msg(LOG_DEBUG,"nas data \n");
+  printBytes(data, data_len);
+  OSSL_PARAM params[3];
+  size_t params_n = 0;
+  size_t mactlen = 0;
+  unsigned char* message = calloc(data_len+8, sizeof(uint8_t));
+  uint32_t msg_len = 0;
+  if(message == NULL)
+  {
+      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
+      return;
+  }
+  else
+  {
+      uint32_t local_count = htonl(count);
+      msg_len = data_len + 8;
+      memcpy (&message[0], &local_count, 4);
+      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
+      memcpy(&message[8], data, data_len);
+  }
+
+  log_msg(LOG_DEBUG,"cipher %s %d\n",cipher, strlen(cipher));
+  printBytes(int_key, AES_128_KEY_SIZE);
+  log_msg(LOG_DEBUG,"key  %d\n", strlen(int_key));
+  params[params_n++] =
+      OSSL_PARAM_construct_utf8_string("cipher", cipher, strlen(cipher));
+  params[params_n++] =
+      OSSL_PARAM_construct_octet_string("key", int_key, AES_128_KEY_SIZE);
+  params[params_n] = OSSL_PARAM_construct_end();
+
+  ctx = EVP_MAC_CTX_new(mac_evp);
+  if(ctx==NULL)
+  {
+      log_msg(LOG_ERROR,"ctx null\n");
+      return;
+  }
+
+  if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
+  {
+      log_msg(LOG_ERROR,"set params fail\n");
+      return;
+  }
+
+  if(!EVP_MAC_init(ctx))
+  {
+      log_msg(LOG_ERROR,"init fail");
+      return;
+  }
+
+  printBytes(message, msg_len);
+  EVP_MAC_update(ctx, message, msg_len);
+  log_msg(LOG_DEBUG,"message length = %lu bytes (%lu bits)\n", 
+                strlen((const char*)message), strlen((const char*)message)*8);
+  EVP_MAC_final(ctx, mact, &mactlen, msg_len);
+  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
+
+  printBytes(mact, mactlen);
+  /* expected result T = 070a16b4 6b4d4144 f79bdd9d d04a287c */
+
+  EVP_MAC_CTX_free(ctx);
+  memcpy(mac, mact, MAC_SIZE);
+  return;
 }
 
 int
@@ -297,7 +393,7 @@ void * tipc_msg_handler()
 		{
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
-			log_msg(LOG_INFO, "S1AP message received from mme-app");
+			log_msg(LOG_INFO, "S1AP message received from mme-app. Received Message size %d \n",bytesRead);
 			insert_job(g_tpool_tipc_reader, handle_mmeapp_message, tmpBuf);
 		}
 	}
@@ -310,11 +406,13 @@ void * tipc_msg_handler()
 int
 init_sctp()
 {
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
+	
 	log_msg(LOG_INFO, "Create sctp sock, ip:%d, port:%d\n",
-			g_s1ap_cfg.s1ap_local_ip, g_s1ap_cfg.sctp_port);
+			s1ap_cfg->s1ap_local_ip, s1ap_cfg->sctp_port);
 	/*Create MME sctp listned socket*/
-	g_sctp_fd = create_sctp_socket(g_s1ap_cfg.s1ap_local_ip,
-					g_s1ap_cfg.sctp_port);
+	g_sctp_fd = create_sctp_socket(s1ap_cfg->s1ap_local_ip,
+					s1ap_cfg->sctp_port);
 
 	if (g_sctp_fd == -1) {
 		log_msg(LOG_ERROR, "Error in creating sctp socket. \n");
@@ -444,7 +542,10 @@ main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
-
+	
+	s1ap_inst = (s1ap_instance_t *) calloc(1, sizeof(s1ap_instance_t));
+	s1ap_inst->s1ap_config = (s1ap_config_t *) calloc(1, sizeof(s1ap_config_t));
+	
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
 		init_logging("container", NULL);
@@ -455,8 +556,8 @@ main(int argc, char **argv)
 	init_backtrace(argv[0]); 
 
 	parse_args(argc, argv);
-	init_parser("conf/s1ap.json");
-	parse_s1ap_conf();
+
+	s1ap_parse_config(s1ap_inst->s1ap_config);
 
 	if (init_writer_ipc() != SUCCESS) {
 		log_msg(LOG_ERROR, "Error in initializing writer ipc.\n");
@@ -482,20 +583,26 @@ main(int argc, char **argv)
 		log_msg(LOG_ERROR, "Error in initializing sctp server.\n");
 		return -E_FAIL_INIT;
 	}
-
-	log_msg(LOG_INFO, "Connection accespted from enb \n");
+	log_msg(LOG_INFO, "SCTP socket open - success \n");
 
 	if (start_sctp_threads() != SUCCESS) {
 		log_msg(LOG_ERROR, "Error in creating sctp reader/writer thread.\n");
 		return -E_FAIL_INIT;
 	}
-
 	log_msg(LOG_INFO, "sctp reader/writer thread started.\n");
-	
+
+	register_config_updates();
 
 	while (1) {
 		sleep(10);
 	}
 
 	return SUCCESS;
+}
+
+void s1ap_parse_config(s1ap_config_t *config)
+{
+	/*Read MME configurations*/
+	init_parser("conf/s1ap.json");
+	parse_s1ap_conf(config);
 }

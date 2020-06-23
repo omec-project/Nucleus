@@ -17,15 +17,43 @@
 #ifndef INCLUDE_COMMON_MSGTYPE_H_
 #define INCLUDE_COMMON_MSGTYPE_H_
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include "common_proc_info.h"
 #include "err_codes.h"
 #include "s11_structs.h"
+//#include "structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
-
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
+
+typedef enum nas_ciph_algo
+{
+    NAS_CIPH_ALGORITHMS_EEA0=0,
+    NAS_CIPH_ALGORITHMS_EEA1,
+    NAS_CIPH_ALGORITHMS_EEA2,
+    NAS_CIPH_ALGORITHMS_EEA3,
+    NAS_CIPH_ALGORITHMS_EEA4,
+    NAS_CIPH_ALGORITHMS_EEA5,
+    NAS_CIPH_ALGORITHMS_EEA6,
+    NAS_CIPH_ALGORITHMS_EEA7,
+}nas_ciph_algo_enum;
+
+typedef enum nas_int_algo
+{
+    NAS_INT_ALGORITHMS_EIA0=0,
+    NAS_INT_ALGORITHMS_EIA1,
+    NAS_INT_ALGORITHMS_EIA2,
+    NAS_INT_ALGORITHMS_EIA3,
+    NAS_INT_ALGORITHMS_EIA4,
+    NAS_INT_ALGORITHMS_EIA5,
+    NAS_INT_ALGORITHMS_EIA6,
+    NAS_INT_ALGORITHMS_EIA7,
+}nas_int_algo_enum;
 
 typedef enum msg_data_t
 {
@@ -79,6 +107,19 @@ typedef enum msg_type_t {
     tau_request,
     tau_response,
     emm_info_request,
+    s1_reset,
+    handover_required,
+    handover_request,	
+    handover_request_acknowledge,
+    handover_command,	
+    enb_status_transfer,
+    mme_status_transfer,	
+    handover_notify,
+    handover_failure,
+    handover_cancel,
+    handover_preparation_failure,
+    handover_cancel_ack,
+	raw_nas_msg,
     max_msg_type
 } msg_type_t;
 
@@ -104,34 +145,33 @@ struct ue_attach_info {
     unsigned char dns_present;
     uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
-	
-};
+}__attribute__ ((packed));
 
 struct authresp_Q_msg {
     int status;
     struct XRES res;
 	struct AUTS auts;
-};
+}__attribute__ ((packed));
 
 struct secmode_resp_Q_msg {
     int ue_idx;
     int status;
-};
+}__attribute__ ((packed));
 
 struct esm_resp_Q_msg {
     int status;
     struct apn_name apn;
-};
+}__attribute__ ((packed));
 
 struct initctx_resp_Q_msg{
     unsigned short 	eRAB_id;
     unsigned int 	transp_layer_addr;
     unsigned int 	gtp_teid;
-};
+}__attribute__ ((packed));
 
 struct attach_complete_Q_msg {
     unsigned short	status;
-};
+}__attribute__ ((packed));
 
 struct service_req_Q_msg {
 	int enb_fd;
@@ -141,23 +181,82 @@ struct service_req_Q_msg {
 	struct TAI tai;
 	struct CGI utran_cgi;
 	struct STMSI s_tmsi;
+}__attribute__ ((packed));
+
+struct handover_required_Q_msg {
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	int target_enb_context_id;
+	int src_enb_context_id;
+	enum handoverType handoverType;
+	struct s1apCause cause;
+	struct targetId target_id;
+	struct src_target_transparent_container srcToTargetTranspContainer;
+};
+
+struct handover_req_acknowledge_Q_msg{
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	struct ERAB_admitted_list erab_admitted_list;
+	struct src_target_transparent_container targetToSrcTranspContainer;
+};
+
+struct handover_notify_Q_msg{
+	int s1ap_enb_ue_id;
+	int s1ap_mme_ue_id;
+	struct CGI utran_cgi;
+	struct TAI tai;
+};
+
+struct enb_status_transfer_Q_msg {
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
+};
+
+struct handover_failure_Q_msg {
+	struct s1apCause cause;
+};
+
+struct handover_cancel_Q_msg {
+	struct s1apCause cause;
 };
 
 struct tauReq_Q_msg {
     int seq_num;
     int enb_fd;
-};
+    struct TAI tai;
+    struct CGI eUtran_cgi;
+}__attribute__ ((packed));
 
 struct identityResp_Q_msg {
 	int status;
 	unsigned char IMSI[BINARY_IMSI_LEN];
-};
+}__attribute__ ((packed));
 
 struct detach_req_Q_msg {
 	int ue_m_tmsi;
-};
+}__attribute__ ((packed));
 
-typedef union s1_incoming_msgs_t {
+struct s1apMsg_plus_raw_nas {
+	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
+	uint16_t 	nasMsgSize; 
+	uint32_t	status;
+	uint32_t	criticality; /* not required */
+	uint32_t	s1ap_enb_ue_id;
+	uint32_t	enodeb_fd;
+	uint32_t 	gtp_teid;
+	uint16_t 	eRAB_id;
+	uint32_t 	transp_layer_addr;
+	struct 		TAI tai;
+	struct 		CGI utran_cgi;
+	struct STMSI s_tmsi;
+}__attribute__ ((packed));
+
+union s1_incoming_msgs {
+#ifndef S1AP_DECODE_NAS
+	struct s1apMsg_plus_raw_nas	  rawMsg; 
+#endif
     struct ue_attach_info ue_attach_info_m;
     struct authresp_Q_msg authresp_Q_msg_m;
     struct secmode_resp_Q_msg secmode_resp_Q_msg_m;
@@ -168,16 +267,24 @@ typedef union s1_incoming_msgs_t {
     struct identityResp_Q_msg identityResp_Q_msg_m;
     struct tauReq_Q_msg tauReq_Q_msg_m;
     struct detach_req_Q_msg detachReq_Q_msg_m;
-}s1_incoming_msgs_t;
+    struct handover_required_Q_msg handover_required_Q_msg_m;
+    struct handover_req_acknowledge_Q_msg handover_req_acknowledge_Q_msg_m;
+    struct handover_notify_Q_msg handover_notify_Q_msg_m;
+    struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
+    struct handover_failure_Q_msg handover_failure_Q_msg_m;
+    struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
+}__attribute__ ((packed));
+typedef union s1_incoming_msgs s1_incoming_msgs_t;
 
-typedef struct s1_incoming_msg_data_t {
+struct s1_incoming_msg_data {
     uint32_t destInstAddr;
     uint32_t srcInstAddr;
     msg_type_t msg_type;
     int ue_idx;
     int s1ap_enb_ue_id;
     s1_incoming_msgs_t msg_data;
-}s1_incoming_msg_data_t;
+}__attribute__ ((packed));
+typedef struct s1_incoming_msg_data s1_incoming_msg_data_t;
 
 #define S1_READ_MSG_BUF_SIZE sizeof(s1_incoming_msg_data_t)
 
@@ -188,10 +295,14 @@ struct authreq_info {
 		msg_type_t msg_type;
     	int ue_idx;
     	int enb_s1ap_ue_id;
+    	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     	unsigned char rand[NAS_RAND_SIZE];
     	unsigned char autn[NAS_AUTN_SIZE];
-     	//struct TAI tai;
-    	int enb_fd;
+#else
+		uint8_t 	nasMsgBuf[300]; 
+		uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define S1AP_AUTHREQ_STAGE2_BUF_SIZE sizeof(struct authreq_info)
@@ -200,12 +311,20 @@ struct sec_mode_Q_msg {
 		msg_type_t msg_type;
     	int ue_idx;
     	int enb_s1ap_ue_id;
+    	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     	struct UE_net_capab ue_network;
 		struct MS_net_capab  ms_net_capab;
     	struct KASME key;
     	uint8_t int_key[NAS_INT_KEY_SIZE];
     	uint32_t dl_seq_no;
-    	int enb_fd;
+    	uint32_t dl_count;
+        nas_int_algo_enum int_alg;
+        nas_ciph_algo_enum sec_alg;
+#else
+		uint8_t 	nasMsgBuf[300]; 
+		uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define S1AP_SECREQ_STAGE3_BUF_SIZE sizeof(struct sec_mode_Q_msg)
@@ -215,10 +334,16 @@ struct esm_req_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	int enb_s1ap_ue_id;
+	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
 	uint8_t pti;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned short dl_seq_no;
-	int enb_fd;
+  uint32_t dl_count;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define S1AP_ESMREQ_STAGE4_BUF_SIZE sizeof(struct esm_req_Q_msg)
@@ -227,22 +352,28 @@ struct init_ctx_req_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	int enb_s1ap_ue_id;
+	int enb_fd;
 	unsigned long exg_max_ul_bitrate;
 	unsigned long exg_max_dl_bitrate;
+	unsigned char sec_key[32];
 	struct fteid gtp_teid;
+	unsigned char bearer_id;
+#ifdef S1AP_ENCODE_NAS
 	struct TAI tai;
 	struct apn_name apn;
 	struct apn_name selected_apn;
 	struct PAA pdn_addr;
-	unsigned char sec_key[32];
-	unsigned char bearer_id;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
-	int enb_fd;
+	uint32_t dl_count;
 	unsigned char pti;
 	unsigned int m_tmsi;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_ICSREQ_STAGE6_BUF_SIZE sizeof(struct init_ctx_req_Q_msg)
@@ -251,9 +382,15 @@ struct detach_accept_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
 	int enb_s1ap_ue_id;
+	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
-	int enb_fd;
+  uint32_t dl_count;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
+#endif
 };
 
 #define S1AP_DTCHACCEPT_STAGE2_BUF_SIZE sizeof(struct detach_accept_Q_msg)
@@ -273,10 +410,16 @@ struct ni_detach_request_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
     int enb_s1ap_ue_id;
+    int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint16_t dl_seq_no;
-    int enb_fd;
+    uint32_t dl_count;
     unsigned char detach_type;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 };
 #define S1AP_NI_DTCHREQUEST_BUF_SIZE sizeof(struct ni_detach_request_Q_msg)
 
@@ -311,6 +454,10 @@ struct commonRej_info
   int s1ap_enb_ue_id;
   int enb_fd;
   unsigned char cause;
+#ifndef S1AP_ENCODE_NAS
+  uint8_t 	nasMsgBuf[300]; 
+  uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define S1AP_REQ_REJECT_BUF_SIZE sizeof(struct commonRej_info)
@@ -321,7 +468,12 @@ struct attachIdReq_info
 	int ue_idx; /*mme s1ap UE id*/
 	int s1ap_enb_ue_id;
  	int enb_fd;
+#ifdef S1AP_ENCODE_NAS
     unsigned char ue_type;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 };
 #define S1AP_ID_REQ_BUF_SIZE sizeof(struct attachIdReq_info)
 
@@ -331,11 +483,18 @@ struct tauResp_Q_msg {
 	int enb_fd;
 	int s1ap_enb_ue_id;
 	int status;
+#ifdef S1AP_ENCODE_NAS
 	int dl_seq_no;
+	uint32_t dl_count;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 	struct TAI tai;
 	unsigned int m_tmsi;
 };
+
 #define S1AP_TAURESP_BUF_SIZE sizeof(struct tauResp_Q_msg)
 
 struct ue_emm_info {
@@ -343,13 +502,71 @@ struct ue_emm_info {
 	uint32_t enb_fd;
 	uint32_t enb_s1ap_ue_id;
 	uint32_t mme_s1ap_ue_id;
+#ifdef S1AP_ENCODE_NAS
 	char     short_network_name[16];
 	char     full_network_name[128];
 	uint8_t int_key[NAS_INT_KEY_SIZE];
-	unsigned short dl_seq_no;
+	unsigned char dl_seq_no;
+  uint32_t dl_count;
+#else
+	uint8_t 	nasMsgBuf[300]; 
+	uint8_t 	nasMsgSize; 
+#endif
 };
 
 #define UE_EMM_INFO_BUF_SIZE sizeof(struct ue_emm_info)
+
+struct handover_request_Q_msg {
+	msg_type_t msg_type;
+	uint32_t target_enb_context_id;
+	uint32_t s1ap_mme_ue_id;
+	enum handoverType handoverType;
+	s1apCause_t cause;
+	struct src_target_transparent_container src_to_target_transparent_container;
+	ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
+	struct ERABSetupList eRABSetupList;
+	struct security_context security_context;
+	struct gummei gummei;
+};
+
+#define S1AP_HO_REQUEST_BUF_SIZE sizeof(struct handover_request_Q_msg)
+
+struct handover_command_Q_msg {
+	msg_type_t msg_type;
+    	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	enum handoverType handoverType;
+	struct ERABs_Subject_to_Forwarding_List erabs_Subject_to_Forwarding_List;
+	struct src_target_transparent_container target_to_src_transparent_container;
+};
+#define S1AP_HO_COMMAND_BUF_SIZE sizeof(struct handover_command_Q_msg)
+
+struct mme_status_transfer_Q_msg {
+	msg_type_t msg_type;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
+	int target_enb_context_id;
+};
+#define S1AP_MME_STATUS_TRANSFER_BUF_SIZE sizeof(struct mme_status_transfer_Q_msg)
+
+struct handover_preparation_failure_Q_msg {
+	msg_type_t msg_type;
+	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+	s1apCause_t cause;
+};
+#define S1AP_HANDOVER_PREPARATION_FAILURE_BUF_SIZE sizeof(struct handover_preparation_failure_Q_msg)
+
+struct handover_cancel_ack_Q_msg {
+	msg_type_t msg_type;
+	int src_enb_context_id;
+	int s1ap_mme_ue_id;
+	int s1ap_enb_ue_id;
+};
+#define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
 
 /*************************
  * Outgoing GTP Messages
@@ -374,10 +591,14 @@ struct CS_Q_msg {
 struct MB_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
+	struct TAI tai;
+	struct CGI utran_cgi;
 	unsigned short indication[S11_MB_INDICATION_FLAG_SIZE];/*Provision*/
 	unsigned char bearer_id;
 	struct fteid s11_sgw_c_fteid;
 	struct fteid s1u_enb_fteid;
+	bool userLocationInformationIePresent;
+    	bool servingNetworkIePresent;
 };
 #define S11_MBREQ_STAGE7_BUF_SIZE sizeof(struct MB_Q_msg)
 
@@ -404,7 +625,7 @@ struct RB_Q_msg{
 
 struct DDN_ACK_Q_msg{
 	msg_type_t msg_type;
-	int ue_idx;
+	int s11_sgw_cp_teid;
 	uint32_t seq_no;
 	uint8_t cause;
 };
@@ -475,6 +696,7 @@ struct s6a_Q_msg {
 	unsigned int ue_idx;
 };
 #define S6A_REQ_Q_MSG_SIZE sizeof(struct s6a_Q_msg)
+#define RESET_S6A_REQ_MSG(msg)  {msg.auts.len = 0; msg.ue_idx=0;}
 
 struct s6a_purge_Q_msg {
 	int ue_idx;
@@ -550,5 +772,8 @@ typedef struct s6_incoming_msg_data_t {
 }s6_incoming_msg_data_t;
 
 #define S6_READ_MSG_BUF_SIZE sizeof(s6_incoming_msg_data_t)
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INCLUDE_COMMON_MSGTYPE_H_ */

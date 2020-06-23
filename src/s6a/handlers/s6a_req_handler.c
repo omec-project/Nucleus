@@ -206,7 +206,10 @@ send_FD_AIR(struct s6a_Q_msg *aia_msg, char imsi[])
 
 	/*AVP: Requested-EUTRAN-Authentication-Info
 	 *----->AVP: Number-Of-Requested-Vectors(1410)*/
-	val.i32 = 1;
+    if (aia_msg->auts.len)
+	  val.i32 = 1;
+    else
+	  val.i32 = 5;
 	val.os.len = 0;
 	add_fd_msg(&val, g_fd_dict_objs.no_of_req_vectors,
 			(struct msg**)&avp_ptr);
@@ -332,7 +335,7 @@ AIR_processing(struct s6a_Q_msg * air_msg)
 void*
 S6Req_handler(void *data)
 {
-	log_msg(LOG_INFO, "AIR Q handler ready.\n");
+	log_msg(LOG_INFO, "S6 message received from mme-app");
 
 	AIR_processing((struct s6a_Q_msg *)data);
 	

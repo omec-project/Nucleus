@@ -32,23 +32,24 @@ endif
 LIB_PATH +=-L../common/ 
 
 LIBS :=	-lpthread \
-        -lcrypto \
         -lcmnUtils \
         -ldatagroupmgr \
-	-ljson \
+		-ljson \
         -llog \
         -linterface \
         -lipcfwk \
-	-lmonitor_config \
-	-lusock \
-	-lthreadpool \
+		-lmonitor_config \
+		-lusock \
+		-lthreadpool \
         -lstatemachinefwk \
-	-lmmeGrpcProtoBuf \
-	-lgrpc++ \
+		-lmmeGrpcProtoBuf \
+		-lgrpc++ \
         -lgrpc \
         -lgpr \
         -lprotobuf \
+		-lsecutil
 
+LIBS += -L/usr/local/bin/ -L/usr/local/lib -lcrypto
 SRCDIR := .
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')

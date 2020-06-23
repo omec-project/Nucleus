@@ -45,6 +45,7 @@ get_esmreq_protoie_value(struct proto_IE *value, struct esm_req_Q_msg * g_esmReq
 	value->data[0].val.mme_ue_s1ap_id = g_esmReqInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_esmReqInfo->enb_s1ap_ue_id;
 
+#ifdef S1AP_ENCODE_NAS
 	value->data[2].val.nas.header.security_header_type =
 			IntegrityProtectedCiphered;
 
@@ -62,6 +63,7 @@ get_esmreq_protoie_value(struct proto_IE *value, struct esm_req_Q_msg * g_esmReq
 	/* TODO: Remove hardcoded value */
 	value->data[2].val.nas.header.eps_bearer_identity = 0;
 	value->data[2].val.nas.header.procedure_trans_identity = g_esmReqInfo->pti;
+#endif
 
 	return SUCCESS;
 }
@@ -75,7 +77,6 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 {
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
@@ -83,6 +84,9 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 	get_esmreq_protoie_value(&s1apPDU.value, g_esmReqInfo);
 
 	/* Copy values to g_sec_nas_buffer */
+
+#ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
 
 	/* id-NAS-PDU */
 	g_esm_nas_buffer.pos = 0;
@@ -115,10 +119,11 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_mac(g_esmReqInfo->int_key, nas.header.seq_no, direction,
+	calculate_aes_mac(g_esmReqInfo->int_key, g_esmReqInfo->dl_count, direction,
 			bearer, &g_esm_nas_buffer.buf[mac_data_pos],
 			g_esm_nas_buffer.pos - mac_data_pos,
 			&g_esm_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
+#endif
 
 	/* Copy values in g_sec_value_buffer */
 	g_esm_value_buffer.pos = 0;
@@ -171,6 +176,7 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 			sizeof(protocolIe_criticality));
 
 
+#ifdef S1AP_ENCODE_NAS
 	datalen = g_esm_nas_buffer.pos + 1;
 	buffer_copy(&g_esm_value_buffer, &datalen,
 			sizeof(datalen));
@@ -180,6 +186,17 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 
 	buffer_copy(&g_esm_value_buffer, &g_esm_nas_buffer,
 			g_esm_nas_buffer.pos);
+#else
+	datalen = g_esmReqInfo->nasMsgSize + 1; 
+
+	buffer_copy(&g_esm_value_buffer, &datalen,
+						sizeof(datalen));
+
+	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgBuf[0], g_esmReqInfo->nasMsgSize);
+
+#endif
 
 	/* Copy values in g_sec_buffer */
 	g_esm_buffer.pos = 0;

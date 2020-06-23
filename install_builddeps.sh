@@ -57,8 +57,16 @@ install_grpc() {
     	CXXFLAGS='-Wno-error' make && make install && ldconfig
 }
 
+install_openssl() {
+	$SUDO rm -rf /tmp/ssl
+    $SUDO apt-get update && $SUDO apt-get install -y git
+	git clone -q https://github.com/openssl/openssl.git /tmp/ssl
+	cd /tmp/ssl && ./config && make && make install
+}
+
 install_build_deps() {
 	install_build_pkg_deps
+    install_openssl
 	install_freediameter
 	install_grpc
 }

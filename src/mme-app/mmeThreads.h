@@ -23,12 +23,11 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <mme_app.h>
 
-#define DATA_BUF_SIZE 1024
+#define DATA_BUF_SIZE 4096
 
+using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcIngressFifo_g;
 extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
@@ -41,10 +40,11 @@ public:
 		uint16_t bytesRead = 0;
 		cmn::ipc::IpcAddress srcAddr;
 		unsigned char buf[DATA_BUF_SIZE] = {0};
+		MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 
 		while(1)
 		{
-			if ((bytesRead = mmeIpcIf_g->reader()->recvMsgFrom(buf, DATA_BUF_SIZE, srcAddr)) > 0 )
+			if ((bytesRead = mmeIpcIf.reader()->recvMsgFrom(buf, DATA_BUF_SIZE, srcAddr)) > 0 )
 			{
 				cmn::IpcEventMessage *ipcMsg = new cmn::IpcEventMessage(bytesRead);
 				MsgBuffer *msgBuf = ipcMsg->getMsgBuffer();
@@ -69,7 +69,8 @@ public:
 			cmn::IpcEventMessage* eMsg = NULL;
 			while(mmeIpcIngressFifo_g.pop(eMsg) == true)
 			{
-				mmeIpcIf_g->handleIpcMsg(eMsg);
+				MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+				mmeIpcIf.handleIpcMsg(eMsg);
 			}
 		}
 	}
@@ -91,10 +92,12 @@ public:
 					if (msgBuf != NULL)
 					{
 						cmn::ipc::IpcMsgHeader ipcHdr;
+						MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>
+										(compDb.getComponent(MmeIpcInterfaceCompId));
 						msgBuf->rewind();
 						msgBuf->readUint32(ipcHdr.destAddr.u32);
 						msgBuf->readUint32(ipcHdr.srcAddr.u32);
-						mmeIpcIf_g->sender()->sendMsgTo(msgBuf->getDataPointer(), 
+						mmeIpcIf.sender()->sendMsgTo(msgBuf->getDataPointer(), 
 								msgBuf->getLength(), ipcHdr.destAddr);
 					}
 					delete eMsg;

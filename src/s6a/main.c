@@ -273,7 +273,7 @@ s6a_run()
 int
 main(int argc, char **argv)
 {
-        
+	srand(time(0));
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 	

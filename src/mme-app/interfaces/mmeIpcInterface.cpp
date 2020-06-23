@@ -30,6 +30,7 @@ extern "C" {
 	#include "log.h"
 }
 
+using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
 
@@ -37,7 +38,7 @@ extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_
 
 MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
 {
-
+     compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }
 
 MmeIpcInterface::~MmeIpcInterface()
@@ -106,7 +107,7 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 	msgBuf->readUint32(destAddr);
 	msgBuf->readUint32(srcAddr);
 
-	log_msg(LOG_INFO, "IPC Message from src %u to dest %u\n", srcAddr, destAddr);
+	log_msg(LOG_INFO, "IPC Message received from src %u to dest %u\n", srcAddr, destAddr);
 
 	switch (srcAddr)
 
@@ -138,7 +139,7 @@ bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddre
         msgBuf->writeUint32(msgHeader.srcAddr.u32);
 	msgBuf->writeBytes((uint8_t*)buf, len);
 
-	log_msg(LOG_INFO, "Dispatch IPC msg\n");
+	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d\n", msgBuf->getLength());
 
 	return mmeIpcEgressFifo_g.push(eMsg);
 }

@@ -45,6 +45,7 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 	value->data[ieCnt].val.enb_ue_s1ap_id = g_acptReqInfo->enb_s1ap_ue_id;
 	ieCnt++;
 
+#ifdef S1AP_ENCODE_NAS
 	struct nasPDU *nas = &(value->data[ieCnt].val.nas);
 	nas->header.security_header_type = IntegrityProtectedCiphered;
 	nas->header.proto_discriminator = EPSMobilityManagementMessages;
@@ -59,6 +60,7 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 	log_msg(LOG_DEBUG,"NAS Msg Type: %x\n",nas->header.message_type);
 
 	ieCnt++;
+#endif
 
 	return SUCCESS;
 }
@@ -76,9 +78,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	uint8_t initiating_msg = 0;
 	uint8_t datalen = 0;
 	uint8_t s1ap_len_pos;
-	uint8_t nas_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	Buffer g_acpt_buffer = {0};
 
@@ -140,6 +140,10 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
+#ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
+	uint8_t nas_len_pos;
+
 	nas_len_pos = g_acpt_buffer.pos;
 
 	datalen = 0;
@@ -182,7 +186,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_mac(g_acptReqInfo->int_key, nas_hdr->seq_no,
+	calculate_aes_mac(g_acptReqInfo->int_key, g_acptReqInfo->dl_count,
 			direction, bearer, &g_acpt_buffer.buf[mac_data_pos],
 			g_acpt_buffer.pos - mac_data_pos,
 			&g_acpt_buffer.buf[mac_data_pos - MAC_SIZE]);
@@ -198,12 +202,26 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	/* Copy length to s1ap length field */
 	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
+#else
+	log_msg(LOG_INFO, "Received network initiated detach - nas message %d \n",g_acptReqInfo->nasMsgSize);
+
+	datalen = g_acptReqInfo->nasMsgSize + 1; 
+
+	buffer_copy(&g_acpt_buffer, &datalen,
+						sizeof(datalen));
+
+	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+
+#endif
 
 	/* TODO: temp fix */
 	//g_ics_buffer.buf[1] = 0x09;
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
 
 	log_msg(LOG_INFO, "NI Detach Request sent to UE.");
+    free(s1apPDU.value.data);
 
 	return SUCCESS;
 }

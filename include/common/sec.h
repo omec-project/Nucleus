@@ -21,6 +21,8 @@
 #define HASH_KEY_LEN         512
 
 #define NAS_INT_KEY_SIZE     16
+#define NAS_SEC_KEY_SIZE     16
+#define NAS_NEXT_HOP_SIZE    32
 #define KENB_SIZE            32
 #define HMAC_SIZE            1024
 
@@ -52,10 +54,22 @@ typedef struct KASME {
 /**
  * @brief Create integrity key
  * @param[in] kasme key
+ * @param[in] int_alg Integrity Algorithm Id
  * @param[out] int_key generated integrity key
  * @return void
  */
-void create_integrity_key(unsigned char *kasme, unsigned char *int_key);
+void create_integrity_key(uint8_t int_alg,
+                          unsigned char *kasme, unsigned char *int_key);
+
+/**
+ * @brief Create ciphering key
+ * @param[in] kasme key
+ * @param[in] sec_alg Ciphering Algorithm Id
+ * @param[out] sec_key generated ciphering key
+ * @return void
+ */
+void create_ciphering_key(uint8_t sec_alg,
+                          unsigned char *kasme, unsigned char *sec_key);
 
 /**
  * @brief Create eNodeB key to exchange in init ctx message

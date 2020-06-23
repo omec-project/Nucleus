@@ -5,6 +5,7 @@
 		"group_id": 1,
 		"code": 1,
 		"__comment__": "Here is comment",
+		"logging": "debug",
 		"mcc": {
 			"dig1": 2,
 			"dig2": 0,

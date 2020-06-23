@@ -39,7 +39,7 @@ extern struct time_stat g_attach_stats[];
 int
 s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
 {
-	struct s1_incoming_msg_data_t id_resp= {0};
+	s1_incoming_msg_data_t id_resp= {0};
 
 	/*****Message structure***
 	*/
@@ -60,6 +60,7 @@ s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
                 {
 	                id_resp.ue_idx = s1_id_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     if(s1_id_resp_ies->data[i].val.nas.header.message_type != NAS_IDENTITY_RESPONSE)
@@ -75,6 +76,7 @@ s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
                            &(s1_id_resp_ies->data[i].val.nas.elements[0].pduElement.IMSI),
                            BINARY_IMSI_LEN);
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE In identification Response %d \n",s1_id_resp_ies->data[i].IE_type);
         }
