@@ -25,15 +25,19 @@
 #include <map>
 #include <mutex>
 #include "dataGroupManager.h"
+
 #include "contextManager/dataBlocks.h"
 #include "contextManager/uEContextManager.h"
 #include "contextManager/mmContextManager.h"
 #include "contextManager/sessionContextManager.h"
 #include "contextManager/bearerContextManager.h"
 #include "contextManager/mmeProcedureCtxtManager.h"
+#include "contextManager/mmeAttachProcedureCtxtManager.h"
 #include "contextManager/mmeDetachProcedureCtxtManager.h"
+#include "contextManager/mmeS1RelProcedureCtxtManager.h"
 #include "contextManager/mmeSvcReqProcedureCtxtManager.h"
 #include "contextManager/mmeTauProcedureCtxtManager.h"
+#include "contextManager/s1HandoverProcedureContextManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -114,6 +118,17 @@ namespace mme
 			 ******************************************/
 			void deleteMmeProcedureCtxt(MmeProcedureCtxt* MmeProcedureCtxtp );
 			/******************************************
+			 * getMmeAttachProcedureCtxt
+			 * Get MmeAttachProcedureCtxt data block
+			 ******************************************/
+			MmeAttachProcedureCtxt* getMmeAttachProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeAttachProcedureCtxt
+			 *  Delete a MmeAttachProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeAttachProcedureCtxt(MmeAttachProcedureCtxt* MmeAttachProcedureCtxtp );
+			/******************************************
 			 * getMmeDetachProcedureCtxt
 			 * Get MmeDetachProcedureCtxt data block
 			 ******************************************/
@@ -124,6 +139,17 @@ namespace mme
 			 *  Delete a MmeDetachProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeDetachProcedureCtxt(MmeDetachProcedureCtxt* MmeDetachProcedureCtxtp );
+			/******************************************
+			 * getMmeS1RelProcedureCtxt
+			 * Get MmeS1RelProcedureCtxt data block
+			 ******************************************/
+			MmeS1RelProcedureCtxt* getMmeS1RelProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeS1RelProcedureCtxt
+			 *  Delete a MmeS1RelProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeS1RelProcedureCtxt(MmeS1RelProcedureCtxt* MmeS1RelProcedureCtxtp );
 			/******************************************
 			 * getMmeSvcReqProcedureCtxt
 			 * Get MmeSvcReqProcedureCtxt data block
@@ -146,6 +172,17 @@ namespace mme
 			 *  Delete a MmeTauProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeTauProcedureCtxt(MmeTauProcedureCtxt* MmeTauProcedureCtxtp );
+			/******************************************
+			 * getS1HandoverProcedureContext
+			 * Get S1HandoverProcedureContext data block
+			 ******************************************/
+			S1HandoverProcedureContext* getS1HandoverProcedureContext();
+			
+			/******************************************
+			 * deleteS1HandoverProcedureContext
+			 *  Delete a S1HandoverProcedureContext data block
+			 ******************************************/
+			void deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp );
 			
 			/******************************************
 			* addimsikey
@@ -189,7 +226,7 @@ namespace mme
 			* SubsDataGroupManager
 			*    Private constructor
 			****************************************/
-			SubsDataGroupManager();  
+			SubsDataGroupManager();
 			
 			/****************************************
 			* UEContext Pool Manager
@@ -217,9 +254,19 @@ namespace mme
 			MmeProcedureCtxtManager* MmeProcedureCtxtManagerm_p;
 			
 			/****************************************
+			* MmeAttachProcedureCtxt Pool Manager
+			****************************************/
+			MmeAttachProcedureCtxtManager* MmeAttachProcedureCtxtManagerm_p;
+			
+			/****************************************
 			* MmeDetachProcedureCtxt Pool Manager
 			****************************************/
 			MmeDetachProcedureCtxtManager* MmeDetachProcedureCtxtManagerm_p;
+			
+			/****************************************
+			* MmeS1RelProcedureCtxt Pool Manager
+			****************************************/
+			MmeS1RelProcedureCtxtManager* MmeS1RelProcedureCtxtManagerm_p;
 			
 			/****************************************
 			* MmeSvcReqProcedureCtxt Pool Manager
@@ -230,6 +277,11 @@ namespace mme
 			* MmeTauProcedureCtxt Pool Manager
 			****************************************/
 			MmeTauProcedureCtxtManager* MmeTauProcedureCtxtManagerm_p;
+			
+			/****************************************
+			* S1HandoverProcedureContext Pool Manager
+			****************************************/
+			S1HandoverProcedureContextManager* S1HandoverProcedureContextManagerm_p;
 			
 			
 			/****************************************
@@ -252,6 +304,5 @@ namespace mme
 			std::mutex mTmsi_cb_id_map_mutex;
 	};
 };
-
 
 #endif

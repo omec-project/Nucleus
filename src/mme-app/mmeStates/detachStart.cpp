@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,12 +13,15 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/detachStart.h"	
-#include "mmeStates/detachWfDelSessionResp.h"
+#include "mmeStates/detachWfPurgeRespDelSessionResp.h"
 
 using namespace mme;
 using namespace SM;
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachStart::DetachStart():State(State_e::detach_start)
+DetachStart::DetachStart():State(detach_start)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -54,7 +60,8 @@ void DetachStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.setNextState(DetachWfDelSessionResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_REQ_FROM_UE, actionTable));
+                actionTable.addAction(&ActionHandlers::purge_req);
+                actionTable.setNextState(DetachWfPurgeRespDelSessionResp::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_REQ_FROM_UE, actionTable));
         }
 }

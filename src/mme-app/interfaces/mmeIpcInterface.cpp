@@ -16,6 +16,7 @@
 
 #include <interfaces/mmeIpcInterface.h>
 #include <blockingCircularFifo.h>
+#include <eventMessage.h>
 #include <ipcTypes.h>
 #include <tipcSocket.h>
 #include <tipcTypes.h>
@@ -29,14 +30,15 @@ extern "C" {
 	#include "log.h"
 }
 
+using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
 
-extern BlockingCircularFifo<MsgBuffer, fifoQSize_c> mmeIpcEgressFifo_g;
+extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
 MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
 {
-
+     compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }
 
 MmeIpcInterface::~MmeIpcInterface()
@@ -96,9 +98,11 @@ cmn::ipc::IpcChannel* MmeIpcInterface::reader()
 		return NULL;
 }
 
-void MmeIpcInterface::handleIpcMsg(MsgBuffer* msgBuf)
+void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 {
 	uint32_t srcAddr, destAddr;
+
+	MsgBuffer *msgBuf = eMsg->getMsgBuffer();
 
 	msgBuf->readUint32(destAddr);
 	msgBuf->readUint32(srcAddr);
@@ -109,13 +113,13 @@ void MmeIpcInterface::handleIpcMsg(MsgBuffer* msgBuf)
 
 	{
 	case TipcInstanceTypes::s1apAppInstanceNum_c:
-		S1MsgHandler::Instance()->handleS1Message_v(msgBuf);
+		S1MsgHandler::Instance()->handleS1Message_v(eMsg);
 		break;
 	case TipcInstanceTypes::s11AppInstanceNum_c:
-		GtpMsgHandler::Instance()->handleGtpMessage_v(msgBuf);
+		GtpMsgHandler::Instance()->handleGtpMessage_v(eMsg);
 		break;
 	case TipcInstanceTypes::s6AppInstanceNum_c:
-		S6MsgHandler::Instance()->handleS6Message_v(msgBuf);
+		S6MsgHandler::Instance()->handleS6Message_v(eMsg);
 		break;
 	default:
 		log_msg(LOG_INFO, "IPC Message from unsupported instance\n");
@@ -128,26 +132,15 @@ bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddre
 	msgHeader.srcAddr.u32 = TipcInstanceTypes::mmeAppInstanceNum_c;
 	msgHeader.destAddr.u32 = destAddr.u32;
 
-	MsgBuffer *msgBuf = new MsgBuffer(len + sizeof(cmn::ipc::IpcMsgHeader));
+	cmn::IpcEventMessage* eMsg = new cmn::IpcEventMessage(
+	        len + sizeof(cmn::ipc::IpcMsgHeader));
+	MsgBuffer *msgBuf = eMsg->getMsgBuffer();
 	msgBuf->writeUint32(msgHeader.destAddr.u32);
         msgBuf->writeUint32(msgHeader.srcAddr.u32);
 	msgBuf->writeBytes((uint8_t*)buf, len);
 
-	log_msg(LOG_INFO, "Dispatch IPC msg\n");
+	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d\n", msgBuf->getLength());
 
-	return mmeIpcEgressFifo_g.push(msgBuf);
-}
-
-bool MmeIpcInterface::dispatchIpcMsg(cmn::utils::MsgBuffer* msgBuf, cmn::ipc::IpcAddress& destAddr)
-{
-	cmn::ipc::IpcMsgHeader msgHeader;
-	msgHeader.srcAddr.u32 = TipcInstanceTypes::mmeAppInstanceNum_c;
-	msgHeader.destAddr.u32 = destAddr.u32;
-
-	msgBuf->rewind();
-	msgBuf->writeUint32(msgHeader.destAddr.u32, false);
-	msgBuf->writeUint32(msgHeader.srcAddr.u32, false);
-
-	return mmeIpcEgressFifo_g.push(msgBuf);
+	return mmeIpcEgressFifo_g.push(eMsg);
 }
 

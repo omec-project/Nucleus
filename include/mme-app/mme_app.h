@@ -12,19 +12,22 @@
 #include <stdbool.h>
 
 #include "s1ap_structs.h"
+#include "log.h"
+#include "s1ap_error.h"
+#include "defines.h"
+
 
 typedef struct dns_config
 {
-        unsigned int dns_flag;
+  unsigned int dns_flag;
 	unsigned int concurrent;
 	unsigned int percentage;
 	unsigned int interval_seconds;
 	unsigned int query_timeout_ms;
 	unsigned int query_tries;
-        char* dns1_ip;
+  char* dns1_ip;
 
 }dns_config_t;
-
 
 /**
  * MME main application configuration parameters structures.
@@ -53,10 +56,15 @@ typedef struct mme_config
 	unsigned int mme_egtp_ip;
 	unsigned short mme_group_id;
 	unsigned char mme_code;
-        dns_config_t dns_config;
+	uint16_t num_plmns;
+	struct PLMN plmns[MAX_PLMN];
+	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
+  dns_config_t dns_config;
+
 } mme_config;
 
 const size_t fifoQSize_c = 1000;
+const uint16_t MmeIpcInterfaceCompId = 1;
 
 void stat_init();
 

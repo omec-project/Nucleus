@@ -98,7 +98,27 @@ message ProcedureStatsRespBuf
 	uint32 num_of_tau_response_to_ue_sent =39;
 	uint32 num_of_service_reject_sent = 40;
 	uint32 num_of_attach_reject_sent = 41;
-	
+	uint32 num_of_emm_info_sent = 42;
+	uint32 num_of_ddn_received = 43;
+	uint32 num_of_ddn_ack_sent = 44;
+	uint32 num_of_attach_req_received = 45;
+	uint32 num_of_detach_req_received = 46;
+	uint32 num_of_tau_req_received = 47;
+	uint32 num_of_paging_request_sent = 48;
+	uint32 num_of_id_req_sent = 49;
+	uint32 num_of_id_resp_received = 50;
+	uint32 num_of_auth_reject_sent = 51;
+	uint32 num_of_service_request_received = 52;
+	uint32 num_of_ho_required_received = 53;
+	uint32 num_of_ho_request_to_target_enb_sent = 54;
+	uint32 num_of_ho_request_ack_received = 55;
+	uint32 num_of_ho_command_to_src_enb_sent = 56;
+	uint32 num_of_ho_notify_received = 57;
+	uint32 num_of_ho_complete = 58;
+	uint32 num_of_ho_failure_received = 59;
+	uint32 num_of_ho_prep_failure_sent = 60;
+	uint32 num_of_ho_cancel_received = 61;
+	uint32 num_of_ho_cancel_ack_sent = 62;	
 }
 
 message Empty

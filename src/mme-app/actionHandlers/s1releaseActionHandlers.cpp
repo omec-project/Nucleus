@@ -16,6 +16,7 @@
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
 #include "controlBlock.h"
+#include "mme_app.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
 #include "contextManager/dataBlocks.h"
@@ -25,19 +26,19 @@
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 
 #include <ipcTypes.h>
 #include <tipcTypes.h>
 #include <msgBuffer.h>
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <utils/mmeCauseUtils.h>
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
-
-extern MmeIpcInterface* mmeIpcIf_g;
 
 ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 {
@@ -76,7 +77,9 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 			
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
 
 	ProcedureStats::num_of_rel_access_bearer_req_sent ++;
 	
@@ -106,18 +109,33 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
+	MmeProcedureCtxt* prcdCtxt_p = 
+		dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+
+	if (prcdCtxt_p == NULL)
+	{
+		log_msg(LOG_ERROR, "send_s1_rel_cmd_to_ue: Proc Ctxt is NULL\n");
+		return ActStatus::HALT;
+	}
+
+	S1apCause s1apCause = prcdCtxt_p->getS1apCause();
+	if(s1apCause.s1apCause_m.present == s1apCause_PR_NOTHING)
+	{
+	    s1apCause = MmeCauseUtils::convertToS1apCause(prcdCtxt_p->getMmeErrorCause());
+	}	
 	struct s1relcmd_info s1relcmd;
 	s1relcmd.msg_type = s1_release_command;
 	s1relcmd.ue_idx = ue_ctxt->getContextID();
 	s1relcmd.enb_fd = ue_ctxt->getEnbFd();
 	s1relcmd.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
-	s1relcmd.cause.present = s1apCause_PR_radioNetwork;
-    	s1relcmd.cause.choice.radioNetwork = s1apCauseRadioNetwork_user_inactivity;
-
+	s1relcmd.cause = s1apCause.s1apCause_m;
+	
 	/*Send message to S1AP-APP*/
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 	
 	ProcedureStats::num_of_s1_rel_cmd_sent ++;
 	

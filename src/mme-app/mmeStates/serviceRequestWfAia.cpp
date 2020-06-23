@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/serviceRequestWfAia.h"	
 #include "mmeStates/serviceRequestWfAuthResponse.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAia::ServiceRequestWfAia():State(State_e::service_request_wf_aia)
+ServiceRequestWfAia::ServiceRequestWfAia():State(service_request_wf_aia)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,6 +62,6 @@ void ServiceRequestWfAia::initialize()
                 actionTable.addAction(&ActionHandlers::process_aia);
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
                 actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AIA_FROM_HSS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AIA_FROM_HSS, actionTable));
         }
 }

@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
@@ -13,7 +14,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
-
 #include "thread_pool.h"
 #include "err_codes.h"
 #include "options.h"
@@ -94,7 +94,6 @@ void * tipc_msg_handler_s11()
 			log_msg(LOG_INFO, "S11 message received from mme-app, bytesRead %d", bytesRead);
 			insert_job(g_tpool_tipc_reader_s11, handle_mmeapp_message_s11, tmpBuf);
 		}
-		
 		bytesRead = 0;
 	}
 }
@@ -165,7 +164,7 @@ init_gtpv2()
 	//g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
 	struct in_addr sgw_addr = {g_s11_cfg.sgw_ip};
 	fprintf(stderr, "....................sgw ip %s\n", inet_ntoa(sgw_addr));
-	g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
+	g_s11_cp_addr.sin_addr.s_addr = g_s11_cfg.sgw_ip;
 	memset(g_s11_cp_addr.sin_zero, '\0', sizeof(g_s11_cp_addr.sin_zero));
 
 	g_s11_serv_size = sizeof(g_s11_cp_addr);
@@ -214,11 +213,23 @@ s11_reader()
 	}
 }
 
+
 int
 main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+	
+	init_backtrace(argv[0]);
+
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+		init_logging("container", NULL);
+	}
+	else { 
+		init_logging("hostbased","/tmp/s11logs.txt" );
+	}
+
 
 	init_parser("conf/s11.json");
 	parse_s11_conf();

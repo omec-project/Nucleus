@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfSecCmp.h"	
 #include "mmeStates/attachWfEsmInfoCheck.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfSecCmp::AttachWfSecCmp():State(State_e::attach_wf_sec_cmp)
+AttachWfSecCmp::AttachWfSecCmp():State(attach_wf_sec_cmp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,13 +62,13 @@ void AttachWfSecCmp::initialize()
                 actionTable.addAction(&ActionHandlers::process_sec_mode_resp);
                 actionTable.addAction(&ActionHandlers::check_esm_info_req_required);
                 actionTable.setNextState(AttachWfEsmInfoCheck::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SEC_MODE_RESP_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(SEC_MODE_RESP_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ABORT_EVENT, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

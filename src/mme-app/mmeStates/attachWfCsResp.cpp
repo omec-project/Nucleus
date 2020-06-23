@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfCsResp.h"	
 #include "mmeStates/attachWfInitCtxtRespAttCmp.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfCsResp::AttachWfCsResp():State(State_e::attach_wf_cs_resp)
+AttachWfCsResp::AttachWfCsResp():State(attach_wf_cs_resp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,6 +62,13 @@ void AttachWfCsResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_cs_resp);
                 actionTable.addAction(&ActionHandlers::send_init_ctxt_req_to_ue);
                 actionTable.setNextState(AttachWfInitCtxtRespAttCmp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::CS_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(CS_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

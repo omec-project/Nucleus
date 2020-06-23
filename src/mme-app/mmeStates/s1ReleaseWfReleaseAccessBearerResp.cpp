@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/s1ReleaseWfReleaseAccessBearerResp.h"	
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(State_e::s1_release_wf_release_access_bearer_resp)
+S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(s1_release_wf_release_access_bearer_resp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,6 +62,6 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_rel_ab_resp_from_sgw);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.setNextState(S1ReleaseWfUeCtxtReleaseComp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::REL_AB_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(REL_AB_RESP_FROM_SGW, actionTable));
         }
 }

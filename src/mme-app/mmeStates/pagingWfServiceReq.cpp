@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/pagingWfServiceReq.h"	
 #include "mmeStates/serviceRequestWfAuthResponse.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingWfServiceReq::PagingWfServiceReq():State(State_e::paging_wf_service_req)
+PagingWfServiceReq::PagingWfServiceReq():State(paging_wf_service_req)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -57,6 +63,6 @@ void PagingWfServiceReq::initialize()
                 actionTable.addAction(&ActionHandlers::send_ddn_ack_to_sgw);
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
                 actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::SERVICE_REQUEST_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(SERVICE_REQUEST_FROM_UE, actionTable));
         }
 }

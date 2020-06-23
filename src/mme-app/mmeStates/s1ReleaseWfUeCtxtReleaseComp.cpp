@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
 
@@ -25,8 +28,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(State_e::s1_release_wf_ue_ctxt_release_comp)
+S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(s1_release_wf_ue_ctxt_release_comp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -53,6 +59,6 @@ void S1ReleaseWfUeCtxtReleaseComp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_ue_ctxt_rel_comp);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::UE_CTXT_REL_COMP_FROM_ENB, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(UE_CTXT_REL_COMP_FROM_ENB, actionTable));
         }
 }

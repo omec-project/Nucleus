@@ -22,9 +22,11 @@
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
 
+#define TRANS_CONT_SIZE 512
 #define AUTH_REQ_NO_OF_IES 3
 #define SEC_MODE_NO_OF_IES 3
 #define ESM_REQ_NO_OF_IES 3
+#define EMM_INFO_REQ_NO_OF_IES 3
 #define ICS_REQ_NO_OF_IES 6
 #define DTCH_ACCEPT_NO_OF_IES 3
 #define UE_CTX_RELEASE_NO_OF_IES 3
@@ -40,12 +42,16 @@
 #define AUTH_REQ_NO_OF_NAS_IES 2
 #define SEC_MODE_NO_OF_NAS_IES 1
 #define ICS_REQ_NO_OF_NAS_IES 5
-#define TAU_RSP_NO_OF_NAS_IES 2
+#define TAU_RSP_NO_OF_NAS_IES 3
 
 #define AUTHREQ_NAS_SECURITY_PARAM 0x01
 #define SERVICE_REQ_SECURITY_HEADER 12
 #define SHORT_MAC_SIZE 2
 
+/* Should we put this in NAS header ?*/
+/* sec. 10.5.6.3 of 3GPP TS 24.008 has following statement:
+ * The protocol configuration options is a type 4 information element with a minimum length of 3 octets and a maximum length of 253 octets.
+ */
 
 #define MAX_PCO_OPTION_SIZE 260
 
@@ -66,6 +72,7 @@ APN name can be in range of min 3 octets to max 102 octets
 */
 #define MAX_APN_LEN 102
 
+#define MAX_ERAB_SIZE 10
 
 struct apn_name {
 	unsigned char len;
@@ -108,6 +115,7 @@ typedef enum
     NAS_IE_TYPE_PCO=0xAB,
     NAS_IE_TYPE_PTI=0xAC,
 }nas_ie_type;
+
 typedef struct MS_net_capab {
     bool          pres;
 	unsigned char element_id;
@@ -213,6 +221,13 @@ struct s1ap_header{
 /*36.413: 9.2.3.8 - MCC, MCN : Only 3 bytes are used*/
 struct PLMN {
 	unsigned char  idx[3];
+    /*Start should always be idx. Dont move down */
+    unsigned char  mnc_digits;
+};
+
+struct PLMN_C {
+	uint16_t mcc;
+	uint16_t mnc; 
 };
 
 struct TAI {
@@ -375,6 +390,7 @@ typedef struct nas_pdu_header {
 /****Information elements presentations **/
 #define BINARY_IMSI_LEN 8 /*same as packet capture. TODO: Write macros*/
 #define BCD_IMSI_STR_LEN 15
+#define MME_NAME_STR_LEN 30
 
 /*36.413 - 9.2.1.38*/
 struct CGI {
@@ -523,6 +539,100 @@ typedef struct ERABSetup {
 	struct nasPDU nas;
 } ERABSetup;
 
+typedef struct ERABs_Subject_to_Forwarding {
+	uint8_t e_RAB_ID;
+	uint32_t dL_transportLayerAddress;
+	uint32_t dL_gtp_teid;
+} ERABs_Subject_to_Forwarding;
+
+enum s1ap_cn_domain
+{
+    CN_DOMAIN_PS,
+    CN_DOMAIN_CS,
+    CN_DOMAIN_NONE
+};
+
+typedef enum handoverType {
+        IntraLTE,
+        LTEtoUTRAN,
+        LTEtoGERAN,
+        UTRANtoLTE,
+        GERANtoLTE,
+        LTEtoNR,
+        NRtoLTE
+}handoverType;
+
+typedef struct ERAB_admitted{
+        uint8_t e_RAB_ID;
+        uint32_t transportLayerAddress;
+        uint32_t gtp_teid;
+        uint32_t dL_transportLayerAddress;
+        uint32_t dL_gtp_teid;
+
+}ERAB_admitted;
+
+typedef struct targetId{
+        struct ie_global_enb_id global_enb_id;
+        struct TAI selected_tai;
+}targetId;
+
+struct src_target_transparent_container{
+    int count;
+    unsigned char buffer[TRANS_CONT_SIZE];
+};
+
+struct src_target_transparent_containerIE{
+    int size;
+    uint8_t* buffer_p;
+};
+struct count_t{
+        int pdcp_sn;
+        int hfn;
+};
+
+struct receive_status_of_ul_pdcp_sdu{
+    int count;
+    unsigned char buffer[255];
+};
+
+struct enB_status_transfer_transparent_container{
+        unsigned short  eRAB_id;
+        struct count_t ul_count_value;
+        struct count_t dl_count_value;
+        struct receive_status_of_ul_pdcp_sdu receive_status_of_ul_pdcp_sdu;
+};
+
+struct enB_status_transfer_transparent_container_list{
+        int count;
+        struct enB_status_transfer_transparent_container enB_status_transfer_transparent_container[10];
+};
+
+struct security_context{
+        int next_hop_chaining_count ;
+        uint8_t next_hop_nh[32];
+};
+
+struct gummei {
+	struct PLMN plmn_id;
+	uint16_t mme_grp_id;
+	uint8_t mme_code;
+};
+
+struct ERAB_admitted_list{
+        int count ;
+        ERAB_admitted erab_admitted[MAX_ERAB_SIZE];
+};
+
+struct ERABSetupList{
+        int count ;
+        ERABSetup eRABSetup[MAX_ERAB_SIZE];
+};
+
+struct ERABs_Subject_to_Forwarding_List{
+	int count;
+	ERABs_Subject_to_Forwarding eRABs_Subject_to_Forwarding[10];
+};
+
 #pragma pack()
 /* Dependencies */
 typedef enum s1apCause_PR {
@@ -612,6 +722,7 @@ typedef enum s1apCauseMisc {
 
 typedef enum emmCause {
     emmCause_ue_id_not_derived_by_network   = 9,
+    emmCause_network_failure = 11
 } e_emmCause;
 
 /* s1apCauseMisc */
@@ -655,6 +766,12 @@ typedef struct proto_IE_data {
         ERABSetup E_RABToBeSetupItemCtxtSUReq;
         ue_sec_capabilities ue_sec_capab;
         uint8_t sec_key[SECURITY_KEY_SIZE];
+        struct targetId target_id;
+        enum handoverType handoverType;
+        struct src_target_transparent_containerIE srcToTargetTranspContainer;
+        struct src_target_transparent_containerIE targetToSrcTranspContainer;
+    	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
+        struct ERAB_admitted_list erab_admittedlist;
     }val;
 }proto_IEs;
 
@@ -668,6 +785,7 @@ struct proto_IE {
     uint8_t     ie_cgi_index;
 };
 
+// refer 36.413 . Section 9.3.6 
 enum protocolie_id {
 	id_MME_UE_S1AP_ID = 0,
 	id_Cause = 2,
@@ -677,6 +795,8 @@ enum protocolie_id {
 	id_ERABToBeSetupItemCtxtSUReq = 52,
 	id_uEaggregatedMaximumBitrate = 66,
 	id_SecurityKey = 73,
+    id_ueAssociatedLogicalS1Conn = 91,
+    id_ResetType = 92, 
 	id_UE_S1AP_IDs = 99,
 	id_UESecurityCapabilities = 107,
 };
@@ -703,12 +823,15 @@ enum eps_nas_mesage_type {
 	AuthenticationRequest = 0x52,
     IdentityRequest       = 0x55,
 	SecurityModeCommand = 0x5d,
+    EMMInformation = 0x61,
 	ESMInformationRequest = 0xd9,
 };
 
+/* Refer 36.413 section - 9.3.6 */
 enum procedure_code {
 	id_InitialContextSetup = 9,
 	id_downlinkNASTransport = 11,
+    id_reset           = 14,
 	id_errorIndication = 15,
 	id_UEContexRelease = 23,
 };
@@ -759,8 +882,9 @@ typedef enum security_integrity_algo {
 	Algo_128EIA1 = 1,
 }security_integrity_algo;
 
-
-#define BUFFER_SIZE 255
+//TBD: changing the pos to uint16_t is
+// creating NAS encode failures. Need to revisit this change.
+#define BUFFER_SIZE 1000 /* S1AP packet max size */
 
 typedef struct Buffer {
 	unsigned char buf[BUFFER_SIZE];

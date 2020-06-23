@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/niDetachWfDetAccptDelSessResp.h"	
 #include "mmeStates/niDetachWfDelSessResp.h"	
@@ -27,8 +30,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(State_e::ni_detach_wf_det_accpt_del_sess_resp)
+NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(ni_detach_wf_det_accpt_del_sess_resp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,12 +62,12 @@ void NiDetachWfDetAccptDelSessResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_detach_accept_from_ue);
                 actionTable.setNextState(NiDetachWfDelSessResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DETACH_ACCEPT_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_ACCEPT_FROM_UE, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
                 actionTable.setNextState(NiDetachWfDetachAccept::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DEL_SESSION_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DEL_SESSION_RESP_FROM_SGW, actionTable));
         }
 }

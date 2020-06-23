@@ -1,3 +1,4 @@
+// test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
@@ -14,11 +15,11 @@ extern "C"{
 #endif
 
 enum log_levels{
-	LOG_DEBUG,
-	LOG_INFO,
-	LOG_WARNING,
+    LOG_NEVER,
 	LOG_ERROR,
-    LOG_NEVER
+	LOG_WARNING,
+	LOG_INFO,
+	LOG_DEBUG
 };
 
 void log_message(int l, const char *file, int line, const char *fmt, ...);
@@ -28,6 +29,8 @@ void log_message(int l, const char *file, int line, const char *fmt, ...);
 void enable_logs();
 void disable_logs();
 void set_logging_level(char *level);
+void init_logging(char *env, char *file);
+void init_backtrace(char *binary);
 
 #ifdef __cplusplus
 }

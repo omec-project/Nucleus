@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/pagingStart.h"	
 #include "mmeStates/pagingWfServiceReq.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingStart::PagingStart():State(State_e::paging_start)
+PagingStart::PagingStart():State(paging_start)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -55,6 +61,6 @@ void PagingStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_paging_req_to_ue);
                 actionTable.setNextState(PagingWfServiceReq::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::DDN_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(DDN_FROM_SGW, actionTable));
         }
 }

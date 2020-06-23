@@ -33,7 +33,6 @@ extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 extern volatile uint32_t g_s11_sequence;
-static char buf[S11_DTCHREQ_STAGE1_BUF_SIZE];
 
 struct thread_pool *g_tpool;
 

@@ -24,9 +24,9 @@
 /****Globals and externs ***/
 
 /*Making global just to avoid stack passing*/
-static Buffer g_esm_buffer;
-static Buffer g_esm_value_buffer;
-static Buffer g_esm_nas_buffer;
+static Buffer g_esm_buffer = {0};
+static Buffer g_esm_value_buffer = {0};
+static Buffer g_esm_nas_buffer = {0};
 
 
 /****Global and externs end***/
@@ -74,7 +74,7 @@ static int
 esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 {
 	unsigned char tmpStr[4];
-	struct s1ap_PDU s1apPDU= {0};
+	struct s1ap_PDU s1apPDU = {0};
 	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;

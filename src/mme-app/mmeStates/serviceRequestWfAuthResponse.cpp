@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/serviceRequestWfAuthResponse.h"	
 #include "mmeStates/serviceRequestWfAuthRespValidate.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse():State(State_e::service_request_wf_auth_response)
+ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse():State(service_request_wf_auth_response)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -55,6 +61,6 @@ void ServiceRequestWfAuthResponse::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::auth_response_validate);
                 actionTable.setNextState(ServiceRequestWfAuthRespValidate::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::AUTH_RESP_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_FROM_UE, actionTable));
         }
 }

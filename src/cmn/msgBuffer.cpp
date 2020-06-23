@@ -6,6 +6,7 @@
 
 #include <arpa/inet.h>
 #include <stdio.h>
+#include <iomanip>
 #include <string.h>
 #include <basicTypes.h>
 #include <msgBuffer.h>
@@ -248,7 +249,30 @@ void MsgBuffer::skipBytes(uint16_t size)
 
 void MsgBuffer::display(Debug &stream)
 {
+    stream.add((char*)("Message Buffer DUMP\n"));
+    stream.add((char*)("bufSize "));
+    stream.add(bufSize);
+    stream.add((char*)(" length "));
+    stream.add(length);
+    stream.add((char*)(" bitLength "));
+    stream.add(bitLength);
+    stream.add((char*)(" byteIndex "));
+    stream.add(byteIndex);
+    stream.add((char*)(" bitIndex "));
+    stream.add(bitIndex);
 
+    stream.add((char*)("\n Data DUMP \n"));
+
+    if (data_mp != NULL)
+    {
+        for (uint16_t i = 0; i < length; i++)
+        {
+            stream.addHexByte(data_mp[i]);
+	    if (((i + 1) % 10) == 0)
+                stream.add((char*)("\n"));   // 10 bytes in a row
+        }
+        stream.add((char *)"\n");
+    }
 }
 
 bool MsgBuffer::incrBitIndex(uint8_t size)

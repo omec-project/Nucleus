@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfIdentityResponse.h"	
 #include "mmeStates/attachWfAia.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfIdentityResponse::AttachWfIdentityResponse():State(State_e::attach_wf_identity_response)
+AttachWfIdentityResponse::AttachWfIdentityResponse():State(attach_wf_identity_response)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,6 +62,6 @@ void AttachWfIdentityResponse::initialize()
                 actionTable.addAction(&ActionHandlers::process_identity_response);
                 actionTable.addAction(&ActionHandlers::send_air_to_hss);
                 actionTable.setNextState(AttachWfAia::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IDENTITY_RESPONSE_FROM_UE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IDENTITY_RESPONSE_FROM_UE, actionTable));
         }
 }

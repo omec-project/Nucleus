@@ -15,17 +15,17 @@
 #include <3gpp_24008.h>
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include "mme_app.h"
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
-#include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
 #include "mme_app.h"
 #include "secUtils.h"
 #include "state.h"
 #include <string.h>
 #include <sstream>
-#include <smTypes.h>
+#include <mmeSmDefs.h>
 #include <cstring>
 #include <event.h>
 #include <ipcTypes.h>
@@ -34,6 +34,8 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <utils/mmeCauseUtils.h>
+#include "gtpCauseTypes.h"
 
 #include <locale>
 #include <memory.h>
@@ -56,7 +58,9 @@
 
 using namespace SM;
 using namespace mme;
+using namespace cmn;
 using namespace cmn::utils;
+
 
 cmn::ipc::IpcAddress destAddr_dns;
 struct CS_Q_msg cs_msg;
@@ -132,40 +136,36 @@ extern "C" Void NodeSelector_test_callback(EPCDNS::NodeSelector &ns, cpVoid data
         ProcedureStats::num_of_cs_req_to_sgw_sent ++;
         log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
 
-
-
-
 	std::cout <<"\n*************************************************" << std::endl;
 
 }
 
 
 #endif
-
-
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
-	UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-	if (ueCtxt_p == NULL)
-	{
-		log_msg(LOG_DEBUG, "send_identity_request_to_ue: ue context is NULL \n");
-		return ActStatus::HALT;
-	}
+    UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt_p == NULL)
+    {
+         log_msg(LOG_DEBUG, "send_identity_request_to_ue: ue context is NULL \n");
+         return ActStatus::HALT;
+    }
 
-	if (ueCtxt_p->getImsi().isValid())
-	{
-		SM::Event evt(Event_e::IMSI_VALIDATION_SUCCESS, NULL);
-		cb.addEventToProcQ(evt);
-	}
-	else
-	{
-		// TODO: If known GUTI, IMSI_VALIDATION_FAILURE_KNOWN_GUTI to trigger id req to UE
-		// If unknown GUTI, IMSI_VALIDATION_FAILURE_UNKNOWN_GUTI to query old mme
-		// when s10 is supported in MME
-		SM::Event evt(Event_e::IMSI_VALIDATION_FAILURE, NULL);
-		cb.addEventToProcQ(evt);
-	}
-	return ActStatus::PROCEED;
+    if (ueCtxt_p->getImsi().isValid())
+    {
+        SM::Event evt(IMSI_VALIDATION_SUCCESS, NULL);
+        cb.addEventToProcQ(evt);
+    }
+    else
+    {
+        // TODO: If known GUTI, IMSI_VALIDATION_FAILURE_KNOWN_GUTI to trigger id req to UE
+        // If unknown GUTI, IMSI_VALIDATION_FAILURE_UNKNOWN_GUTI to query old mme
+        // when s10 is supported in MME
+        SM::Event evt(IMSI_VALIDATION_FAILURE, NULL);
+        cb.addEventToProcQ(evt);
+    }
+    return ActStatus::PROCEED;
+
 }
 
 ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
@@ -188,8 +188,10 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
+	mmeIpcIf.dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
+  ProcedureStats::num_of_id_req_sent ++;
 
 	return ActStatus::PROCEED;
 }
@@ -239,7 +241,8 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	ueCtxt_p->setImsi(IMSIInfo);
 
 	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
-
+  ProcedureStats::num_of_id_resp_received ++;
+  
 	return ActStatus::PROCEED;
 }
 
@@ -282,7 +285,8 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
+	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_air_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_air_to_hss \n");
@@ -303,6 +307,7 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req;
+    memset(&s6a_req, 0, sizeof(s6a_req));
 
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
@@ -314,8 +319,9 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
-
-	mmeIpcIf_g->dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
+	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_ulr_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_ulr_to_hss \n");
@@ -334,6 +340,13 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "handle_aia: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+	MmeProcedureCtxt *procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	if (procedure_p == NULL)
+	{
+        	log_msg(LOG_DEBUG, "handle_aia: procedure context is NULL \n");
+        	return ActStatus::HALT;
+        }
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -341,6 +354,14 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 
 	const s6_incoming_msg_data_t* msgData_p = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
+
+	if (msgData_p->msg_data.aia_Q_msg_m.res == S6A_AIA_FAILED)
+	{	
+		/* send attach reject and release UE */
+        	log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
+        	procedure_p->setMmeErrorCause(s6AiaFailure_c);
+        	return ActStatus::ABORT;
+	}
 
 	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->msg_data.aia_Q_msg_m.sec));
 
@@ -391,6 +412,12 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ambr.max_requested_bw_ul = ula_msg.max_requested_bw_ul;
 
 	ue_ctxt->setAmbr(Ambr(ambr));
+	
+	struct PAA pdn_addr;
+	pdn_addr.pdn_type = 1;
+	pdn_addr.ip_type.ipv4.s_addr = ntohl(ula_msg.static_addr); // network byte order
+	
+	ue_ctxt->setPdnAddr(Paa(pdn_addr));
 
 	ProcedureStats::num_of_processed_ula ++;
 	log_msg(LOG_DEBUG, "Leaving handle_ula_v \n");
@@ -428,9 +455,9 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
-
-
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
+	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v \n");
 
@@ -469,24 +496,25 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		log_msg(LOG_ERROR, "eNB authentication failure for UE-%d.\n", ue_ctxt->getContextID());
 		if(auth_resp.auts.len == 0)
 		{
-			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n");
-			SM::Event evt(Event_e::AUTH_RESP_FAILURE,NULL);
-			controlBlk_p->addEventToProcQ(evt);
+			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n")
+			SM::Event evt(AUTH_RESP_FAILURE,NULL);
+        		controlBlk_p->addEventToProcQ(evt);
 		}
 		else
 		{
 			log_msg(LOG_INFO,"AUTS recvd.  Synch failure. send AIR\n");
 			procedure_p->setAuthRespStatus(auth_resp.status);
 			procedure_p->setAuts(Auts(auth_resp.auts));
-			SM::Event evt(Event_e::AUTH_RESP_SYNC_FAILURE,NULL);
-			controlBlk_p->addEventToProcQ(evt);
+
+			SM::Event evt(AUTH_RESP_SYNC_FAILURE,NULL);
+            		controlBlk_p->addEventToProcQ(evt);
 		}
 	}
 	else{
 		log_msg(LOG_INFO,"Auth response validation success. Proceeding to Sec mode Command\n");
-		SM::Event evt(Event_e::AUTH_RESP_SUCCESS,NULL);
-		controlBlk_p->addEventToProcQ(evt);
 
+    SM::Event evt(AUTH_RESP_SUCCESS,NULL);
+    controlBlk_p->addEventToProcQ(evt);
 	}
 	//TODO: XRES comparison
 #if 0
@@ -518,6 +546,8 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_auth_reject: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+	ProcedureStats::num_of_auth_reject_sent ++;
 	return ActStatus::HALT;
 }
 
@@ -556,8 +586,9 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
-
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
+	
 	ProcedureStats::num_of_sec_mode_cmd_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving sec_mode_cmd_to_ue \n");
 
@@ -622,7 +653,7 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
@@ -650,21 +681,12 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 
 	if (procedure_p->getEsmInfoTxRequired() == false)
 	{
-		// hardcoding APN, if ESM info request is not to be sent
-		std::string apnName = "apn1";
-		struct apn_name apn = {0};
-		apn.len = apnName.length() + 1;
-		apn.val[0] = apnName.length();
-		memcpy(&(apn.val[1]), apnName.c_str(), apnName.length());
-
-		procedure_p->setRequestedApn(Apn_name(apn));
-
-		SM::Event evt(Event_e::ESM_INFO_NOT_REQUIRED, NULL);
+		SM::Event evt(ESM_INFO_NOT_REQUIRED, NULL);
 		cb.addEventToProcQ(evt);
 	} 
 	else
 	{
-		SM::Event evt(Event_e::ESM_INFO_REQUIRED, NULL);
+		SM::Event evt(ESM_INFO_REQUIRED, NULL);
 		cb.addEventToProcQ(evt);
 	}
 
@@ -696,7 +718,8 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
 
 	log_msg(LOG_DEBUG, "Leaving send_esm_info_req_to_ue \n");
 	ProcedureStats::num_of_esm_info_req_to_ue_sent ++;
@@ -712,13 +735,13 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-	if (procedure_p == NULL)
-	{
-		log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
-		return ActStatus::HALT;
-	}
-
+  MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
+  if (procedure_p == NULL)
+  {
+      log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
+      return ActStatus::HALT;
+  }
+  
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
@@ -726,8 +749,15 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
+    
+    	if (esm_res.status != SUCCESS)
+    	{
+        	log_msg(LOG_ERROR, "ESM Response failed \n");
+    	}
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
+	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
 }
@@ -738,7 +768,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (ue_ctxt == NULL  || procCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: UE context or Procedure Context is NULL \n");
@@ -799,7 +829,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	// TODO: ApnSelection
 	// Set the subscribed apn to selected apn for now
 	sessionCtxt->setAccessPtName(apnName);
-	memcpy(&(cs_msg.apn), &(apnName.apnname_m), sizeof(struct apn_name));
+	memcpy(&(cs_msg.selected_apn), &(apnName.apnname_m), sizeof(struct apn_name));
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
 	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
@@ -810,6 +840,10 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 
 	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl;
 	cs_msg.max_requested_bw_ul = ambr.max_requested_bw_ul;
+	
+	const PAA& pdn_addr = ue_ctxt->getPdnAddr().paa_m;
+	
+	cs_msg.paa_v4_addr = pdn_addr.ip_type.ipv4.s_addr; /* host order */
 
 	memset(cs_msg.MSISDN, 0, BINARY_IMSI_LEN);
 
@@ -868,7 +902,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 		s2.addDesiredProtocol( EPCDNS::SGWAppProtocolEnum::sgw_x_s11 );
 		s2.process();
 		s2.dump();
-                Extract_IPs(s2.getResults(), &sgw_ip);
+    Extract_IPs(s2.getResults(), &sgw_ip);
 	
 		std::cout << " gatway is "<<sgw_ip; 
 		ue_ctxt->setSgwIp(sgw_ip);
@@ -879,7 +913,8 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 		// s2.process(&ue_ctxt, NodeSelector_test_callback);
 	}
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr_dns);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr_dns);
 
 	ProcedureStats::num_of_cs_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
@@ -897,8 +932,9 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "handle_cs_resp: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -919,6 +955,12 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 
 	const gtp_incoming_msg_data_t* gtp_msg_data= static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct csr_Q_msg& csr_info = gtp_msg_data->msg_data.csr_Q_msg_m;
+
+    if(csr_info.status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    {
+		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info.status);
+       	return ActStatus::ABORT;
+    }
 
 	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
 	if( bearerCtxt == NULL )
@@ -955,7 +997,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	MmeProcedureCtxt* procedure_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
@@ -990,6 +1032,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
 	SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
+
+	secInfo.next_hop_chaining_count = 0 ;
+	memcpy(secInfo.next_hop_nh , secInfo.kenb_key, KENB_SIZE);
 
 	init_ctx_req_Q_msg icr_msg;
 	icr_msg.msg_type = init_ctxt_request;
@@ -1029,7 +1074,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 
 	ProcedureStats::num_of_init_ctxt_req_to_ue_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_init_ctxt_req_to_ue_v \n");
@@ -1042,7 +1088,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside process_init_ctxt_resp \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 
 	if (ue_ctxt == NULL || procCtxt == NULL)
 	{
@@ -1122,13 +1168,17 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 			sizeof(struct fteid));
 
 	memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
-			sizeof(struct fteid));
+
+	sizeof(struct fteid));
+	mb_msg.servingNetworkIePresent = false;
+	mb_msg.userLocationInformationIePresent = false;
 
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-	mmeIpcIf_g->dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 
 	ProcedureStats::num_of_mb_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw \n");
@@ -1159,8 +1209,60 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 ActStatus ActionHandlers::process_mb_resp(SM::ControlBlock& cb)
 {	
 	log_msg(LOG_DEBUG, "Inside handle_mb_resp \n");
+	
 	ProcedureStats::num_of_processed_mb_resp ++;
 	return ActStatus::PROCEED;
+}
+
+ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside check_and_send_emm_info \n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "check_and_send_emm_info: ue context is NULL \n");
+        return ActStatus::HALT;
+    }
+    
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
+    {
+	    log_msg(LOG_DEBUG, "check_and_send_emm_info: Procedure context is NULL\n");
+	    return ActStatus::HALT;
+    }
+
+    if (MmeCommonUtils::isEmmInfoRequired(cb, *ue_ctxt, *procCtxt))
+    {
+    	struct ue_emm_info temp;
+    	temp.msg_type = emm_info_request;
+    	temp.enb_fd = ue_ctxt->getEnbFd();
+    	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
+    	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
+    	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+    	ue_ctxt->setDwnLnkSeqNo(temp.dl_seq_no+1);
+    	/*Logically MME should have TAC database. and based on TAC
+     	* MME can send different name. For now we are sending Aether for
+     	* all TACs
+     	*/
+    	strcpy(temp.short_network_name, "Aether");
+    	strcpy(temp.full_network_name, "Aether");
+    	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
+    	NAS_INT_KEY_SIZE);
+
+    	cmn::ipc::IpcAddress destAddr;
+    	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    	
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+	mmeIpcIf.dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
+
+    	ProcedureStats::num_of_emm_info_sent++;
+    }
+
+    log_msg(LOG_DEBUG, "Leaving check_and_send_emm_info \n");
+
+    return ActStatus::PROCEED;
+
 }
 
 ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
@@ -1190,40 +1292,44 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
+
 	return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 {
-	UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-	if (ueCtxt_p == NULL)
-	{
-		log_msg(LOG_ERROR, " send_attach_reject: UE context is NULL %d\n",cb.getCBIndex());
-		return ActStatus::HALT;
-	}
+    UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt_p == NULL)
+    {
+            log_msg(LOG_ERROR, " send_attach_reject: UE context is NULL %d\n",cb.getCBIndex());
+            return ActStatus::HALT;
+    }
 
-	MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-	if (procCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
-		return ActStatus::HALT;
-	}
+    MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
+    {
+            log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
+            return ActStatus::HALT;
+    }
 
-	struct commonRej_info attach_rej;
+    struct commonRej_info attach_rej;
 
-	attach_rej.msg_type = attach_reject;
-	attach_rej.ue_idx = ueCtxt_p->getContextID();
-	attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
-	attach_rej.enb_fd = ueCtxt_p->getEnbFd();
-	attach_rej.cause = emmCause_ue_id_not_derived_by_network;
+    attach_rej.msg_type = attach_reject;
+    attach_rej.ue_idx = ueCtxt_p->getContextID();
+    attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
+    attach_rej.enb_fd = ueCtxt_p->getEnbFd();
+    attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
 
-	cmn::ipc::IpcAddress destAddr;
-	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
-	mmeIpcIf_g->dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
+    cmn::ipc::IpcAddress destAddr;
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-	ProcedureStats::num_of_attach_reject_sent ++;
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+    mmeIpcIf.dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
 
-	return ActStatus::PROCEED;
+    ProcedureStats::num_of_attach_reject_sent ++;
+
+    return ActStatus::PROCEED;
+
 }
 
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)

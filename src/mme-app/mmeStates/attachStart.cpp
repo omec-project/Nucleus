@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachStart.h"	
 #include "mmeStates/attachWfImsiValidateAction.h"
@@ -26,8 +29,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachStart::AttachStart():State(State_e::attach_start)
+AttachStart::AttachStart():State(attach_start)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -55,6 +61,6 @@ void AttachStart::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::validate_imsi_in_ue_context);
                 actionTable.setNextState(AttachWfImsiValidateAction::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::VALIDATE_IMSI, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(VALIDATE_IMSI, actionTable));
         }
 }

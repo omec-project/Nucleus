@@ -70,6 +70,11 @@ void Tai::operator = ( const Tai& tai_i )
 	memcpy( &tai_m, &(tai_i.tai_m), sizeof( tai_i.tai_m ));
 }
 
+bool Tai::operator==(const Tai &tai_i) const
+{
+    return (memcmp(&tai_m, &tai_i.tai_m, sizeof(struct TAI)) == 0);
+}
+
 /*******************************************************
  *CGI
 ********************************************************/
@@ -389,6 +394,29 @@ void Auts::operator = ( const Auts& auts_i )
 	memcpy( &auts_m, &(auts_i.auts_m), sizeof( auts_i.auts_m ));
 }
 
+
+/*******************************************************
+*S1apCause
+********************************************************/
+S1apCause::S1apCause()
+{
+    memset( &s1apCause_m, 0, sizeof( s1apCause_m ));
+}
+
+S1apCause::S1apCause( const s1apCause_t& s1apCause_i )
+{
+    memset( &s1apCause_m, 0, sizeof( s1apCause_m ));
+    memcpy( &s1apCause_m, &s1apCause_i, sizeof( s1apCause_i ));
+}
+
+S1apCause::~S1apCause()
+{
+}
+
+void S1apCause::operator = ( const S1apCause& s1apCause_i )
+{
+    memcpy( &s1apCause_m, &(s1apCause_i.s1apCause_m), sizeof( s1apCause_i.s1apCause_m ));
+}
 
 /*******************************************************
 *DigitRegister15

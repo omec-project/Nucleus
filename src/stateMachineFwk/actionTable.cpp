@@ -34,7 +34,7 @@ namespace SM
 	{
 	}
 
-	ActStatus ActionTable::executeActions(ControlBlock& cb)
+	ActStatus ActionTable::executeActions(ControlBlock& cb, State* statep)
 	{
 		ActStatus rt = PROCEED;
 		for(auto it = actionsQ.begin(); it != actionsQ.end(); it++)
@@ -42,15 +42,19 @@ namespace SM
 			rt = (*it)(cb);
 			if(PROCEED != rt)
 			{
-				// TODO: error handling
 				break;
 			}
 		}
 
-		if (PROCEED == rt &&
-				nextStatep != NULL)
+		if (PROCEED == rt)
 		{
-			cb.setNextState(nextStatep);
+		    statep->OnExit(cb);
+
+		    if (nextStatep != NULL)
+		    {
+		        cb.setNextState(nextStatep);
+		        statep->OnEntry(cb);
+		    }
 		}
 
 		return rt;

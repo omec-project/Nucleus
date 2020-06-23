@@ -12,9 +12,6 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt>
  ***************************************/
 #include "contextManager/subsDataGroupManager.h"
-#include "log.h"
-#include "mmeStates/defaultMmeState.h"
-#include <sstream>
 
 namespace mme
 {
@@ -28,9 +25,12 @@ namespace mme
 			SessionContextManagerm_p = NULL;
 			BearerContextManagerm_p = NULL;
 			MmeProcedureCtxtManagerm_p = NULL;
+			MmeAttachProcedureCtxtManagerm_p = NULL;
 			MmeDetachProcedureCtxtManagerm_p = NULL;
+			MmeS1RelProcedureCtxtManagerm_p = NULL;
 			MmeSvcReqProcedureCtxtManagerm_p = NULL;
 			MmeTauProcedureCtxtManagerm_p = NULL;
+			S1HandoverProcedureContextManagerm_p = NULL;
 
 			initialize();
 	}
@@ -45,9 +45,12 @@ namespace mme
 			delete SessionContextManagerm_p;
 			delete BearerContextManagerm_p;
 			delete MmeProcedureCtxtManagerm_p;
+			delete MmeAttachProcedureCtxtManagerm_p;
 			delete MmeDetachProcedureCtxtManagerm_p;
+			delete MmeS1RelProcedureCtxtManagerm_p;
 			delete MmeSvcReqProcedureCtxtManagerm_p;
 			delete MmeTauProcedureCtxtManagerm_p;
+			delete S1HandoverProcedureContextManagerm_p;
 	}
 	
 	/******************************************
@@ -62,9 +65,12 @@ namespace mme
 		SessionContextManagerm_p = new SessionContextManager(8000);
 		BearerContextManagerm_p = new BearerContextManager(8000);
 		MmeProcedureCtxtManagerm_p = new MmeProcedureCtxtManager(8000);
+		MmeAttachProcedureCtxtManagerm_p = new MmeAttachProcedureCtxtManager(8000);
 		MmeDetachProcedureCtxtManagerm_p = new MmeDetachProcedureCtxtManager(8000);
+		MmeS1RelProcedureCtxtManagerm_p = new MmeS1RelProcedureCtxtManager(8000);
 		MmeSvcReqProcedureCtxtManagerm_p = new MmeSvcReqProcedureCtxtManager(8000);
 		MmeTauProcedureCtxtManagerm_p = new MmeTauProcedureCtxtManager(8000);
+		S1HandoverProcedureContextManagerm_p = new S1HandoverProcedureContextManager(8000);
 	}
 	
 	/******************************************************************************
@@ -72,8 +78,8 @@ namespace mme
 	******************************************************************************/
 	SubsDataGroupManager* SubsDataGroupManager::Instance()
 	{
-			static SubsDataGroupManager subDataGroupMgr;
-			return &subDataGroupMgr;
+			static SubsDataGroupManager subsDataGroupMgr;
+			return &subsDataGroupMgr;
 	}
 
 	UEContext* SubsDataGroupManager::getUEContext()
@@ -121,6 +127,15 @@ namespace mme
 	{
 		MmeProcedureCtxtManagerm_p->deallocateMmeProcedureCtxt( MmeProcedureCtxtp );
 	}
+	MmeAttachProcedureCtxt* SubsDataGroupManager::getMmeAttachProcedureCtxt()
+	{
+		return MmeAttachProcedureCtxtManagerm_p->allocateMmeAttachProcedureCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeAttachProcedureCtxt(MmeAttachProcedureCtxt* MmeAttachProcedureCtxtp )
+	{
+		MmeAttachProcedureCtxtManagerm_p->deallocateMmeAttachProcedureCtxt( MmeAttachProcedureCtxtp );
+	}
 	MmeDetachProcedureCtxt* SubsDataGroupManager::getMmeDetachProcedureCtxt()
 	{
 		return MmeDetachProcedureCtxtManagerm_p->allocateMmeDetachProcedureCtxt();
@@ -129,6 +144,15 @@ namespace mme
 	void SubsDataGroupManager::deleteMmeDetachProcedureCtxt(MmeDetachProcedureCtxt* MmeDetachProcedureCtxtp )
 	{
 		MmeDetachProcedureCtxtManagerm_p->deallocateMmeDetachProcedureCtxt( MmeDetachProcedureCtxtp );
+	}
+	MmeS1RelProcedureCtxt* SubsDataGroupManager::getMmeS1RelProcedureCtxt()
+	{
+		return MmeS1RelProcedureCtxtManagerm_p->allocateMmeS1RelProcedureCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeS1RelProcedureCtxt(MmeS1RelProcedureCtxt* MmeS1RelProcedureCtxtp )
+	{
+		MmeS1RelProcedureCtxtManagerm_p->deallocateMmeS1RelProcedureCtxt( MmeS1RelProcedureCtxtp );
 	}
 	MmeSvcReqProcedureCtxt* SubsDataGroupManager::getMmeSvcReqProcedureCtxt()
 	{
@@ -147,6 +171,15 @@ namespace mme
 	void SubsDataGroupManager::deleteMmeTauProcedureCtxt(MmeTauProcedureCtxt* MmeTauProcedureCtxtp )
 	{
 		MmeTauProcedureCtxtManagerm_p->deallocateMmeTauProcedureCtxt( MmeTauProcedureCtxtp );
+	}
+	S1HandoverProcedureContext* SubsDataGroupManager::getS1HandoverProcedureContext()
+	{
+		return S1HandoverProcedureContextManagerm_p->allocateS1HandoverProcedureContext();
+	}
+
+	void SubsDataGroupManager::deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp )
+	{
+		S1HandoverProcedureContextManagerm_p->deallocateS1HandoverProcedureContext( S1HandoverProcedureContextp );
 	}
 	
 	/******************************************

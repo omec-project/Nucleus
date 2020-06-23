@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfImsiValidateAction.h"	
 #include "mmeStates/attachWfAia.h"	
@@ -27,8 +30,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(State_e::attach_wf_imsi_validate_action)
+AttachWfImsiValidateAction::AttachWfImsiValidateAction():State(attach_wf_imsi_validate_action)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,12 +62,12 @@ void AttachWfImsiValidateAction::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_air_to_hss);
                 actionTable.setNextState(AttachWfAia::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IMSI_VALIDATION_SUCCESS, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IMSI_VALIDATION_SUCCESS, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_identity_request_to_ue);
                 actionTable.setNextState(AttachWfIdentityResponse::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::IMSI_VALIDATION_FAILURE, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(IMSI_VALIDATION_FAILURE, actionTable));
         }
 }

@@ -8,14 +8,16 @@
 #define INCLUDE_MME_APP_INTERFACES_MMEIPCINTERFACE_H_
 
 #include <ipcChannel.h>
+#include <componentDb.h>
 
 namespace cmn{
+    class IpcEventMessage;
 namespace utils{
-	class MsgBuffer;
+    class MsgBuffer;
 }
 }
 
-class MmeIpcInterface {
+class MmeIpcInterface:public cmn::ComponentIf {
 
 public:
 	MmeIpcInterface();
@@ -27,11 +29,9 @@ public:
 	cmn::ipc::IpcChannel* sender();
 	cmn::ipc::IpcChannel* reader();
 
-	void handleIpcMsg(cmn::utils::MsgBuffer* buf);
+	void handleIpcMsg(cmn::IpcEventMessage* buf);
 
 	bool dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr);
-
-	bool dispatchIpcMsg(cmn::utils::MsgBuffer* msgBuf_p, cmn::ipc::IpcAddress& destAddr);
 
 private:
 	cmn::ipc::IpcChannel* sender_mp;

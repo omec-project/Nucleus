@@ -23,7 +23,6 @@
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
 
-extern int g_enb_fd;
 extern ipc_handle ipc_S1ap_Hndl;
 extern struct time_stat g_attach_stats[];
 
@@ -144,7 +143,7 @@ s1_init_ue_handler(struct proto_IE *s1_init_ies, int enodeb_fd)
 
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n", s1_init_ies->data[i].IE_type);
         }
     }
 

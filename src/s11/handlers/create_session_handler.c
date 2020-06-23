@@ -46,8 +46,6 @@ extern s11_config g_s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 
 /****Global and externs end***/
-static char buf[S11_CSREQ_STAGE5_BUF_SIZE];
-
 struct CS_Q_msg *g_csReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;
@@ -97,8 +95,8 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
-	gtpHeader.teid = g_csReqInfo->ue_idx;
-
+	gtpHeader.teid = 0; 
+    
 	g_s11_sequence++;
 
 	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
@@ -160,8 +158,6 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.ratType.ratType = 6;
 
 	msgData.indicationFlagsIePresent = true;
-	msgData.indicationFlags.iDFI = true;
-	msgData.indicationFlags.iMSV = true;
 
 	msgData.senderFTeidForControlPlane.ipv4present = true;
 	msgData.senderFTeidForControlPlane.interfaceType = 10;
@@ -173,8 +169,8 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.interfaceType = 7;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = ntohl(g_s11_cfg.pgw_ip);
 
-	msgData.accessPointName.apnValue.count = g_csReqInfo->apn.len;
-	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->apn.val, g_csReqInfo->apn.len);
+	msgData.accessPointName.apnValue.count = g_csReqInfo->selected_apn.len;
+	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->selected_apn.val, g_csReqInfo->selected_apn.len);
 
 	msgData.selectionModeIePresent = true;
 	msgData.selectionMode.selectionMode = 1;
@@ -184,7 +180,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	msgData.pdnAddressAllocationIePresent = true;
 	msgData.pdnAddressAllocation.pdnType = 1;
-	msgData.pdnAddressAllocation.ipV4Address.ipValue = 0;
+	msgData.pdnAddressAllocation.ipV4Address.ipValue = g_csReqInfo->paa_v4_addr; /* host order - Get value from MME */
 
 	msgData.maximumApnRestrictionIePresent = true;
 	msgData.maximumApnRestriction.restrictionValue = 0;

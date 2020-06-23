@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/serviceRequestWfMbResp.h"
 
@@ -25,8 +28,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(State_e::service_request_wf_mb_resp)
+ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -53,6 +59,6 @@ void ServiceRequestWfMbResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp_svc_req);
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::MB_RESP_FROM_SGW, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
         }
 }

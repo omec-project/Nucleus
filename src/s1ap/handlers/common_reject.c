@@ -42,11 +42,11 @@ get_serviceReject_protoie_value(struct proto_IE *value, struct commonRej_info *g
     value->data = (proto_IEs *) malloc(SERVICE_REJECT_NO_OF_IES*
             sizeof(proto_IEs));
 
-    value->data[0].val.mme_ue_s1ap_id = 0;
+    value->data[0].val.mme_ue_s1ap_id = g_mmeS1apInfo->ue_idx;
     value->data[1].val.enb_ue_s1ap_id = g_mmeS1apInfo->s1ap_enb_ue_id;
 
-    log_msg(LOG_INFO, "mme_ue_s1ap_id 0 and enb_ue_s1ap_id %d\n",
-            g_mmeS1apInfo->s1ap_enb_ue_id);
+    log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
+		g_mmeS1apInfo->ue_idx, g_mmeS1apInfo->s1ap_enb_ue_id);
 
     /* TODO: Add enum for security header type */
     value->data[2].val.nas.header.security_header_type = 0;
@@ -66,9 +66,9 @@ static int
 s1ap_service_reject_processing(struct commonRej_info *g_mmeS1apInfo)
 {
     struct s1ap_PDU s1apPDU = {0};
-    struct Buffer g_buffer;
-    struct Buffer g_value_buffer;
-    struct Buffer g_nas_buffer;
+    struct Buffer g_buffer = {0};
+    struct Buffer g_value_buffer = {0};
+    struct Buffer g_nas_buffer = {0};
 
     /* Assigning values to s1apPDU */
     s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -226,10 +226,10 @@ get_attachReject_protoie_value(struct proto_IE *value, struct commonRej_info *g_
 static int
 s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 {
-	struct Buffer g_buffer;
-	struct Buffer g_value_buffer;
-	struct Buffer g_nas_buffer;
-	struct s1ap_PDU s1apPDU= {0};
+	struct Buffer g_buffer = {0};
+	struct Buffer g_value_buffer = {0};
+	struct Buffer g_nas_buffer = {0};
+	struct s1ap_PDU s1apPDU = {0};
 
 	/* Assigning values to s1apPDU */
 	s1apPDU.procedurecode = id_downlinkNASTransport;

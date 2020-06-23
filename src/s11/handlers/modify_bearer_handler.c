@@ -40,7 +40,6 @@ extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
-static char buf[S11_MBREQ_STAGE7_BUF_SIZE];
 
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
@@ -64,6 +63,57 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 
 	ModifyBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
+	struct TAI *tai = &(mb_msg->tai);
+	struct CGI *cgi = &(mb_msg->utran_cgi);
+
+	if (mb_msg->servingNetworkIePresent)
+    {
+        msgData.servingNetworkIePresent = true;
+        msgData.servingNetwork.mccDigit1 = tai->plmn_id.idx[0] & 0x0F;
+        msgData.servingNetwork.mccDigit2 = (tai->plmn_id.idx[0] & 0xF0) >> 4;
+        msgData.servingNetwork.mccDigit3 = tai->plmn_id.idx[1] & 0x0F;
+        msgData.servingNetwork.mncDigit1 = tai->plmn_id.idx[2] & 0x0F;
+        msgData.servingNetwork.mncDigit2 = (tai->plmn_id.idx[2] & 0xF0) >> 4;
+        msgData.servingNetwork.mncDigit3 = (tai->plmn_id.idx[1] & 0xF0) >> 4;
+    }
+
+    if (mb_msg->userLocationInformationIePresent)
+    {
+        msgData.userLocationInformationIePresent = true;
+        msgData.userLocationInformation.taipresent = true;
+        msgData.userLocationInformation.ecgipresent = true;
+
+        msgData.userLocationInformation.tai.trackingAreaCode = ntohs(tai->tac);
+        msgData.userLocationInformation.tai.mccDigit1 = tai->plmn_id.idx[0]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mccDigit2 = (tai->plmn_id.idx[0]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.tai.mccDigit3 = tai->plmn_id.idx[1]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mncDigit1 = tai->plmn_id.idx[2]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mncDigit2 = (tai->plmn_id.idx[2]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.tai.mncDigit3 = (tai->plmn_id.idx[1]
+                & 0xF0) >> 4;
+
+        msgData.userLocationInformation.ecgi.eUtranCellId = ntohl(cgi->cell_id)
+                >> 4;
+        msgData.userLocationInformation.ecgi.mccDigit1 = cgi->plmn_id.idx[0]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mccDigit2 = (cgi->plmn_id.idx[0]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.ecgi.mccDigit3 = cgi->plmn_id.idx[1]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mncDigit1 = cgi->plmn_id.idx[2]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mncDigit2 = (cgi->plmn_id.idx[2]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.ecgi.mncDigit3 = (cgi->plmn_id.idx[1]
+                & 0xF0) >> 4;
+    }
+
+	//TODO:Support dedicated bearer
 	msgData.bearerContextsToBeModifiedCount = 1;
 	msgData.bearerContextsToBeModified[0].epsBearerId.epsBearerId = 5;
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeidIePresent = true;
@@ -79,7 +129,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 			(struct sockaddr*)&g_s11_cp_addr,
 			g_s11_serv_size);
 	//TODO " error chk, eagain etc?	
-	log_msg(LOG_INFO, "Modify beader send, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
+	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
 
 	MsgBuffer_reset(mbReqMsgBuf_p);
 

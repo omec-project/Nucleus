@@ -40,6 +40,7 @@ namespace mme
     	s1Release_c,
     	serviceRequest_c,
     	tau_c,
+    	s1Handover_c,
 
     	maxProcedureType_c
  };
@@ -75,12 +76,26 @@ namespace mme
         maxPagingTrigger_c
  };
 
-enum EcmState{
-		invalidEcmState_c,	
-		ecmIdle_c,
-		ecmConnected_c,
-		maxEcmState_c
-};
+ enum EcmState{
+	ecmUnknown_c,
+	ecmIdle_c,
+	ecmConnected_c,
+	maxEcmState_c
+ };
+
+ enum S1ReleaseTrigger
+ {
+       noTrigger_c,
+       enbInit_c,
+       mmeInit_c,
+       maxS1ReleaseTrigger_c
+ };
+
+ enum HoType
+ {
+ 	invalid_c,
+ 	intraMmeS1Ho_c
+ };
 
 
 }

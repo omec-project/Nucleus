@@ -1,6 +1,6 @@
-  
+
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +13,12 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "smEnumTypes.h"
+
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfEsmInfoCheck.h"	
 #include "mmeStates/attachWfEsmInfoResp.h"	
@@ -27,8 +30,11 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfEsmInfoCheck::AttachWfEsmInfoCheck():State(State_e::attach_wf_esm_info_check)
+AttachWfEsmInfoCheck::AttachWfEsmInfoCheck():State(attach_wf_esm_info_check)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************
@@ -56,12 +62,12 @@ void AttachWfEsmInfoCheck::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_esm_info_req_to_ue);
                 actionTable.setNextState(AttachWfEsmInfoResp::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ESM_INFO_REQUIRED, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ESM_INFO_REQUIRED, actionTable));
         }
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_ulr_to_hss);
                 actionTable.setNextState(AttachWfUla::Instance());
-                eventToActionsMap.insert(pair<Event_e, ActionTable>(Event_e::ESM_INFO_NOT_REQUIRED, actionTable));
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ESM_INFO_NOT_REQUIRED, actionTable));
         }
 }

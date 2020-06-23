@@ -64,7 +64,6 @@ install_grpc() {
 
 install_epctools() {
         $SUDO rm -rf $THIRD_PARTY_DIR/epctools
-#        git clone -q https://github.com/brianwaters3/epctools.git $THIRD_PARTY_DIR/epctools
         git clone -q https://github.com/omec-project/epctools.git $THIRD_PARTY_DIR/epctools
         pushd $THIRD_PARTY_DIR/epctools
         git submodule update --init

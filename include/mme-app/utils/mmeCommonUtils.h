@@ -49,9 +49,14 @@ namespace mme
 
 		static SM::ControlBlock* findControlBlock(cmn::utils::MsgBuffer* msgData_p);
 
+		static SM::ControlBlock* findControlBlockForS11Msg(cmn::utils::MsgBuffer* msg_p);
+
 		static AttachType getAttachType(UEContext* ueCtxt_p, const struct ue_attach_info& attachReqMsg_r);
 
 		static void formatS1apPlmnId(struct PLMN* plmn_p);
+
+		static bool isEmmInfoRequired(SM::ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt);
+
 
 	private:
 		MmeCommonUtils();

@@ -15,7 +15,7 @@
 #define DEFAULT_BUFF_SIZE 1024
 
 using namespace std;
-extern cmn::utils::Debug errorStream;
+extern thread_local cmn::utils::Debug errorStream;
 namespace cmn
 {
 namespace utils

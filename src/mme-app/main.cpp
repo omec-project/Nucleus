@@ -1,3 +1,4 @@
+//test
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
@@ -20,7 +21,6 @@
 #include <thread>
 #include <string.h>
 #include <sys/stat.h>
-
 #include <blockingCircularFifo.h>
 #include <msgBuffer.h>
 #include "err_codes.h"
@@ -34,6 +34,9 @@
 
 #include "json_data.h"
 #include "monitorSubscriber.h"
+#include "timeoutManager.h"
+#include <utils/mmeTimerUtils.h>
+
 #include "epc/epctools.h"                                                             
 #include "epc/etevent.h"                                                              
 #include "epc/esocket.h"                                                              
@@ -54,8 +57,8 @@ using namespace mme;
  * Circular FIFOs for sender IPC and Reader IPC threads
  *
  **********************************************************/
-cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcIngressFifo_g;
-cmn::utils::BlockingCircularFifo<cmn::utils::MsgBuffer, fifoQSize_c> mmeIpcEgressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcIngressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
 /*********************************************************
  *
@@ -69,7 +72,6 @@ int init_sock();
 }
 #include <csignal>
 extern JobFunction monitorConfigFunc_fpg;
-extern void init_backtrace();
 extern void init_parser(char *path);
 extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);
@@ -83,6 +85,9 @@ pthread_t acceptUnix_t;
 mme_config g_mme_cfg;
 pthread_t stage_tid[5];
 MmeIpcInterface* mmeIpcIf_g = NULL;
+TimeoutManager* timeoutMgr_g = NULL;
+
+using namespace std::placeholders;
 
 
 
@@ -101,7 +106,7 @@ void setThreadName(std::thread* thread, const char* threadName)
 void mme_parse_config(mme_config *config)
 {
     /*Read MME configurations*/
-    init_parser("conf/mme.json");
+    init_parser((char *)("conf/mme.json"));
     parse_mme_conf(config);
 
     /* Lets apply logging setting */
@@ -115,9 +120,21 @@ int main(int argc, char *argv[])
    	signal(SIGRTMIN, signalHandler);  
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
+
+	char *hp = getenv("MMERUNENV");
+	if (hp && (strcmp(hp, "container") == 0)) {
+		init_logging((char*)("container"), NULL);
+	}
+	else { 
+		init_logging((char*)("hostbased"), (char*)("/tmp/mmelogs.txt"));
+	}
 	
-	init_backtrace();
+	init_backtrace(argv[0]);
+
 	srand(time(0));
+
+    auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
+    timeoutMgr_g = new TimeoutManager(cb);
 
 	StateFactory::Instance()->initialize();
 
@@ -153,11 +170,11 @@ int main(int argc, char *argv[])
 	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
 
-    /*if (init_sock() != SUCCESS)
-    {
+  if (init_sock() != SUCCESS)
+  {
         log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
         return -E_FAIL_INIT;
-    }*/
+   }
 
 	while(1)
 	{

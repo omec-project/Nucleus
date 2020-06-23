@@ -27,6 +27,8 @@
 struct secinfo {
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint8_t kenb_key[KENB_SIZE];
+    int next_hop_chaining_count ;
+    uint8_t next_hop_nh[KENB_SIZE];
 };
 
 struct AMBR {
@@ -41,6 +43,7 @@ class Tai
 		Tai( const TAI& tai_i );
 		~Tai();
 		void operator = ( const Tai& tai_i );
+		bool operator== (const Tai& tai_i) const;
 	public:
 		TAI tai_m;
 };
@@ -177,6 +180,17 @@ class Auts
 		void operator = ( const Auts& auts_i );
 	public:
 		AUTS auts_m;
+};
+
+class S1apCause
+{
+	public:
+                S1apCause();
+                S1apCause( const s1apCause_t& s1apCause_i );
+                ~S1apCause();
+                void operator = ( const S1apCause& s1apCause_i );
+        public:
+                s1apCause_t s1apCause_m;
 };
 
 class DigitRegister15

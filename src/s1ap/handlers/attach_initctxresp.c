@@ -24,7 +24,6 @@
 #include "msgType.h"
 
 
-extern int g_enb_fd;
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
@@ -59,7 +58,7 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
                     }
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE");
+                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_ics_ies.data[i].IE_type);
         }
     }
 	
