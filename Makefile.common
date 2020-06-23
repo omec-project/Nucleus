@@ -40,7 +40,7 @@ LIB_PATH := -L$(LIBDIR)
 
 CC := gcc
 
-DEBUG = true
+DEBUG = false
 
 GRPC_ROOT=$(TOPDIR)/third_party/grpc
 
