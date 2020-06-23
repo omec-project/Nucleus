@@ -24,4 +24,5 @@ get_int_scalar(char *path);
 int
 load_json(char *filename);
 
+void close_json(void);
 #endif /**/

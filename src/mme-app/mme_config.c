@@ -16,7 +16,7 @@ extern "C"
 #include "stdlib.h"
 #include "mme_app.h"
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
 
 void mme_config_change_cbk(char *config_file, uint32_t flags)
 {
@@ -27,17 +27,22 @@ void mme_config_change_cbk(char *config_file, uint32_t flags)
     watch_config_change((char *)("/opt/mme/config/config.json"), mme_config_change_cbk, false);
 
     /* Parse the config again */
-    mme_config new_config;
-    mme_parse_config(&new_config); 
-    if(strcmp(new_config.logging, g_mme_cfg.logging))
+    mme_config_t *new_config = new (mme_config_t);
+    assert(new_config != NULL);
+    mme_parse_config(new_config); 
+    if(strcmp(new_config->logging, mme_cfg->logging))
     {
         //Logging level changed 
-        set_logging_level(new_config.logging);
-		log_msg(LOG_INFO, "g_mme_cfg logging level %s", new_config.logging);
+        set_logging_level(new_config->logging);
+		log_msg(LOG_INFO, "new logging level %s", new_config->logging);
     }
-    free(g_mme_cfg.logging); /* Release old logging level string */
-    free(g_mme_cfg.mme_name); /* Relese old mme_name */
-    g_mme_cfg = new_config; /* shallow copy of the structure */ 
+    free(mme_cfg->logging); /* Release old logging level string */
+    free(mme_cfg->mme_name); /* Relese old mme_name */
+
+    mme_config_t *temp = mme_cfg;
+    mme_cfg = new_config; 
+
+    delete temp;
 }
 
 void register_config_updates(void)

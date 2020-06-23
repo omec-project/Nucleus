@@ -28,8 +28,8 @@ typedef struct mme_config
 	unsigned int s11_pgw_ip;
 	unsigned short mme_egtp_def_port;
 	char  *mme_egtp_def_hostname;
-	char  *mme_name;
-    char  *logging;
+	char  mme_name[128];
+    char  logging[16];
 
 	char  mcc_dig1;
 	char  mcc_dig2;
@@ -46,7 +46,7 @@ typedef struct mme_config
 	uint16_t num_plmns;
 	struct PLMN plmns[MAX_PLMN];
 	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
-} mme_config;
+} mme_config_t;
 
 const size_t fifoQSize_c = 1000;
 const uint16_t MmeIpcInterfaceCompId = 1;
@@ -56,5 +56,6 @@ void stat_init();
 /* Register for config change trigger */
 void register_config_updates(void);
 void mme_parse_config(mme_config *);
+void mme_parse_config_new(mme_config *);
 
 #endif /*__MME_APP_H_*/

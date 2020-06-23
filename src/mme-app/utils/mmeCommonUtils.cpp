@@ -26,14 +26,14 @@
 
 using namespace mme;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
 
 bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
 {
 	bool rc = false;
 
-	if (guti_r.mme_grp_id == g_mme_cfg.mme_group_id &&
-			guti_r.mme_code == g_mme_cfg.mme_code)
+	if (guti_r.mme_grp_id == mme_cfg->mme_group_id &&
+			guti_r.mme_code == mme_cfg->mme_code)
 	{
 		rc = true;
 	}

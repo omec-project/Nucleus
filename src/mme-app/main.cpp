@@ -1,4 +1,3 @@
-//test
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
@@ -16,6 +15,7 @@
  */
 
 
+#include <assert.h>
 #include <iostream>
 #include <pthread.h>
 #include <thread>
@@ -62,6 +62,7 @@ int init_sock();
 
 extern JobFunction monitorConfigFunc_fpg;
 extern void init_parser(char *path);
+extern void parse_done();
 extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);
 
@@ -71,7 +72,7 @@ int g_unix_fd = 0;
 struct thread_pool *g_tpool;
 pthread_t acceptUnix_t;
 
-mme_config g_mme_cfg;
+mme_config_t *mme_cfg = NULL;
 pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
@@ -90,8 +91,7 @@ void mme_parse_config(mme_config *config)
     /*Read MME configurations*/
     init_parser((char *)("conf/mme.json"));
     parse_mme_conf(config);
-    /* Lets apply logging setting */
-    set_logging_level(config->logging);
+    parse_done();
 }
 
 int main(int argc, char *argv[])
@@ -119,7 +119,15 @@ int main(int argc, char *argv[])
 	mmeIpcIf_g = new MmeIpcInterface();
 	mmeIpcIf_g->setup();
 
-	mme_parse_config(&g_mme_cfg);
+    mme_cfg = new (mme_config_t);
+    assert(mme_cfg != NULL);
+#if 1
+	mme_parse_config(mme_cfg);
+#else
+    mme_parse_config_new(mme_cfg);
+#endif
+    /* Lets apply logging setting */
+    set_logging_level(mme_cfg->logging);
 
 	register_config_updates();
 

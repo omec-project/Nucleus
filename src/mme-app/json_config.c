@@ -26,6 +26,17 @@ init_parser(char *path)
 {
 	load_json(path);
 }
+/**
+ * @brief close json file which was opened for parsing 
+ * @param None
+ * @return void
+ */
+
+void
+parse_done()
+{
+    close_json();
+}
 
 /**
  * @brief parser mme-app input json file
@@ -37,18 +48,25 @@ parse_mme_conf(mme_config *config)
 {
 	log_msg(LOG_INFO, "Parsing config %s \n", __FUNCTION__);
 	/*mme own information*/
-	config->mme_name = get_string_scalar((char *)("mme.name"));
-	if(NULL == config->mme_name) return E_PARSING_FAILED;
+	char *temp = get_string_scalar((char *)("mme.name"));
+	if(NULL == temp) return E_PARSING_FAILED;
+    strcpy(config->mme_name, temp);
+    free(temp);
+    temp = NULL;
 
+    // Not used anywhere. Should we get rid of this ?
 	config->mme_ip_addr = get_ip_scalar((char *)("mme.ip_addr"));
 	if(E_PARSING_FAILED == config->mme_ip_addr) return E_PARSING_FAILED;
 
-	config->logging = get_string_scalar((char *)("mme.logging"));
-	if(NULL == config->logging) 
+	temp = get_string_scalar((char *)("mme.logging"));
+	if(NULL == temp) 
     { 
 	  log_msg(LOG_INFO, "Missing logging config");
-      config->logging = (char *)calloc(1, strlen("debug")+1);
-      strncpy(config->logging, "debug", strlen("debug")+1);
+      strcpy(config->logging, "debug");
+    }
+    else
+    {
+      strcpy(config->logging, temp);
     }
 
 	config->mcc_dig1 = get_int_scalar((char *)("mme.mcc.dig1"));
@@ -117,13 +135,13 @@ parse_mme_conf(mme_config *config)
 static int
 get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
 {
-	char *token = ",";
+	const char *token = ",";
 	char *saved_comma=NULL;
 	char *mcc = strtok_r(plmn, token, &saved_comma);
 	char *mnc = strtok_r(NULL, token, &saved_comma);
 
 	char *saved_e=NULL;
-	char *token_e = "=";
+	const char *token_e = "=";
 	char *mcc_f = strtok_r(mcc, token_e, &saved_e);
 	mcc_f = strtok_r(NULL, token_e, &saved_e);
 	*mcc_i = atoi(mcc_f);

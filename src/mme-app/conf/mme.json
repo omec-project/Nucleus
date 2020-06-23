@@ -23,6 +23,11 @@
         "plmnlist": { 
 			"plmn1": "mcc=315,mnc=010",
 			"plmn2": "mcc=208,mnc=01"
+        },
+        "apnlist": {
+            "__comment__": " apn name to ip addresss(or service name) ",
+            "internet": "spgwc-headless",
+            "intranet": "spgwc-headless"
         }
 	},
 	"enb": {
