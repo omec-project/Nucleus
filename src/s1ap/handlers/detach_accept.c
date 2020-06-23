@@ -173,10 +173,11 @@ detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_aes_mac(g_acptReqInfo->int_key, g_acptReqInfo->dl_count,
+	calculate_mac(g_acptReqInfo->int_key, g_acptReqInfo->dl_count,
 			direction, bearer, &g_acpt_buffer.buf[mac_data_pos],
 			g_acpt_buffer.pos - mac_data_pos,
-			&g_acpt_buffer.buf[mac_data_pos - MAC_SIZE]);
+			&g_acpt_buffer.buf[mac_data_pos - MAC_SIZE],
+            g_acptReqInfo->int_alg);
 
 	/* Copy nas length to nas length field */
 	datalen = g_acpt_buffer.pos - nas_len_pos -1;

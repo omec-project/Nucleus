@@ -339,7 +339,9 @@ struct esm_req_Q_msg {
 	uint8_t pti;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned short dl_seq_no;
-  uint32_t dl_count;
+    uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 
@@ -366,6 +368,8 @@ struct init_ctx_req_Q_msg {
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
 	uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
 	unsigned char pti;
 	unsigned int m_tmsi;
 	uint16_t pco_length;
@@ -386,7 +390,9 @@ struct detach_accept_Q_msg {
 #ifdef S1AP_ENCODE_NAS
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	uint16_t dl_seq_no;
-  uint32_t dl_count;
+    uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
@@ -415,6 +421,8 @@ struct ni_detach_request_Q_msg {
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint16_t dl_seq_no;
     uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
     unsigned char detach_type;
 #else
 	uint8_t 	nasMsgBuf[300]; 
@@ -486,6 +494,8 @@ struct tauResp_Q_msg {
 #ifdef S1AP_ENCODE_NAS
 	int dl_seq_no;
 	uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 #else
 	uint8_t 	nasMsgBuf[300]; 
@@ -507,7 +517,9 @@ struct ue_emm_info {
 	char     full_network_name[128];
 	uint8_t int_key[NAS_INT_KEY_SIZE];
 	unsigned char dl_seq_no;
-  uint32_t dl_count;
+    uint32_t dl_count;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
 #else
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; 

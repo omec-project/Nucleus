@@ -33,7 +33,7 @@ ifeq ($(DEBUG),false)
 	CFLAGS += -O3
 endif
 
-INCS := $(INC_DIRS)
+INCS := $(INC_DIRS) -I/usr/local/ssl/include
 
 LIBS := -lpthread \
 	-lsctp \
@@ -49,7 +49,7 @@ LIBS := -lpthread \
 	-lmonitor_config \
 	-lsecutil
 
-LIBS += -L/usr/local/bin/ -L/usr/local/lib -lcrypto
+LIBS += -L/usr/local/ssl/lib -lcrypto
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	-@mkdir -p $(BINDIR)

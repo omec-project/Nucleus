@@ -147,6 +147,44 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
   memcpy(mac, mact, MAC_SIZE);
   return;
 }
+
+static void
+calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
+        uint8_t bearer, uint8_t *data, uint16_t data_len,
+        uint8_t *mac)
+{
+    uint8_t *out;
+
+    out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
+
+    memcpy(mac, out, MAC_SIZE);
+
+    return;
+}
+
+static void
+calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac, nas_int_algo_enum int_alg)
+{
+    log_msg(LOG_DEBUG, "Calculate mac. Int Alg : %d.\n",int_alg);
+    switch(int_alg)
+    {
+        case NAS_INT_ALGORITHMS_EIA2:
+            log_msg(LOG_DEBUG,"Integrity algo use is AES.\n");
+            calculate_aes_mac(int_key, count, direction, 
+                              bearer, data, data_len, mac);
+            break;
+        case NAS_INT_ALGORITHMS_EIA1:
+            log_msg(LOG_WARNING, "Integrity algo use is Snow3G. Need to apply for license to productize this.\n");
+            calculate_s3g_mac(int_key, count, direction, bearer, data, data_len, mac);
+            break;
+        default:
+            log_msg(LOG_ERROR,"Integrity Algo not supported. Defaulting to no Integrity.\n");
+
+    }
+}
+
 static void log_buffer_free(unsigned char** buffer)
 {
     if(*buffer != NULL)
@@ -268,9 +306,10 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                     buffer = msg + sizeof(nas_pdu_header_sec) - sizeof(uint8_t);
                     int buf_len = nas_msg_len - sizeof(nas_pdu_header_sec) + sizeof(uint8_t);
                     secContext.getIntKey(&int_key[0]);
-                    calculate_aes_mac(int_key, ul_count,
+                    nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+                    calculate_mac(int_key, ul_count,
                                       direction, bearer, buffer, buf_len,
-                                      calc_mac);
+                                      calc_mac, int_alg);
 
                     if(nas->header.message_type == NAS_SERVICE_REQUEST)
                     {
@@ -942,22 +981,6 @@ static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
 	return;
 }
 
-#if 0
-static void
-calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
-        uint8_t bearer, uint8_t *data, uint16_t data_len,
-        uint8_t *mac)
-{
-    uint8_t *out;
-
-    out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
-
-    memcpy(mac, out, MAC_SIZE);
-
-    return;
-}
-#endif
-
 static int
 copyU16(unsigned char *buffer, uint32_t val)
 {
@@ -1026,7 +1049,7 @@ encode_network_name_ie(char* network_name, char* enc_str)
 
 /* Encode NAS mesage */
 
-void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, const Secinfo& secContext)
+void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, Secinfo& secContext)
 {
 	switch(nas->header.message_type)
 	{
@@ -1065,10 +1088,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 
 			break;
 		}
@@ -1104,10 +1128,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count,
 							direction, bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 
 			break;
 		}
@@ -1239,10 +1264,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 
 			break;
 		}
@@ -1278,10 +1304,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
     		uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-    		calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+    		calculate_mac(int_key, nas->dl_count, direction,
 		    	bearer, &nasBuffer->buf[mac_data_pos],
 		    	nasBuffer->pos - mac_data_pos,
-		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+		    	&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 
 			break;
 		}
@@ -1313,10 +1340,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 
 			
 			break;
@@ -1341,10 +1369,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 			break;
 		}
 		case AttachReject:
@@ -1426,10 +1455,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, c
 			uint8_t bearer = 0;
 			unsigned char int_key[NAS_INT_KEY_SIZE];
 			secContext.getIntKey(&int_key[0]);
-			calculate_aes_mac(int_key, nas->dl_count, direction,
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
 						  	bearer, &nasBuffer->buf[mac_data_pos],
 							nasBuffer->pos - mac_data_pos,
-							&nasBuffer->buf[mac_data_pos - MAC_SIZE]);
+							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 			break;
 		} 
 
