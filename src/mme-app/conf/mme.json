@@ -25,9 +25,9 @@
 			"plmn2": "mcc=208,mnc=01"
         },
         "apnlist": {
-            "__comment__": " apn name to ip addresss(or service name) ",
+            "__comment__": " apn name to ip addresss/service name mapping.",
             "internet": "spgwc-headless",
-            "intranet": "spgwc-headless"
+            "apps": "spgwc-headless"
         }
 	},
 	"enb": {

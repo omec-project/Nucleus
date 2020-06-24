@@ -136,7 +136,23 @@ mme_parse_config_new(mme_config_t *config)
                 config->plmns[count-1].idx[1] = (mnc_dig_1 << 4) | (mcc_dig_3);
                 config->plmns[count-1].idx[2] = (mnc_dig_3 << 4) | (mnc_dig_2);
                 config->plmns[count-1].mnc_digits = mnc_digits;
-                log_msg(LOG_INFO, "Configured plmn %x %x %x", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
+                log_msg(LOG_INFO, "Configured plmn %x %x %x \n", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
+            }
+        }
+        if(mmeSection.HasMember("apnlist"))
+        {
+            int count = 1;
+            const rapidjson::Value &apn = mmeSection["apnlist"];
+            for (rapidjson::Value::ConstMemberIterator apnitr = apn.MemberBegin(); apnitr != apn.MemberEnd(); ++apnitr)
+            {
+                rapidjson::StringBuffer sb;
+                rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
+                apnitr->value.Accept(writer);
+                char apn[128];
+                strcpy(apn, apnitr->name.GetString());
+                char spgw[128];
+                strcpy(spgw,sb.GetString());
+                log_msg(LOG_INFO, "Configured apn %s => %s \n", apn, spgw); 
             }
         }
     }
