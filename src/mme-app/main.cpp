@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     mme_cfg = new (mme_config_t);
     assert(mme_cfg != NULL);
-#if 1
+#if 0
 	mme_parse_config(mme_cfg);
 #else
     mme_parse_config_new(mme_cfg);

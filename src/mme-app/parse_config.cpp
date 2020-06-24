@@ -34,83 +34,80 @@ void
 mme_parse_config_new(mme_config_t *config)
 {
     FILE* fp = fopen("conf/mme.json", "r");
+    if(fp == NULL){
+        std::cout << "The json config file specified does not exists" << std::endl;
+        return;
+    }
     char readBuffer[65536];
-    FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+    rapidjson::FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+    rapidjson::Document doc;
+    doc.ParseStream(is);
+    fclose(fp);
 
-    Document d;
-    d.ParseStream(is);
-    std::cout<<"key mme "<< d.HasMember("mme")<<std::endl;
-    const rapidjson::Value& itemn = d["mme"];
-
-    for (rapidjson::Value::ConstMemberIterator itr = itemn.MemberBegin(); itr != itemn.MemberEnd(); ++itr)
+    if(!doc.IsObject()) {
+        std::cout << "Error parsing the json config file" << std::endl;
+        return;
+    }
+    if(doc.HasMember("mme"))
     {
-        rapidjson::StringBuffer sb;
-        rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
-        itr->value.Accept(writer);
-        std::cout <<"Object = "<<itr->value.IsObject()<<" "<<itr->name.GetString()<< " "<< sb.GetString()<<std::endl;
-        if(strcmp(itr->name.GetString(), "name") == 0)
+        const rapidjson::Value& mmeSection = doc["mme"];
+        if(mmeSection.HasMember("name"))
         {
-            strcpy(config->mme_name, sb.GetString());
+            strcpy(config->mme_name, mmeSection["name"].GetString());
         }
-        else if(strcmp(itr->name.GetString(), "group_id") == 0)
+        if(mmeSection.HasMember("group_id"))
         {
-            config->mme_group_id = std::stoi(sb.GetString());
+            config->mme_group_id = mmeSection["group_id"].GetInt();
         }
-        else if(strcmp(itr->name.GetString(), "code") == 0)
+        if(mmeSection.HasMember("code"))
         {
-            config->mme_code = std::stoi(sb.GetString());
+            config->mme_code = mmeSection["code"].GetInt();
         }
-        else if(strcmp(itr->name.GetString(), "logging") == 0)
+        if(mmeSection.HasMember("logging"))
         {
-            strcpy(config->logging, sb.GetString());
-        }	
-        else if(strcmp(itr->name.GetString(),"mcc") == 0)
+            strcpy(config->logging, mmeSection["logging"].GetString());
+        }
+        if(mmeSection.HasMember("mcc"))
         {
-            std::cout<<"Found mcc list "<<std::endl;
-            const rapidjson::Value &mcc = itr->value;
-            for (rapidjson::Value::ConstMemberIterator mccitr = mcc.MemberBegin(); mccitr != mcc.MemberEnd(); ++mccitr)
+            const rapidjson::Value& mccSection = mmeSection["mcc"];
+            if(mccSection.HasMember("dig1"))
             {
-                rapidjson::StringBuffer sb;
-                rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
-                mccitr->value.Accept(writer);
-                if(strcmp(mccitr->name.GetString(),"dig1") == 0)
-                    config->mcc_dig1 = std::stoi(sb.GetString()); 
-                else if(strcmp(mccitr->name.GetString(),"dig2") == 0)
-                    config->mcc_dig2 = std::stoi(sb.GetString()); 
-                else if(strcmp(mccitr->name.GetString(),"dig3") == 0)
-                    config->mcc_dig3 = std::stoi(sb.GetString()); 
-                std::cout <<"	Object = "<<mccitr->value.IsObject()<<" "<<mccitr->name.GetString()<< " "<< sb.GetString()<<std::endl;
+                config->mcc_dig1 = mccSection["dig1"].GetInt(); 
+            }
+            if(mccSection.HasMember("dig2"))
+            {
+                config->mcc_dig2 = mccSection["dig2"].GetInt(); 
+            }
+            if(mccSection.HasMember("dig3"))
+            {
+                config->mcc_dig3 = mccSection["dig3"].GetInt(); 
+            }
+        }   
+        if(mmeSection.HasMember("mnc"))
+        {
+            const rapidjson::Value& mncSection = mmeSection["mnc"];
+            if(mncSection.HasMember("dig1"))
+            {
+                config->mnc_dig1 = mncSection["dig1"].GetInt(); 
+            }
+            if(mncSection.HasMember("dig2"))
+            {
+                config->mnc_dig2 = mncSection["dig2"].GetInt(); 
+            }
+            if(mncSection.HasMember("dig3"))
+            {
+                config->mnc_dig3 = mncSection["dig3"].GetInt(); 
             }
         }
-        else if(strcmp(itr->name.GetString(),"mnc") == 0)
+        if(mmeSection.HasMember("plmnlist"))
         {
-            std::cout<<"Found mnc list "<<std::endl;
-            const rapidjson::Value &mnc = itr->value;
-            for (rapidjson::Value::ConstMemberIterator mncitr = mnc.MemberBegin(); mncitr != mnc.MemberEnd(); ++mncitr)
-            {
-                rapidjson::StringBuffer sb;
-                rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
-                mncitr->value.Accept(writer);
-                if(strcmp(mncitr->name.GetString(),"dig1") == 0)
-                    config->mnc_dig1 = std::stoi(sb.GetString()); 
-                else if(strcmp(mncitr->name.GetString(),"dig2") == 0)
-                    config->mnc_dig2 = std::stoi(sb.GetString()); 
-                else if(strcmp(mncitr->name.GetString(),"dig3") == 0)
-                    config->mnc_dig3 = std::stoi(sb.GetString()); 
-                std::cout <<"	Object = "<<mncitr->value.IsObject()<<" "<<mncitr->name.GetString()<< " "<< sb.GetString()<<std::endl;
-            }
-        }
-        else if(strcmp(itr->name.GetString(),"plmnlist") == 0)
-        {
-            std::cout<<"Found plmn list "<<std::endl;
             int count = 1;
-            const rapidjson::Value &plmn = itr->value;
+            const rapidjson::Value &plmn = mmeSection["plmnlist"];
             for (rapidjson::Value::ConstMemberIterator plmnitr = plmn.MemberBegin(); plmnitr != plmn.MemberEnd(); ++plmnitr)
             {
                 rapidjson::StringBuffer sb;
                 rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
                 plmnitr->value.Accept(writer);
-                std::cout <<"	Object = "<<plmnitr->value.IsObject()<<" "<<plmnitr->name.GetString()<< " "<< sb.GetString()<<std::endl;
                 char plmn[100];
                 strcpy(plmn,sb.GetString());
                 uint16_t mcc_i, mnc_i, mnc_digits=3;
@@ -143,7 +140,17 @@ mme_parse_config_new(mme_config_t *config)
             }
         }
     }
-    fclose(fp);
+    /* Print parsed configuraton */
+    log_msg(LOG_DEBUG,"mme_name : %s \n", config->mme_name);
+    log_msg(LOG_DEBUG,"mme_groupid : %d \n", config->mme_group_id);
+    log_msg(LOG_DEBUG,"mme_code : %d \n", config->mme_code);
+    log_msg(LOG_DEBUG,"logging  : %s \n", config->logging);
+    log_msg(LOG_DEBUG,"MCC :    %d %d %d \n", config->mcc_dig1, config->mcc_dig2, config->mcc_dig3);
+    log_msg(LOG_DEBUG,"MNC :    %d %d %d \n", config->mnc_dig1, config->mnc_dig2, config->mnc_dig3);
+    for(int i=0; i<config->num_plmns;i++)
+    {
+        log_msg(LOG_DEBUG,"PLMN(%d) :    %d %d %d \n", i, config->plmns[i].idx[0], config->plmns[i].idx[1], config->plmns[i].idx[2]);
+    }
     return ;
 }
 

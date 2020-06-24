@@ -38,7 +38,6 @@ typedef struct mme_config
 	char  mnc_dig2;
 	char  mnc_dig3;
 	struct PLMN plmn_id;
-
 	unsigned int mme_s1ap_ip;
 	unsigned int mme_egtp_ip;
 	unsigned short mme_group_id;
