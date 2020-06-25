@@ -328,10 +328,11 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_aes_mac(g_tauRespInfo->int_key, g_tauRespInfo->dl_count,
+	calculate_mac(g_tauRespInfo->int_key, g_tauRespInfo->dl_count,
 			direction, bearer, &g_buffer.buf[mac_data_pos],
 			g_buffer.pos - mac_data_pos,
-			&g_buffer.buf[mac_data_pos - MAC_SIZE]);
+			&g_buffer.buf[mac_data_pos - MAC_SIZE],
+            g_tauRespInfo->int_alg);
 
 	
 	/* Copy nas length to nas length field */

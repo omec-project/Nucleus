@@ -25,7 +25,7 @@ class Secinfo;
 			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg);
 #endif
 #ifndef S1AP_ENCODE_NAS 
-			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, const Secinfo& secContext);
+			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, Secinfo& secContext);
 			static void get_negotiated_qos_value(struct esm_qos *qos);
 #endif
 	};

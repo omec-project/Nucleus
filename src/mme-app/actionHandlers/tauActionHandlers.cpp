@@ -145,6 +145,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.status = 0;
 	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
     tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    tau_resp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);

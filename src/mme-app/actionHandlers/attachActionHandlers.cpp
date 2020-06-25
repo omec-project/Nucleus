@@ -745,7 +745,8 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 #ifdef S1AP_ENCODE_NAS 
 	esmreq.pti = sessionCtxt->getPti();
 	esmreq.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-  esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    esmreq.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
@@ -1063,6 +1064,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
   icr_msg.m_tmsi = ue_ctxt->getMTmsi();
 	icr_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
   icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    icr_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
 	if(procedure_p->getPcoOptionsLen() > 0)
@@ -1311,6 +1313,7 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
 
       temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
       temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+      temp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
       ue_ctxt->getUeSecInfo().increment_downlink_count();
 #else
 		struct Buffer nasBuffer;

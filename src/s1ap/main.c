@@ -171,20 +171,6 @@ copyU16(unsigned char *buffer, uint32_t val)
 	}
 }
 
-void
-calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
-		uint8_t bearer, uint8_t *data, uint16_t data_len,
-		uint8_t *mac)
-{
-	uint8_t *out;
-
-	out = f9(int_key, count, bearer, direction, data, data_len * 8);
-
-	memcpy(mac, out, MAC_SIZE);
-
-	return;
-}
-
 void printBytes(unsigned char *buf, size_t len) {
   for(int i=0; i<len; i++) {
     log_msg(LOG_DEBUG,"%02x \n", buf[i]);
@@ -265,6 +251,43 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
   EVP_MAC_CTX_free(ctx);
   memcpy(mac, mact, MAC_SIZE);
   return;
+}
+
+void
+calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
+        uint8_t bearer, uint8_t *data, uint16_t data_len,
+        uint8_t *mac)
+{
+    uint8_t *out;
+
+    out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
+
+    memcpy(mac, out, MAC_SIZE);
+
+    return;
+}
+
+void
+calculate_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac, nas_int_algo_enum int_alg)
+{
+    log_msg(LOG_DEBUG, "Calculate mac. Int Alg : %d.\n",int_alg);
+    switch(int_alg)
+    {
+        case NAS_INT_ALGORITHMS_EIA2:
+            log_msg(LOG_DEBUG,"Integrity algo use is AES.\n");
+            calculate_aes_mac(int_key, count, direction, 
+                              bearer, data, data_len, mac);
+            break;
+        case NAS_INT_ALGORITHMS_EIA1:
+            log_msg(LOG_WARNING, "Integrity algo use is Snow3G. Need to apply for license to productize this.\n");
+            calculate_s3g_mac(int_key, count, direction, bearer, data, data_len, mac);
+            break;
+        default:
+            log_msg(LOG_ERROR,"Integrity Algo not supported. Defaulting to no Integrity.\n");
+
+    }
 }
 
 int

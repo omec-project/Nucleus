@@ -182,10 +182,11 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_aes_mac(g_secReqInfo->int_key, g_secReqInfo->dl_count,
+	calculate_mac(g_secReqInfo->int_key, g_secReqInfo->dl_count,
 			direction, bearer, &g_sec_nas_buffer.buf[mac_data_pos],
 			g_sec_nas_buffer.pos - mac_data_pos,
-			&g_sec_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
+			&g_sec_nas_buffer.buf[mac_data_pos - MAC_SIZE],
+            g_secReqInfo->int_alg);
 #endif
 
 	/* Copy values in g_sec_value_buffer */

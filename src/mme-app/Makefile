@@ -19,7 +19,7 @@
 include ../../Makefile.common
 
 CC := g++
-CFLAGS += -Wall -DSTATS -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
+CFLAGS += -Wall -DSTATS -I/usr/local/ssl/include -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
 LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf
 
 ifeq ($(DEBUG),true)
@@ -49,7 +49,7 @@ LIBS :=	-lpthread \
         -lprotobuf \
 		-lsecutil
 
-LIBS += -L/usr/local/bin/ -L/usr/local/lib -lcrypto
+LIBS += -L/usr/local/ssl/lib -lcrypto
 SRCDIR := .
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')

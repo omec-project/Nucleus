@@ -164,10 +164,11 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
     uint8_t direction = 1;
     uint8_t bearer = 0;
     
-    calculate_aes_mac(g_ueEmmInfoMsg->int_key, g_ueEmmInfoMsg->dl_count, direction,
+    calculate_mac(g_ueEmmInfoMsg->int_key, g_ueEmmInfoMsg->dl_count, direction,
 		    bearer, &g_nas_buffer.buf[mac_data_pos],
 		    g_nas_buffer.pos - mac_data_pos,
-		    &g_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
+		    &g_nas_buffer.buf[mac_data_pos - MAC_SIZE],
+            g_ueEmmInfoMsg->int_alg);
 
     uint8_t naslen = g_nas_buffer.pos+1;
     buffer_copy(&g_s1ap_buffer, &naslen, 1);

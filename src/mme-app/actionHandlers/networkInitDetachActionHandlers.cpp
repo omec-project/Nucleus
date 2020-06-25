@@ -54,6 +54,7 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	
 	ni_detach_req.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
     ni_detach_req.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    ni_detach_req.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	
 	memcpy(&(ni_detach_req.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
