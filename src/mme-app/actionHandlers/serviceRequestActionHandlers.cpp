@@ -270,64 +270,186 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
 {
-    	log_msg(LOG_DEBUG, "Inside send_mb_req_to_sgw_svc_req \n");
+    log_msg(LOG_DEBUG, "Inside send_mb_req_to_sgw_svc_req \n");
 
-        UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-        MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_INFO, "send_mb_req_to_sgw_svc_req: ue context is NULL \n");
 
-        if (ue_ctxt == NULL || procCtxt == NULL)
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+
+    ActStatus actStatus = ActStatus::PROCEED;
+
+    MmeProcedureCtxt *procCtxt =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+
+    if (procCtxt != NULL)
+    {
+        SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
+        if (sessionCtxt != NULL)
         {
-                log_msg(LOG_DEBUG, "send_mb_req_to_sgw_svc_req: ue context or procedure ctxt is NULL \n");
-                return ActStatus::HALT;
-        }
+            //TODO: Support dedicated bearers
+            BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
+            if (bearerCtxt != NULL)  // if bearers > 0
+            {
+                struct MB_Q_msg mb_msg;
+                memset(&mb_msg, 0, sizeof (struct MB_Q_msg));
 
-        SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-        if (sessionCtxt == NULL)
+                mb_msg.msg_type = modify_bearer_request;
+                mb_msg.ue_idx = ue_ctxt->getContextID();
+
+                mb_msg.bearer_id = bearerCtxt->getBearerId();
+
+                memcpy(&(mb_msg.s11_sgw_c_fteid),
+                        &(sessionCtxt->getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
+
+                if (procCtxt->getCtxtType() == erabModInd_c)
+                {
+                    MmeErabModIndProcedureCtxt *prcdCtxt =
+                            static_cast<MmeErabModIndProcedureCtxt*>(cb.getTempDataBlock());
+
+                    if (prcdCtxt->getErabToBeModifiedListLen() > 0)
+                    {
+                        fteid S1uEnbUserFteid ;
+                        S1uEnbUserFteid.header.iface_type = 0;
+                        S1uEnbUserFteid.header.v4 = 1;
+                        S1uEnbUserFteid.header.teid_gre =
+                                prcdCtxt->getErabToBeModifiedList()[0].dl_gtp_teid;
+                        S1uEnbUserFteid.ip.ipv4.s_addr =
+                                prcdCtxt->getErabToBeModifiedList()[0].transportLayerAddress;
+
+                        bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
+                    }
+                }
+
+                memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
+                        sizeof(struct fteid));
+
+                cmn::ipc::IpcAddress destAddr;
+                destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+
+                MmeIpcInterface &mmeIpcIf =
+                        static_cast<MmeIpcInterface&>(compDb.getComponent(
+                                MmeIpcInterfaceCompId));
+                mmeIpcIf.dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
+
+                ProcedureStats::num_of_mb_req_to_sgw_sent++;
+            }
+            else
+            {
+                log_msg(LOG_INFO,
+                        "send_mb_req_to_sgw_svc_req: bearer context is NULL \n");
+
+                actStatus = ActStatus::ABORT;
+            }
+        }
+        else
         {
-                log_msg(LOG_DEBUG, "send_mb_req_to_sgw_svc_req: session ctxt is NULL \n");
-                return ActStatus::HALT;
+            log_msg(LOG_INFO,
+                    "send_mb_req_to_sgw_svc_req: session context is NULL \n");
+            actStatus = ActStatus::ABORT;
         }
+    }
+    else
+    {
+        log_msg(LOG_INFO,
+                "send_mb_req_to_sgw_svc_req: procedure context is NULL \n");
+        actStatus = ActStatus::ABORT;
+    }
 
-        struct MB_Q_msg mb_msg;
-        mb_msg.msg_type = modify_bearer_request;
-        mb_msg.ue_idx = ue_ctxt->getContextID();
+    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_svc_req \n");
 
-        memset(mb_msg.indication, 0, S11_MB_INDICATION_FLAG_SIZE); /*TODO : future*/
-        BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
-        mb_msg.bearer_id = bearerCtxt->getBearerId();
-
-        memcpy(&(mb_msg.s11_sgw_c_fteid), &(sessionCtxt->getS11SgwCtrlFteid().fteid_m),
-                sizeof(struct fteid));
-
-        memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
-                sizeof(struct fteid));
-	mb_msg.servingNetworkIePresent = false;
-	mb_msg.userLocationInformationIePresent = false;
-
-        cmn::ipc::IpcAddress destAddr;
-        destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
-
-        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
-
-        ProcedureStats::num_of_mb_req_to_sgw_sent ++;
-        log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_svc_req \n");
-
-        return ActStatus::PROCEED;
+    return actStatus;
 }
 
 /***************************************
-* Action handler : process_mb_resp_svc_req
-***************************************/
-ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock& cb)
+ * Action handler : process_mb_resp_svc_req
+ ***************************************/
+ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
 {
-   	log_msg(LOG_DEBUG, "Inside process_mb_resp_svc_req \n");
+    log_msg(LOG_DEBUG, "Inside process_mb_resp_svc_req \n");
 
-	ProcedureStats::num_of_processed_mb_resp ++;
+    ProcedureStats::num_of_processed_mb_resp++;
 
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_INFO, "process_mb_resp_svc_req: ue context is NULL \n");
 
-	return ActStatus::PROCEED;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+
+    if (msgBuf == NULL)
+        return ActStatus::ABORT;
+
+    const gtp_incoming_msg_data_t *gtp_msg_data =
+            static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    const struct MB_resp_Q_msg &mbr_info =
+            gtp_msg_data->msg_data.MB_resp_Q_msg_m;
+
+    ActStatus actStatus = ActStatus::PROCEED;
+
+    MmeProcedureCtxt *procCtxt =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+
+    if (procCtxt != NULL)
+    {
+        if (mbr_info.cause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+        {
+            log_msg(LOG_INFO, "process_mb_resp_svc_req: MB Response Failure\n");
+
+            procCtxt->setMmeErrorCause(s11MBRespFailure_c);
+            actStatus = ActStatus::ABORT;
+        }
+        else
+        {
+            SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
+            if (sessionCtxt != NULL)
+            {
+                //TODO: Support dedicated bearers
+                BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
+                if (bearerCtxt != NULL)
+                {
+                    if (procCtxt->getCtxtType() == erabModInd_c)
+                    {
+                        MmeErabModIndProcedureCtxt *procCtxt =
+                                static_cast<MmeErabModIndProcedureCtxt*>(cb.getTempDataBlock());
+
+                        uint8_t eRabsModifiedList[1] =
+                        { bearerCtxt->getBearerId() };
+                        procCtxt->setErabModifiedList(eRabsModifiedList, 1);
+                    }
+                }
+                else
+                {
+                    log_msg(LOG_INFO,
+                            "send_mb_req_to_sgw_svc_req: bearer context is NULL \n");
+
+                    actStatus = ActStatus::ABORT;
+                }
+            }
+            else
+            {
+                log_msg(LOG_INFO,
+                        "process_mb_resp_svc_req: session context is NULL \n");
+                actStatus = ActStatus::ABORT;
+            }
+        }
+    }
+    else
+    {
+        log_msg(LOG_INFO,
+                "process_mb_resp_svc_req: procedure context is NULL \n");
+        actStatus = ActStatus::ABORT;
+    }
+
+    return actStatus;
 }
 
 /***************************************
@@ -380,3 +502,12 @@ ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
     MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
     return ActStatus::PROCEED;
 }
+/***************************************
+* Action handler : service_request_complete
+***************************************/
+ActStatus ActionHandlers::service_request_complete(ControlBlock& cb)
+{
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
+    return ActStatus::PROCEED;
+}
+

@@ -34,11 +34,17 @@ class MmeContextManagerUtils
 {
 public:
 
+    static MmeDetachProcedureCtxt*
+    allocateDetachProcedureCtxt(SM::ControlBlock& cb_r, DetachType detachType);
+
     static MmeSvcReqProcedureCtxt*
     allocateServiceRequestProcedureCtxt( SM::ControlBlock& cb_r, PagingTrigger pagingTrigger);
 
     static MmeTauProcedureCtxt*
     allocateTauProcedureCtxt(SM::ControlBlock& cb_r);
+
+    static MmeErabModIndProcedureCtxt*
+    allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r);
 
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 

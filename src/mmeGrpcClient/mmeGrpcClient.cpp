@@ -222,6 +222,10 @@ class MmeGrpcCliClient {
 	    cout << "num_of_ho_prep_failure_sent     		 " << reply.num_of_ho_prep_failure_sent() << endl;
 	    cout << "num_of_ho_cancel_received     		     " << reply.num_of_ho_cancel_received() << endl;
 	    cout << "num_of_ho_cancel_ack_sent     		     " << reply.num_of_ho_cancel_ack_sent() << endl;
+            cout << "num_of_erab_mod_ind_received	     " << reply.num_of_erab_mod_ind_received() << endl;
+	    cout << "num_of_erab_mod_conf_sent		     " << reply.num_of_erab_mod_conf_sent() << endl;
+	    cout << "num_of_erab_mod_ind_timeout             " << reply.num_of_erab_mod_ind_timeout() << endl;
+	    cout << "num_of_abort_erab_mod_indication        " << reply.num_of_abort_erab_mod_indication() << endl;
 
     } else {
       std::cout << status.error_code() << ": " << status.error_message()

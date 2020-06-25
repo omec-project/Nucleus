@@ -96,4 +96,9 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::default_s1_ho_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(HO_REQUIRED_FROM_ENB, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_erab_mod_indication_handler);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ERAB_MOD_INDICATION_FROM_ENB, actionTable));
+        }
 }

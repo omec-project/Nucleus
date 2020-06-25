@@ -73,7 +73,10 @@ namespace mme
                 static int num_of_ho_prep_failure_sent;
                 static int num_of_ho_cancel_received;
                 static int num_of_ho_cancel_ack_sent;
-
+                static int num_of_erab_mod_ind_received;
+                static int num_of_erab_mod_conf_sent;	
+                static int num_of_erab_mod_ind_timeout;
+                static int num_of_abort_erab_mod_indication;
 
         };
 };
