@@ -119,6 +119,11 @@ message ProcedureStatsRespBuf
 	uint32 num_of_ho_prep_failure_sent = 60;
 	uint32 num_of_ho_cancel_received = 61;
 	uint32 num_of_ho_cancel_ack_sent = 62;	
+	uint32 num_of_erab_mod_ind_received = 63;
+	uint32 num_of_erab_mod_conf_sent = 64;	
+	uint32 num_of_erab_mod_ind_timeout = 65;
+	uint32 num_of_abort_erab_mod_indication = 66;
+	
 }
 
 message Empty

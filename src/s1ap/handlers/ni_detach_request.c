@@ -36,7 +36,7 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 
 	value->no_of_IEs = NI_DTCH_REQUEST_NO_OF_IES;
 
-	value->data = (proto_IEs *) malloc(NI_DTCH_REQUEST_NO_OF_IES *
+	value->data = (proto_IEs *) calloc(NI_DTCH_REQUEST_NO_OF_IES,
 			sizeof(proto_IEs));
 
 	value->data[ieCnt].val.mme_ue_s1ap_id = g_acptReqInfo->ue_idx;
@@ -55,7 +55,12 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 
 	nas->header.seq_no = g_acptReqInfo->dl_seq_no;
 	nas->header.message_type = DetachRequest;
-	nas->header.detach_type = 00000002;
+	nas->header.detach_type = g_acptReqInfo->detach_type;
+	if(g_acptReqInfo->nas_emm_cause > 0){
+		nas->header.emm_cause = g_acptReqInfo->nas_emm_cause;
+		log_msg(LOG_DEBUG,"NAS EMM Cause: %d\n",nas->header.emm_cause);
+	}
+
 	log_msg(LOG_DEBUG,"NAS Msg Type: %x\n",nas->header.message_type);
 
 	ieCnt++;
@@ -175,6 +180,16 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	/* detach type */
         buffer_copy(&g_acpt_buffer, &(nas_hdr->detach_type),
                         sizeof(nas_hdr->detach_type));
+
+	/* emm cause (in cases of abort) */
+	if(nas_hdr->emm_cause > 0)
+	{
+		uint8_t IEI = 83;
+		uint16_t u16value = ((uint16_t)nas_hdr->emm_cause << 8) | (IEI);
+		log_msg(LOG_DEBUG,"EMM Cause in NI Detach Request Buffer %d\n",u16value);
+		buffer_copy(&g_acpt_buffer, &u16value,
+                        sizeof(u16value));
+	}
 
 	/* NAS PDU end */
 

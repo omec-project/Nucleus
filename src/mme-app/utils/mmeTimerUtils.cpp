@@ -5,8 +5,10 @@
  */
 
 #include <utils/mmeTimerUtils.h>
-
+#include <controlBlock.h>
+#include <contextManager/subsDataGroupManager.h>
 #include <eventMessage.h>
+#include "mme_app.h"
 #include <mmeSmDefs.h>
 #include <timeoutManager.h>
 #include <timerQueue.h>
@@ -25,21 +27,22 @@ TimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
         uint16_t timerId)
 {
     MmeUeTimerContext* timerCtxt = NULL;
+    
+    TimeoutManager &timeoutMgr =
+    		static_cast<TimeoutManager&>(
+    	    			compDb.getComponent(TimeoutManagerCompId));
 
     CTime duration(durationMs);
     CTime expiryTime;
     expiryTime = expiryTime + duration;
-
-    if (timeoutMgr_g != NULL)
-    {
-        timerCtxt = new MmeUeTimerContext(
+    
+    timerCtxt = new MmeUeTimerContext(
                 ueIdx, timerType, timerId, expiryTime);
-
-        timeoutMgr_g->startTimer(timerCtxt);
-
-        log_msg(LOG_DEBUG,
+    
+    timeoutMgr.startTimer(timerCtxt);
+    
+    log_msg(LOG_DEBUG,
                 "Timer started. duration %d", durationMs);
-    }
     return timerCtxt;
 }
 
@@ -47,16 +50,17 @@ uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
 {
     uint32_t rc = 0;
 
+    TimeoutManager &timeoutMgr =
+    		static_cast<TimeoutManager&>(
+    				compDb.getComponent(TimeoutManagerCompId));
+
     if (timerCtxt != NULL)
     {
-        if (timeoutMgr_g != NULL)
+        rc = timeoutMgr.cancelTimer(timerCtxt);
+        if (rc > 0)
         {
-            rc = timeoutMgr_g->cancelTimer(timerCtxt);
-            if (rc > 0)
-            {
-                log_msg(LOG_DEBUG, "Timer deleted\n");
-                delete timerCtxt;
-            }
+            log_msg(LOG_DEBUG, "Timer deleted\n");
+            delete timerCtxt;
         }
     }
     return rc;
@@ -82,7 +86,7 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
-                mmeTimerCtxt->getCbIndex());
+                mmeTimerCtxt->getUeIndex());
 
         return;
     }
@@ -95,5 +99,4 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 
     SM::Event evt(STATE_GUARD_TIMEOUT, eMsg);
     controlBlk_p->addEventToProcQ(evt);
-#endif
 }

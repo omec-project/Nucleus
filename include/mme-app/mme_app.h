@@ -115,6 +115,7 @@ class mmeConfig
 
 const size_t fifoQSize_c = 1000;
 const uint16_t MmeIpcInterfaceCompId = 1;
+const uint16_t TimeoutManagerCompId = 2;
 
 void stat_init();
 

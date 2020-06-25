@@ -85,6 +85,9 @@ handle_mmeapp_message(void * data)
 	case emm_info_request:
 	    emm_info_req_handler(msg);
 	    break;
+	case erab_mod_confirmation:
+	    erab_mod_confirm_handler(msg);
+	    break;
 	case s1_reset:
 	    gen_reset_request_handler(msg);
 	    break;
