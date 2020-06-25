@@ -1388,3 +1388,77 @@ int s1ap_mme_encode_handover_cancel_ack(
     *length = enc_ret;
     return enc_ret;
 }
+
+int s1ap_mme_encode_erab_mod_confirmation(
+  struct erab_mod_confirm *s1apPDU,
+  uint8_t **buffer,
+  uint32_t *length)
+{
+    S1AP_PDU_t pdu = { (S1AP_PDU_PR_NOTHING) };
+    SuccessfulOutcome_t *successfulOutcome_msg = NULL;
+    S1AP_PDU_t *pdu_p = &pdu;
+    int enc_ret = -1;
+    memset((void*) pdu_p, 0, sizeof(S1AP_PDU_t));
+
+    pdu.present = S1AP_PDU_PR_successfulOutcome;
+    pdu.choice.successfulOutcome = calloc(sizeof(SuccessfulOutcome_t), sizeof(uint8_t));
+
+    successfulOutcome_msg = pdu.choice.successfulOutcome;
+    successfulOutcome_msg->procedureCode = ProcedureCode_id_E_RABModificationIndication;
+    successfulOutcome_msg->criticality = 0;
+    successfulOutcome_msg->value.present = SuccessfulOutcome__value_PR_E_RABModificationConfirm;
+
+    E_RABModificationConfirmIEs_t val[3];
+    memset(val, 0, 3 * (sizeof(E_RABModificationConfirmIEs_t)));
+
+    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0].criticality = 0;
+    val[0].value.present = E_RABModificationConfirmIEs__value_PR_MME_UE_S1AP_ID;
+    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+
+    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1].criticality = 0;
+    val[1].value.present = E_RABModificationConfirmIEs__value_PR_ENB_UE_S1AP_ID;
+    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+
+    val[2].id = ProtocolIE_ID_id_E_RABModifyListBearerModConf;
+    val[2].criticality = 0;
+    val[2].value.present = E_RABModificationConfirmIEs__value_PR_E_RABModifyListBearerModConf;
+
+    E_RABModifyItemBearerModConfIEs_t erab_modified_item_ies;
+    memset(&erab_modified_item_ies, 0, sizeof(E_RABModifyItemBearerModConfIEs_t));
+
+    E_RABModifyItemBearerModConf_t *erab_modified_item =
+            &(erab_modified_item_ies.value.choice.E_RABModifyItemBearerModConf);
+
+    erab_modified_item_ies.id = ProtocolIE_ID_id_E_RABModifyItemBearerModConf;
+    erab_modified_item_ies.criticality = 0;
+    erab_modified_item_ies.value.present = E_RABModifyItemBearerModConfIEs__value_PR_E_RABModifyItemBearerModConf;
+
+    erab_modified_item->e_RAB_ID = s1apPDU->erab_mod_list.erab_id[0];
+
+    ASN_SEQUENCE_ADD(
+            &(val[2].value.choice.E_RABModifyListBearerModConf.list),
+            &erab_modified_item_ies);
+
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.E_RABModificationConfirm.protocolIEs.list,
+            &val[0]);
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.E_RABModificationConfirm.protocolIEs.list,
+            &val[1]);
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.E_RABModificationConfirm.protocolIEs.list,
+            &val[2]);
+
+    if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
+            (void**) buffer)) < 0) {
+        log_msg(LOG_ERROR, "Encoding of ERAB Modification Confirmation failed\n");
+        return -1;
+    }
+
+    free(pdu.choice.successfulOutcome);
+
+    *length = enc_ret;
+    return enc_ret;
+}

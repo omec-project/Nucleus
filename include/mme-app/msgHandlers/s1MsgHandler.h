@@ -44,6 +44,7 @@ private:
     void handleEnbStatusTransferMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
     void handleHandoverCancelMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
     void handleHandoverFailureMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+    void handleErabModificationIndicationMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 };
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_S1MSGHANDLER_H_ */

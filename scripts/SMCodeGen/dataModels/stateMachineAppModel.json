@@ -63,6 +63,13 @@
                                     "DEFAULT_S1_HO_HANDLER"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ERAB_MOD_INDICATION_FROM_ENB",
+                                "Actions":[
+                                    "DEFAULT_ERAB_MOD_INDICATION_HANDLER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -458,6 +465,14 @@
                                     "DEL_SESSION_REQ"
                                 ],
                                 "NextState":"ni_detach_wf_det_accpt_del_sess_resp"
+                            },
+                            {
+                                "Name":"MME_INIT_DETACH",
+                                "Actions":[
+                                    "NI_DETACH_REQ_TO_UE",
+                                    "DEL_SESSION_REQ"
+                                ],
+                                "NextState":"ni_detach_wf_det_accpt_del_sess_resp"
                             }
                         ]
                     },
@@ -659,7 +674,8 @@
                             {
                                 "Name":"MB_RESP_FROM_SGW",
                                 "Actions":[
-                                    "PROCESS_MB_RESP_SVC_REQ"
+                                    "PROCESS_MB_RESP_SVC_REQ",
+                                    "SERVICE_REQUEST_COMPLETE"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -791,7 +807,14 @@
                                     "IS_TAU_REQUIRED"
                                 ],
                                 "NextState":"s1_ho_wf_tau_check"
-                            }
+                            },
+                            {
+                                "Name":"ENB_STATUS_TRANFER_FROM_SRC_ENB",
+                                "Actions":[
+                                    "SEND_MME_STATUS_TRANFER_TO_TARGET_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_modify_bearer_response"
+                             }
                         ]
                     },
                     {
@@ -829,6 +852,57 @@
                 "Properties": [
                     {
                         "stateGuardTimerFeature" : "disabled"
+                    }
+                ]
+            },
+            {
+                "Name":"ERAB_MOD_INDICATION",
+                "States":[
+                    {
+                        "Name":"erab_mod_ind_start",
+                        "Events":[
+                            {
+                                "Name":"eRAB_MOD_IND_START",
+                                "Actions":[
+                                    "SEND_MB_REQ_TO_SGW_SVC_REQ"
+                                ],
+                                "NextState":"erab_mod_ind_wf_mb_resp"
+                            }
+                        ]
+                    },
+                    {
+		        "Name":"erab_mod_ind_wf_mb_resp",
+                        "Events":[
+                            {
+				"Name":"MB_RESP_FROM_SGW",
+				"Actions":[
+				    "PROCESS_MB_RESP_SVC_REQ",
+				    "SEND_ERAB_MOD_CONF_TO_ENB",
+				    "ERAB_MOD_IND_COMPLETE"
+				],
+				"NextState":"end_state"
+                            },
+			    {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_ERAB_MOD_INDICATION"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS_FOR_ERAB_MOD_IND",
+                                    "ABORT_ERAB_MOD_INDICATION"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    }
+                ],
+                "Properties":[
+                    {
+                        "stateGuardTimerFeature" : "enabled"
                     }
                 ]
             }
