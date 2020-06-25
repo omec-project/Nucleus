@@ -11,11 +11,13 @@
 #include <timeoutManager.h>
 #include <timerQueue.h>
 #include <utils/mmeTimerTypes.h>
+#include "mme_app.h"
 
 using namespace mme;
 using namespace cmn;
 
 extern TimeoutManager* timeoutMgr_g;
+extern mmeConfig *mme_tables;
 
 TimerContext* MmeTimerUtils::startTimer( uint32_t durationMs,
         uint32_t ueIdx,
@@ -62,13 +64,19 @@ uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
 
 void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 {
-#if 0
+    log_msg(LOG_DEBUG, "\n %s : %d \n",__FUNCTION__,__LINE__);
     MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
         return;
     }
+    if(mmeTimerCtxt->getTimerId() == mmeConfigDnsResolve_c)
+    {
+        log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
+        mme_tables->initiate_spgw_resolution();
+    }
 
+#if 0
     ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getUeIndex());
     if(controlBlk_p == NULL)

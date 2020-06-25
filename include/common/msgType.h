@@ -478,6 +478,8 @@ struct CS_Q_msg {
 	unsigned int  paa_v4_addr;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+    uint32_t sgw_ip;
+    uint32_t pgw_ip;
 };
 #define S11_CSREQ_STAGE5_BUF_SIZE sizeof(struct CS_Q_msg)
 

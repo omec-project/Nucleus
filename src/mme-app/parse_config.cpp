@@ -1,15 +1,32 @@
+/*
+ * Copyright 2020-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include <iostream>
 #include <cstdio>
+#include <unistd.h>
+#include <list>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/filereadstream.h"
 #include "mme_app.h"
+#include <utils/mmeTimerUtils.h>
+#include <utils/mmeTimerTypes.h>
 
-using namespace rapidjson;
+using namespace mme;
 
-static int
-get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
+extern mmeConfig *mme_tables;
+
+int
+mmeConfig::get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
 {
 	const char *token = ",";
 	char *saved_comma=NULL;
@@ -31,7 +48,7 @@ get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
 }
 
 void 
-mme_parse_config_new(mme_config_t *config)
+mmeConfig::mme_parse_config_new(mme_config_t *config)
 {
     FILE* fp = fopen("conf/mme.json", "r");
     if(fp == NULL){
@@ -111,7 +128,7 @@ mme_parse_config_new(mme_config_t *config)
                 char plmn[100];
                 strcpy(plmn,sb.GetString());
                 uint16_t mcc_i, mnc_i, mnc_digits=3;
-                get_mcc_mnc(plmn, &mcc_i, &mnc_i, &mnc_digits);
+                mmeConfig::get_mcc_mnc(plmn, &mcc_i, &mnc_i, &mnc_digits);
                 config->plmn_mcc_mnc[count-1].mcc = mcc_i;
                 config->plmn_mcc_mnc[count-1].mnc = mnc_i;
                 log_msg(LOG_INFO, "Parsed plmn mcc - %d mnc - %d \n", mcc_i, mnc_i);
@@ -141,18 +158,24 @@ mme_parse_config_new(mme_config_t *config)
         }
         if(mmeSection.HasMember("apnlist"))
         {
-            int count = 1;
             const rapidjson::Value &apn = mmeSection["apnlist"];
             for (rapidjson::Value::ConstMemberIterator apnitr = apn.MemberBegin(); apnitr != apn.MemberEnd(); ++apnitr)
             {
+#if 0
                 rapidjson::StringBuffer sb;
                 rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
                 apnitr->value.Accept(writer);
-                char apn[128];
-                strcpy(apn, apnitr->name.GetString());
-                char spgw[128];
-                strcpy(spgw,sb.GetString());
-                log_msg(LOG_INFO, "Configured apn %s => %s \n", apn, spgw); 
+                log_msg(LOG_INFO, "Configured service %s \n", sb.GetString());
+                log_msg(LOG_INFO, "Configured apn %s\n", apnitr->name.GetString()); 
+#endif
+                std::string apn = apnitr->name.GetString();
+                std::string spgw = apnitr->value.GetString();
+
+                log_msg(LOG_INFO, "Configured service %s\n", spgw.c_str());
+                log_msg(LOG_INFO, "Configured apn %s \n", apn.c_str()); 
+                // add apn==>{ spgw service,  address, failures }  in the map 
+                apn_config *ap1 = new apn_config(apn, spgw);
+                mme_tables->add_apn(ap1);
             }
         }
     }
@@ -167,6 +190,65 @@ mme_parse_config_new(mme_config_t *config)
     {
         log_msg(LOG_DEBUG,"PLMN(%d) :    %d %d %d \n", i, config->plmns[i].idx[0], config->plmns[i].idx[1], config->plmns[i].idx[2]);
     }
+    mme_tables->initiate_spgw_resolution();
     return ;
 }
 
+/* One resolution at a time with timer retry */
+void mmeConfig::initiate_spgw_resolution()
+{
+    std::list<apn_config*>::iterator it;
+    bool started = false;
+    apn_config *temp;
+
+    for(it = apn_list.begin(); it != apn_list.end(); it++) 
+    {
+        temp = *it;
+        if(temp->get_dns_state() == false)
+        {
+            struct in_addr p = {0};
+            struct in_addr s = {0};
+            p.s_addr = temp->get_pgw_addr();
+            s.s_addr = temp->get_sgw_addr();
+            log_msg(LOG_DEBUG, "SGW address = %s, PGW address = %s ",inet_ntoa(p), inet_ntoa(s));
+            continue;
+        }
+        struct addrinfo hints;
+        struct addrinfo *result=NULL, *rp=NULL; 
+        int err;
+
+        memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family = AF_INET;    /* Allow IPv4 or IPv6 */
+        hints.ai_socktype = SOCK_DGRAM; /* Datagram socket */
+        hints.ai_flags = AI_PASSIVE;    /* For wildcard IP address */
+        hints.ai_protocol = 0;          /* Any protocol */
+        hints.ai_canonname = NULL;
+        hints.ai_addr = NULL;
+        hints.ai_next = NULL;
+        err = getaddrinfo(temp->get_spgw_srv().c_str(), NULL, &hints, &result);
+        if (err != 0) 
+        {
+            // Keep trying ...May be SGW is not yet deployed 
+            // We shall be doing this once timer library is integrated 
+            log_msg(LOG_ERROR, "%s - getaddr info failed %s\n",temp->get_spgw_srv().c_str(), gai_strerror(err));
+            if(started == false)
+              MmeTimerUtils::startTimer(10000, 1 /* ue_index */, 1 /*timer type*/, mmeConfigDnsResolve_c);
+            started = true;
+        }
+        else 
+        {
+            for (rp = result; rp != NULL; rp = rp->ai_next) 
+            {
+                if(rp->ai_family == AF_INET)
+                {
+                    struct sockaddr_in *addrV4 = (struct sockaddr_in *)rp->ai_addr;
+                    log_msg(LOG_INFO, "gw address received from DNS response %s\n", inet_ntoa(addrV4->sin_addr));
+                    temp->set_pgw_ip(addrV4->sin_addr.s_addr);
+                    temp->set_sgw_ip(addrV4->sin_addr.s_addr);
+                    temp->set_dns_resolved();
+                    break;
+                }
+            }
+        }
+    }
+}

@@ -25,8 +25,7 @@
 #include <gtpV2StackWrappers.h>
 
 /**Global and externs **/
-extern s11_config g_s11_cfg;
-
+extern s11_config_t g_s11_cfg;
 /*S11 CP communication parameters*/
 int g_s11_fd;
 struct sockaddr_in g_s11_cp_addr;
