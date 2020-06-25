@@ -53,6 +53,11 @@ namespace mme
         static SM::ActStatus abort_attach(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_erab_mod_indication
+        ***********************************************/
+        static SM::ActStatus abort_erab_mod_indication(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_handover
         ***********************************************/
         static SM::ActStatus abort_handover(SM::ControlBlock& cb);                
@@ -113,6 +118,11 @@ namespace mme
         static SM::ActStatus default_detach_req_handler(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : default_erab_mod_indication_handler
+        ***********************************************/
+        static SM::ActStatus default_erab_mod_indication_handler(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : default_s1_ho_handler
         ***********************************************/
         static SM::ActStatus default_s1_ho_handler(SM::ControlBlock& cb);                
@@ -141,6 +151,16 @@ namespace mme
         * Action handler : detach_accept_to_ue
         ***********************************************/
         static SM::ActStatus detach_accept_to_ue(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : erab_mod_ind_complete
+        ***********************************************/
+        static SM::ActStatus erab_mod_ind_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : handle_state_guard_timeouts_for_erab_mod_ind
+        ***********************************************/
+        static SM::ActStatus handle_state_guard_timeouts_for_erab_mod_ind(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : ho_complete
@@ -308,6 +328,11 @@ namespace mme
         static SM::ActStatus send_ddn_ack_to_sgw(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_erab_mod_conf_to_enb
+        ***********************************************/
+        static SM::ActStatus send_erab_mod_conf_to_enb(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_esm_info_req_to_ue
         ***********************************************/
         static SM::ActStatus send_esm_info_req_to_ue(SM::ControlBlock& cb);                
@@ -411,6 +436,11 @@ namespace mme
         * Action handler : send_ulr_to_hss
         ***********************************************/
         static SM::ActStatus send_ulr_to_hss(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : service_request_complete
+        ***********************************************/
+        static SM::ActStatus service_request_complete(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : validate_imsi_in_ue_context

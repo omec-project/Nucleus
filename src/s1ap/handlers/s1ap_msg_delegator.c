@@ -1078,6 +1078,10 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 	case S1AP_HANDOVER_CANCEL_CODE:
 		s1_handover_cancel_handler(initiating_p);
 		break;
+        
+        case S1AP_ERAB_MODIFICATION_INDICATION_CODE:
+		erab_mod_indication_handler(initiating_p);
+		break;
 
 	default:
 		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
@@ -2446,5 +2450,177 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
         }
     }
 
+    return 0;
+}
+
+int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present
+            == InitiatingMessage__value_PR_E_RABModificationIndication)
+    {
+        ProtocolIE_Container_129P77_t *protocolIes =
+                &msg->value.choice.E_RABModificationIndication.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+        
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            E_RABModificationIndicationIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+            case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
+            {
+                ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_ENB_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                }
+		
+		if (s1apENBUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                    memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                            s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+            {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                    memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                            s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_E_RABToBeModifiedListBearerModInd:
+            {
+                E_RABToBeModifiedListBearerModInd_t *e_RABToBeModifiedList_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_E_RABToBeModifiedListBearerModInd
+                        == ie_p->value.present)
+                {
+                    e_RABToBeModifiedList_p = &ie_p->value.choice.E_RABToBeModifiedListBearerModInd;
+                }
+
+		if (e_RABToBeModifiedList_p != NULL)
+		{
+                    proto_ies->data[i].IE_type = S1AP_IE_E_RAB_TO_BE_MOD_LIST_BEARER_MOD_IND;
+                    proto_ies->data[i].val.erab_to_be_mod_list.count =
+                            e_RABToBeModifiedList_p->list.count;
+
+                    for (int j = 0; j < e_RABToBeModifiedList_p->list.count; j++)
+                    {
+                        E_RABToBeModifiedItemBearerModIndIEs_t *ie_p;
+                        ie_p = (E_RABToBeModifiedItemBearerModIndIEs_t*) e_RABToBeModifiedList_p->list.array[j];
+                        switch (ie_p->id)
+                        {
+                            case ProtocolIE_ID_id_E_RABToBeModifiedItemBearerModInd:
+			    {
+                        	E_RABToBeModifiedItemBearerModInd_t *eRabToBeModifiedItem_p = NULL;
+                        	if (E_RABToBeModifiedItemBearerModIndIEs__value_PR_E_RABToBeModifiedItemBearerModInd
+                                	== ie_p->value.present)
+                        	{
+                            	    eRabToBeModifiedItem_p =
+                                        &ie_p->value.choice.E_RABToBeModifiedItemBearerModInd;
+                        	}
+
+                        	if (eRabToBeModifiedItem_p != NULL)
+				{
+                      		    proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].e_RAB_ID =
+                                        (uint8_t) eRabToBeModifiedItem_p->e_RAB_ID;
+
+				    if (eRabToBeModifiedItem_p->dL_GTP_TEID.buf != NULL)
+				    {
+                        		memcpy(
+                                	&(proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid),
+                               		eRabToBeModifiedItem_p->dL_GTP_TEID.buf, eRabToBeModifiedItem_p->dL_GTP_TEID.size);
+
+                        		proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid =
+                                	    ntohl(
+                                            proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->dL_GTP_TEID failed\n");
+                                        return -1;
+                                    }
+
+                        	    if (eRabToBeModifiedItem_p->transportLayerAddress.buf != NULL)
+				    {
+					memcpy(
+                                	&(proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress),
+                                	eRabToBeModifiedItem_p->transportLayerAddress.buf,
+                                	eRabToBeModifiedItem_p->transportLayerAddress.size);
+
+                        		proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress =
+                                	    ntohl(
+                                       	    proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->transportLayerAddress failed\n");
+                                        return -1;
+                                    }
+				}
+				else
+                                {
+                                    log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd failed\n");
+                                    return -1;
+                                }
+                    	    }break;
+                    	    default:
+                    	    {
+                                log_msg(LOG_WARNING, "Unhandled List item %d",
+                                                  ie_p->id);
+                            }
+                        }
+		    }
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE E_RABToBeModifiedListBearerModInd failed\n");
+                    return -1;
+                }
+            } break;
+	    default:
+            {
+                proto_ies->data[i].IE_type = ie_p->id;
+		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+            }
+
+            }
+        }
+    }
     return 0;
 }

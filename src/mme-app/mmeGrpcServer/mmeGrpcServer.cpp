@@ -293,8 +293,10 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         reply->set_num_of_ho_prep_failure_sent(ProcedureStats::num_of_ho_prep_failure_sent);
         reply->set_num_of_ho_cancel_received(ProcedureStats::num_of_ho_cancel_received);
         reply->set_num_of_ho_cancel_ack_sent(ProcedureStats::num_of_ho_cancel_ack_sent);
-
-
+        reply->set_num_of_erab_mod_ind_received(ProcedureStats::num_of_erab_mod_ind_received);
+       	reply->set_num_of_erab_mod_conf_sent(ProcedureStats::num_of_erab_mod_conf_sent);
+	reply->set_num_of_erab_mod_ind_timeout(ProcedureStats::num_of_erab_mod_ind_timeout);
+	reply->set_num_of_abort_erab_mod_indication(ProcedureStats::num_of_abort_erab_mod_indication);
 
         return Status::OK;
   }

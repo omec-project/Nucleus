@@ -117,13 +117,13 @@ parse_mme_conf(mme_config *config)
 static int
 get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
 {
-	char *token = ",";
+	char *token = (char*)(",");
 	char *saved_comma=NULL;
 	char *mcc = strtok_r(plmn, token, &saved_comma);
 	char *mnc = strtok_r(NULL, token, &saved_comma);
 
 	char *saved_e=NULL;
-	char *token_e = "=";
+	char *token_e = (char*)("=");
 	char *mcc_f = strtok_r(mcc, token_e, &saved_e);
 	mcc_f = strtok_r(NULL, token_e, &saved_e);
 	*mcc_i = atoi(mcc_f);

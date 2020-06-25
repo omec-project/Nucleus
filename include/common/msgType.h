@@ -90,6 +90,8 @@ typedef enum msg_type_t {
     handover_cancel,
     handover_preparation_failure,
     handover_cancel_ack,
+    erab_mod_indication,
+    erab_mod_confirmation,
     max_msg_type
 } msg_type_t;
 
@@ -209,6 +211,10 @@ struct detach_req_Q_msg {
 	int ue_m_tmsi;
 };
 
+struct erab_mod_ind_Q_msg {
+	erab_to_be_modified_list erab_to_be_mod_list;
+};
+
 typedef union s1_incoming_msgs_t {
     struct ue_attach_info ue_attach_info_m;
     struct authresp_Q_msg authresp_Q_msg_m;
@@ -226,6 +232,7 @@ typedef union s1_incoming_msgs_t {
     struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
     struct handover_failure_Q_msg handover_failure_Q_msg_m;
     struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
+    struct erab_mod_ind_Q_msg erab_mod_ind_Q_msg_m;
 }s1_incoming_msgs_t;
 
 typedef struct s1_incoming_msg_data_t {
@@ -335,6 +342,7 @@ struct ni_detach_request_Q_msg {
     uint16_t dl_seq_no;
     int enb_fd;
     unsigned char detach_type;
+    uint32_t nas_emm_cause;
 };
 #define S1AP_NI_DTCHREQUEST_BUF_SIZE sizeof(struct ni_detach_request_Q_msg)
 
@@ -409,6 +417,16 @@ struct ue_emm_info {
 };
 
 #define UE_EMM_INFO_BUF_SIZE sizeof(struct ue_emm_info)
+
+struct erab_mod_confirm {
+	msg_type_t msg_type;
+        uint32_t enb_context_id;
+        uint32_t enb_s1ap_ue_id;
+        uint32_t mme_s1ap_ue_id;
+	erab_modified_list erab_mod_list;
+};
+
+#define ERAB_MOD_CONFIRM_BUF_SIZE sizeof(struct erab_mod_confirm)
 
 struct handover_request_Q_msg {
 	msg_type_t msg_type;
@@ -547,6 +565,7 @@ struct csr_Q_msg {
 };
 
 struct MB_resp_Q_msg {
+    uint8_t cause;
     struct fteid s1u_sgw_fteid;
 };
 
