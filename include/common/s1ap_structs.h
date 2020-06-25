@@ -387,18 +387,6 @@ typedef enum s1apCauseMisc {
     s1apCauseMisc_unknown_PLMN  = 5
 } e_s1apCauseMisc;
 
-typedef enum emmCause {
-    emmCause_ue_id_not_derived_by_network   = 9,
-    emmCause_network_failure = 17
-} e_emmCause;
-
-typedef enum nasDetachType {
-    invalidDetachType = 0,
-    reattachRequired = 1,
-    reattachNotRequired = 2,
-    imsiDetach = 3
-} e_nasDetachType;
-
 /* s1apCauseMisc */
 typedef long     s1apCauseMisc_t;
 /* s1apCauseProtocol */
