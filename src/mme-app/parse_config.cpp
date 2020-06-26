@@ -161,13 +161,6 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
             const rapidjson::Value &apn = mmeSection["apnlist"];
             for (rapidjson::Value::ConstMemberIterator apnitr = apn.MemberBegin(); apnitr != apn.MemberEnd(); ++apnitr)
             {
-#if 0
-                rapidjson::StringBuffer sb;
-                rapidjson::Writer<rapidjson::StringBuffer> writer( sb );
-                apnitr->value.Accept(writer);
-                log_msg(LOG_INFO, "Configured service %s \n", sb.GetString());
-                log_msg(LOG_INFO, "Configured apn %s\n", apnitr->name.GetString()); 
-#endif
                 std::string apn = apnitr->name.GetString();
                 std::string spgw = apnitr->value.GetString();
 

@@ -99,4 +99,5 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 
     SM::Event evt(STATE_GUARD_TIMEOUT, eMsg);
     controlBlk_p->addEventToProcQ(evt);
+#endif
 }

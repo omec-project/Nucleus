@@ -29,16 +29,13 @@ void mme_config_change_cbk(char *config_file, uint32_t flags)
     /* Parse the config again */
     mme_config_t *new_config = new (mme_config_t);
     assert(new_config != NULL);
-    mme_parse_config(new_config); 
+    mmeConfig::mme_parse_config_new(new_config);
     if(strcmp(new_config->logging, mme_cfg->logging))
     {
         //Logging level changed 
         set_logging_level(new_config->logging);
 		log_msg(LOG_INFO, "new logging level %s", new_config->logging);
     }
-    free(mme_cfg->logging); /* Release old logging level string */
-    free(mme_cfg->mme_name); /* Relese old mme_name */
-
     mme_config_t *temp = mme_cfg;
     mme_cfg = new_config; 
 

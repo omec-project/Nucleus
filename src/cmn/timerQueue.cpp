@@ -81,7 +81,7 @@ void TimerQueue::onTimer(Callback appCb)
                 appCb(timerCtxt);
                 continue; 
             }
-            break;
         }
+        break; // no more timer or no more timers need expiry handling 
     }
 }
