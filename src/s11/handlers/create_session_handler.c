@@ -43,7 +43,7 @@ ATTACH stages :
 extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
-
+int dns_enabled;
 extern s11_config g_s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 
@@ -221,7 +221,11 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
-
+	if(1 == dns_enabled){
+		g_s11_cp_addr.sin_addr.s_addr = ntohl(g_csReqInfo->sgw_ip);
+		log_msg(LOG_ERROR,"%ul gatway address  g_s11_cp_addr.sin_addr.s_addr\n", g_s11_cp_addr.sin_addr.s_addr);
+		log_msg(LOG_ERROR,"%ul gatway address g_csReqInfo->sgw_ip\n", g_csReqInfo->sgw_ip);
+	}
 	int res = sendto (
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+THIRD_PARTY_DIR="third_party"
 SUDO=''
 [[ $EUID -ne 0 ]] && SUDO=sudo
 
@@ -37,30 +38,46 @@ install_build_pkg_deps() {
 		curl \
   		automake \
 		make \
-		unzip
+		unzip sudo
 }
 
+
+
 install_freediameter() {
-    $SUDO rm -rf /tmp/freediameter
-	git clone -q https://github.com/omec-project/freediameter.git /tmp/freediameter
-	pushd /tmp/freediameter
+        $SUDO rm -rf $THIRD_PARTY_DIR/freediameter
+	git clone -q https://github.com/omec-project/freediameter.git $THIRD_PARTY_DIR/freediameter
+	pushd $THIRD_PARTY_DIR/freediameter
 	mkdir -p build && cd build
 	cmake -DDISABLE_SCTP:BOOL=OFF .. && make -j && $SUDO make install
+        popd
 }
 
 install_grpc() {
-	$SUDO rm -rf /tmp/grpc
-	git clone -b v1.27.2 \
-	-q https://github.com/grpc/grpc /tmp/grpc
-	cd /tmp/grpc && \
+	$SUDO rm -rf $THIRD_PARTY_DIR/grpc
+	git clone -b v1.26.0 \
+	-q https://github.com/grpc/grpc $THIRD_PARTY_DIR/grpc
+	pushd $THIRD_PARTY_DIR/grpc && \
 	git submodule update --init && \
     	CXXFLAGS='-Wno-error' make && make install && ldconfig
+        popd
 }
 
+install_epctools() {
+        $SUDO rm -rf $THIRD_PARTY_DIR/epctools
+        git clone -q https://github.com/omec-project/epctools.git $THIRD_PARTY_DIR/epctools
+        pushd $THIRD_PARTY_DIR/epctools
+        git submodule update --init
+        ./configure &&  $SUDO make install && ldconfig
+        popd
+}
+
+
 install_build_deps() {
+	
 	install_build_pkg_deps
 	install_freediameter
 	install_grpc
+	install_epctools
 }
 
 (return 2>/dev/null) && echo "Sourced" && return

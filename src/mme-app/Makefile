@@ -19,8 +19,9 @@
 include ../../Makefile.common
 
 CC := g++
-CFLAGS += -Wall -DSTATS -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
-LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf
+CFLAGS += -Wall -DSTATS -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src
+CFLAGS += -I$(EPCTOOLS_ROOT)/include  -I$(EPCTOOLS_ROOT)/modules/spdlog/include -std=c++11
+LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf  $(EPCTOOLS_ROOT)/src/libepc.a 
 
 ifeq ($(DEBUG),true)
         CFLAGS += -g
@@ -48,6 +49,9 @@ LIBS :=	-lpthread \
         -lgrpc \
         -lgpr \
         -lprotobuf \
+	-lepc \
+	-lcares	\
+	-lrt
 
 SRCDIR := .
 SRCEXT := cpp
