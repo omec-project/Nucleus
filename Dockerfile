@@ -50,6 +50,7 @@ FROM $BASE_OS AS runtime
 COPY install_rundeps.sh .
 RUN bash -c "source ./install_rundeps.sh && install_run_deps && install_run_utils && cleanup_image"
 COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /usr/local/ssl/lib /usr/local/lib
 COPY --from=builder /tmp/grpc/libs /usr/lib/grpc
 
 WORKDIR /openmme/target

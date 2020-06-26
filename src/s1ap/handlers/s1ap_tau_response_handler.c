@@ -77,7 +77,7 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 #endif
 
 	free(value->data[2].val.nas.elements);
-	free(value->data);
+	//free(value->data);
 
 	return SUCCESS;
 }
