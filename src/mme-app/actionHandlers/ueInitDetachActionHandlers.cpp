@@ -47,7 +47,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->incrementUpLnkSeqNo();
+	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
 	
 	struct DS_Q_msg g_ds_msg;
 	g_ds_msg.msg_type = delete_session_request;
@@ -178,7 +178,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	detach_accpt.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 	
 	detach_accpt.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->incrementDwnLnkSeqNo();
+	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
 	
 	memcpy(&(detach_accpt.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
 	

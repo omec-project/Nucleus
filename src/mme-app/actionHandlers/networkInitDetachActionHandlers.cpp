@@ -65,7 +65,7 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	else
 		ni_detach_req.nas_emm_cause = 0;
 	
-	ue_ctxt->incrementDwnLnkSeqNo();
+	ue_ctxt->setDwnLnkSeqNo(ue_ctxt->getDwnLnkSeqNo()+1);
 	ni_detach_req.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
 	
 	memcpy(&(ni_detach_req.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
@@ -95,7 +95,7 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 		
-	ue_ctxt->incrementUpLnkSeqNo();
+	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
 	
 	log_msg(LOG_DEBUG, "Leaving process_detach_accept_from_ue \n");
 	ProcedureStats::num_of_detach_accept_from_ue ++;
