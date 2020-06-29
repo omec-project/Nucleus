@@ -41,14 +41,29 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "ni_detach_req_to_ue: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
-	
+
+	MmeDetachProcedureCtxt *procCtxt =  dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
+
+        if (procCtxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "ni_detach_req_to_ue: procedure context is NULL\n");
+                return ActStatus::HALT;
+        }
+
 	ni_detach_request_Q_msg ni_detach_req;
 	
 	ni_detach_req.msg_type = ni_detach_request;
 	ni_detach_req.enb_fd = ue_ctxt->getEnbFd();
 	ni_detach_req.ue_idx = ue_ctxt->getContextID();
 	ni_detach_req.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
-	ni_detach_req.detach_type = 00000010;
+ 	if(procCtxt->getNasDetachType() > 0)
+                ni_detach_req.detach_type = procCtxt->getNasDetachType();
+        else
+                ni_detach_req.detach_type = reattachRequired;
+	if(procCtxt->getDetachCause() > 0)
+                ni_detach_req.nas_emm_cause = procCtxt->getDetachCause();	
+	else
+		ni_detach_req.nas_emm_cause = 0;
 	
 	ue_ctxt->incrementDwnLnkSeqNo();
 	ni_detach_req.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();

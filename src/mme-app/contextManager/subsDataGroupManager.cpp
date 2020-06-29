@@ -31,6 +31,7 @@ namespace mme
 			MmeSvcReqProcedureCtxtManagerm_p = NULL;
 			MmeTauProcedureCtxtManagerm_p = NULL;
 			S1HandoverProcedureContextManagerm_p = NULL;
+			MmeErabModIndProcedureCtxtManagerm_p = NULL;
 
 			initialize();
 	}
@@ -51,6 +52,7 @@ namespace mme
 			delete MmeSvcReqProcedureCtxtManagerm_p;
 			delete MmeTauProcedureCtxtManagerm_p;
 			delete S1HandoverProcedureContextManagerm_p;
+			delete MmeErabModIndProcedureCtxtManagerm_p;
 	}
 	
 	/******************************************
@@ -71,6 +73,7 @@ namespace mme
 		MmeSvcReqProcedureCtxtManagerm_p = new MmeSvcReqProcedureCtxtManager(8000);
 		MmeTauProcedureCtxtManagerm_p = new MmeTauProcedureCtxtManager(8000);
 		S1HandoverProcedureContextManagerm_p = new S1HandoverProcedureContextManager(8000);
+		MmeErabModIndProcedureCtxtManagerm_p = new MmeErabModIndProcedureCtxtManager(8000);
 	}
 	
 	/******************************************************************************
@@ -180,6 +183,15 @@ namespace mme
 	void SubsDataGroupManager::deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp )
 	{
 		S1HandoverProcedureContextManagerm_p->deallocateS1HandoverProcedureContext( S1HandoverProcedureContextp );
+	}
+	MmeErabModIndProcedureCtxt* SubsDataGroupManager::getMmeErabModIndProcedureCtxt()
+	{
+		return MmeErabModIndProcedureCtxtManagerm_p->allocateMmeErabModIndProcedureCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp )
+	{
+		MmeErabModIndProcedureCtxtManagerm_p->deallocateMmeErabModIndProcedureCtxt( MmeErabModIndProcedureCtxtp );
 	}
 	
 	/******************************************

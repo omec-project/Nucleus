@@ -21,6 +21,7 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/niDetachStart.h"	
+#include "mmeStates/niDetachWfDetAccptDelSessResp.h"	
 #include "mmeStates/niDetachWfDetAccptDelSessResp.h"
 
 using namespace mme;
@@ -63,5 +64,12 @@ void NiDetachStart::initialize()
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.setNextState(NiDetachWfDetAccptDelSessResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(CLR_FROM_HSS, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.setNextState(NiDetachWfDetAccptDelSessResp::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(MME_INIT_DETACH, actionTable));
         }
 }
