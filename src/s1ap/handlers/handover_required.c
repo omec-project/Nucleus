@@ -61,21 +61,20 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
         {
         case S1AP_IE_MME_UE_ID:
         {
-            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID.\n");
 
             ho_required.ue_idx = ho_required_ies.data[i].val.mme_ue_s1ap_id;
             ho_required.msg_data.handover_required_Q_msg_m.s1ap_mme_ue_id =
                     ho_required_ies.data[i].val.mme_ue_s1ap_id;
+            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID %u .\n",ho_required.ue_idx);
         }
             break;
         case S1AP_IE_ENB_UE_ID:
         {
-            log_msg(LOG_INFO,
-                    "handover handover required S1AP_IE_ENB_UE_ID.\n");
 
             ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id =
                     ho_required_ies.data[i].val.enb_ue_s1ap_id;
 
+            log_msg(LOG_INFO, "handover required S1AP_IE_ENB_UE_ID %u .\n",ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id);
         }
             break;
         case S1AP_IE_HANDOVER_TYPE:
@@ -105,9 +104,12 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 
             char *enb_id_buf = ho_required_ies.data[i].val.target_id.global_enb_id.macro_enb_id;
 
-            enb_id =
-                (enb_id_buf[0] << 12) +
-                (enb_id_buf[1] << 4) + ((enb_id_buf[2] & 0xf0) >> 4);
+            uint32_t val = enb_id_buf[0];
+            enb_id |= val << 12;
+            val = enb_id_buf[1];
+            enb_id |= val << 4;
+            val = enb_id_buf[2] & 0xf0;
+            enb_id |= val >> 4;
 
             log_msg(LOG_INFO, "enbId %d\n", enb_id);
 
@@ -156,9 +158,12 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
     cbIndex = findControlBlockWithEnbFd(enb_fd);
     if (cbIndex == INVALID_CB_INDEX)
     {
-	log_msg(LOG_ERROR, "No CB found for enb fd %d.\n", enb_fd);
-	return E_FAIL;
+	    log_msg(LOG_ERROR, "No CB found for enb fd %d.\n", enb_fd);
+        if (ho_required_ies.data != NULL)
+            free(ho_required_ies.data);
+	    return E_FAIL;
     }
+    
     ho_required.msg_data.handover_required_Q_msg_m.src_enb_context_id = cbIndex;
 
     ho_required.msg_type = handover_required;

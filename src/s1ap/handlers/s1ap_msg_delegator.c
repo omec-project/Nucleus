@@ -860,6 +860,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d in initial UE message ", ie_p->id);
                     }
 			}
@@ -880,6 +881,12 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
     /* TODO : Error handling. Bad message will lead crash. 
      * Preferably reject the message, increment stats.
      */
+    uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
+    if(INVALID_CB_INDEX == cbIndex)
+    {
+        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
+        return E_FAIL;
+    }
 #ifdef S1AP_DECODE_NAS
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies);
     if(decode_result < 0 )
@@ -888,12 +895,6 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
       return E_FAIL;
     }
 
-    uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
-    if(INVALID_CB_INDEX == cbIndex)
-    {
-        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
-        return E_FAIL;
-    }
 	/*Check nas message type*/
 	//TODO: check through all proto IEs for which is nas
 	//currentlyy hard coding to 2 looking at packets
@@ -921,7 +922,7 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	}
 #else
 	s1_incoming_msg_data_t s1Msg={0};
-	s1Msg.msg_data.rawMsg.enodeb_fd = enb_fd;
+	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
 
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies, &s1Msg);
     if(decode_result < 0 )
@@ -953,16 +954,17 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	struct proto_IE proto_ies={0};
 
 	log_msg(LOG_INFO, "S1AP_UL_NAS_TX_MSG msg \n");
-
-#ifdef S1AP_DECODE_NAS
-    convertUplinkNasToProtoIe(msg, &proto_ies);
-
+    
     uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
     if(INVALID_CB_INDEX == cbIndex)
     {
         log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
         return E_FAIL;
     }
+
+#ifdef S1AP_DECODE_NAS
+    convertUplinkNasToProtoIe(msg, &proto_ies);
+
 	log_msg(LOG_INFO, "proto_ies.data[2].val.nas.header.message_type = %d  \n",proto_ies.data[2].val.nas.header.message_type);
 	/*Check nas message type*/
 	//TODO: check through all proto IEs for which is nas
@@ -1013,7 +1015,7 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	}
 #else
 	s1_incoming_msg_data_t s1Msg={0};
-	s1Msg.msg_data.rawMsg.enodeb_fd = enb_fd;
+	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
     int decode_result = convertUplinkNasToProtoIe(msg, &proto_ies, &s1Msg);
 
     if(decode_result < 0 )
@@ -1314,6 +1316,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
                     }
 			}
@@ -1452,6 +1455,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
                     }
 			}
@@ -1521,6 +1525,7 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
                     }
 			}
@@ -1644,6 +1649,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
 					} break;
                 default:
                     {
+                        proto_ies->data[i].IE_type = ie_p->id;
                         log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
                     }
 			}
@@ -1849,6 +1855,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
             } break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
             }
@@ -2050,6 +2057,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
             }break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2178,6 +2186,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2339,6 +2348,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2432,6 +2442,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
 
@@ -2546,6 +2557,7 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
                 break;
             default:
             {
+                proto_ies->data[i].IE_type = ie_p->id;
                 log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
             }

@@ -82,7 +82,6 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
 	}
 
 	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
-	ue_ctxt->getUeSecInfo().increment_uplink_count(); // ajaymerge - check merge once 
 
 	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
 	{

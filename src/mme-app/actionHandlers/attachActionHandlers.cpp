@@ -814,7 +814,6 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
     	}
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
-	ue_ctxt->getUeSecInfo().increment_uplink_count(); // ajaymerge - check merge once 
 
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
