@@ -27,7 +27,7 @@
 #include "ProtocolIE-Field.h"
 #include "SupportedTAs-Item.h"
 #include "TAC.h"
-//void ut_ho(void *msg, int enb_fd);
+
 /******************************************************
   S1_SETUP_RESPONSE handling
 ******************************************************/
@@ -230,7 +230,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 				}
 				case ProtocolIE_ID_id_DefaultPagingDRX:
 				{
-					//PagingDRX_t *val = &ie_p->value.choice.PagingDRX;
+					PagingDRX_t *val = &ie_p->value.choice.PagingDRX;
 					break;
 				}
 				default:
