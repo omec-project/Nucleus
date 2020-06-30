@@ -73,7 +73,38 @@ namespace mme
 	{
 		return [% Data.Name %]_m;
 	}
+	[%-UNLESS Data.Properties =='' %]
+	[%- FOREACH Property = Data.Properties %]
+	[%-IF Property.metrics == "counter" %]
+    
+	/******************************************************************************
+	* increment [% Data.Name %]
+	******************************************************************************/	
+	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
+	{
+		[% Data.Name %]_m = [% Data.Name %]_m + 1;
+	}
+    [%-ELSIF Property.metrics == "gauge" %]
+    
+	/******************************************************************************
+	* increment [% Data.Name %]
+	******************************************************************************/	
+	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
+	{
+		[% Data.Name %]_m = [% Data.Name %]_m + 1;
+	}
+
+	/******************************************************************************
+	* decrement [% Data.Name %]
+	******************************************************************************/	
+	void [% dataBlockClassName %]::decrement[% String.new(Data.Name).capital.text() %]()
+	{
+		[% Data.Name %]_m = [% Data.Name %]_m - 1;
+	}
+	[%- END %]   
+	[%- END %][%- END %]
 	[%-UNLESS Data.Cardinality=='' %]
+
 	/******************************************************************************
 	* returns [% Data.Name %]Len
 	******************************************************************************/	
