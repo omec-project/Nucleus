@@ -24,10 +24,14 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/[% FILENAME(State.Name) %].h"
-[%- FOREACH Event = State.Events %]
-[%- IF Event.NextState != "end_state" %]	
-#include "mmeStates/[% FILENAME(Event.NextState) %].h"
+[%- stateList = [] -%]
+[%- FOREACH Event IN State.Events %]
+[%- IF Event.NextState != "end_state" && Event.NextState != State.Name && !stateList.grep(Event.NextState).size %]
+[%- stateList.push(Event.NextState) %]
 [%- END %]
+[%- END %]
+[%- WHILE 0 < stateList.size %]	
+#include "mmeStates/[% FILENAME(stateList.shift) %].h"
 [%- END %]
 
 using namespace mme;
