@@ -69,6 +69,30 @@ parse_mme_conf(mme_config *config)
 
 	config->mme_code = get_int_scalar((char *)("mme.code"));
 	if(-1 == config->mme_code) return -1;
+	
+	config->dns_config.dns_flag = get_int_scalar((char*)("mme.dns.dns_enable"));
+         if(E_PARSING_FAILED == config->dns_config.dns_flag) return E_PARSING_FAILED;
+	if( 1 ==  config->dns_config.dns_flag )
+	{
+	 config->dns_config.concurrent = get_int_scalar((char*)("mme.dns.cache.concurrent"));
+         if(E_PARSING_FAILED == config->dns_config.concurrent) return E_PARSING_FAILED;
+	
+	  config->dns_config.percentage = get_int_scalar((char*)("mme.dns.cache.percentage"));
+         if(E_PARSING_FAILED == config->dns_config.percentage) return E_PARSING_FAILED;
+
+	  config->dns_config.interval_seconds = get_int_scalar((char*)("mme.dns.cache.interval_seconds"));
+         if(E_PARSING_FAILED == config->dns_config.interval_seconds) return E_PARSING_FAILED;
+
+	  config->dns_config.query_timeout_ms = get_int_scalar((char*)("mme.dns.cache.query_timeout_ms"));
+         if(E_PARSING_FAILED == config->dns_config.query_timeout_ms) return E_PARSING_FAILED;
+	
+	 config->dns_config.query_tries = get_int_scalar((char*)("mme.dns.cache.query_tries"));
+         if(E_PARSING_FAILED == config->dns_config.query_tries) return E_PARSING_FAILED;
+	
+	 config->dns_config.dns1_ip = get_string_scalar("mme.dns.dns1.address");
+         if(NULL == config->dns_config.dns1_ip) return E_PARSING_FAILED;
+	}
+	
 
 	uint16_t count=1;
 	while(1) {

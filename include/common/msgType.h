@@ -23,8 +23,10 @@
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
+
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
+extern int dns_enabled;
 
 typedef enum msg_data_t
 {
@@ -496,6 +498,7 @@ struct CS_Q_msg {
 	unsigned int  paa_v4_addr;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+	unsigned long sgw_ip;
 };
 #define S11_CSREQ_STAGE5_BUF_SIZE sizeof(struct CS_Q_msg)
 

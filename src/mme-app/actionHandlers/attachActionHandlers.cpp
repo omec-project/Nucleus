@@ -16,12 +16,28 @@
 #include <3gpp_24008.h>
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include <locale>
+#include <memory.h>
+#include <signal.h>
+
+#include "epc/epctools.h"
+#include "epc/etevent.h"
+#include "epc/esocket.h"
+#include "epc/einternal.h"
+
+#include "epc/emgmt.h"
+#include "epc/etimerpool.h"
+
+#include "epc/epcdns.h"
+#include "epc/dnscache.h"
 #include "mme_app.h"
+
 #include "controlBlock.h"
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
+#include "contextManager/dataBlocks.h"
 #include "procedureStats.h"
-#include "log.h"
+
 #include "secUtils.h"
 #include "state.h"
 #include <string.h>
@@ -38,10 +54,98 @@
 #include <utils/mmeCauseUtils.h>
 #include "gtpCauseTypes.h"
 
+
+
+#define MCC_MNC_LEN 4
+#define LB_HB_LEN 8
+
 using namespace SM;
 using namespace mme;
 using namespace cmn;
 using namespace cmn::utils;
+
+cmn::ipc::IpcAddress destAddr_dns;
+struct CS_Q_msg cs_msg;
+extern mme_config g_mme_cfg;
+extern MmeIpcInterface* mmeIpcIf_g;
+Void SetDNSConfiguration()
+{
+	DNS::Cache::setRefreshConcurrent( g_mme_cfg.dns_config.concurrent);
+	DNS::Cache::setRefreshPercent( g_mme_cfg.dns_config.percentage);
+	DNS::Cache::setRefreshInterval( g_mme_cfg.dns_config.interval_seconds );
+	DNS::Cache::getInstance().addNamedServer(g_mme_cfg.dns_config.dns1_ip);
+	DNS::Cache::getInstance().applyNamedServers();
+
+}
+
+	template <class T>
+std::string hexFormatWithoutCommas(T value, int width = sizeof(T)*2)
+{
+	struct Numpunct : public std::numpunct<char>
+	{
+		protected:
+			virtual char do_thousands_sep() const { return ' '; }
+			virtual std::string do_grouping() const { return ""; }
+	};
+	std::stringstream ss;
+	ss.imbue({std::locale(), new Numpunct});
+	ss << std::setfill('0') << std::setw(width) << std::hex << value;
+	return ss.str();
+}
+
+
+
+void Ipv4_gateway_ip( EPCDNS::StringVector &ipv4_ip, unsigned long * sgw_ip)
+{
+	EPCDNS::StringVector::const_iterator it = ipv4_ip.begin();
+	std::cout<<*it <<"\n";
+	char * result = (char*)ipv4_ip[0].c_str();
+	std::cout << result << "\n";
+	unsigned long tmp = htonl(inet_addr(result));
+	memcpy(sgw_ip,&tmp, sizeof(unsigned long));
+	std::cout << *sgw_ip << "\n";
+}
+void Extract_IPs( EPCDNS::NodeSelectorResultList &at, unsigned long  *sgw_ip)
+{	
+	EPCDNS::NodeSelectorResultList::const_iterator it = at.begin();
+	Ipv4_gateway_ip((*it)->getIPv4Hosts(), sgw_ip);
+}
+
+void process_dns_req(void *node_obj, unsigned long *sgw_ip)
+{
+	EPCDNS::NodeSelector *ns = static_cast<EPCDNS::NodeSelector *>(node_obj);
+	ns->process();
+	ns->dump();
+	Extract_IPs(ns->getResults(),sgw_ip);
+}
+
+#if 0
+extern "C" Void NodeSelector_test_callback(EPCDNS::NodeSelector &ns, cpVoid data)
+{
+	unsigned long sgw_ip;
+	std::cout << "*********** Asynchronous Node Selector ***********" << std::endl;
+	std::cout << "NodeSelector_test_callback() - data = 0x" << hexFormatWithoutCommas((ULongLong)data) << std::endl;	
+	ns.dump();
+	UEContext *ue_ctxt = static_cast<UEContext*>(data);
+
+	Extract_IPs(ns.getResults(),&sgw_ip);
+	ue_ctxt->setSgwIp(sgw_ip);
+        cs_msg.sgw_ip =sgw_ip;
+        std::cout <<"\n" << "value of sgw in UE context is "<< ue_ctxt->getSgwIp();
+	mmeIpcIf_g->dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr_dns);
+
+        ProcedureStats::num_of_cs_req_to_sgw_sent ++;
+        log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
+
+
+
+
+	std::cout <<"\n*************************************************" << std::endl;
+
+}
+
+
+#endif
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
@@ -665,6 +769,8 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 {
+	uint8_t plmn_id[3] = {0};
+
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -750,11 +856,71 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	const DigitRegister15& ueMSISDN = ue_ctxt->getMsisdn();
 	ueMSISDN.convertToBcdArray(cs_msg.MSISDN);
 
-	cmn::ipc::IpcAddress destAddr;
-	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+	//cmn::ipc::IpcAddress destAddr;
+	destAddr_dns.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+	if(g_mme_cfg.dns_config.dns_flag == 1)	
+	{
 
+		SetDNSConfiguration();
+		/* Query DNS based on lb and hb of tac */
+		char lb[LB_HB_LEN] = {0};
+		char hb[LB_HB_LEN] = {0};
+		char mnc[MCC_MNC_LEN] = {0};
+		char mcc[MCC_MNC_LEN] = {0};
+		short tac=0;
+		unsigned long sgw_ip = 0;
+		char mccDigit1 =  ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0x0F;
+		char mccDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0xF0) >> 4;
+		char mccDigit3 = ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0x0F;
+		char mncDigit1 = ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0x0F;
+		char mncDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0xF0) >> 4;
+		char mncDigit3 = (ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0xF0) >> 4;
+
+
+
+		if (mncDigit3 == 15)
+			snprintf(mnc, MCC_MNC_LEN, "%u%u", mncDigit1,mncDigit2);
+		else
+			snprintf(mnc, MCC_MNC_LEN, "%u%u%u", mncDigit1,mncDigit2,mncDigit3);
+
+
+		snprintf(mcc,MCC_MNC_LEN, "%u%u%u", mccDigit1, mccDigit2, mccDigit3);
+
+		log_msg(LOG_ERROR,"%u %u  %u %u %u %u mcc and mnc digits\n", mccDigit1, mccDigit2, mccDigit2, mncDigit1, mncDigit2, mncDigit3);
+		log_msg(LOG_ERROR, "%s %s: mnc and mcc\n", mnc,mcc);
+		memcpy(plmn_id, ue_ctxt->getTai().tai_m.plmn_id.idx, 3);
+		log_msg(LOG_ERROR, "%s %s: plmn_id\n", plmn_id,ue_ctxt->getTai().tai_m.plmn_id.idx);
+		tac = ntohs(ue_ctxt->getTai().tai_m.tac);
+		log_msg(LOG_ERROR, "%d %d tac value* \n",tac, ue_ctxt->getTai().tai_m.tac);
+
+		if ( tac != 1) {
+			log_msg(LOG_DEBUG, "Could not get SGW-U list using DNS query. TAC missing in CSR.\n");
+			return ActStatus::HALT;
+		}
+
+		sprintf(lb, "%u", ue_ctxt->getTai().tai_m.tac & 0xFF);
+		sprintf(hb, "%u", (ue_ctxt->getTai().tai_m.tac >> 8) & 0xFF);	
+		log_msg(LOG_ERROR, "%s %s lb and hb value is\n", lb,hb);
+
+
+		EPCDNS::SGWNodeSelector s2(lb, hb,mnc,mcc);
+		s2.setNamedServerID(DNS::NS_DEFAULT);
+		s2.addDesiredProtocol( EPCDNS::SGWAppProtocolEnum::sgw_x_s11 );
+		s2.process();
+		s2.dump();
+                Extract_IPs(s2.getResults(), &sgw_ip);
+	
+		std::cout << " gatway is "<<sgw_ip; 
+		ue_ctxt->setSgwCtrlPIP(sgw_ip);
+		cs_msg.sgw_ip =sgw_ip;
+		std::cout <<"\n" << "value of sgw in UE context is "<< ue_ctxt->getSgwCtrlPIP();
+		//TODO Async call needs to write here	
+		 //s2.process(ue_ctxt, NodeSelector_test_callback);
+	}
+	
+	
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr_dns);
 
 	ProcedureStats::num_of_cs_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
