@@ -42,7 +42,15 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "ni_detach_req_to_ue: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
-	
+
+	MmeDetachProcedureCtxt *procCtxt =  dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
+
+        if (procCtxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "ni_detach_req_to_ue: procedure context is NULL\n");
+                return ActStatus::HALT;
+        }
+
 	ni_detach_request_Q_msg ni_detach_req;
 	
 	ni_detach_req.msg_type = ni_detach_request;
@@ -50,7 +58,14 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	ni_detach_req.ue_idx = ue_ctxt->getContextID();
 	ni_detach_req.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 #ifdef S1AP_ENCODE_NAS
-	ni_detach_req.detach_type = 00000010;
+	if(procCtxt->getNasDetachType() > 0)
+                ni_detach_req.detach_type = procCtxt->getNasDetachType();
+        else
+                ni_detach_req.detach_type = reattachRequired;
+	if(procCtxt->getDetachCause() > 0)
+                ni_detach_req.nas_emm_cause = procCtxt->getDetachCause();	
+	else
+		ni_detach_req.nas_emm_cause = 0;
 	
 	ni_detach_req.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
     ni_detach_req.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
@@ -72,7 +87,14 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	ue_ctxt->getUeSecInfo().increment_downlink_count();
 
 	nas.header.message_type = DetachRequest;
-	nas.header.detach_type = 00000002;
+ 	if(procCtxt->getNasDetachType() > 0)
+                nas.header.detach_type = procCtxt->getNasDetachType();
+        else
+                nas.header.detach_type = reattachRequired;
+	if(procCtxt->getDetachCause() > 0)
+                nas.header.emm_cause = procCtxt->getDetachCause();	
+	else
+		nas.header.emm_cause = 0;
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&ni_detach_req.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	ni_detach_req.nasMsgSize = nasBuffer.pos;

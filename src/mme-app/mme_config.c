@@ -22,7 +22,7 @@ void mme_config_change_cbk(char *config_file, uint32_t flags)
 {
     // Run the script with this file. It generates new config for mme
 	log_msg(LOG_INFO, "Received %s . File %s Flags %x \n", __FUNCTION__, config_file, flags);
-    system("sh /opt/mme/config/mme-init.sh");
+    system((char*)("sh /opt/mme/config/mme-init.sh"));
     /* We dont expect quick updates from configmap..One update per interval */
     watch_config_change((char *)("/opt/mme/config/config.json"), mme_config_change_cbk, false);
 

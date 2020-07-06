@@ -16,12 +16,14 @@ COPY Makefile Makefile.common ./
 COPY include/cmn ./include/cmn
 COPY include/common ./include/common
 COPY include/stateMachineFwk ./include/stateMachineFwk
+COPY include/mme-app ./include/mme-app
 COPY src/cmn ./src/cmn
 COPY src/common ./src/common
 COPY src/gtpV2Codec ./src/gtpV2Codec
 COPY src/mmeGrpcClient ./src/mmeGrpcClient
 COPY src/mmeGrpcProtos ./src/mmeGrpcProtos
 COPY src/stateMachineFwk ./src/stateMachineFwk
+COPY src/s1ap/asn1c ./src/s1ap/asn1c
 RUN make -C src/cmn
 RUN make -C src/common
 RUN make -C src/gtpV2Codec
@@ -32,8 +34,6 @@ RUN make -C src/cmn
 COPY include/s11 ./include/s11
 COPY include/s6a ./include/s6a
 COPY include/s1ap ./include/s1ap
-COPY include/mme-app ./include/mme-app
-COPY src/s1ap/asn1c ./src/s1ap/asn1c
 COPY src/s11 ./src/s11
 RUN make -C src/s11
 COPY src/s6a ./src/s6a
@@ -50,7 +50,7 @@ FROM $BASE_OS AS runtime
 COPY install_rundeps.sh .
 RUN bash -c "source ./install_rundeps.sh && install_run_deps && install_run_utils && cleanup_image"
 COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/local/ssl/lib /usr/local/lib
+COPY --from=builder /usr/lib/x86_64-linux-gnu /usr/local/lib
 COPY --from=builder /tmp/grpc/libs /usr/lib/grpc
 
 WORKDIR /openmme/target

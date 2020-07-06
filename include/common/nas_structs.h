@@ -156,6 +156,13 @@ typedef enum emmCause {
     emmCause_network_failure = 11
 } e_emmCause;
 
+typedef enum nasDetachType {
+    invalidDetachType = 0,
+    reattachRequired = 1,
+    reattachNotRequired = 2,
+    imsiDetach = 3
+} e_nasDetachType;
+
 //this should be nas specifi ?
 typedef enum s1apCauseNas {
     s1apCauseNas_normal_release = 0,
@@ -237,6 +244,7 @@ typedef struct nas_pdu_header {
 	unsigned char eps_bearer_identity;
 	unsigned char procedure_trans_identity;
 	unsigned char detach_type;
+    unsigned char emm_cause;
 } nas_pdu_header;
 
 

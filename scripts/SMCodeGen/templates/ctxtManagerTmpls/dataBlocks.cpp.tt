@@ -62,7 +62,7 @@ namespace mme
 		[% Data.Name %]_m = [% Data.Name %]_i;
 	[%-ELSE%]
 		[% Data.Name %]Len_m=len;
-		memcpy([% Data.Name %]_m, [% Data.Name %]_i, [% Data.Name %]Len_m);
+		memcpy([% Data.Name %]_m, [% Data.Name %]_i, ([% Data.Name %]Len_m * sizeof([% Data.Type %])));
 	[%- END %]
 	}
 	
