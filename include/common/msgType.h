@@ -23,6 +23,7 @@ extern "C"{
 
 #include "common_proc_info.h"
 #include "err_codes.h"
+#include "s6_common_types.h"
 #include "s11_structs.h"
 //#include "structs.h"
 #include "s1ap_structs.h"
@@ -119,7 +120,9 @@ typedef enum msg_type_t {
     handover_cancel,
     handover_preparation_failure,
     handover_cancel_ack,
-	raw_nas_msg,
+    erab_mod_indication,
+    erab_mod_confirmation,
+    raw_nas_msg,
     max_msg_type
 } msg_type_t;
 
@@ -238,6 +241,10 @@ struct detach_req_Q_msg {
 	int ue_m_tmsi;
 }__attribute__ ((packed));
 
+struct erab_mod_ind_Q_msg {
+	erab_to_be_modified_list erab_to_be_mod_list;
+}__attribute__ ((packed));
+
 struct s1apMsg_plus_raw_nas {
 	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
 	uint16_t 	nasMsgSize; 
@@ -273,6 +280,7 @@ union s1_incoming_msgs {
     struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
     struct handover_failure_Q_msg handover_failure_Q_msg_m;
     struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
+	struct erab_mod_ind_Q_msg erab_mod_ind_Q_msg_m;
 }__attribute__ ((packed));
 typedef union s1_incoming_msgs s1_incoming_msgs_t;
 
@@ -421,6 +429,7 @@ struct ni_detach_request_Q_msg {
     uint8_t int_key[NAS_INT_KEY_SIZE];
     uint16_t dl_seq_no;
     uint32_t dl_count;
+	uint32_t nas_emm_cause;
     nas_int_algo_enum int_alg;
     nas_ciph_algo_enum sec_alg;
     unsigned char detach_type;
@@ -527,6 +536,16 @@ struct ue_emm_info {
 };
 
 #define UE_EMM_INFO_BUF_SIZE sizeof(struct ue_emm_info)
+
+struct erab_mod_confirm {
+	msg_type_t msg_type;
+        uint32_t enb_context_id;
+        uint32_t enb_s1ap_ue_id;
+        uint32_t mme_s1ap_ue_id;
+	erab_modified_list erab_mod_list;
+};
+
+#define ERAB_MOD_CONFIRM_BUF_SIZE sizeof(struct erab_mod_confirm)
 
 struct handover_request_Q_msg {
 	msg_type_t msg_type;
@@ -665,6 +684,7 @@ struct csr_Q_msg {
 };
 
 struct MB_resp_Q_msg {
+    uint8_t cause;
     struct fteid s1u_sgw_fteid;
 };
 
@@ -706,6 +726,7 @@ struct s6a_Q_msg {
 	struct TAI tai;
 	struct AUTS auts;
 	unsigned int ue_idx;
+	supported_features_list supp_features_list;
 };
 #define S6A_REQ_Q_MSG_SIZE sizeof(struct s6a_Q_msg)
 #define RESET_S6A_REQ_MSG(msg)  {msg.auts.len = 0; msg.ue_idx=0;}
@@ -739,11 +760,15 @@ struct ula_Q_msg {
     int res;
     unsigned int max_requested_bw_dl;
     unsigned int max_requested_bw_ul;
+    unsigned int extended_max_requested_bw_dl;
+    unsigned int extended_max_requested_bw_ul;
     unsigned int apn_config_profile_ctx_id;
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];
     struct apn_name selected_apn;
     uint32_t static_addr;
+    supported_features_list supp_features_list;
+
 };
 
 struct purge_resp_Q_msg {

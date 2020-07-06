@@ -38,6 +38,7 @@
 #include <utils/mmeCauseUtils.h>
 #include "mmeNasUtils.h"
 #include "mme_app.h"
+#include "gtpCauseTypes.h"
 
 using namespace SM;
 using namespace mme;
@@ -950,6 +951,12 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 
 	const gtp_incoming_msg_data_t* gtp_msg_data= static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct csr_Q_msg& csr_info = gtp_msg_data->msg_data.csr_Q_msg_m;
+
+    if(csr_info.status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    {
+		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info.status);
+       	return ActStatus::ABORT;
+    }
 
 	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
 	if( bearerCtxt == NULL )

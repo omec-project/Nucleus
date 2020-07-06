@@ -59,6 +59,7 @@ void ServiceRequestWfMbResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp_svc_req);
+                actionTable.addAction(&ActionHandlers::service_request_complete);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
         }
 }

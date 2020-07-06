@@ -71,10 +71,8 @@ install_openssl() {
     $SUDO./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
     make && make install && ldconfig
 }
-
 install_build_deps() {
 	install_build_pkg_deps
-    install_openssl
 	install_freediameter
 	install_grpc
 }

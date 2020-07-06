@@ -90,7 +90,6 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	uint8_t s1ap_len_pos;
 	uint8_t datalen;
 	uint8_t u8value;
-	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
     if(g_tauRespInfo->status != 0)
     {

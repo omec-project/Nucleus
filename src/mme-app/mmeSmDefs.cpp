@@ -38,6 +38,8 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(DETACH_ACCEPT_FROM_UE,"DETACH_ACCEPT_FROM_UE");      
     smUtil->addEventToStrEntry(DETACH_REQ_FROM_UE,"DETACH_REQ_FROM_UE");      
     smUtil->addEventToStrEntry(ENB_STATUS_TRANFER_FROM_SRC_ENB,"ENB_STATUS_TRANFER_FROM_SRC_ENB");      
+    smUtil->addEventToStrEntry(eRAB_MOD_IND_START,"eRAB_MOD_IND_START");      
+    smUtil->addEventToStrEntry(ERAB_MOD_INDICATION_FROM_ENB,"ERAB_MOD_INDICATION_FROM_ENB");      
     smUtil->addEventToStrEntry(ESM_INFO_NOT_REQUIRED,"ESM_INFO_NOT_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_REQUIRED,"ESM_INFO_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_RESP_FROM_UE,"ESM_INFO_RESP_FROM_UE");      
@@ -52,6 +54,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(INIT_CTXT_RESP_FROM_UE,"INIT_CTXT_RESP_FROM_UE");      
     smUtil->addEventToStrEntry(INTRA_S1HO_START,"INTRA_S1HO_START");      
     smUtil->addEventToStrEntry(MB_RESP_FROM_SGW,"MB_RESP_FROM_SGW");      
+    smUtil->addEventToStrEntry(MME_INIT_DETACH,"MME_INIT_DETACH");      
     smUtil->addEventToStrEntry(PURGE_RESP_FROM_HSS,"PURGE_RESP_FROM_HSS");      
     smUtil->addEventToStrEntry(REL_AB_RESP_FROM_SGW,"REL_AB_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(S1_REL_REQ_FROM_UE,"S1_REL_REQ_FROM_UE");      
@@ -89,6 +92,8 @@ void populateStateStringMap()
     smUtil->addStateToStrEntry(detach_wf_del_session_resp,"detach_wf_del_session_resp");
     smUtil->addStateToStrEntry(detach_wf_purge_resp,"detach_wf_purge_resp");
     smUtil->addStateToStrEntry(detach_wf_purge_resp_del_session_resp,"detach_wf_purge_resp_del_session_resp");
+    smUtil->addStateToStrEntry(erab_mod_ind_start,"erab_mod_ind_start");
+    smUtil->addStateToStrEntry(erab_mod_ind_wf_mb_resp,"erab_mod_ind_wf_mb_resp");
     smUtil->addStateToStrEntry(intra_s1_ho_start,"intra_s1_ho_start");
     smUtil->addStateToStrEntry(ni_detach_start,"ni_detach_start");
     smUtil->addStateToStrEntry(ni_detach_wf_del_sess_resp,"ni_detach_wf_del_sess_resp");

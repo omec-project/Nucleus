@@ -17,6 +17,8 @@
 import json, sys, os
 from os.path import join
 import utils
+#set path where you have Template-Toolkit 
+#sys.path.append("/users/ajayonf/Nucleus.Ajay/scripts/SMCodeGen/Template-Toolkit-Python")
 
 def processTemplate(templateIp, appModelJSON):
     from template import Template

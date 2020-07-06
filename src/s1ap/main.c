@@ -184,6 +184,50 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 		uint8_t *mac)
 {
   unsigned char mact[16] = {0};
+  size_t mactlen = 0;
+  unsigned char* message = (unsigned char*)calloc(data_len+8, sizeof(uint8_t));
+  uint32_t msg_len = 0;
+  log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", count, bearer, direction, data_len);
+  log_msg(LOG_DEBUG,"nas data \n");
+  printBytes(data, data_len);
+  log_msg(LOG_DEBUG,"nas key \n");
+  printBytes(int_key, AES_128_KEY_SIZE);
+  if(message == NULL)
+  {
+      log_msg(LOG_ERROR,"Memory alloc for mac calculation failed.\n");
+      return;
+  }
+  else
+  {
+      uint32_t local_count = htonl(count);
+      msg_len = data_len + 8;
+      memcpy (&message[0], &local_count, 4);
+      message[4] = ((bearer & 0x1F) << 3) | ((direction & 0x01) << 2);
+      memcpy(&message[8], data, data_len);
+  }
+
+  printBytes(message, msg_len);
+  CMAC_CTX *ctx = CMAC_CTX_new();
+  CMAC_Init(ctx, int_key, 16, EVP_aes_128_cbc(), NULL);
+  printf("message length = %lu bytes (%lu bits)\n",sizeof(message), sizeof(message)*8);
+
+  CMAC_Update(ctx, message, sizeof(message));
+  CMAC_Final(ctx, mact, &mactlen);
+  log_msg(LOG_DEBUG,"mac length = %lu\n",mactlen);
+
+  printBytes(mact, mactlen);
+
+  CMAC_CTX_free(ctx);
+  memcpy(mac, mact, MAC_SIZE);
+  return;
+}
+#if 0
+void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac)
+{
+  unsigned char mact[16] = {0};
   EVP_MAC *mac_evp = EVP_MAC_fetch(NULL, "CMAC", NULL);
   const char cipher[] = "AES-128-CBC";
   EVP_MAC_CTX *ctx = NULL;
@@ -252,6 +296,7 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
   memcpy(mac, mact, MAC_SIZE);
   return;
 }
+#endif
 
 void
 calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
