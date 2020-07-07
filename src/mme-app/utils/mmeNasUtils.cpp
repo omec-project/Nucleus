@@ -200,6 +200,11 @@ calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
         uint8_t *mac)
 {
     uint8_t *out;
+    log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", seq_no, bearer, direction, data_len);
+    log_msg(LOG_DEBUG,"nas data \n");
+    printBytes(data, data_len);
+    log_msg(LOG_DEBUG,"nas key \n");
+    printBytes(int_key, AES_128_KEY_SIZE);
 
     out = f9(int_key, seq_no, bearer, direction, data, data_len * 8);
 
