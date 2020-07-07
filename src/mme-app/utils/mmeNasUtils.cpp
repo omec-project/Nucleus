@@ -320,9 +320,13 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             SM::ControlBlock* controlBlk_p = NULL;
             if(nas->header.message_type == NAS_SERVICE_REQUEST)
             {
+                msg_data->ue_idx = 
+                        ntohl(msg_data->msg_data.rawMsg.s_tmsi.m_TMSI);
+                log_msg(LOG_DEBUG,"ue_idx : %u\n", msg_data->ue_idx);
 			    uint32_t cbIndex = 
                     SubsDataGroupManager::Instance()->findCBWithmTmsi(
                                                             msg_data->ue_idx);
+                log_msg(LOG_DEBUG,"cb_index : %u\n", cbIndex);
                 controlBlk_p = 
                     SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
             }
@@ -382,6 +386,11 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
 
                     secContext.increment_uplink_count();
                 }
+            }
+            else
+            {
+                log_msg(LOG_ERROR,"Control block not found\n");
+                return E_FAIL;
             }
         }
         
