@@ -64,12 +64,12 @@ getIntAlgOrder(char *alg_list, uint8_t* alg_order)
             }
             else
             {
-                alg_order[i] = 0;
+                alg_order[i] = 1;
             }
         }
         else
         {
-            alg_order[i] = 0;
+            alg_order[i] = 1;
         }
     }
     
