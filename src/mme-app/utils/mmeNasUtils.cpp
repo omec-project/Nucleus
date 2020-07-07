@@ -329,6 +329,69 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 log_msg(LOG_DEBUG,"cb_index : %u\n", cbIndex);
                 controlBlk_p = 
                     SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+                if(controlBlk_p != NULL)
+                {
+                    UEContext* ueCtxt_p = 
+                        static_cast<UEContext*>(
+                                        controlBlk_p->getPermDataBlock());
+                    if(ueCtxt_p != NULL)
+                    {
+                        Secinfo &secContext = ueCtxt_p->getUeSecInfo();
+                        unsigned char *buffer = NULL;
+                        log_msg(LOG_INFO, "mac=%s\n", 
+                                msg_to_hex_str(
+                                   (unsigned char *)nas->header.short_mac, 
+                                    SHORT_MAC_SIZE, &buffer));
+                        log_buffer_free(&buffer);
+                        /* calculate mac and compare with received mac */
+                        unsigned char int_key[NAS_INT_KEY_SIZE];
+                        unsigned char calc_mac[MAC_SIZE] = {0};
+                        uint32_t ul_count = secContext.getUplinkCount();
+                        uint8_t direction = SEC_DIRECTION_UPLINK;
+                        uint8_t bearer = 0;
+                        buffer = msg;
+                        int buf_len = 2;
+                        secContext.getIntKey(&int_key[0]);
+                        nas_int_algo_enum int_alg = 
+                            secContext.getSelectIntAlg();
+                        calculate_mac(int_key, ul_count,
+                                      direction, bearer, buffer, buf_len,
+                                      calc_mac, int_alg);
+
+                        log_msg(LOG_DEBUG, "Check Service Req Short mac.\n");
+                        unsigned char short_mac_local[SHORT_MAC_SIZE] = {0};
+                        unsigned char *bufflog = NULL;
+                        log_msg(LOG_INFO, "calcmac=%s\n", 
+                                msg_to_hex_str(
+                                   (unsigned char *)calc_mac, 
+                                    MAC_SIZE, &bufflog));
+                        log_buffer_free(&bufflog);
+                        memcpy(short_mac_local, calc_mac, SHORT_MAC_SIZE);
+                        log_msg(LOG_INFO, "short calc mac=%s\n", 
+                                msg_to_hex_str(
+                                   (unsigned char *)short_mac_local, 
+                                    SHORT_MAC_SIZE, &bufflog));
+                        log_buffer_free(&bufflog);
+                        if(memcmp(nas->header.short_mac, 
+                                  short_mac_local, SHORT_MAC_SIZE))
+                        {
+                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
+                            return E_FAIL;
+                        }
+                        else
+                        {
+                            log_msg(LOG_DEBUG, "MAC matched for service req.\n");
+                            return SUCCESS;
+                        }
+
+                        secContext.increment_uplink_count();
+                    }
+                }
+                else
+                {
+                    log_msg(LOG_ERROR,"Control block not found\n");
+                    return E_FAIL;
+                }
             }
             else
             {
@@ -361,23 +424,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                                       direction, bearer, buffer, buf_len,
                                       calc_mac, int_alg);
 
-                    if(nas->header.message_type == NAS_SERVICE_REQUEST)
-                    {
-                        log_msg(LOG_DEBUG, "Check Service Req Short mac.\n");
-                        unsigned char short_mac_local[SHORT_MAC_SIZE] = {0};
-                        memcpy(short_mac_local, calc_mac, SHORT_MAC_SIZE);
-                        if(memcmp(nas->header.short_mac, 
-                                  short_mac_local, SHORT_MAC_SIZE))
-                        {
-                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
-                            return E_FAIL;
-                        }
-                        else
-                        {
-                            log_msg(LOG_DEBUG, "MAC matched for service req.\n");
-                            return SUCCESS;
-                        }
-                    }
                     if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
                     {
                         log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
