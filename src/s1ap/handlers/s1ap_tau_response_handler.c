@@ -24,8 +24,6 @@
 #include "s1ap_structs.h"
 #include "s1ap_msg_codes.h"
 #include "msgType.h"
-extern ipc_handle ipc_S1ap_Hndl;
-static Buffer g_buffer = {0};
 
 static int
 get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRespInfo)
@@ -65,7 +63,6 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 	nasIeCnt++;
 	nasIEs[nasIeCnt].pduElement.spare = 0; /* TA updated */
 	nasIeCnt++;
-    // ajaymerge :: check merge once 
 	nasIEs[nasIeCnt].pduElement.tailist.type = 1;
 	nasIEs[nasIeCnt].pduElement.tailist.num_of_elements = 0;
 

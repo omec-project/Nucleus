@@ -51,7 +51,7 @@ s1_setup_response(int enb_fd, struct PLMN *plmn)
 	local_plmn_id.idx[1] = plmn->idx[1];
 	local_plmn_id.idx[2] = plmn->idx[2];
 	log_msg(LOG_DEBUG,"Number of mnc digits %d \n", plmn->mnc_digits);
-    memcpy(&rsp_msg.mme_plmn_id, &local_plmn_id, 3); 
+    memcpy(&rsp_msg.mme_plmn_id, &local_plmn_id, 3);
     rsp_msg.rel_cap = s1ap_cfg->rel_cap;
 
     int ret = s1ap_mme_encode_outcome(&rsp_msg, &buffer, &length);
@@ -137,7 +137,6 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 					if(geNb->eNB_ID.present == ENB_ID_PR_macroENB_ID) 
 					{
 						log_msg(LOG_DEBUG, "macro eNB id size %d \n", geNb->eNB_ID.choice.macroENB_ID.size);
-                        // Home eNB ID = 28 bits
                         uint8_t *enb_id_buf = geNb->eNB_ID.choice.macroENB_ID.buf;
                         uint32_t val = enb_id_buf[0];
                         enbStruct.enbId_m |= val << 12;
@@ -160,7 +159,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
                         val = enb_id_buf[3] & 0xf0;
                         enbStruct.enbId_m |= val >> 4;
                     }
-					break;
+ 					break;
 				}
 				case ProtocolIE_ID_id_eNBname:
 				{

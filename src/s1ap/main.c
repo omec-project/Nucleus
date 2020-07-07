@@ -68,13 +68,6 @@ handle_mmeapp_message(void * data);
 #define MAX_ENB     10
 #define BUFFER_LEN  4096
 #define AES_128_KEY_SIZE 16
-/**
- * @brief Decode int value from the byte array received in the s1ap incoming
- * packet.
- * @param[in] bytes - Array of bytes in packet
- * @param[in] len - Length of the bytes array from which to extract the int
- * @return Integer value extracted out of bytes array. 0 if failed.
- */
 
 char *msg_to_hex_str(const char *msg, int len, char **buffer) {
 
