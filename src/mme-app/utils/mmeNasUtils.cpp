@@ -248,9 +248,9 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
    	unsigned short msg_len = nas_msg_len;
    	unsigned char* msg_end = msg + nas_msg_len;
 
-   	unsigned char *buffer = NULL;
-   	log_msg(LOG_INFO, "NAS PDU msg: %s\n", msg_to_hex_str(msg, msg_len, &buffer));
-   	log_buffer_free(&buffer);
+   	unsigned char *bufflog = NULL;
+   	log_msg(LOG_INFO, "NAS PDU msg: %s\n", msg_to_hex_str(msg, msg_len, &bufflog));
+   	log_buffer_free(&bufflog);
 
    	nas_pdu_header_sec nas_header_sec;
    	nas_pdu_header_short nas_header_short;
@@ -267,6 +267,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
    	log_msg(LOG_INFO, "Protocol discriminator=%d\n", protocol_discr);
    	log_msg(LOG_INFO, "is_ESM=%d\n", is_ESM);
 
+    unsigned char *buffer = NULL;
     if(0 != sec_header_type) 
 	{ /*security header*/
         log_msg(LOG_INFO, "Security header\n");
@@ -275,6 +276,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 log_msg(LOG_INFO, "Recvd security header for Service request.");
                 nas->header.security_header_type = sec_header_type;
                 nas->header.proto_discriminator = protocol_discr;
+                buffer = msg;
                 msg += 1;
                 nas->header.ksi = msg[0] >> 4;
                 nas->header.seq_no = msg[0] & 0x0F;
@@ -342,19 +344,19 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                     if(ueCtxt_p != NULL)
                     {
                         Secinfo &secContext = ueCtxt_p->getUeSecInfo();
-                        unsigned char *buffer = NULL;
+                        unsigned char *bufflog = NULL;
                         log_msg(LOG_INFO, "mac=%s\n", 
                                 msg_to_hex_str(
                                    (unsigned char *)nas->header.short_mac, 
-                                    SHORT_MAC_SIZE, &buffer));
-                        log_buffer_free(&buffer);
+                                    SHORT_MAC_SIZE, &bufflog));
+                        log_buffer_free(&bufflog);
                         /* calculate mac and compare with received mac */
                         unsigned char int_key[NAS_INT_KEY_SIZE];
                         unsigned char calc_mac[MAC_SIZE] = {0};
+                        unsigned char* macPtr;
                         uint32_t ul_count = secContext.getUplinkCount();
                         uint8_t direction = SEC_DIRECTION_UPLINK;
                         uint8_t bearer = 0;
-                        buffer = msg;
                         int buf_len = 2;
                         secContext.getIntKey(&int_key[0]);
                         nas_int_algo_enum int_alg = 
@@ -365,13 +367,14 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
 
                         log_msg(LOG_DEBUG, "Check Service Req Short mac.\n");
                         unsigned char short_mac_local[SHORT_MAC_SIZE] = {0};
-                        unsigned char *bufflog = NULL;
+                        bufflog = NULL;
                         log_msg(LOG_INFO, "calcmac=%s\n", 
                                 msg_to_hex_str(
                                    (unsigned char *)calc_mac, 
                                     MAC_SIZE, &bufflog));
                         log_buffer_free(&bufflog);
-                        memcpy(short_mac_local, calc_mac, SHORT_MAC_SIZE);
+                        macPtr = calc_mac + 2;
+                        memcpy(short_mac_local, macPtr, SHORT_MAC_SIZE);
                         log_msg(LOG_INFO, "short calc mac=%s\n", 
                                 msg_to_hex_str(
                                    (unsigned char *)short_mac_local, 
@@ -383,13 +386,15 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                             log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
                             return E_FAIL;
                         }
-                        else
-                        {
-                            log_msg(LOG_DEBUG, "MAC matched for service req.\n");
-                            return SUCCESS;
-                        }
 
+                        log_msg(LOG_DEBUG, "MAC matched for service req.\n");
                         secContext.increment_uplink_count();
+                        return SUCCESS;
+                    }
+                    else
+                    {
+                        log_msg(LOG_DEBUG, "No Ue context.\n");
+                        return E_FAIL;
                     }
                 }
                 else
@@ -403,45 +408,51 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 controlBlk_p = 
                     SubsDataGroupManager::Instance()->findControlBlock(
                                                             msg_data->ue_idx);
-            }
 
-            if(controlBlk_p != NULL)
-            {
-                UEContext* ueCtxt_p = static_cast<UEContext*>(
-                                            controlBlk_p->getPermDataBlock());
-                if(ueCtxt_p != NULL)
+                if(controlBlk_p != NULL)
                 {
-                    Secinfo &secContext = ueCtxt_p->getUeSecInfo();
-                    unsigned char *buffer = NULL;
-                    log_msg(LOG_INFO, "mac=%s\n", msg_to_hex_str((unsigned char *)nas_header_sec.mac, MAC_SIZE, &buffer));
-                    log_buffer_free(&buffer);
-                    /* calculate mac and compare with received mac */
-                    unsigned char int_key[NAS_INT_KEY_SIZE];
-                    unsigned char calc_mac[MAC_SIZE] = {0};
-                    uint32_t ul_count = secContext.getUplinkCount();
-                    uint8_t direction = SEC_DIRECTION_UPLINK;
-                    uint8_t bearer = 0;
-                    buffer = msg + sizeof(nas_pdu_header_sec) - sizeof(uint8_t);
-                    int buf_len = nas_msg_len - sizeof(nas_pdu_header_sec) + sizeof(uint8_t);
-                    secContext.getIntKey(&int_key[0]);
-                    nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
-                    calculate_mac(int_key, ul_count,
+                    UEContext* ueCtxt_p = static_cast<UEContext*>(
+                                                controlBlk_p->getPermDataBlock());
+                    if(ueCtxt_p != NULL)
+                    {
+                        Secinfo &secContext = ueCtxt_p->getUeSecInfo();
+                        unsigned char *bufflog = NULL;
+                        log_msg(LOG_INFO, "mac=%s\n", msg_to_hex_str((unsigned char *)nas_header_sec.mac, MAC_SIZE, &bufflog));
+                        log_buffer_free(&bufflog);
+                        /* calculate mac and compare with received mac */
+                        unsigned char int_key[NAS_INT_KEY_SIZE];
+                        unsigned char calc_mac[MAC_SIZE] = {0};
+                        uint32_t ul_count = secContext.getUplinkCount();
+                        uint8_t direction = SEC_DIRECTION_UPLINK;
+                        uint8_t bearer = 0;
+                        buffer = msg + sizeof(nas_pdu_header_sec) - sizeof(uint8_t);
+                        int buf_len = nas_msg_len - sizeof(nas_pdu_header_sec) + sizeof(uint8_t);
+                        secContext.getIntKey(&int_key[0]);
+                        nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+                        calculate_mac(int_key, ul_count,
                                       direction, bearer, buffer, buf_len,
                                       calc_mac, int_alg);
-
-                    if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
-                    {
-                        log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
-                        return E_FAIL;
+                        bufflog = NULL;
+                        log_msg(LOG_INFO, "calcmac=%s\n", 
+                                msg_to_hex_str(
+                                               (unsigned char *)calc_mac, 
+                                               MAC_SIZE, &bufflog));
+                        log_buffer_free(&bufflog);
+                        if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
+                        {
+                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
+                            return E_FAIL;
+                        }
+                            
+                        log_msg(LOG_DEBUG, "MAC matched.\n");
+                        secContext.increment_uplink_count();
                     }
-
-                    secContext.increment_uplink_count();
                 }
-            }
-            else
-            {
-                log_msg(LOG_ERROR,"Control block not found\n");
-                return E_FAIL;
+                else
+                {
+                    log_msg(LOG_ERROR,"Control block not found\n");
+                    return E_FAIL;
+                }
             }
         }
         
@@ -622,10 +633,10 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 }
 
                 msg += imsi_len;
-                unsigned char *buffer = NULL;
+                unsigned char *bufflog = NULL;
                 log_msg(LOG_INFO, "IMSI=%s [to be read nibble-swapped]\n",
-                                msg_to_hex_str((unsigned char *)nas->elements[index].pduElement.IMSI, imsi_len, &buffer));
-                log_buffer_free(&buffer);
+                                msg_to_hex_str((unsigned char *)nas->elements[index].pduElement.IMSI, imsi_len, &bufflog));
+                log_buffer_free(&bufflog);
 
                 /*UE network capacity*/
                 index++;
