@@ -229,7 +229,8 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 		}
 	}
 #else
-	uint32_t select_auth= (rand() % 4) + 1; /* 1 to 4 */
+    //uint32_t select_auth= (rand() % 4) + 1; /* 1 to 4 */
+	uint32_t select_auth= 1; /* 1 to 4 */
 	/*Find first sub child of Authentication-Info*/
 	CHECK_FCT_DO(fd_msg_browse(resp, MSG_BRW_FIRST_CHILD, &sub_avp,
 			NULL),
