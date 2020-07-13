@@ -152,6 +152,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
       if(s1apPDU.value.data)
       {
           free(s1apPDU.value.data);
+          s1apPDU.value.data = NULL;
       }
       return E_FAIL;
     }
@@ -365,12 +366,12 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 
    	send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
 	log_msg(LOG_INFO, "\nTAU RESP received from MME\n");
-    free(s1apPDU.value.data);
     if(s1apPDU.value.data)
     {
         free(s1apPDU.value.data);
+        s1apPDU.value.data = NULL;
     }
-	return SUCCESS;
+    return SUCCESS;
 }
 
 
