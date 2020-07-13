@@ -123,7 +123,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	nas.elements[3].pduElement.mi_guti.odd_even_indication = 0;
 	nas.elements[3].pduElement.mi_guti.id_type = 6;
 
-	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
+	memcpy(&(nas.elements[3].pduElement.mi_guti.plmn_id),
 			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - dont use sizeof(struct PLMN));
 	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
 	nas.elements[3].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;

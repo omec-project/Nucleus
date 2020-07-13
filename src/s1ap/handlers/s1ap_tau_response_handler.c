@@ -73,7 +73,6 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 	nasIeCnt++;
 #endif
 
-	free(value->data[2].val.nas.elements);
 	//free(value->data);
 
 	return SUCCESS;
@@ -145,7 +144,15 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	  datalen = g_buffer.pos - s1ap_len_pos - 1;
 	  memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
    	  send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
-      free(s1apPDU.value.data);
+      if(s1apPDU.value.data[2].val.nas.elements)
+      {
+          free(s1apPDU.value.data[2].val.nas.elements);
+      }
+
+      if(s1apPDU.value.data)
+      {
+          free(s1apPDU.value.data);
+      }
       return E_FAIL;
     }
 
@@ -352,11 +359,17 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgBuf[0], g_tauRespInfo->nasMsgSize);
+	datalen = g_buffer.pos - s1ap_len_pos - 1;
+	memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 #endif
 
    	send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
 	log_msg(LOG_INFO, "\nTAU RESP received from MME\n");
     free(s1apPDU.value.data);
+    if(s1apPDU.value.data)
+    {
+        free(s1apPDU.value.data);
+    }
 	return SUCCESS;
 }
 
