@@ -67,6 +67,14 @@ parse_s1ap_conf(s1ap_config_t *config)
 	config->mme_plmn_id.idx[1] = mnc_dig1 << 4 | mcc_dig3;
 	config->mme_plmn_id.idx[2] = mnc_dig3 << 4 | mnc_dig2;
 
+	char *logging = get_string_scalar((char *)("mme.logging"));
+	if(NULL == logging) 
+    { 
+      logging = (char *)calloc(1, strlen("debug")+1);
+      strncpy(logging, "debug", strlen("debug")+1);
+    } 
+    set_logging_level(logging); 
+
 	uint16_t count=1;
 	while(1) {
 		char name[100] = {'\0'};
@@ -109,14 +117,6 @@ parse_s1ap_conf(s1ap_config_t *config)
 		count++;
 	}
 	config->num_plmns = count - 1;
-	config->logging = get_string_scalar("mme.logging");
-	if(NULL == config->logging) 
-	{ 
-		log_msg(LOG_INFO, "Missing logging config");
-		config->logging = (char *)calloc(1, strlen("debug")+1);
-		strncpy(config->logging, "debug", strlen("debug")+1);
-    }
-	log_msg(LOG_INFO, "logging level configured %s ", config->logging);
 	return SUCCESS;
 }
 
