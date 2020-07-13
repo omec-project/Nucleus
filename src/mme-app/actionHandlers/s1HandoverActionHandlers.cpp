@@ -435,7 +435,6 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
     }
 
     const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
-    ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
 
     //TAI and CGI obtained from s1ap ies.
     //Convert the plmn in s1ap format to nas format

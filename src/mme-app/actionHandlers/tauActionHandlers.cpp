@@ -86,9 +86,10 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 
 	tau_resp.msg_type = tau_response;
 	tau_resp.ue_idx = ue_ctxt->getContextID();
+	tau_resp.status = 0;
 
 #ifdef S1AP_ENCODE_NAS
-	tau_resp.status = 0;
+	//tau_resp.status = 0;
 	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
     tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
     tau_resp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
