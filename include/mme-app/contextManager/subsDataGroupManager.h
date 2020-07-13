@@ -38,6 +38,7 @@
 #include "contextManager/mmeSvcReqProcedureCtxtManager.h"
 #include "contextManager/mmeTauProcedureCtxtManager.h"
 #include "contextManager/s1HandoverProcedureContextManager.h"
+#include "contextManager/mmeErabModIndProcedureCtxtManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -183,6 +184,17 @@ namespace mme
 			 *  Delete a S1HandoverProcedureContext data block
 			 ******************************************/
 			void deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp );
+			/******************************************
+			 * getMmeErabModIndProcedureCtxt
+			 * Get MmeErabModIndProcedureCtxt data block
+			 ******************************************/
+			MmeErabModIndProcedureCtxt* getMmeErabModIndProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeErabModIndProcedureCtxt
+			 *  Delete a MmeErabModIndProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp );
 			
 			/******************************************
 			* addimsikey
@@ -282,6 +294,11 @@ namespace mme
 			* S1HandoverProcedureContext Pool Manager
 			****************************************/
 			S1HandoverProcedureContextManager* S1HandoverProcedureContextManagerm_p;
+			
+			/****************************************
+			* MmeErabModIndProcedureCtxt Pool Manager
+			****************************************/
+			MmeErabModIndProcedureCtxtManager* MmeErabModIndProcedureCtxtManagerm_p;
 			
 			
 			/****************************************

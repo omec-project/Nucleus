@@ -167,6 +167,8 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	unsigned char *sess_id= NULL;
 	struct s6_incoming_msg_data_t s6_incoming_msgs;
 	struct avp_hdr *avp_hdr = NULL;
+	struct avp *sub_avp = NULL;
+	struct avp_hdr *element = NULL;
 
 	log_msg(LOG_INFO, "\nCallback ----- >AIA recvd\n");
 
@@ -175,7 +177,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	{
 		char * buf = NULL;
 		size_t len = 0;
-		printf("*********AIA CALLBACK******%s\n", fd_msg_dump_treeview(&buf, &len, NULL, resp,
+		log_msg(LOG_DEBUG,"*********AIA CALLBACK******%s\n", fd_msg_dump_treeview(&buf, &len, NULL, resp,
 					fd_g_config->cnf_dict, 0, 1));
 		free(buf);
 	}
@@ -199,8 +201,6 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 		if (DIAMETER_SUCCESS != res) {
 			log_msg(LOG_ERROR, "Diameter error with HSS\n");
 		}
-		//Vikram: chk res = SUCCESS;
-
 	} else {
 		struct fd_result fd_res;
 
@@ -215,6 +215,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 		} else res = fd_res.result_code;
 	}
 
+#if 0
 	if (DIAMETER_SUCCESS == res) {
 		/*AVP: Authentication-Info*/
 		fd_msg_search_avp(resp, g_fd_dict_objs.auth_info,
@@ -227,6 +228,34 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 			res = S6A_FD_ERROR;
 		}
 	}
+#else
+    //uint32_t select_auth= (rand() % 4) + 1; /* 1 to 4 */
+	uint32_t select_auth= 1; /* 1 to 4 */
+	/*Find first sub child of Authentication-Info*/
+	CHECK_FCT_DO(fd_msg_browse(resp, MSG_BRW_FIRST_CHILD, &sub_avp,
+			NULL),
+			return S6A_FD_ERROR);
+
+	/*Lookup for sub element "E-UTRAN-Vector" in loop*/
+	while (NULL != sub_avp) {
+		fd_msg_avp_hdr(sub_avp, &element);
+		if ((NULL != element) && (element->avp_code ==
+			g_fd_dict_data.auth_info.avp_code)) {
+			select_auth --;
+			if(select_auth == 0) {
+				if (get_aia_sec_vector(sub_avp, &s6_incoming_msgs.msg_data.aia_Q_msg_m) != SUCCESS) {
+					res = S6A_FD_ERROR;
+				} else {
+					break; // Success case 
+				}
+			}
+		}
+		/*Iterate sub entries*/
+		CHECK_FCT_DO(fd_msg_browse(sub_avp, MSG_BRW_NEXT, &sub_avp,
+			NULL),
+			return S6A_FD_ERROR);
+	}
+#endif
 
 	/*Handled fd msg, do cleanup*/
 	fd_msg_free(*buf);

@@ -11,6 +11,9 @@
 
 #ifndef F9_H_
 #define F9_H_
+#ifdef __cplusplus
+extern "C"{
+#endif
 #include "snow_3g.h"
 
 /* f9.
@@ -28,6 +31,10 @@
 
 
 u8* f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif
 

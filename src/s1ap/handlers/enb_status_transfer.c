@@ -19,7 +19,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
 {
-    struct s1_incoming_msg_data_t ho_enb_status_transfer = {0};
+    s1_incoming_msg_data_t ho_enb_status_transfer = {0};
     struct proto_IE ho_enb_status_transfer_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover enb_status_transfer message\n");
 

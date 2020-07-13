@@ -80,4 +80,7 @@ int ProcedureStats::num_of_ho_failure_received = 0;
 int ProcedureStats::num_of_ho_prep_failure_sent = 0;
 int ProcedureStats::num_of_ho_cancel_received = 0;
 int ProcedureStats::num_of_ho_cancel_ack_sent = 0;
-
+int ProcedureStats::num_of_erab_mod_ind_received = 0;
+int ProcedureStats::num_of_erab_mod_conf_sent = 0;
+int ProcedureStats::num_of_erab_mod_ind_timeout = 0;
+int ProcedureStats::num_of_abort_erab_mod_indication = 0;

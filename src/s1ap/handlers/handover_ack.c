@@ -32,7 +32,7 @@ void dumpHOReqAck(struct handover_req_acknowledge_Q_msg* msg)
 
 int s1_handover_ack_handler(SuccessfulOutcome_t *msg)
 {
-    struct s1_incoming_msg_data_t handover_ack = {0};
+    s1_incoming_msg_data_t handover_ack = {0};
     struct proto_IE s1_ho_ack_ies = {0};
 
     int decode_status = convertHoAcklToProtoIe(msg, &s1_ho_ack_ies); //create

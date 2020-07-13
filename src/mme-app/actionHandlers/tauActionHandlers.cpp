@@ -34,6 +34,8 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "mmeNasUtils.h"
+#include "mme_app.h"
 #include <utils/mmeCommonUtils.h>
 
 using namespace mme;
@@ -41,59 +43,7 @@ using namespace SM;
 using namespace cmn;
 using namespace cmn::utils;
 
-/***************************************
-* Action handler : process_tau_request
-***************************************/
-ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
-{
-	log_msg(LOG_INFO,"Inside process_tau_request\n");
-
-	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_ERROR, "process_tau_request: ue context is NULL\n",cb.getCBIndex());
-		return ActStatus::HALT;
-	}
-
-	MmeProcedureCtxt* prcdCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-	if (prcdCtxt_p == NULL)
-	{
-		log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureCtxt is NULL\n");
-		return ActStatus::HALT;
-	}
-
-	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-	if (msgBuf == NULL)
-	{
-            log_msg(LOG_DEBUG,"process_tau_req: msgBuf is NULL \n");
-            return ActStatus::HALT;
-	}
-
-	const s1_incoming_msg_data_t* msgData_p =
-			static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	if (msgData_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-		return ActStatus::HALT;
-	}
-
-	const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
-
-	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
-	{
-		S1HandoverProcedureContext *s1HoPrCtxt = dynamic_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
-
-		//TAI and CGI obtained from s1ap ies.
-		//Convert the plmn in s1ap format to nas format
-		//before storing in ue context/sending in tai list of tau response.
-		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
-		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
-		s1HoPrCtxt->setTargetTai(Tai(tauReq.tai));
-		s1HoPrCtxt->setTargetCgi(Cgi(tauReq.eUtran_cgi));
-	}
-    return ActStatus::PROCEED;
-}
+extern mme_config g_mme_cfg;
 
 /***************************************
 * Action handler : send_tau_response_to_ue
@@ -135,15 +85,59 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	}
 
 	tau_resp.msg_type = tau_response;
-	tau_resp.status = 0;
 	tau_resp.ue_idx = ue_ctxt->getContextID();
-	tau_resp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->setDwnLnkSeqNo(tau_resp.dl_seq_no+1);
+	tau_resp.status = 0;
+
+#ifdef S1AP_ENCODE_NAS
+	//tau_resp.status = 0;
+	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    tau_resp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 
 	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
-	ue_ctxt->setTai(Tai(tau_resp.tai));
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 5;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+
+	nas.header.security_header_type = IntegrityProtectedCiphered;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	/* placeholder for mac. mac value will be calculated later */
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+	nas.header.message_type = TauAccept;
+	nas.elements[0].pduElement.eps_update_result = 0;
+	nas.elements[1].pduElement.t3412 = 0x21;
+	//nas.elements[2].pduElement.mi_guti = 0x21;
+	//nas.elements[3].pduElement.mi_guti = 0x21; TAI LIST 
+   /* Send the allocated GUTI to UE  */
+	nas.elements[3].pduElement.mi_guti.odd_even_indication = 0;
+	nas.elements[3].pduElement.mi_guti.id_type = 6;
+
+	memcpy(&(nas.elements[3].pduElement.mi_guti.plmn_id),
+			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - dont use sizeof(struct PLMN));
+	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
+	nas.elements[3].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+
+
+	//nas.elements[4].pduElement. MS identity  tmsi 
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&tau_resp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	tau_resp.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
+	
+	ue_ctxt->setTai(Tai(tau_resp.tai)); /* ajaymerge --need careful reading here... Did i merge correctly ?? */
 	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 

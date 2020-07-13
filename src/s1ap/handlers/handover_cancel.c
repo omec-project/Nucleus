@@ -19,7 +19,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 int s1_handover_cancel_handler(InitiatingMessage_t *msg)
 {
-    struct s1_incoming_msg_data_t ho_cancel = {0};
+    s1_incoming_msg_data_t ho_cancel = {0};
     struct proto_IE ho_cancel_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover cancel message\n");
 

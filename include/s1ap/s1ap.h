@@ -18,6 +18,7 @@
 #include "SuccessfulOutcome.h"
 #include "UnsuccessfulOutcome.h"
 #include "common_proc_info.h"
+#include "msgType.h"
 #include "s1ap_config.h"
 
 
@@ -30,11 +31,19 @@ typedef struct s1ap_instance
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
 
+#if 0
 int
 parse_IEs(char *msg, struct proto_IE *proto_ies, unsigned short proc_code);
+#endif
 
+#ifdef S1AP_DECODE_NAS
 int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+#else
+int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
+int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
+#endif
+
 int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
 int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
@@ -44,6 +53,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ie
 int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
 int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_ies);
 
 int
 s1_setup_handler(InitiatingMessage_t *msg, int enb_fd);
@@ -114,6 +124,9 @@ s1_handover_cancel_handler(InitiatingMessage_t *msg);
 int
 detach_accept_from_ue_handler(struct proto_IE *detach_ies, bool retransmit);
 
+int
+erab_mod_indication_handler(InitiatingMessage_t *msg);
+
 int s1ap_mme_encode_ue_context_release_command(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
@@ -170,6 +183,10 @@ int s1ap_mme_encode_handover_prep_failure(
 int s1ap_mme_encode_handover_cancel_ack(
         struct handover_cancel_ack_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_erab_mod_confirmation(
+  	struct erab_mod_confirm *s1apPDU,
+  	uint8_t **buffer, uint32_t *length);
 
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd);

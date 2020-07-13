@@ -107,7 +107,7 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 	msgBuf->readUint32(destAddr);
 	msgBuf->readUint32(srcAddr);
 
-	log_msg(LOG_INFO, "IPC Message from src %u to dest %u\n", srcAddr, destAddr);
+	log_msg(LOG_INFO, "IPC Message received from src %u to dest %u\n", srcAddr, destAddr);
 
 	switch (srcAddr)
 

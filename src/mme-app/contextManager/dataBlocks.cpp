@@ -202,38 +202,6 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets dwnLnkSeqNo
-	******************************************************************************/
-	void UEContext::setDwnLnkSeqNo( uint16_t dwnLnkSeqNo_i )
-	{
-		dwnLnkSeqNo_m = dwnLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns dwnLnkSeqNo
-	******************************************************************************/	
-	uint16_t UEContext::getDwnLnkSeqNo() const
-	{
-		return dwnLnkSeqNo_m;
-	}
-	
-	/******************************************************************************
-	* sets upLnkSeqNo
-	******************************************************************************/
-	void UEContext::setUpLnkSeqNo( uint16_t upLnkSeqNo_i )
-	{
-		upLnkSeqNo_m = upLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns upLnkSeqNo
-	******************************************************************************/	
-	uint16_t UEContext::getUpLnkSeqNo() const
-	{
-		return upLnkSeqNo_m;
-	}
-	
-	/******************************************************************************
 	* sets ueState
 	******************************************************************************/
 	void UEContext::setUeState( UE_State_e ueState_i )
@@ -316,7 +284,7 @@ namespace mme
 	/******************************************************************************
 	* sets ueSecInfo
 	******************************************************************************/
-	void UEContext::setUeSecInfo( const Secinfo& ueSecInfo_i )
+	void UEContext::setUeSecInfo( Secinfo& ueSecInfo_i )
 	{
 		ueSecInfo_m = ueSecInfo_i;
 	}
@@ -324,7 +292,7 @@ namespace mme
 	/******************************************************************************
 	* returns ueSecInfo
 	******************************************************************************/	
-	const Secinfo& UEContext::getUeSecInfo() const
+	Secinfo& UEContext::getUeSecInfo() 
 	{
 		return ueSecInfo_m;
 	}
@@ -922,7 +890,7 @@ namespace mme
 	void MmeAttachProcedureCtxt::setPcoOptions( const uint8_t* pcoOptions_i,uint16_t len )
 	{
 		pcoOptionsLen_m=len;
-		memcpy(pcoOptions_m, pcoOptions_i, pcoOptionsLen_m);
+		memcpy(pcoOptions_m, pcoOptions_i, (pcoOptionsLen_m * sizeof(uint8_t)));
 	}
 	
 	/******************************************************************************
@@ -983,7 +951,9 @@ namespace mme
 	******************************************************************************/
 	MmeDetachProcedureCtxt::MmeDetachProcedureCtxt():           
             detachType_m(invalidDetachType_c),
-            cancellationType_m(INVALID_TYPE)
+            cancellationType_m(INVALID_TYPE),
+            nasDetachType_m(0),
+            detachCause_m(0)
 	{	
 	}
 	
@@ -1024,6 +994,38 @@ namespace mme
 	CancellationType MmeDetachProcedureCtxt::getCancellationType() const
 	{
 		return cancellationType_m;
+	}
+	
+	/******************************************************************************
+	* sets nasDetachType
+	******************************************************************************/
+	void MmeDetachProcedureCtxt::setNasDetachType( uint32_t nasDetachType_i )
+	{
+		nasDetachType_m = nasDetachType_i;
+	}
+	
+	/******************************************************************************
+	* returns nasDetachType
+	******************************************************************************/	
+	uint32_t MmeDetachProcedureCtxt::getNasDetachType() const
+	{
+		return nasDetachType_m;
+	}
+	
+	/******************************************************************************
+	* sets detachCause
+	******************************************************************************/
+	void MmeDetachProcedureCtxt::setDetachCause( uint32_t detachCause_i )
+	{
+		detachCause_m = detachCause_i;
+	}
+	
+	/******************************************************************************
+	* returns detachCause
+	******************************************************************************/	
+	uint32_t MmeDetachProcedureCtxt::getDetachCause() const
+	{
+		return detachCause_m;
 	}
 	
 	/******************************************************************************
@@ -1444,6 +1446,80 @@ namespace mme
 	uint32_t S1HandoverProcedureContext::getSrcS1apEnbUeId() const
 	{
 		return srcS1apEnbUeId_m;
+	}
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							MmeErabModIndProcedureCtxt
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	MmeErabModIndProcedureCtxt::MmeErabModIndProcedureCtxt():           
+            erabToBeModifiedListLen_m(0),
+            erabModifiedListLen_m(0)
+	{
+		memset(erabToBeModifiedList_m,0,sizeof(erabToBeModifiedList_m));
+
+		memset(erabModifiedList_m,0,sizeof(erabModifiedList_m));
+	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	MmeErabModIndProcedureCtxt::~MmeErabModIndProcedureCtxt()
+	{
+	}	
+	
+	/******************************************************************************
+	* sets erabToBeModifiedList
+	******************************************************************************/
+	void MmeErabModIndProcedureCtxt::setErabToBeModifiedList( const erab_to_be_modified_item* erabToBeModifiedList_i,uint16_t len )
+	{
+		erabToBeModifiedListLen_m=len;
+		memcpy(erabToBeModifiedList_m, erabToBeModifiedList_i, (erabToBeModifiedListLen_m * sizeof(erab_to_be_modified_item)));
+	}
+	
+	/******************************************************************************
+	* returns erabToBeModifiedList
+	******************************************************************************/	
+	const erab_to_be_modified_item* MmeErabModIndProcedureCtxt::getErabToBeModifiedList() const
+	{
+		return erabToBeModifiedList_m;
+	}
+	/******************************************************************************
+	* returns erabToBeModifiedListLen
+	******************************************************************************/	
+	uint16_t MmeErabModIndProcedureCtxt::getErabToBeModifiedListLen() const
+	{
+		return erabToBeModifiedListLen_m;
+	}
+	
+	/******************************************************************************
+	* sets erabModifiedList
+	******************************************************************************/
+	void MmeErabModIndProcedureCtxt::setErabModifiedList( const uint8_t* erabModifiedList_i,uint16_t len )
+	{
+		erabModifiedListLen_m=len;
+		memcpy(erabModifiedList_m, erabModifiedList_i, (erabModifiedListLen_m * sizeof(uint8_t)));
+	}
+	
+	/******************************************************************************
+	* returns erabModifiedList
+	******************************************************************************/	
+	const uint8_t* MmeErabModIndProcedureCtxt::getErabModifiedList() const
+	{
+		return erabModifiedList_m;
+	}
+	/******************************************************************************
+	* returns erabModifiedListLen
+	******************************************************************************/	
+	uint16_t MmeErabModIndProcedureCtxt::getErabModifiedListLen() const
+	{
+		return erabModifiedListLen_m;
 	}
 	
 } // mme

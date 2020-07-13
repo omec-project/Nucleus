@@ -25,6 +25,9 @@
 #include "s1ap_ie.h"
 #include "ProtocolIE-ID.h"
 #include "ProtocolIE-Field.h"
+
+extern ipc_handle ipc_S1ap_Hndl;
+
 static void
 parse_erab_pdu(char *msg,  int nas_msg_len, struct eRAB_elements *erab)
 {
@@ -58,6 +61,7 @@ parse_erab_pdu(char *msg,  int nas_msg_len, struct eRAB_elements *erab)
 	//ntohl ??
 }
 
+#ifdef S1AP_DECODE_NAS
 void
 parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		unsigned short proc_code)
@@ -237,14 +241,18 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 		log_msg(LOG_INFO, "NAS_SEC_MODE_COMPLETE recvd\n");
 		break;
 
+	case NAS_SEC_MODE_REJECT:
+		log_msg(LOG_INFO, "NAS_SEC_MODE_REJECT recvd\n");
+		break;
+
 	case NAS_AUTH_RESP:
 		log_msg(LOG_INFO, "NAS_AUTH_RESP recvd\n");
 		nas->elements_len = 1;
 		nas->elements = calloc(sizeof(nas_pdu_elements), 5);
 		//if(NULL == nas.elements)...
-		unsigned short len = get_length(&msg);
 		memcpy(&(nas->elements[0].pduElement.auth_resp), msg, sizeof(struct XRES));
-
+		uint64_t res = *(uint64_t *)(&nas->elements[0].pduElement.auth_resp.val);
+		log_msg(LOG_INFO, "NAS_AUTH_RESP recvd len %d %lu\n",nas->elements[0].pduElement.auth_resp.len,res);
 		break;
     
 	case NAS_IDENTITY_RESPONSE: {
@@ -353,7 +361,7 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 
             index++;
             /*ESM msg container*/
-            len = msg[0] << 8 | msg[1];
+            unsigned short len = msg[0] << 8 | msg[1];
             msg += 2;
             //now msg points to ESM message contents
             log_msg(LOG_INFO, "len=%x\n", len);
@@ -545,7 +553,9 @@ parse_nas_pdu(char *msg,  int nas_msg_len, struct nasPDU *nas,
 	}
 }
 
+#endif
 
+#if 0
 int
 parse_IEs(char *msg, struct proto_IE *proto_ies, unsigned short proc_code)
 {
@@ -675,11 +685,20 @@ parse_IEs(char *msg, struct proto_IE *proto_ies, unsigned short proc_code)
 	}
 	return 0;
 }
+#endif
 
+#ifdef S1AP_DECODE_NAS
 int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
+#else
+int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg)
+#endif
 {
     proto_ies->procedureCode = msg->procedureCode;
     proto_ies->criticality = msg->criticality;
+
+#ifndef S1AP_DECODE_NAS
+	s1Msg->msg_data.ue_attach_info_m.criticality = msg->criticality; 
+#endif
 
     if(msg->value.present == InitiatingMessage__value_PR_InitialUEMessage)
     {
@@ -704,16 +723,19 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                         {
 						    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
                         }
-
-                        if (s1apENBUES1APID_p == NULL) {
+                        else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "ENB UE S1ap ID decode Success\n");
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
-						s1apENBUES1APID_p = NULL;
+                        log_msg(LOG_DEBUG, "ENB UE S1ap ID decode Success = %u \n",proto_ies->data[i].val.enb_ue_s1ap_id);
+#ifndef S1AP_DECODE_NAS
+						s1Msg->s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+						s1Msg->msg_data.rawMsg.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+#endif
 					} break;
 				case ProtocolIE_ID_id_NAS_PDU:
 					{
@@ -721,18 +743,23 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                         if(InitialUEMessage_IEs__value_PR_NAS_PDU == ie_p->value.present)
                         {
 						    s1apNASPDU_p = &ie_p->value.choice.NAS_PDU;
-                        }
-
-                        if (s1apNASPDU_p == NULL) {
+						}
+						else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed\n");
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "NAS PDU decode Success\n");
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU;
+#ifdef S1AP_DECODE_NAS
+                        log_msg(LOG_DEBUG, "NAS PDU decode Success\n");
                         parse_nas_pdu((char*)s1apNASPDU_p->buf, s1apNASPDU_p->size,
                                        &proto_ies->data[i].val.nas, msg->procedureCode);
-						s1apNASPDU_p = NULL;
+#else
+                        log_msg(LOG_DEBUG, "NAS AVP size %d \n",s1apNASPDU_p->size);
+						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
+						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
+#endif
 					} break;
 				case ProtocolIE_ID_id_TAI:
 					{
@@ -741,8 +768,8 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                         {
 						    s1apTAI_p = &ie_p->value.choice.TAI;
                         }
-
-                        if (s1apTAI_p == NULL) {
+                        else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE TAI failed\n");
 							return -1;
 						}
@@ -753,6 +780,10 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx,
                                 s1apTAI_p->pLMNidentity.buf, s1apTAI_p->pLMNidentity.size);
 						s1apTAI_p = NULL;
+#ifndef S1AP_DECODE_NAS
+                    	memcpy(&(s1Msg->msg_data.rawMsg.tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
+#endif
+
 					} break;
 				case ProtocolIE_ID_id_EUTRAN_CGI:
 					{
@@ -774,6 +805,11 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
 						memcpy(proto_ies->data[i].val.utran_cgi.plmn_id.idx,
                                 s1apCGI_p->pLMNidentity.buf, s1apCGI_p->pLMNidentity.size);
 						s1apCGI_p = NULL;
+#ifndef S1AP_DECODE_NAS
+                    memcpy(&(s1Msg->msg_data.rawMsg.utran_cgi), &(proto_ies->data[i].val.utran_cgi),
+                           sizeof(struct CGI));
+#endif
+
 					} break;
 				case ProtocolIE_ID_id_RRC_Establishment_Cause:
 					{
@@ -792,6 +828,9 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                         proto_ies->data[i].IE_type = S1AP_IE_RRC_EST_CAUSE;
 						proto_ies->data[i].val.rrc_est_cause = (enum ie_RRC_est_cause) *s1apRRCEstCause_p;
 						s1apRRCEstCause_p = NULL;
+#ifndef S1AP_DECODE_NAS
+//copy
+#endif
 					} break;
 				case ProtocolIE_ID_id_S_TMSI:
 					{
@@ -800,8 +839,8 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                         {
 						    s1apStmsi_p = &ie_p->value.choice.S_TMSI;
                         }
-
-                        if (s1apStmsi_p == NULL) {
+                        else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE STMSI failed\n");
 							return -1;
 						}
@@ -812,7 +851,10 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
                                s1apStmsi_p->mMEC.buf, sizeof(uint8_t));
 						memcpy(&proto_ies->data[i].val.s_tmsi.m_TMSI,
                                 s1apStmsi_p->m_TMSI.buf, sizeof(uint32_t));
-						s1apStmsi_p = NULL;
+#ifndef S1AP_DECODE_NAS
+					memcpy(&s1Msg->msg_data.rawMsg.s_tmsi.mme_code, s1apStmsi_p->mMEC.buf, sizeof(uint8_t)); 
+					memcpy(&s1Msg->msg_data.rawMsg.s_tmsi.m_TMSI, s1apStmsi_p->m_TMSI.buf, sizeof(uint32_t));
+#endif
 					} break;
                 default:
                     {
@@ -830,13 +872,20 @@ static int
 init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 {
 	//TODO: use static instead of synamic for perf.
-	struct proto_IE proto_ies;
+	struct proto_IE proto_ies={0};
 
 	log_msg(LOG_INFO, "S1AP_INITIAL_UE_MSG msg: \n");
 
     /* TODO : Error handling. Bad message will lead crash. 
      * Preferably reject the message, increment stats.
      */
+    uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
+    if(INVALID_CB_INDEX == cbIndex)
+    {
+        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
+        return E_FAIL;
+    }
+#ifdef S1AP_DECODE_NAS
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies);
     if(decode_result < 0 )
     {
@@ -844,16 +893,10 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
       return E_FAIL;
     }
 
-    uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
-    if(INVALID_CB_INDEX == cbIndex)
-    {
-        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
-        return E_FAIL;
-    }
 	/*Check nas message type*/
 	//TODO: check through all proto IEs for which is nas
 	//currentlyy hard coding to 2 looking at packets
-	log_msg(LOG_INFO, "NAS msg type parsed = %x\n", proto_ies.data[1].val.nas.header.message_type);
+	log_msg(LOG_INFO, "NAS msg type parsed = %d\n", proto_ies.data[1].val.nas.header.message_type);
 	switch(proto_ies.data[1].val.nas.header.message_type) {
 	case NAS_ATTACH_REQUEST:
 		s1_init_ue_handler(&proto_ies, cbIndex);
@@ -875,6 +918,27 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	    tau_request_handler(&proto_ies, cbIndex);
 	    break;
 	}
+#else
+	s1_incoming_msg_data_t s1Msg={0};
+	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
+
+	int decode_result = convertToInitUeProtoIe(msg, &proto_ies, &s1Msg);
+    if(decode_result < 0 )
+    {
+	  log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
+      return E_FAIL;
+    }
+	s1Msg.msg_type = raw_nas_msg; 
+	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
+	s1Msg.srcInstAddr = htonl(s1apAppInstanceNum_c);
+
+	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
+
+	/*Send S1Setup response*/
+	log_msg(LOG_INFO, "Send s1ap message to mme-app. Msg size %d \n", S1_READ_MSG_BUF_SIZE);
+
+
+#endif
 
 	free(proto_ies.data);
 	//TODO: free IEs
@@ -885,22 +949,24 @@ static int
 UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 {
 	//TODO: use static instead of synamic for perf.
-	struct proto_IE proto_ies;
+	struct proto_IE proto_ies={0};
 
 	log_msg(LOG_INFO, "S1AP_UL_NAS_TX_MSG msg \n");
-
-    convertUplinkNasToProtoIe(msg, &proto_ies);
-
+    
     uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
     if(INVALID_CB_INDEX == cbIndex)
     {
         log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
         return E_FAIL;
     }
+
+#ifdef S1AP_DECODE_NAS
+    convertUplinkNasToProtoIe(msg, &proto_ies);
+
+	log_msg(LOG_INFO, "proto_ies.data[2].val.nas.header.message_type = %d  \n",proto_ies.data[2].val.nas.header.message_type);
 	/*Check nas message type*/
 	//TODO: check through all proto IEs for which is nas
 	//currentlyy hard coding to 2 looking at packets
-	log_msg(LOG_INFO, "NAS msg type = %x\n", proto_ies.data[2].val.nas.header.message_type);
 	switch(proto_ies.data[2].val.nas.header.message_type) {
 	case NAS_AUTH_RESP:
 		s1_auth_resp_handler(&proto_ies);
@@ -915,6 +981,7 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		break;
 
 	case NAS_SEC_MODE_COMPLETE:
+	case NAS_SEC_MODE_REJECT:
 		s1_secmode_resp_handler(&proto_ies);
 		break;
 
@@ -941,12 +1008,34 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	case NAS_TAU_REQUEST:
 	    tau_request_handler(&proto_ies, cbIndex);
 	    break;
+	default:
+		log_msg(LOG_INFO, "unhandled NAS message \n");
 	}
+#else
+	s1_incoming_msg_data_t s1Msg={0};
+	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
+    int decode_result = convertUplinkNasToProtoIe(msg, &proto_ies, &s1Msg);
+
+    if(decode_result < 0 )
+    {
+	  log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
+      return E_FAIL;
+    }
+	s1Msg.msg_type = raw_nas_msg;
+	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
+	s1Msg.srcInstAddr = htonl(s1apAppInstanceNum_c);
+
+	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
+
+	log_msg(LOG_INFO, "Send s1ap message to mme-app. Msg size %d \n", S1_READ_MSG_BUF_SIZE);
+
+#endif
 
 	//TODO: free IEs
 	free(proto_ies.data);
 	return SUCCESS;
 }
+
 void
 handle_s1ap_message(void *msg)
 {
@@ -1078,6 +1167,10 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 	case S1AP_HANDOVER_CANCEL_CODE:
 		s1_handover_cancel_handler(initiating_p);
 		break;
+        
+        case S1AP_ERAB_MODIFICATION_INDICATION_CODE:
+		erab_mod_indication_handler(initiating_p);
+		break;
 
 	default:
 		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
@@ -1089,7 +1182,11 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 	return 0;
 }
 
+#ifdef S1AP_DECODE_NAS
 int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies)
+#else
+int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg)
+#endif
 {
     proto_ies->procedureCode = msg->procedureCode;
     proto_ies->criticality = msg->criticality;
@@ -1119,14 +1216,18 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         {
 						    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
                         }
-						
-                        if (s1apENBUES1APID_p == NULL) {
+                        else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
 							return -1;
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID; 
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+#ifndef S1AP_DECODE_NAS
+						s1Msg->s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+						s1Msg->msg_data.rawMsg.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+#endif
 					} break;
 				case ProtocolIE_ID_id_MME_UE_S1AP_ID:
 					{
@@ -1143,6 +1244,9 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 
                         proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID; 
 						memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id, s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+#ifndef S1AP_DECODE_NAS
+						s1Msg->ue_idx = proto_ies->data[i].val.mme_ue_s1ap_id;
+#endif
 					} break;
 				case ProtocolIE_ID_id_NAS_PDU:
 					{
@@ -1150,16 +1254,24 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         if(UplinkNASTransport_IEs__value_PR_NAS_PDU == ie_p->value.present)
                         {
 						    s1apNASPDU_p = &ie_p->value.choice.NAS_PDU;
-                        }
-						
-                        if (s1apNASPDU_p == NULL) {
+                        } 
+						else
+                        {
 							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed\n");
 							return -1;
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU; 
+                        log_msg(LOG_DEBUG, "NAS AVP size %d and index = %d \n",s1apNASPDU_p->size, i);
+#ifdef S1AP_DECODE_NAS
                         parse_nas_pdu((char*)s1apNASPDU_p->buf, s1apNASPDU_p->size, 
                                        &proto_ies->data[i].val.nas, msg->procedureCode);
+#else
+                        log_msg(LOG_DEBUG, "NAS AVP size %d \n",s1apNASPDU_p->size);
+						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
+						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
+
+#endif
 					} break;
 				case ProtocolIE_ID_id_TAI:
 					{
@@ -1178,6 +1290,9 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 						memcpy(&proto_ies->data[i].val.tai.tac, s1apTAI_p->tAC.buf, s1apTAI_p->tAC.size);
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx, 
                                 s1apTAI_p->pLMNidentity.buf, s1apTAI_p->pLMNidentity.size);
+#ifndef S1AP_DECODE_NAS
+                    memcpy(&(s1Msg->msg_data.rawMsg.tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
+#endif
 					} break;
 				case ProtocolIE_ID_id_EUTRAN_CGI:
 					{
@@ -1197,6 +1312,9 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                                s1apCGI_p->cell_ID.buf, s1apCGI_p->cell_ID.size);
 						memcpy(proto_ies->data[i].val.utran_cgi.plmn_id.idx, 
                                 s1apCGI_p->pLMNidentity.buf, s1apCGI_p->pLMNidentity.size);
+#ifndef S1AP_DECODE_NAS
+                    memcpy(&(s1Msg->msg_data.rawMsg.utran_cgi), &(proto_ies->data[i].val.utran_cgi), sizeof(struct CGI));
+#endif
 					} break;
                 default:
                     {
@@ -1250,6 +1368,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID; 
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
 						s1apENBUES1APID_p = NULL;
+
 					} break;
 				case ProtocolIE_ID_id_MME_UE_S1AP_ID:
 					{
@@ -1258,8 +1377,8 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         {
 						    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
                         }
-						
-                        if (s1apMMEUES1APID_p == NULL) {
+                        else 
+						{
 							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed\n");
 							return -1;
 						}
@@ -1267,6 +1386,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID; 
 						memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id, s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
 						s1apMMEUES1APID_p = NULL;
+
 					} break;
 				case ProtocolIE_ID_id_E_RABSetupListCtxtSURes:
 					{
@@ -2446,5 +2566,177 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
         }
     }
 
+    return 0;
+}
+
+int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present
+            == InitiatingMessage__value_PR_E_RABModificationIndication)
+    {
+        ProtocolIE_Container_129P77_t *protocolIes =
+                &msg->value.choice.E_RABModificationIndication.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+        
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            E_RABModificationIndicationIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+            case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
+            {
+                ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_ENB_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                }
+		
+		if (s1apENBUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                    memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                            s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+            {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                    memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                            s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_E_RABToBeModifiedListBearerModInd:
+            {
+                E_RABToBeModifiedListBearerModInd_t *e_RABToBeModifiedList_p = NULL;
+                if (E_RABModificationIndicationIEs__value_PR_E_RABToBeModifiedListBearerModInd
+                        == ie_p->value.present)
+                {
+                    e_RABToBeModifiedList_p = &ie_p->value.choice.E_RABToBeModifiedListBearerModInd;
+                }
+
+		if (e_RABToBeModifiedList_p != NULL)
+		{
+                    proto_ies->data[i].IE_type = S1AP_IE_E_RAB_TO_BE_MOD_LIST_BEARER_MOD_IND;
+                    proto_ies->data[i].val.erab_to_be_mod_list.count =
+                            e_RABToBeModifiedList_p->list.count;
+
+                    for (int j = 0; j < e_RABToBeModifiedList_p->list.count; j++)
+                    {
+                        E_RABToBeModifiedItemBearerModIndIEs_t *ie_p;
+                        ie_p = (E_RABToBeModifiedItemBearerModIndIEs_t*) e_RABToBeModifiedList_p->list.array[j];
+                        switch (ie_p->id)
+                        {
+                            case ProtocolIE_ID_id_E_RABToBeModifiedItemBearerModInd:
+			    {
+                        	E_RABToBeModifiedItemBearerModInd_t *eRabToBeModifiedItem_p = NULL;
+                        	if (E_RABToBeModifiedItemBearerModIndIEs__value_PR_E_RABToBeModifiedItemBearerModInd
+                                	== ie_p->value.present)
+                        	{
+                            	    eRabToBeModifiedItem_p =
+                                        &ie_p->value.choice.E_RABToBeModifiedItemBearerModInd;
+                        	}
+
+                        	if (eRabToBeModifiedItem_p != NULL)
+				{
+                      		    proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].e_RAB_ID =
+                                        (uint8_t) eRabToBeModifiedItem_p->e_RAB_ID;
+
+				    if (eRabToBeModifiedItem_p->dL_GTP_TEID.buf != NULL)
+				    {
+                        		memcpy(
+                                	&(proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid),
+                               		eRabToBeModifiedItem_p->dL_GTP_TEID.buf, eRabToBeModifiedItem_p->dL_GTP_TEID.size);
+
+                        		proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid =
+                                	    ntohl(
+                                            proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].dl_gtp_teid);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->dL_GTP_TEID failed\n");
+                                        return -1;
+                                    }
+
+                        	    if (eRabToBeModifiedItem_p->transportLayerAddress.buf != NULL)
+				    {
+					memcpy(
+                                	&(proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress),
+                                	eRabToBeModifiedItem_p->transportLayerAddress.buf,
+                                	eRabToBeModifiedItem_p->transportLayerAddress.size);
+
+                        		proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress =
+                                	    ntohl(
+                                       	    proto_ies->data[i].val.erab_to_be_mod_list.erab_to_be_mod_item[j].transportLayerAddress);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->transportLayerAddress failed\n");
+                                        return -1;
+                                    }
+				}
+				else
+                                {
+                                    log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd failed\n");
+                                    return -1;
+                                }
+                    	    }break;
+                    	    default:
+                    	    {
+                                log_msg(LOG_WARNING, "Unhandled List item %d",
+                                                  ie_p->id);
+                            }
+                        }
+		    }
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE E_RABToBeModifiedListBearerModInd failed\n");
+                    return -1;
+                }
+            } break;
+	    default:
+            {
+                proto_ies->data[i].IE_type = ie_p->id;
+		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+            }
+
+            }
+        }
+    }
     return 0;
 }

@@ -275,6 +275,14 @@
 								"Name": "cancellationType",
 								"Type": "enum CancellationType",
 								"DefaultVal": "INVALID_TYPE"
+							},
+							{
+								"Name": "nasDetachType",
+								"Type": "uint32_t"
+							},
+							{
+								"Name": "detachCause",
+								"Type": "uint32_t"
 							}
 						]
 					},
@@ -395,6 +403,91 @@
 							{
 								"Name": "srcS1apEnbUeId",
 								"Type": "uint32_t"
+							}
+						]
+					},
+					{
+                                                "BlockName": "MmeErabModIndProcedureCtxt",
+                                                "BlockType": "Temporary",
+                                                "Parent": "MmeProcedureCtxt",
+                                                "PoolSize": "8000",
+                                                "Cardinality": "1",
+                                                "Data": [
+							{
+                                                                "Name": "erabToBeModifiedList",
+                                                                "Type": "erab_to_be_modified_item",
+                                                                "Cardinality": "15"
+                                                        },
+						        {
+                                                                "Name": "erabModifiedList",
+                                                                "Type": "uint8_t",
+                                                                "Cardinality": "15"
+                                                        }
+                                                        ]
+					},
+					{
+						"BlockName": "S1HandoverProcedureContext",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "hoType",
+								"Type": "HoType",
+								"SubType": "enum",
+								"DefaultVal": "invalid_c",
+								"Key": "No"
+							},
+							{
+								"Name": "targetEnbContextId",
+								"Type": "int",
+								"Key": "No"
+							},
+							{
+								"Name": "targetS1apEnbUeId",
+								"Type": "int",
+								"Key": "No"
+							},
+							{
+								"Name": "targetTai",
+								"Type": "Tai",
+								"Key": "No"
+							},
+							{
+								"Name": "targetCgi",
+								"Type": "Cgi",
+								"Key": "No"
+							},
+							{
+								"Name": "srcToTargetTransContainer",
+								"Type": "src_target_transparent_container",
+								"Key": "No"
+							},
+							{
+								"Name": "targetToSrcTransContainer",
+								"Type": "src_target_transparent_container",
+								"Key": "No"
+							},
+							{
+								"Name": "erabAdmittedItem",
+								"Type": "ERAB_admitted",
+								"Key": "No"
+							},
+							{
+								"Name": "s1HoCause",
+								"Type": "S1apCause",
+								"Key": "No"
+							},
+							{
+								"Name": "srcEnbContextId",
+								"Type": "int",
+								"Key": "No"
+							},
+							{
+								"Name": "srcS1apEnbUeId",
+								"Type": "int",
+								"Key": "No"
 							}
 						]
 					}

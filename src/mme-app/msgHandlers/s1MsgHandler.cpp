@@ -23,6 +23,7 @@
 #include <contextManager/subsDataGroupManager.h>
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
+#include "mmeNasUtils.h"
 
 using namespace SM;
 using namespace mme;
@@ -44,6 +45,7 @@ S1MsgHandler* S1MsgHandler::Instance()
 	return &msgHandler;
 }
 
+// Starting point 
 void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 {
 	log_msg(LOG_INFO, "S1 - handleS1Message_v\n");
@@ -59,6 +61,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	    	delete eMsg;
 	    	return;
 	}
+    log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_data_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
@@ -69,8 +72,27 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	    	return;
 	}
 
-	const s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
+	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
 
+#ifndef S1AP_DECODE_NAS
+	struct nasPDU nas={0};
+	/* Below function should take care of decryption and integrity check */
+	/* Get the control block and pass it to below function */
+	if(msgData_p->msg_type == raw_nas_msg)
+	{
+        s1apMsg_plus_raw_nas *nasMsg = &msgData_p->msg_data.rawMsg;
+
+		if(E_FAIL == MmeNasUtils::parse_nas_pdu(msgData_p,
+                                    nasMsg->nasMsgBuf, 
+                                    nasMsg->nasMsgSize, &nas))
+        {
+            log_msg(LOG_ERROR,"NAS pdu parse failed.\n");
+            return;
+        }
+		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
+	}
+#endif
+	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
@@ -148,6 +170,10 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 		case msg_type_t::handover_failure:
 			handleHandoverFailureMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
+            
+		case msg_type_t::erab_mod_indication:
+			handleErabModificationIndicationMsg_v(eMsg, msgData_p->ue_idx);		
+			break;
 
 		default:
 			log_msg(LOG_INFO, "Unhandled S1 Message %d \n", msgData_p->msg_type);
@@ -204,6 +230,7 @@ void S1MsgHandler::handleAuthResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx
 		return;
 	}
 
+    // add event in the controBlk
 	// Fire attach-start event, insert cb to procedure queue
 	SM::Event evt(AUTH_RESP_FROM_UE, eMsg);
 	controlBlk_p->addEventToProcQ(evt);
@@ -500,5 +527,24 @@ void S1MsgHandler::handleHandoverFailureMsg_v(IpcEventMessage *eMsg,
 
     // Fire Handover Failure event, insert cb to procedure queue
     SM::Event evt(HO_FAILURE_FROM_TARGET_ENB, eMsg);
+    controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEventMessage* eMsg, 
+        uint32_t ueIdx)
+{
+	log_msg(LOG_INFO, "S1 - handleErabModificationIndicationMsg_v\n");
+
+    SM::ControlBlock* controlBlk_p = 
+            SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+	if(controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleErabModificationIndicationMsg_v: "
+                "Failed to find UE Context using idx %d\n", ueIdx);
+        return;
+    }
+
+    // Fire erab_mod_ind_start event, insert cb to procedure queue
+    SM::Event evt(ERAB_MOD_INDICATION_FROM_ENB, eMsg);
     controlBlk_p->addEventToProcQ(evt);
 }
