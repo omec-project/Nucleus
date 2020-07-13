@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020-present Infosys Limited
  *
@@ -13,7 +12,6 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
 #include "mmeSmDefs.h"
@@ -21,7 +19,8 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/s1HoWfHoNotify.h"	
-#include "mmeStates/s1HoWfModifyBearerResponse.h"
+#include "mmeStates/s1HoWfModifyBearerResponse.h"	
+#include "mmeStates/s1HoWfHoNotify.h"
 
 using namespace mme;
 using namespace SM;

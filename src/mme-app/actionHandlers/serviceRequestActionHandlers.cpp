@@ -36,6 +36,8 @@
 #include <event.h>
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "mmeNasUtils.h"
+//#include <utils/mmeCauseUtils.h>
 
 using namespace mme;
 using namespace SM;
@@ -480,7 +482,21 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
 	service_rej.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
 	service_rej.enb_fd = ue_ctxt->getEnbFd();
 	service_rej.cause = emmCause_ue_id_not_derived_by_network;
-	
+#ifndef S1AP_ENCODE_NAS
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 1;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.security_header_type = Plain;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	nas.header.message_type = ServiceReject;
+	nas.elements[0].pduElement.attach_res = 0x09;
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&service_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	service_rej.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 	cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 

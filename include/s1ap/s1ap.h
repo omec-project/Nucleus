@@ -31,11 +31,19 @@ typedef struct s1ap_instance
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
 
+#if 0
 int
 parse_IEs(char *msg, struct proto_IE *proto_ies, unsigned short proc_code);
+#endif
 
+#ifdef S1AP_DECODE_NAS
 int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
+#else
+int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
+int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
+#endif
+
 int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
 int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);

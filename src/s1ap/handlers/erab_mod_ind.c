@@ -18,7 +18,7 @@
 
 extern ipc_handle ipc_S1ap_Hndl;
 
-void dump_erab_mod_info(struct s1_incoming_msg_data_t *msg)
+void dump_erab_mod_info(s1_incoming_msg_data_t *msg)
 {
    log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->ue_idx);
    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->s1ap_enb_ue_id);
@@ -36,7 +36,7 @@ void dump_erab_mod_info(struct s1_incoming_msg_data_t *msg)
 }
 int erab_mod_indication_handler(InitiatingMessage_t *msg)
 {
-    struct s1_incoming_msg_data_t erab_mod_ind = {0};
+    s1_incoming_msg_data_t erab_mod_ind = {0};
     struct proto_IE erab_mod_ind_ies = {0};
 
     int decode_status = convertErabModIndToProtoIe(msg, &erab_mod_ind_ies);

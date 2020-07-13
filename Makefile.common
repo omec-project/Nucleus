@@ -26,6 +26,7 @@ INCLUDE_DIR = $(TOPDIR)/include
 
 INC_DIRS= \
           -I$(INCLUDE_DIR)/mme-app \
+          -I$(INCLUDE_DIR)/mme-app/utils \
           -I$(INCLUDE_DIR)/s11 \
           -I$(INCLUDE_DIR)/s1ap \
           -I$(INCLUDE_DIR)/s6a \
@@ -43,6 +44,11 @@ CC := gcc
 DEBUG = false
 
 GRPC_ROOT=/tmp/grpc
+
+# to enable NAS message encoding on S1AP enable below flag. In this case
+# mme-app will have to send all the details and then s1ap container will encode
+# NAS message 
+#CFLAGS += -DS1AP_ENCODE_NAS
 
 CFLAGS += -D_FORTIFY_SOURCE=2 -fasynchronous-unwind-tables -fexceptions
 CFLAGS += -fstack-protector-all -fstack-protector-strong -Wall

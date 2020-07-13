@@ -169,42 +169,6 @@ namespace mme
 			const DigitRegister15& getMsisdn()const;				
 			
 			/****************************************
-			* setDwnLnkSeqNo
-			*    set dwnLnkSeqNo to UEContext
-			****************************************/
-			void setDwnLnkSeqNo(uint16_t dwnLnkSeqNo_i);
-			
-			/****************************************
-			* getDwnLnkSeqNo
-			*    get dwnLnkSeqNo from UEContext
-			****************************************/
-			uint16_t getDwnLnkSeqNo()const;	
-		
-			/****************************************
-			* incrementDwnLnkSeqNo
-			*    increment dwnLnkSeqNo to UEContext
-			****************************************/
-			void incrementDwnLnkSeqNo();			
-			
-			/****************************************
-			* setUpLnkSeqNo
-			*    set upLnkSeqNo to UEContext
-			****************************************/
-			void setUpLnkSeqNo(uint16_t upLnkSeqNo_i);
-			
-			/****************************************
-			* getUpLnkSeqNo
-			*    get upLnkSeqNo from UEContext
-			****************************************/
-			uint16_t getUpLnkSeqNo()const;	
-		
-			/****************************************
-			* incrementUpLnkSeqNo
-			*    increment upLnkSeqNo to UEContext
-			****************************************/
-			void incrementUpLnkSeqNo();			
-			
-			/****************************************
 			* setUeState
 			*    set ueState to UEContext
 			****************************************/
@@ -268,13 +232,13 @@ namespace mme
 			* setUeSecInfo
 			*    set ueSecInfo to UEContext
 			****************************************/
-			void setUeSecInfo(const Secinfo& ueSecInfo_i);
+			void setUeSecInfo(Secinfo& ueSecInfo_i);
 			
 			/****************************************
 			* getUeSecInfo
 			*    get ueSecInfo from UEContext
 			****************************************/
-			const Secinfo& getUeSecInfo()const;				
+			Secinfo& getUeSecInfo();
 			
 			/****************************************
 			* setAmbr
@@ -871,8 +835,7 @@ namespace mme
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
-			const uint8_t* getPcoOptions()const;	
-
+			const uint8_t* getPcoOptions()const;							
 			/****************************************
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
@@ -915,6 +878,7 @@ namespace mme
 			// DataName
 			uint16_t pcoOptionsLen_m;
 			uint8_t pcoOptions_m[256];
+			
 			
 			// DataName
 			uint8_t pti_m;

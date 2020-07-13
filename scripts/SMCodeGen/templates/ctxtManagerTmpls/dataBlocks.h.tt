@@ -73,32 +73,7 @@ namespace mme
 			*    get [% Data.Name %] from [% dataBlockClassName %]
 			****************************************/
 			[% ARG(Data,"get") %] get[% String.new(Data.Name).capital.text() %]()const;	
-          [%- UNLESS Data.Properties =='' %]
-          [%- FOREACH Property = Data.Properties %]
-          [%-IF Property.metrics == "counter" %]
-		
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-          [%-ELSIF Property.metrics == "gauge" %]
-            
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-            
-			/****************************************
-			* decrement[% String.new(Data.Name).capital.text() %]
-			*    decrement [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void decrement[% String.new(Data.Name).capital.text() %]();
-          [%- END -%]
-          [%- END %][%- END %]
-[%-UNLESS Data.Cardinality=='' %]
-
+[%-UNLESS Data.Cardinality=='' %]						
 			/****************************************
 			* get[% String.new(Data.Name).capital.text() %]Len
 			*    get [% Data.Name %]Len from [% dataBlockClassName %]
@@ -135,7 +110,7 @@ namespace mme
 			[%-ELSE%]
 			uint16_t [% Data.Name %]Len_m;
 			[% Data.Type %] [% Data.Name %]_m[[% Data.Cardinality %]];
-			[%- END %]
+			[% END %]
 			[% END %]
 			[%- FOREACH Child = DataBlock.Children %]
 			// [% Child %]

@@ -28,7 +28,10 @@ install_build_pkg_deps() {
 		libidn11-dev \
 		bison \
 		flex \
+        wget \
 		libgnutls-dev \
+        zlib1g-dev \
+        checkinstall \
 		libsctp-dev \
 		libssl-dev \
 		autoconf \
@@ -57,6 +60,17 @@ install_grpc() {
     	CXXFLAGS='-Wno-error' make && make install && ldconfig
 }
 
+
+install_openssl() {
+    $SUDO rm -rf /usr/local/src/openssl-3.0.0-alpha3
+    $SUDO rm -rf /usr/lcoal/src/openssl-3.0.0-alpha3.tar.gz
+    cd /usr/local/src/
+    $SUDO wget https://www.openssl.org/source/openssl-3.0.0-alpha3.tar.gz
+    $SUDO tar -xf openssl-3.0.0-alpha3.tar.gz
+    cd openssl-3.0.0-alpha3
+    $SUDO./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+    make && make install && ldconfig
+}
 install_build_deps() {
 	install_build_pkg_deps
 	install_freediameter

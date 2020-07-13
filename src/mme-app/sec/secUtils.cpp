@@ -24,7 +24,8 @@
  * @param[out] int_key generated integrity key
  * @return void
  */
-void SecUtils::create_integrity_key(unsigned char *kasme, unsigned char *int_key)
+void SecUtils::create_integrity_key(uint8_t int_alg, 
+                                    unsigned char *kasme, unsigned char *int_key)
 {
 	/*TODO : Handle appropriate security values in salt. Remove
 	 * hardcoding*/
@@ -33,7 +34,7 @@ void SecUtils::create_integrity_key(unsigned char *kasme, unsigned char *int_key
 		0x02, /*sec algo code*/
 		0,
 		1,
-		1,
+		int_alg,
 		0,
 		1
 	};
@@ -72,6 +73,34 @@ void SecUtils::create_kenb_key(unsigned char *kasme, unsigned char *kenb_key,
 
 }
 
+/**
+ * @brief Create Cighering key
+ * @param[in] kasme key
+ * @param[out] int_key generated integrity key
+ * @return void
+ */
+void SecUtils::create_ciphering_key(uint8_t sec_alg,
+                                    unsigned char *kasme, unsigned char *sec_key)
+{
+	/*TODO : Handle appropriate security values in salt. Remove
+	 * hardcoding*/
+	uint8_t salt[HASH_SALT_LEN] = {
+		0x15,
+		0x01, /*sec algo code*/
+		0,
+		1,
+		sec_alg,
+		0,
+		1
+	};
+
+	unsigned char out_key[HMAC_SIZE] = {0};
+	unsigned int out_len = 0;
+	calculate_hmac_sha256(salt, HASH_SALT_LEN, kasme, AIA_KASME_SIZE, out_key, &out_len);
+
+	memcpy(sec_key, &out_key[AIA_KASME_SIZE - NAS_INT_KEY_SIZE],
+			NAS_INT_KEY_SIZE);
+}
 
 /**
  * @brief Create Next hop value to exchange in Handover Request
