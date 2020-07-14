@@ -264,15 +264,34 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 char alg_list[100];
                 strcpy(alg_list, intAlgList.c_str());
                 getIntAlgOrder(alg_list, config->integrity_alg_order);
+            } else {
+                config->integrity_alg_order[0] = 1;
+                config->integrity_alg_order[1] = 1;
+                config->integrity_alg_order[2] = 1;
             }
+
             if(securitySection.HasMember("sec_alg_list"))
             {
                 std::string secAlgList = securitySection["sec_alg_list"].GetString();
                 char alg_list[100];
                 strcpy(alg_list, secAlgList.c_str());
                 getSecAlgOrder(alg_list, config->ciphering_alg_order);
+            } else {
+                config->ciphering_alg_order[0] = 0;
+                config->ciphering_alg_order[1] = 0;
+                config->ciphering_alg_order[2] = 0;
             }
         }
+        else
+        {
+            config->integrity_alg_order[0] = 1;
+            config->integrity_alg_order[1] = 1;
+            config->integrity_alg_order[2] = 1;
+            config->ciphering_alg_order[0] = 0;
+            config->ciphering_alg_order[1] = 0;
+            config->ciphering_alg_order[2] = 0;
+        }
+
         if(mmeSection.HasMember("apnlist"))
         {
             const rapidjson::Value &apn = mmeSection["apnlist"];
