@@ -17,7 +17,7 @@ typedef struct s11_config
 	unsigned int pgw_ip;
 	unsigned int egtp_def_port;
 	unsigned int local_egtp_ip;
-} s11_config;
+} s11_config_t;
 
 void
 init_parser(char *path);

@@ -133,6 +133,12 @@ load_json(char *filename)
 	return 0;
 }
 
+void close_json(void)
+{
+    fclose(json_fp);
+    return;
+}
+
 /** TEST CODE
 void
 main()

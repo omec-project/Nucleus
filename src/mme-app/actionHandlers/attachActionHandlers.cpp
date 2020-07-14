@@ -45,7 +45,8 @@ using namespace mme;
 using namespace cmn;
 using namespace cmn::utils;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
+extern mmeConfig *mme_tables;
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
@@ -322,8 +323,8 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setSubscriptionStatus(ula_msg.subscription_status);
 	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
-    ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
-    log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
+  ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
+  log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
 
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
@@ -810,6 +811,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	}
 
 	struct CS_Q_msg cs_msg;
+    memset(&cs_msg, 0, sizeof(cs_msg));
 	cs_msg.msg_type = create_session_request;
 	cs_msg.ue_idx = ue_ctxt->getContextID();
 	
@@ -848,6 +850,26 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	// Set the subscribed apn to selected apn for now
 	sessionCtxt->setAccessPtName(apnName);
 	memcpy(&(cs_msg.selected_apn), &(apnName.apnname_m), sizeof(struct apn_name));
+    bool local_mapping = true;
+    if(local_mapping)
+    {
+        //unsigned char temp_name[128];
+        //strcpy(temp_name, apnName.apnname_m.val);
+        log_msg(LOG_DEBUG, "APN %s length = %d \n",apnName.apnname_m.val,apnName.apnname_m.len);
+        const unsigned char *ptr = &apnName.apnname_m.val[1]; /*BUG*/
+        std::string temp_str((char *)ptr);
+        apn_config *temp = mme_tables->find_apn(temp_str); 
+        if(temp != NULL)
+        {
+            log_msg(LOG_DEBUG, "Found APN mapping in static table %x \n",cs_msg.sgw_ip);
+            cs_msg.sgw_ip = temp->get_sgw_addr(); 
+            cs_msg.pgw_ip = temp->get_pgw_addr(); 
+        } 
+        else
+        {
+            log_msg(LOG_DEBUG, "APN not found in static apn configuration \n");
+        }
+    }
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
 	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
@@ -1073,8 +1095,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
 			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - sizeof(struct PLMN)); dont use size..it has extra fields 
-	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
-	nas.elements[4].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	nas.elements[4].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[4].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
