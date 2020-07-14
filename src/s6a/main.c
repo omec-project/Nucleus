@@ -1,4 +1,3 @@
-//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
