@@ -257,7 +257,7 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
         }
         if(mmeSection.HasMember("security"))
         {
-            const rapidjson::Value &securitySection = mmeSection["seurity"];
+            const rapidjson::Value &securitySection = mmeSection["security"];
             if(securitySection.HasMember("int_alg_list"))
             {
                 std::string intAlgList = securitySection["int_alg_list"].GetString();
