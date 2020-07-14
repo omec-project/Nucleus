@@ -45,6 +45,7 @@ using namespace mme;
 using namespace cmn;
 using namespace cmn::utils;
 
+extern mme_config_t *mme_cfg;
 extern mmeConfig *mme_tables;
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
@@ -1149,8 +1150,8 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
 			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - sizeof(struct PLMN)); dont use size..it has extra fields 
-	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
-	nas.elements[4].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	nas.elements[4].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[4].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());

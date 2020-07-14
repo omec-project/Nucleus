@@ -76,14 +76,6 @@ void setThreadName(std::thread* thread, const char* threadName)
 	pthread_setname_np(handle,threadName);
 }
 
-void mme_parse_config(mme_config *config)
-{
-    /*Read MME configurations*/
-    init_parser((char *)("conf/mme.json"));
-    parse_mme_conf(config);
-    parse_done();
-}
-
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));

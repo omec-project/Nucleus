@@ -37,9 +37,9 @@ uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)
 
 	for(int i = 0; i < MAX_ALGO_COUNT; i++)
     {
-        if (val & (0x80 >> g_mme_cfg.integrity_alg_order[i]))
+        if (val & (0x80 >> mme_cfg->integrity_alg_order[i]))
         {
-            result = g_mme_cfg.integrity_alg_order[i];
+            result = mme_cfg->integrity_alg_order[i];
             break;
         }
     }
@@ -53,9 +53,9 @@ uint8_t MmeCommonUtils::select_preferred_sec_algo(uint8_t &val)
 
 	for(int i = 0; i < MAX_ALGO_COUNT; i++)
     {
-        if (val & (0x80 >> g_mme_cfg.ciphering_alg_order[i]))
+        if (val & (0x80 >> mme_cfg->ciphering_alg_order[i]))
         {
-            result = g_mme_cfg.ciphering_alg_order[i];
+            result = mme_cfg->ciphering_alg_order[i];
             break;
         }
     }

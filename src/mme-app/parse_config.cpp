@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <list>
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -24,6 +25,104 @@
 using namespace mme;
 
 extern mmeConfig *mme_tables;
+
+/* int_alg: "EIA1, EIA2, EIA0" */
+int
+mmeConfig::getIntAlgOrder(char *alg_list, uint8_t* alg_order)
+{
+    char *subString;
+    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    subString = strtok(alg_list,"[]");
+    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    //subString = strtok(NULL,"]");
+    //log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+
+    char token[] = ",";
+    char *saved_comma=NULL;
+    char *alg[3] = {NULL,NULL,NULL};
+    alg[0] = strtok_r(subString, token, &saved_comma);
+    alg[1] = strtok_r(NULL, token, &saved_comma);
+    alg[2] = strtok_r(NULL, token, &saved_comma);
+
+    for(int i = 0;i < 3; i++)
+    {
+        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        if(alg[i] != NULL)
+        {
+            if(!strcmp(alg[i],"EIA0"))
+            {
+                alg_order[i] = 0;
+            }
+            else if(!strcmp(alg[i],"EIA1"))
+            {
+                alg_order[i] = 1;
+            }
+            else if(!strcmp(alg[i],"EIA2"))
+            {
+                alg_order[i] = 2;
+            }
+            else
+            {
+                alg_order[i] = 1;
+            }
+        }
+        else
+        {
+            alg_order[i] = 1;
+        }
+    }
+    
+    return 0;
+}
+
+
+/* sec_alg: "EEA0, EEA1, EEA2" */
+int
+mmeConfig::getSecAlgOrder(char *alg_list, uint8_t* alg_order)
+{
+    char *subString;
+    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    subString = strtok(alg_list,"[]");
+    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+
+    char token[] = ",";
+    char *saved_comma=NULL;
+    char *alg[3] = {NULL,NULL,NULL};
+    
+    alg[0] = strtok_r(subString, token, &saved_comma);
+    alg[1] = strtok_r(NULL, token, &saved_comma);
+    alg[2] = strtok_r(NULL, token, &saved_comma);
+
+    for(int i = 0;i < 3; i++)
+    {
+        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        if(alg[i] != NULL)
+        {
+            if(!strcmp(alg[i],"EEA0"))
+            {
+                alg_order[i] = 0;
+            }
+            else if(!strcmp(alg[i],"EEA1"))
+            {
+                alg_order[i] = 1;
+            }
+            else if(!strcmp(alg[i],"EEA2"))
+            {
+                alg_order[i] = 2;
+            }
+            else
+            {
+                alg_order[i] = 0;
+            }
+        }
+        else
+        {
+            alg_order[i] = 0;
+        }
+    }
+    
+    return 0;
+}
 
 int
 mmeConfig::get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits)
@@ -154,6 +253,24 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 config->plmns[count-1].idx[2] = (mnc_dig_3 << 4) | (mnc_dig_2);
                 config->plmns[count-1].mnc_digits = mnc_digits;
                 log_msg(LOG_INFO, "Configured plmn %x %x %x \n", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
+            }
+        }
+        if(mmeSection.HasMember("security"))
+        {
+            const rapidjson::Value &securitySection = mmeSection["seurity"];
+            if(securitySection.HasMember("int_alg_list"))
+            {
+                std::string intAlgList = securitySection["int_alg_list"].GetString();
+                char alg_list[100];
+                strcpy(alg_list, intAlgList.c_str());
+                getIntAlgOrder(alg_list, config->integrity_alg_order);
+            }
+            if(securitySection.HasMember("sec_alg_list"))
+            {
+                std::string secAlgList = securitySection["sec_alg_list"].GetString();
+                char alg_list[100];
+                strcpy(alg_list, secAlgList.c_str());
+                getSecAlgOrder(alg_list, config->ciphering_alg_order);
             }
         }
         if(mmeSection.HasMember("apnlist"))

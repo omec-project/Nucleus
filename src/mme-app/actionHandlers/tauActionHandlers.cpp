@@ -43,7 +43,8 @@ using namespace SM;
 using namespace cmn;
 using namespace cmn::utils;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
+extern mmeConfig *mme_tables;
 
 /***************************************
 * Action handler : send_tau_response_to_ue
@@ -125,8 +126,8 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 
 	memcpy(&(nas.elements[3].pduElement.mi_guti.plmn_id),
 			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - dont use sizeof(struct PLMN));
-	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
-	nas.elements[3].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	nas.elements[3].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 

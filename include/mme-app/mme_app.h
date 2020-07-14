@@ -41,7 +41,6 @@ typedef struct mme_config
 	char  *mme_egtp_def_hostname;
 	char  mme_name[128];
     char  logging[16];
-
     uint8_t integrity_alg_order[3];
     uint8_t ciphering_alg_order[3];
 	char  mcc_dig1;
@@ -119,6 +118,8 @@ class mmeConfig
 
         static void mme_parse_config_new(mme_config_t *);
         static int get_mcc_mnc(char *plmn, uint16_t *mcc_i, uint16_t *mnc_i, uint16_t *mnc_digits); 
+        static int getIntAlgOrder(char *alg_list, uint8_t* alg_order);
+        static int getSecAlgOrder(char *alg_list, uint8_t* alg_order);
         void initiate_spgw_resolution();
 };
 
@@ -131,7 +132,6 @@ void stat_init();
 
 /* Register for config change trigger */
 void register_config_updates(void);
-void mme_parse_config(mme_config *);
 #ifdef __cplusplus
 }
 #endif
