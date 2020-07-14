@@ -1,18 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -39,7 +30,7 @@ extern struct time_stat g_attach_stats[];
 int
 s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
 {
-	struct s1_incoming_msg_data_t id_resp= {0};
+	s1_incoming_msg_data_t id_resp= {0};
 
 	/*****Message structure***
 	*/
@@ -60,6 +51,7 @@ s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
                 {
 	                id_resp.ue_idx = s1_id_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     if(s1_id_resp_ies->data[i].val.nas.header.message_type != NAS_IDENTITY_RESPONSE)
@@ -75,6 +67,7 @@ s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies)
                            &(s1_id_resp_ies->data[i].val.nas.elements[0].pduElement.IMSI),
                            BINARY_IMSI_LEN);
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE In identification Response %d \n",s1_id_resp_ies->data[i].IE_type);
         }

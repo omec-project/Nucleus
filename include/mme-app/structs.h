@@ -1,17 +1,7 @@
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef STRUCTS_H_
@@ -23,12 +13,25 @@
 #include "s11_structs.h"
 #include <utils/mmeProcedureTypes.h>
 
+struct nas_count {
+    unsigned int mask :8;
+    unsigned int overflow_count :16;
+    unsigned int seq_no :8;
+};
 
 struct secinfo {
+    uint8_t is_current_flag;
+    uint8_t ksi;
+    nas_ciph_algo_enum sec_alg;
+    nas_int_algo_enum int_alg;
+    uint32_t next_hop_chaining_count;
     uint8_t int_key[NAS_INT_KEY_SIZE];
+    uint8_t sec_key[NAS_SEC_KEY_SIZE];
     uint8_t kenb_key[KENB_SIZE];
-    int next_hop_chaining_count ;
-    uint8_t next_hop_nh[KENB_SIZE];
+    struct KASME kasme;
+    struct nas_count uplink_count;
+    struct nas_count downlink_count;
+    uint8_t next_hop_nh[KENB_SIZE]; /* merge issue ? ajaymerge - checkonce */
 };
 
 struct AMBR {
@@ -110,7 +113,71 @@ class Secinfo
 		Secinfo();
 		Secinfo( const secinfo& secinfo_i );
 		~Secinfo();
-		void operator = ( const Secinfo& secinfo_i );		
+		void operator = ( const Secinfo& secinfo_i );
+        void setSelectedIntAlg(nas_int_algo_enum val)
+        {
+            secinfo_m.int_alg = val;
+        }
+        void setSelectedSecAlg(nas_ciph_algo_enum val)
+        {
+            secinfo_m.sec_alg = val;
+        }
+        nas_int_algo_enum getSelectIntAlg() { return secinfo_m.int_alg; }
+        nas_ciph_algo_enum getSelectSecAlg() { return secinfo_m.sec_alg; }
+        void resetUplinkCount()
+        {
+            secinfo_m.uplink_count.seq_no = 0;
+            secinfo_m.uplink_count.overflow_count = 0;
+            secinfo_m.uplink_count.mask = 0;
+        }
+        void resetDownlinkCount()
+        {
+            secinfo_m.downlink_count.seq_no = 0;
+            secinfo_m.downlink_count.overflow_count = 0;
+            secinfo_m.downlink_count.mask = 0;
+        }
+        uint8_t getUplinkSeqNo()
+        {
+            return secinfo_m.uplink_count.seq_no;
+        }
+        uint32_t getUplinkCount()
+        {
+            uint32_t val = 0;
+            uint32_t seqno  = secinfo_m.uplink_count.seq_no;
+            uint32_t oc = secinfo_m.uplink_count.overflow_count;
+            val = seqno | (oc << 8);
+            return val;
+        }
+        uint8_t getDownlinkSeqNo()
+        {
+            return secinfo_m.downlink_count.seq_no;
+        }
+        uint32_t getDownlinkCount()
+        {
+            uint32_t val = 0;
+            uint32_t seqno  = secinfo_m.downlink_count.seq_no;
+            uint32_t oc = secinfo_m.downlink_count.overflow_count;
+            val = seqno | (oc << 8);
+            return val;
+        }
+        void increment_uplink_count()
+        {
+            secinfo_m.uplink_count.seq_no++;
+            if(!secinfo_m.uplink_count.seq_no)
+            {
+                secinfo_m.uplink_count.overflow_count++;
+            }
+        }
+        void increment_downlink_count()
+        {
+            secinfo_m.downlink_count.seq_no++;
+            if(!secinfo_m.downlink_count.seq_no)
+            {
+                secinfo_m.downlink_count.overflow_count++;
+            }
+        }
+
+		void getIntKey(uint8_t *key) const { memcpy(key, &secinfo_m.int_key[0], NAS_INT_KEY_SIZE);}
 	public:
 		secinfo secinfo_m;
 };

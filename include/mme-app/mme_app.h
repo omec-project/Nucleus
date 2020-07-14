@@ -9,8 +9,11 @@
 #ifndef __MME_APP_H_
 #define __MME_APP_H_
 
-#include <stdbool.h>
+#ifdef __cplusplus
+extern "C"{
+#endif
 
+#include <stdbool.h>
 #include "s1ap_structs.h"
 #include "log.h"
 #include "s1ap_error.h"
@@ -23,6 +26,11 @@
  * MME main application configuration parameters structures.
  * All fields in this will be filled in from input json file.
  */
+/*
+       security:
+        integrity_order : [ EIA1, EIA2, EIA0 ]
+        ciphering_order : [ EEA0, EEA1, EEA2 ]
+*/
 typedef struct mme_config
 {
 	unsigned int mme_ip_addr;
@@ -34,6 +42,8 @@ typedef struct mme_config
 	char  mme_name[128];
     char  logging[16];
 
+    uint8_t integrity_alg_order[3];
+    uint8_t ciphering_alg_order[3];
 	char  mcc_dig1;
 	char  mcc_dig2;
 	char  mcc_dig3;
@@ -122,5 +132,9 @@ void stat_init();
 /* Register for config change trigger */
 void register_config_updates(void);
 void mme_parse_config(mme_config *);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /*__MME_APP_H_*/

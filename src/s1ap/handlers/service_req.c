@@ -1,18 +1,9 @@
 /*
+ * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -37,7 +28,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
 {
-	struct  s1_incoming_msg_data_t req= {0};
+	s1_incoming_msg_data_t req = {0};
 	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
 	/*****Message structure***
@@ -64,6 +55,7 @@ s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
                     log_msg(LOG_INFO, "Service Req S1AP_IE_ENB_UE_ID.\n");
                     req.s1ap_enb_ue_id = service_req_ies->data[i].val.enb_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     log_msg(LOG_INFO, "Service Req NAS PDU.\n");
@@ -71,6 +63,7 @@ s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd)
                     req.msg_data.service_req_Q_msg_m.seq_no = service_req_ies->data[i].val.nas.header.seq_no;
                     memcpy(&req.msg_data.service_req_Q_msg_m.mac, service_req_ies->data[i].val.nas.header.short_mac, sizeof(uint16_t));
                 }break;
+#endif
             case S1AP_IE_TAI:
                 {
                     log_msg(LOG_INFO, "Service Req TAI.\n");

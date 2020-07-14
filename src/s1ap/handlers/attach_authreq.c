@@ -42,9 +42,10 @@ get_authreq_protoie_value(struct proto_IE *value, struct authreq_info *g_authreq
 	value->data[0].val.mme_ue_s1ap_id = g_authreqInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_authreqInfo->enb_s1ap_ue_id;
 
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
-			g_authreqInfo->ue_idx, g_authreqInfo->enb_s1ap_ue_id);
+	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d and enodeb fd = %d\n",
+			g_authreqInfo->ue_idx, g_authreqInfo->enb_s1ap_ue_id, g_authreqInfo->enb_fd);
 
+#ifdef S1AP_ENCODE_NAS
 	/* TODO: Add enum for security header type */
 	value->data[2].val.nas.header.security_header_type = 0;
 	value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
@@ -58,6 +59,7 @@ get_authreq_protoie_value(struct proto_IE *value, struct authreq_info *g_authreq
 			g_authreqInfo->rand, NAS_RAND_SIZE);
 	memcpy(value->data[2].val.nas.elements[1].pduElement.autn,
 			g_authreqInfo->autn, NAS_AUTN_SIZE);
+#endif
 
 
 	return SUCCESS;
@@ -72,7 +74,6 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 {
 	struct Buffer g_buffer = {0};
 	struct Buffer g_value_buffer = {0};
-	struct Buffer g_nas_buffer = {0};
 
 	struct s1ap_PDU s1apPDU = {0};
 
@@ -152,10 +153,12 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
+#ifdef S1AP_ENCODE_NAS
 	struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
 	uint8_t value = (nas->header.security_header_type) |
 			nas->header.proto_discriminator;
 
+	struct Buffer g_nas_buffer = {0};
 	g_nas_buffer.pos = 0;
 
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
@@ -176,8 +179,8 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_nas_buffer, 
 	   &nas->elements[1].pduElement.autn,
 	   sizeof(nas->elements[1].pduElement.autn));
-
 	datalen = g_nas_buffer.pos + 1;
+
 	buffer_copy(&g_value_buffer, &datalen,
 						sizeof(datalen));
 
@@ -188,13 +191,28 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_value_buffer, &g_nas_buffer,
 						g_nas_buffer.pos);
 
+#else
+	log_msg(LOG_INFO, "Received Authrequest has nas message %d \n",g_authreqInfo->nasMsgSize);
+	datalen = g_authreqInfo->nasMsgSize + 1; 
+
+	buffer_copy(&g_value_buffer, &datalen,
+						sizeof(datalen));
+
+	buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgBuf[0], g_authreqInfo->nasMsgSize);
+
+#endif
+
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(g_value_buffer.pos));
 
 	buffer_copy(&g_buffer, &g_value_buffer,
 						g_value_buffer.pos);
 
+#ifdef S1AP_ENCODE_NAS
 	free(s1apPDU.value.data[2].val.nas.elements);
+#endif
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_authreqInfo->enb_fd, g_buffer.buf, g_buffer.pos, 1);

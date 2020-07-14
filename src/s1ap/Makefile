@@ -1,4 +1,5 @@
 #
+# Copyright 2019-present Open Networking Foundation
 # Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
 # Copyright (c) 2017 Intel Corporation
 # Copyright (c) 2019, Infosys Ltd.
@@ -33,7 +34,7 @@ ifeq ($(DEBUG),false)
 	CFLAGS += -O3
 endif
 
-INCS := $(INC_DIRS)
+INCS := $(INC_DIRS) -I/usr/local/ssl/include
 
 LIBS := -lpthread \
 	-lsctp \
@@ -49,6 +50,7 @@ LIBS := -lpthread \
 	-lmonitor_config \
 	-lsecutil
 
+LIBS += -L/usr/local/ssl/lib -lcrypto
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	-@mkdir -p $(BINDIR)

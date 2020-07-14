@@ -22,6 +22,7 @@
 #include "msgType.h"
 
 
+#ifdef S1AP_ENCODE_NAS
 static void
 get_negotiated_qos_value(struct esm_qos *qos)
 {
@@ -51,6 +52,7 @@ get_negotiated_qos_value(struct esm_qos *qos)
 
 	return;
 }
+#endif
 
 /**
 * Get ProtocolIE value for ICS Request sent by mme-app
@@ -59,8 +61,6 @@ static int
 get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_icsReqInfo)
 {
 	uint8_t ieCnt = 0;
-	uint8_t nasIeCnt = 0;
-	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
 	value->no_of_IEs = ICS_REQ_NO_OF_IES;
 
@@ -101,6 +101,9 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 		memcpy(dst+3, src, 1);
 	}
 
+#ifdef S1AP_ENCODE_NAS
+	uint8_t nasIeCnt = 0;
+	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 	/* NAS PDU values start */
 	e_rab->nas.header.security_header_type =
 				IntegrityProtectedCiphered;
@@ -169,7 +172,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	nasIEs[nasIeCnt].pduElement.mi_guti.id_type = 6;
 
 	memcpy(&(nasIEs[nasIeCnt].pduElement.mi_guti.plmn_id),
-			&(g_icsReqInfo->tai.plmn_id), 3); // sizeof(struct PLMN)); plmn struct has some more fields
+			&(g_icsReqInfo->tai.plmn_id), 3); 
 	nasIEs[nasIeCnt].pduElement.mi_guti.mme_grp_id = htons(s1ap_cfg->mme_group_id);
 	nasIEs[nasIeCnt].pduElement.mi_guti.mme_code = s1ap_cfg->mme_code;
 	/* TODO : Revisit, temp fix for handling detach request retransmit.
@@ -177,6 +180,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	nasIEs[nasIeCnt].pduElement.mi_guti.m_TMSI = htonl(g_icsReqInfo->m_tmsi);
 	nasIeCnt++;
 
+#endif
 	ieCnt++;
 	/* NAS PDU values end */
 	/* E-RABToBeSetupItemCtxtSUReq values end */
@@ -218,7 +222,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     Buffer g_s1ap_buffer = {0};
     Buffer g_rab1_buffer = {0};
     Buffer g_rab2_buffer = {0};
-    Buffer g_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
@@ -230,9 +233,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	//uint8_t erab_len_pos;
 	//uint8_t erab_item_len_pos;
 	//uint8_t nas_len_pos;
-	uint16_t esm_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_InitialContextSetup;
 	s1apPDU.criticality = CRITICALITY_REJECT;
@@ -398,6 +399,11 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	datalen = 0;
 	buffer_copy(&g_ics_buffer, &datalen, sizeof(datalen));
 #endif
+
+#ifdef S1AP_ENCODE_NAS
+	uint8_t mac_data_pos;
+	uint16_t esm_len_pos;
+    Buffer g_nas_buffer = {0};
 
 	nas_pdu_header *nas_hdr = &(erab->nas.header);
 
@@ -592,10 +598,11 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	uint8_t direction = 1;
 	uint8_t bearer = 0;
 
-	calculate_mac(g_icsReqInfo->int_key, nas_hdr->seq_no,
+	calculate_mac(g_icsReqInfo->int_key, g_icsReqInfo->dl_count,
 			direction, bearer, &g_nas_buffer.buf[mac_data_pos],
 			g_nas_buffer.pos - mac_data_pos,
-			&g_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
+			&g_nas_buffer.buf[mac_data_pos - MAC_SIZE],
+            g_icsReqInfo->int_alg);
 
 	/* Copy nas length to nas length field */
     //uint16_t nas_pay_len = g_nas_buffer.pos - nas_len_pos - 1;
@@ -623,6 +630,17 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	buffer_copy(&g_rab2_buffer, &g_nas_buffer.buf[0], g_nas_buffer.pos);
     /* end : RAB2 + NAS done */
 
+#else
+	log_msg(LOG_INFO, "Nas message size %d\n", g_icsReqInfo->nasMsgSize);
+//	datalen = g_icsReqInfo->nasMsgSize + 1; 
+
+//	buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
+
+	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
+
+#endif
 	log_msg(LOG_INFO, "RAB2 payload length %d\n", g_rab2_buffer.pos);
 	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %d\n", g_rab1_buffer.pos);
     /* Now lets append rab2 to rab1 */ 
@@ -643,6 +661,8 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
     }
 	buffer_copy(&g_rab1_buffer, &g_rab2_buffer.buf[0], g_rab2_buffer.pos);
+
+
     /* rab1 + rab2 is appended */ 
     // rab1 is combined now ... 
 

@@ -36,6 +36,8 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCauseUtils.h>
+#include "mmeNasUtils.h"
+#include "mme_app.h"
 #include "gtpCauseTypes.h"
 
 using namespace SM;
@@ -44,6 +46,7 @@ using namespace cmn;
 using namespace cmn::utils;
 
 extern mmeConfig *mme_tables;
+
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
     UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -85,7 +88,23 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	idReqMsg.enb_fd = ueCtxt_p->getEnbFd();
 	idReqMsg.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
 	idReqMsg.ue_idx = ueCtxt_p->getContextID();
+#ifdef S1AP_ENCODE_NAS
 	idReqMsg.ue_type = ID_IMSI;
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 1;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.security_header_type = Plain;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	nas.header.message_type = IdentityRequest;
+	nas.elements[0].pduElement.ue_id_type = ID_IMSI; 
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+	memcpy(&idReqMsg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	idReqMsg.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -168,9 +187,10 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	s6a_Q_msg s6a_req;
-	
+	s6a_Q_msg s6a_req; 
+	RESET_S6A_REQ_MSG(s6a_req);
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
+	 
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
 
 	memcpy(&(s6a_req.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
@@ -210,7 +230,7 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req;
-    memset(&s6a_req, 0, sizeof(s6a_req));
+    RESET_S6A_REQ_MSG(s6a_req);
 
 	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
@@ -344,17 +364,30 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	authreq.enb_fd = ue_ctxt->getEnbFd();
 	authreq.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
 
-	ue_ctxt->setDwnLnkSeqNo(0);
+	ue_ctxt->getUeSecInfo().resetUplinkCount();
+	ue_ctxt->getUeSecInfo().resetDownlinkCount();
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 
-	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
-
-	SecUtils::create_integrity_key(secVect->kasme.val, secInfo.int_key);
-
+#ifdef S1AP_ENCODE_NAS
 	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
 	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);
-	
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	const uint8_t num_nas_elements = 2;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.message_type = AuthenticationRequest;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
+	memcpy(&(nas.elements[0].pduElement.rand[0]), &(secVect->rand.val[0]), NAS_RAND_SIZE);
+	memcpy(&(nas.elements[1].pduElement.autn[0]), &(secVect->autn.val[0]), NAS_AUTN_SIZE);
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&authreq.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	authreq.nasMsgSize = nasBuffer.pos;
+	free(nas.elements);
+#endif
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
@@ -362,7 +395,7 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v \n");
+	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v sent message of length %d\n",sizeof(authreq));
 		
 	return ActStatus::PROCEED;
 }
@@ -413,26 +446,30 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		}
 	}
 	else{
-		log_msg(LOG_INFO,"Auth response validation success. Proceeding to Sec mode Command\n");
-                SM::Event evt(AUTH_RESP_SUCCESS,NULL);
-                controlBlk_p->addEventToProcQ(evt);
+        log_msg(LOG_INFO,"Auth response validation success. Proceeding to Sec mode Command\n");
+        uint64_t xres = 0;
+        memcpy(&xres, 
+               ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val, sizeof(uint64_t));
+        uint64_t res = 0;
+        memcpy(&res, auth_resp.res.val, sizeof(uint64_t));
+        log_msg(LOG_DEBUG, "Auth response Comparing received result from UE " 
+                " (%lu) with xres (%lu). Length %d", res, 
+                xres, auth_resp.res.len);
 
+        if(memcmp((ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val),
+                  (auth_resp.res.val),
+                  auth_resp.res.len) != 0) {
+            log_msg(LOG_ERROR, "Invalid Auth response Comparing received result "
+                    "from UE (%lu) with xres (%lu). Length %d", 
+                    res, xres, auth_resp.res.len);
+            return ActStatus::HALT;
+        }
+
+        ProcedureStats::num_of_processed_auth_response ++;
+        SM::Event evt(AUTH_RESP_SUCCESS,NULL);
+        controlBlk_p->addEventToProcQ(evt);
 	}
-	//TODO: XRES comparison
-	#if 0
-	log_msg(LOG_ERROR, "stage 3 processing memcmp - %d, %d, %d", &(ue_ctxt->getaiaSecInfo().AiaSecInfo_mp->xres.val),
-                &(auth_resp->res.val),
-                auth_resp->res.len);
-	if(memcmp(&(ue_ctxt->getaiaSecInfo().AiaSecInfo_mp->xres.val),
-		&(auth_resp->res.val),
-		auth_resp->res.len) != 0) {
-		log_msg(LOG_ERROR, "Invalid auth result received for UE %d",
-			auth_resp->ue_idx);
-		return E_FAIL;//report failure
-	}
-	#endif
 	
-	ProcedureStats::num_of_processed_auth_response ++;
 	log_msg(LOG_DEBUG, "Leaving auth_response_validate \n");
 	
 	return ActStatus::PROCEED;
@@ -452,7 +489,28 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 	ProcedureStats::num_of_auth_reject_sent ++;
 	return ActStatus::HALT;
 }
+
+ActStatus ActionHandlers::select_sec_alg(UEContext *ue_ctxt)
+{
+	log_msg(LOG_DEBUG, "Inside select_sec_alg \n");
+
+	uint8_t eea;
+    uint8_t eia;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
+    memcpy(&eea, 
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[0],sizeof(uint8_t));
+    memcpy(&eia, 
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[1],sizeof(uint8_t));
+
+    int_alg = (nas_int_algo_enum)MmeCommonUtils::select_preferred_int_algo(eia);
+    sec_alg = (nas_ciph_algo_enum)MmeCommonUtils::select_preferred_sec_algo(eea);
+
+    ue_ctxt->getUeSecInfo().setSelectedIntAlg(int_alg);
+    ue_ctxt->getUeSecInfo().setSelectedSecAlg(sec_alg);
 	
+	return ActStatus::PROCEED;
+}
 
 ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 {
@@ -464,12 +522,20 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "sec_mode_cmd_to_ue: ue context is NULL \n");
 		return ActStatus::HALT;
 	}
+	
+    E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
+	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 	sec_mode_Q_msg sec_mode_msg;
 	sec_mode_msg.msg_type  = sec_mode_command;
 	sec_mode_msg.ue_idx = ue_ctxt->getContextID();
 	sec_mode_msg.enb_fd = ue_ctxt->getEnbFd();
 	sec_mode_msg.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
+
+    select_sec_alg(ue_ctxt);
+	SecUtils::create_integrity_key(ue_ctxt->getUeSecInfo().getSelectIntAlg(), 
+                                   secVect->kasme.val, secInfo.int_key);
 	
+#ifdef S1AP_ENCODE_NAS
 	memcpy(&(sec_mode_msg.ue_network), &(ue_ctxt->getUeNetCapab().ue_net_capab_m),
 		sizeof(struct UE_net_capab));
 
@@ -482,8 +548,76 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	memcpy(&(sec_mode_msg.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
 			NAS_INT_KEY_SIZE);
 
-	sec_mode_msg.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	ue_ctxt->setDwnLnkSeqNo(sec_mode_msg.dl_seq_no + 1);
+	sec_mode_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+  sec_mode_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+  sec_mode_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+  sec_mode_msg.sec_alg = ue_ctxt->getUeSecInfo().getSelectSecAlg();
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	nas.header.message_type = SecurityModeCommand;
+	nas.header.security_header_type = IntegrityProtectedEPSSecCntxt;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+	nas.header.security_encryption_algo = ue_ctxt->getUeSecInfo().getSelectSecAlg();
+	nas.header.security_integrity_algo = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
+	const uint8_t num_nas_elements = SEC_MODE_NO_OF_NAS_IES;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.elements->pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
+	if(ue_ctxt->getUeNetCapab().ue_net_capab_m.len >= 4)
+	{
+        /*Copy first 4 bytes of security algo info*/
+	    memcpy(nas.elements->pduElement.ue_network.capab, ue_ctxt->getUeNetCapab().ue_net_capab_m.capab, 4);
+	   
+        if(ue_ctxt->getMsNetCapab().ms_net_capab_m.pres == true)
+	    {
+	        /*The MS Network capability contains the GEA
+		* capability. The MSB of 1st Byte and the 2nd to
+		* 7th Bit of 2nd byte contain the GEA info.
+		* Thus the masks 0x7F : for GEA/1
+		* and mask 0x7D: for GEA2 -GEA7
+		*/
+            log_msg(LOG_DEBUG, "MS network present"); 
+	        nas.elements->pduElement.ue_network.len = 5;
+	    	unsigned char val = 0x00;
+		    val = ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[0]&0x80;
+            val |= ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[1]&0x7E;
+            val >>= 1;
+	        nas.elements->pduElement.ue_network.capab[4] = val;
+	    }
+	    else
+	    {
+	        /*If MS capability is not present. Then only 
+		* Capability till UMTS Algorithms is sent.*/
+            log_msg(LOG_DEBUG, "MS network not present"); 
+	        nas.elements->pduElement.ue_network.len = 4;
+	    }
+	}
+	else
+	{
+	    /*Copy as much info of UE network capability 
+	    * as received.
+	    */
+            memcpy(nas.elements->pduElement.ue_network.capab,
+				   	ue_ctxt->getUeNetCapab().ue_net_capab_m.capab,
+					ue_ctxt->getUeNetCapab().ue_net_capab_m.len);
+	}
+
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&sec_mode_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	sec_mode_msg.nasMsgSize = nasBuffer.pos;
+	free(nas.elements); 
+#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -520,8 +654,6 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 
 	if (msgBuf == NULL)
 		return ActStatus::HALT;
-
-	ue_ctxt->setUpLnkSeqNo(0);
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const secmode_resp_Q_msg &secmode_resp = s1_msg_data->msg_data.secmode_resp_Q_msg_m;
@@ -611,11 +743,36 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	esmreq.ue_idx = ue_ctxt->getContextID();
 	esmreq.enb_fd = ue_ctxt->getEnbFd();
 	esmreq.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
+#ifdef S1AP_ENCODE_NAS 
 	esmreq.pti = sessionCtxt->getPti();
-	esmreq.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
+	esmreq.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+    esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    esmreq.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
-	ue_ctxt->setDwnLnkSeqNo(esmreq.dl_seq_no+1);
+#else 
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+	uint8_t mac[MAC_SIZE] = {0};
+	const uint8_t num_nas_elements = 2;
+	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+	nas.elements_len = num_nas_elements;
+	nas.header.message_type = ESMInformationRequest;
+	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+	nas.header.security_header_type = IntegrityProtectedCiphered;
+	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+	nas.header.eps_bearer_identity = 0;
+	nas.header.procedure_trans_identity = sessionCtxt->getPti();
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&esmreq.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	esmreq.nasMsgSize = nasBuffer.pos;
+	free(nas.elements); 
+#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -658,7 +815,6 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
     	}
 
 	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
 
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
@@ -832,6 +988,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	}
 
 	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
+	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info.pco_options,csr_info.pco_length);
 	
 	sessionCtxt->setS11SgwCtrlFteid(Fteid(csr_info.s11_sgw_fteid));
 	sessionCtxt->setS5S8PgwCtrlFteid(Fteid(csr_info.s5s8_pgwc_fteid));
@@ -888,7 +1045,13 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	unsigned int nas_count = 0;
+	/* 33.401 7.2.6.2	Establishment of keys for cryptographically protected 
+       radio bearers
+       Only in case of AKA procedures having run. the nas_count(Uplink) is used
+       as 0. In case when no AKA has run, the nas_count should be used from 
+       current security context. : This is not done yet. But should be added.
+     */
+    unsigned int nas_count = 0;
 	E_UTRAN_sec_vector* secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
@@ -914,22 +1077,89 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	icr_msg.bearer_id = bearerCtxt->getBearerId();
 
-	icr_msg.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-	memcpy(&(icr_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(icr_msg.gtp_teid), &(bearerCtxt->getS1uSgwUserFteid().fteid_m), sizeof(struct fteid));
+	memcpy(&(icr_msg.sec_key), &((ue_ctxt->getUeSecInfo().secinfo_m).kenb_key),
+			KENB_SIZE);	
+#ifdef S1AP_ENCODE_NAS
+	memcpy(&(icr_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(icr_msg.apn), &(sessionCtxt->getAccessPtName().apnname_m), sizeof(struct apn_name));
 	memcpy(&(icr_msg.pdn_addr), &(sessionCtxt->getPdnAddr().paa_m), sizeof(struct PAA));
 	memcpy(&(icr_msg.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
 			NAS_INT_KEY_SIZE);
-	memcpy(&(icr_msg.sec_key), &((ue_ctxt->getUeSecInfo().secinfo_m).kenb_key),
-			KENB_SIZE);	
 	icr_msg.pti = sessionCtxt->getPti();
-        icr_msg.m_tmsi = ue_ctxt->getMTmsi();
-	ue_ctxt->setDwnLnkSeqNo(icr_msg.dl_seq_no+1);
 
+  icr_msg.m_tmsi = ue_ctxt->getMTmsi();
+	icr_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+  icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+    icr_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
 	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
 	if(procedure_p->getPcoOptionsLen() > 0)
 		memcpy(&(icr_msg.pco_options[0]), procedure_p->getPcoOptions(), icr_msg.pco_length);
+#else
+	struct Buffer nasBuffer;
+	struct nasPDU nas = {0};
+    nasBuffer.pos = 0; 
+	nas.header.security_header_type = IntegrityProtectedCiphered; 
+ 	nas.header.proto_discriminator = EPSMobilityManagementMessages;
+	uint8_t mac[MAC_SIZE] = {0};
+	memcpy(nas.header.mac, mac, MAC_SIZE);
+
+	nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+	nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+	ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+	nas.header.message_type = AttachAccept;
+	nas.header.eps_bearer_identity = 0;
+	nas.header.procedure_trans_identity = 1;
+
+	nas.elements_len = ICS_REQ_NO_OF_NAS_IES;
+	nas.elements = (nas_pdu_elements *) calloc(ICS_REQ_NO_OF_NAS_IES,sizeof(nas_pdu_elements));
+	nas.elements[0].pduElement.attach_res = 2; /* EPS Only */
+	nas.elements[1].pduElement.t3412 = 224; 
+	nas.elements[2].pduElement.tailist.type = 1;
+	nas.elements[2].pduElement.tailist.num_of_elements = 0;
+   /* S1AP TAI mcc 123, mnc 456 : 214365 */
+   /* NAS TAI mcc 123, mnc 456 : 216354 */
+	memcpy(&(nas.elements[2].pduElement.tailist.partial_list[0]),
+			&(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
+	
+	/* Fill ESM info */
+	nas.elements[3].pduElement.esm_msg.eps_bearer_id = 5; /* TODO: revisit */
+	nas.elements[3].pduElement.esm_msg.proto_discriminator = EPSSessionManagementMessage;
+	nas.elements[3].pduElement.esm_msg.procedure_trans_identity = sessionCtxt->getPti();
+	nas.elements[3].pduElement.esm_msg.session_management_msgs = ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
+	nas.elements[3].pduElement.esm_msg.eps_qos = 9;
+	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
+	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
+
+	log_msg(LOG_DEBUG, "PCO length %d\n", procedure_p->getPcoOptionsLen());
+	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
+	memcpy(nas.elements[3].pduElement.esm_msg.pco_opt.pco_options, procedure_p->getPcoOptions(), nas.elements[3].pduElement.pco_opt.pco_length);
+
+	nas.elements[3].pduElement.esm_msg.pdn_addr.type = 1;
+	nas.elements[3].pduElement.esm_msg.pdn_addr.ipv4 = htonl(sessionCtxt->getPdnAddr().paa_m.ip_type.ipv4.s_addr);
+	nas.elements[3].pduElement.esm_msg.linked_ti.flag = 0;
+	nas.elements[3].pduElement.esm_msg.linked_ti.val = 0;
+	MmeNasUtils::get_negotiated_qos_value(&nas.elements[3].pduElement.esm_msg.negotiated_qos);
+
+    /* Send the allocated GUTI to UE  */
+	nas.elements[4].pduElement.mi_guti.odd_even_indication = 0;
+	nas.elements[4].pduElement.mi_guti.id_type = 6;
+
+	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
+			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - sizeof(struct PLMN)); dont use size..it has extra fields 
+	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
+	nas.elements[4].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[4].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+
+	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+	memcpy(&icr_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+	icr_msg.nasMsgSize = nasBuffer.pos;
+	log_msg(LOG_DEBUG, "nas message size %d \n",icr_msg.nasMsgSize);
+	free(nas.elements);
+
+#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -1056,7 +1286,7 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	ue_ctxt->setUpLnkSeqNo(ue_ctxt->getUpLnkSeqNo()+1);
+	//ue_ctxt->getUeSecInfo().increment_uplink_count();
 
 	ProcedureStats::num_of_processed_attach_cmp_from_ue ++;
 	log_msg(LOG_DEBUG, "Leaving handle_attach_cmp_from_ue \n");
@@ -1097,8 +1327,8 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_fd = ue_ctxt->getEnbFd();
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
-    	temp.dl_seq_no = ue_ctxt->getDwnLnkSeqNo();
-    	ue_ctxt->setDwnLnkSeqNo(temp.dl_seq_no+1);
+
+#ifdef S1AP_ENCODE_NAS
     	/*Logically MME should have TAC database. and based on TAC
      	* MME can send different name. For now we are sending Aether for
      	* all TACs
@@ -1107,6 +1337,38 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	strcpy(temp.full_network_name, "Aether");
     	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
     	NAS_INT_KEY_SIZE);
+
+      temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
+      temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
+      temp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
+      ue_ctxt->getUeSecInfo().increment_downlink_count();
+#else
+		struct Buffer nasBuffer;
+		struct nasPDU nas = {0};
+		const uint8_t num_nas_elements = 1;
+		nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+		nas.elements_len = num_nas_elements;
+		nas.header.security_header_type = IntegrityProtectedCiphered;
+		nas.header.proto_discriminator = EPSMobilityManagementMessages;
+		uint8_t mac[MAC_SIZE] = {0};
+		memcpy(nas.header.mac, mac, MAC_SIZE);
+
+
+		nas.header.seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo(); 
+		nas.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();	
+		ue_ctxt->getUeSecInfo().increment_downlink_count();
+
+		nas.header.message_type = EMMInformation;
+		/* passing network name in apn */
+		// TODO - network name configurable 
+		std::string network("Aether");
+		nas.elements[0].pduElement.apn.len = network.length(); 
+		strcpy((char *)nas.elements[0].pduElement.apn.val, (char *)network.c_str()); 
+		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
+		memcpy(&temp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+		temp.nasMsgSize = nasBuffer.pos;
+		free(nas.elements);
+#endif
 
     	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -1177,6 +1439,21 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
         attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+#ifndef S1AP_ENCODE_NAS
+		struct Buffer nasBuffer;
+		struct nasPDU nas = {0};
+		const uint8_t num_nas_elements = 1;
+		nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+		nas.elements_len = num_nas_elements;
+		nas.header.security_header_type = Plain;
+		nas.header.proto_discriminator = EPSMobilityManagementMessages;
+		nas.header.message_type = AttachReject;
+		nas.elements[0].pduElement.attach_res = 0x09;
+		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+		attach_rej.nasMsgSize = nasBuffer.pos;
+		free(nas.elements);
+#endif
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

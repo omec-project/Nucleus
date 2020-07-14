@@ -2,16 +2,7 @@
 /*
  * Copyright 2019-present, Infosys Limited.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 #ifndef DGM_BLOCKSTRUCTURES_H
 #define DGM_BLOCKSTRUCTURES_H
@@ -169,42 +160,6 @@ namespace mme
 			const DigitRegister15& getMsisdn()const;				
 			
 			/****************************************
-			* setDwnLnkSeqNo
-			*    set dwnLnkSeqNo to UEContext
-			****************************************/
-			void setDwnLnkSeqNo(uint16_t dwnLnkSeqNo_i);
-			
-			/****************************************
-			* getDwnLnkSeqNo
-			*    get dwnLnkSeqNo from UEContext
-			****************************************/
-			uint16_t getDwnLnkSeqNo()const;	
-		
-			/****************************************
-			* incrementDwnLnkSeqNo
-			*    increment dwnLnkSeqNo to UEContext
-			****************************************/
-			void incrementDwnLnkSeqNo();			
-			
-			/****************************************
-			* setUpLnkSeqNo
-			*    set upLnkSeqNo to UEContext
-			****************************************/
-			void setUpLnkSeqNo(uint16_t upLnkSeqNo_i);
-			
-			/****************************************
-			* getUpLnkSeqNo
-			*    get upLnkSeqNo from UEContext
-			****************************************/
-			uint16_t getUpLnkSeqNo()const;	
-		
-			/****************************************
-			* incrementUpLnkSeqNo
-			*    increment upLnkSeqNo to UEContext
-			****************************************/
-			void incrementUpLnkSeqNo();			
-			
-			/****************************************
 			* setUeState
 			*    set ueState to UEContext
 			****************************************/
@@ -268,13 +223,13 @@ namespace mme
 			* setUeSecInfo
 			*    set ueSecInfo to UEContext
 			****************************************/
-			void setUeSecInfo(const Secinfo& ueSecInfo_i);
+			void setUeSecInfo(Secinfo& ueSecInfo_i);
 			
 			/****************************************
 			* getUeSecInfo
 			*    get ueSecInfo from UEContext
 			****************************************/
-			const Secinfo& getUeSecInfo()const;				
+			Secinfo& getUeSecInfo();
 			
 			/****************************************
 			* setAmbr
@@ -871,8 +826,7 @@ namespace mme
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
-			const uint8_t* getPcoOptions()const;	
-
+			const uint8_t* getPcoOptions()const;							
 			/****************************************
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
@@ -915,6 +869,7 @@ namespace mme
 			// DataName
 			uint16_t pcoOptionsLen_m;
 			uint8_t pcoOptions_m[256];
+			
 			
 			// DataName
 			uint8_t pti_m;

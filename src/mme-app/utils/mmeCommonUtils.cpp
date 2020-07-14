@@ -1,17 +1,7 @@
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <utils/mmeCommonUtils.h>
@@ -39,6 +29,38 @@ bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
 	}
 
 	return rc;
+}
+
+uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)
+{
+	uint8_t result = 0;
+
+	for(int i = 0; i < MAX_ALGO_COUNT; i++)
+    {
+        if (val & (0x80 >> g_mme_cfg.integrity_alg_order[i]))
+        {
+            result = g_mme_cfg.integrity_alg_order[i];
+            break;
+        }
+    }
+
+	return result;
+}
+
+uint8_t MmeCommonUtils::select_preferred_sec_algo(uint8_t &val)
+{
+	uint8_t result = 0;
+
+	for(int i = 0; i < MAX_ALGO_COUNT; i++)
+    {
+        if (val & (0x80 >> g_mme_cfg.ciphering_alg_order[i]))
+        {
+            result = g_mme_cfg.ciphering_alg_order[i];
+            break;
+        }
+    }
+
+	return result;
 }
 
 uint32_t MmeCommonUtils::allocateMtmsi()

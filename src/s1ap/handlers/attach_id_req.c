@@ -3,17 +3,6 @@
 *
 * SPDX-License-Identifier: Apache-2.0
 *
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 *
 */
 #include <stdio.h>
@@ -56,11 +45,13 @@ get_attach_id_request_protoie_value(struct proto_IE *value,struct attachIdReq_in
 	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
 			g_attachIdReqInfo->ue_idx, g_attachIdReqInfo->s1ap_enb_ue_id);
 
+#ifdef S1AP_ENCODE_NAS
 	/* TODO: Add enum for security header type */
 	value->data[2].val.nas.header.security_header_type = 0;
 	value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
 	value->data[2].val.nas.header.message_type = IdentityRequest;
 	value->data[2].val.nas.header.nas_security_param = 0;
+#endif
 
 	return SUCCESS;
 }
@@ -74,7 +65,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 {
 	struct Buffer g_buffer = {0};
 	struct Buffer g_value_buffer = {0};
-	struct Buffer g_nas_buffer = {0};
 
 	struct s1ap_PDU s1apPDU = {0};
 
@@ -151,9 +141,11 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, tmpStr,
 						sizeof(protocolIe_Id));
 
+	struct Buffer g_nas_buffer = {0};
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
+#ifdef S1AP_ENCODE_NAS
 	struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
 	uint8_t value = (nas->header.security_header_type) |
 			nas->header.proto_discriminator;
@@ -179,6 +171,17 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 
 	buffer_copy(&g_value_buffer, &g_nas_buffer,
 						g_nas_buffer.pos);
+#else
+	log_msg(LOG_INFO, "Received Id Req has nas message %d \n",g_attachIdReqInfo->nasMsgSize);
+	datalen = g_attachIdReqInfo->nasMsgSize + 1; 
+
+	buffer_copy(&g_value_buffer, &datalen,
+						sizeof(datalen));
+
+	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgSize, sizeof(uint8_t));
+
+	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
+#endif
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(g_value_buffer.pos));
@@ -186,7 +189,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_buffer, &g_value_buffer,
 						g_value_buffer.pos);
 
-	//free(s1apPDU.value.data[2].val.nas.elements);
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_attachIdReqInfo->enb_fd, g_buffer.buf, g_buffer.pos, 1);

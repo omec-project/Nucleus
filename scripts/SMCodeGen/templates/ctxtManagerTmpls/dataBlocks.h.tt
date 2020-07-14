@@ -5,16 +5,7 @@
 /*
  * Copyright 2019-present, Infosys Limited.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 #ifndef DGM_BLOCKSTRUCTURES_H
 #define DGM_BLOCKSTRUCTURES_H
@@ -73,32 +64,7 @@ namespace mme
 			*    get [% Data.Name %] from [% dataBlockClassName %]
 			****************************************/
 			[% ARG(Data,"get") %] get[% String.new(Data.Name).capital.text() %]()const;	
-          [%- UNLESS Data.Properties =='' %]
-          [%- FOREACH Property = Data.Properties %]
-          [%-IF Property.metrics == "counter" %]
-		
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-          [%-ELSIF Property.metrics == "gauge" %]
-            
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-            
-			/****************************************
-			* decrement[% String.new(Data.Name).capital.text() %]
-			*    decrement [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void decrement[% String.new(Data.Name).capital.text() %]();
-          [%- END -%]
-          [%- END %][%- END %]
-[%-UNLESS Data.Cardinality=='' %]
-
+[%-UNLESS Data.Cardinality=='' %]						
 			/****************************************
 			* get[% String.new(Data.Name).capital.text() %]Len
 			*    get [% Data.Name %]Len from [% dataBlockClassName %]
@@ -135,7 +101,7 @@ namespace mme
 			[%-ELSE%]
 			uint16_t [% Data.Name %]Len_m;
 			[% Data.Type %] [% Data.Name %]_m[[% Data.Cardinality %]];
-			[%- END %]
+			[% END %]
 			[% END %]
 			[%- FOREACH Child = DataBlock.Children %]
 			// [% Child %]

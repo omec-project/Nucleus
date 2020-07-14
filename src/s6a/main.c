@@ -1,4 +1,3 @@
-//test
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
@@ -273,7 +272,7 @@ s6a_run()
 int
 main(int argc, char **argv)
 {
-        
+	srand(time(0));
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 	

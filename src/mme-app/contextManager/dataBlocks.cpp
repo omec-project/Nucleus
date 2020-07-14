@@ -202,54 +202,6 @@ namespace mme
 	}
 	
 	/******************************************************************************
-	* sets dwnLnkSeqNo
-	******************************************************************************/
-	void UEContext::setDwnLnkSeqNo( uint16_t dwnLnkSeqNo_i )
-	{
-		dwnLnkSeqNo_m = dwnLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns dwnLnkSeqNo
-	******************************************************************************/	
-	uint16_t UEContext::getDwnLnkSeqNo() const
-	{
-		return dwnLnkSeqNo_m;
-	}
-    
-	/******************************************************************************
-	* increment dwnLnkSeqNo
-	******************************************************************************/	
-	void UEContext::incrementDwnLnkSeqNo()
-	{
-		dwnLnkSeqNo_m = dwnLnkSeqNo_m + 1;
-	}   
-	
-	/******************************************************************************
-	* sets upLnkSeqNo
-	******************************************************************************/
-	void UEContext::setUpLnkSeqNo( uint16_t upLnkSeqNo_i )
-	{
-		upLnkSeqNo_m = upLnkSeqNo_i;
-	}
-	
-	/******************************************************************************
-	* returns upLnkSeqNo
-	******************************************************************************/	
-	uint16_t UEContext::getUpLnkSeqNo() const
-	{
-		return upLnkSeqNo_m;
-	}
-    
-	/******************************************************************************
-	* increment upLnkSeqNo
-	******************************************************************************/	
-	void UEContext::incrementUpLnkSeqNo()
-	{
-		upLnkSeqNo_m = upLnkSeqNo_m + 1;
-	}   
-	
-	/******************************************************************************
 	* sets ueState
 	******************************************************************************/
 	void UEContext::setUeState( UE_State_e ueState_i )
@@ -332,7 +284,7 @@ namespace mme
 	/******************************************************************************
 	* sets ueSecInfo
 	******************************************************************************/
-	void UEContext::setUeSecInfo( const Secinfo& ueSecInfo_i )
+	void UEContext::setUeSecInfo( Secinfo& ueSecInfo_i )
 	{
 		ueSecInfo_m = ueSecInfo_i;
 	}
@@ -340,7 +292,7 @@ namespace mme
 	/******************************************************************************
 	* returns ueSecInfo
 	******************************************************************************/	
-	const Secinfo& UEContext::getUeSecInfo() const
+	Secinfo& UEContext::getUeSecInfo() 
 	{
 		return ueSecInfo_m;
 	}
@@ -948,7 +900,6 @@ namespace mme
 	{
 		return pcoOptions_m;
 	}
-
 	/******************************************************************************
 	* returns pcoOptionsLen
 	******************************************************************************/	

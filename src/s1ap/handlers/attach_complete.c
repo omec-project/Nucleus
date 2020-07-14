@@ -29,7 +29,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_attach_complete_handler(struct proto_IE *s1_esm_resp_ies)
 {
-	struct s1_incoming_msg_data_t attachComplete= {0};
+	s1_incoming_msg_data_t attachComplete= {0};
 
 	/*****Message structure***
 	*/
@@ -48,6 +48,12 @@ s1_attach_complete_handler(struct proto_IE *s1_esm_resp_ies)
                 {
 	                attachComplete.ue_idx = s1_esm_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
+            case S1AP_IE_NAS_PDU:
+				{
+					//TODO : we need update mmeNasUtils.x file as well  
+				}break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d\n",s1_esm_resp_ies->data[i].IE_type);
         }
