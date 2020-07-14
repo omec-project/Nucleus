@@ -43,7 +43,8 @@ using namespace SM;
 using namespace cmn;
 using namespace cmn::utils;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
+extern mmeConfig *mme_tables;
 
 /***************************************
 * Action handler : send_tau_response_to_ue
@@ -88,17 +89,6 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.ue_idx = ue_ctxt->getContextID();
 	tau_resp.status = 0;
 
-#ifdef S1AP_ENCODE_NAS
-	//tau_resp.status = 0;
-	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    tau_resp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
-			NAS_INT_KEY_SIZE);
-
-	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	const uint8_t num_nas_elements = 5;
@@ -125,8 +115,8 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 
 	memcpy(&(nas.elements[3].pduElement.mi_guti.plmn_id),
 			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - dont use sizeof(struct PLMN));
-	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(g_mme_cfg.mme_group_id);
-	nas.elements[3].pduElement.mi_guti.mme_code = g_mme_cfg.mme_code;
+	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	nas.elements[3].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 
@@ -135,7 +125,6 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	memcpy(&tau_resp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	tau_resp.nasMsgSize = nasBuffer.pos;
 	free(nas.elements);
-#endif
 	
 	ue_ctxt->setTai(Tai(tau_resp.tai)); /* ajaymerge --need careful reading here... Did i merge correctly ?? */
 	cmn::ipc::IpcAddress destAddr;

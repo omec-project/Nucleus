@@ -37,21 +37,6 @@ get_detach_accept_protoie_value(struct proto_IE *value, const struct detach_acce
 	value->data[ieCnt].val.enb_ue_s1ap_id = g_acptReqInfo->enb_s1ap_ue_id;
 	ieCnt++;
 
-#ifdef S1AP_ENCODE_NAS
-	struct nasPDU *nas = &(value->data[ieCnt].val.nas);
-	nas->header.security_header_type = IntegrityProtectedCiphered;
-	nas->header.proto_discriminator = EPSMobilityManagementMessages;
-
-	/* placeholder for mac. mac value will be calculated later */
-	uint8_t mac[MAC_SIZE] = {0};
-	memcpy(nas->header.mac, mac, MAC_SIZE);
-
-	nas->header.seq_no = g_acptReqInfo->dl_seq_no;
-	nas->header.message_type = DetachAccept;
-
-	ieCnt++;
-#endif
-
 	return SUCCESS;
 }
 
@@ -130,67 +115,6 @@ detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-#ifdef S1AP_ENCODE_NAS
-	uint8_t mac_data_pos;
-	uint8_t nas_len_pos;
-
-	nas_len_pos = g_acpt_buffer.pos;
-
-	datalen = 0;
-	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
-
-	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
-
-	nas_pdu_header *nas_hdr = &(s1apPDU.value.data[2].val.nas.header);
-
-	/* security header and protocol discriminator */
-	u8value = (nas_hdr->security_header_type << 4 |
-			nas_hdr->proto_discriminator);
-	buffer_copy(&g_acpt_buffer, &u8value, sizeof(u8value));
-
-	/* mac */
-	/* placeholder for mac. mac value will be calculated later */
-	buffer_copy(&g_acpt_buffer, nas_hdr->mac, MAC_SIZE);
-	mac_data_pos = g_acpt_buffer.pos;
-
-	/* sequence number */
-	buffer_copy(&g_acpt_buffer, &(nas_hdr->seq_no),
-			sizeof(nas_hdr->seq_no));
-
-	/* security header and protocol discriminator */
-	nas_hdr->security_header_type = Plain;
-	u8value = (nas_hdr->security_header_type << 4 |
-			nas_hdr->proto_discriminator);
-	buffer_copy(&g_acpt_buffer, &u8value, sizeof(u8value));
-
-	/* message type */
-	buffer_copy(&g_acpt_buffer, &(nas_hdr->message_type),
-			sizeof(nas_hdr->message_type));
-
-	/* NAS PDU end */
-
-	/* Calculate mac */
-	uint8_t direction = 1;
-	uint8_t bearer = 0;
-
-	calculate_mac(g_acptReqInfo->int_key, g_acptReqInfo->dl_count,
-			direction, bearer, &g_acpt_buffer.buf[mac_data_pos],
-			g_acpt_buffer.pos - mac_data_pos,
-			&g_acpt_buffer.buf[mac_data_pos - MAC_SIZE],
-            g_acptReqInfo->int_alg);
-
-	/* Copy nas length to nas length field */
-	datalen = g_acpt_buffer.pos - nas_len_pos -1;
-	memcpy(&(g_acpt_buffer.buf[nas_len_pos]), &datalen, sizeof(datalen));
-
-	/* Copy nas length to nas length field */
-	datalen = g_acpt_buffer.pos - nas_len_pos - 2;
-	memcpy(&(g_acpt_buffer.buf[nas_len_pos + 1]), &datalen, sizeof(datalen));
-
-	/* Copy length to s1ap length field */
-	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
-	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
-#else
 	log_msg(LOG_INFO, "Received detach accept message  - encoded nas message size %d \n",g_acptReqInfo->nasMsgSize);
 	datalen = g_acptReqInfo->nasMsgSize + 1; 
 	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
@@ -199,7 +123,6 @@ detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	/* Copy length to s1ap length field */
 	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
-#endif
 
 	/* TODO: temp fix */
 	//g_ics_buffer.buf[1] = 0x09;

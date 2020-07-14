@@ -17,7 +17,7 @@
 #include "secUtils.h"
 using namespace mme;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
 
 void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
         UEContext& ueCtxt,
@@ -63,9 +63,9 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     hoReq.eRABSetupList.eRABSetup[0].transportLayerAddress =
             bearerCtxt->getS1uSgwUserFteid().fteid_m.ip.ipv4.s_addr;
 
-    hoReq.gummei.mme_code = g_mme_cfg.mme_code;
-    hoReq.gummei.mme_grp_id = g_mme_cfg.mme_group_id;
-    memcpy(hoReq.gummei.plmn_id.idx, g_mme_cfg.plmns[1].idx, 3);
+    hoReq.gummei.mme_code = mme_cfg->mme_code;
+    hoReq.gummei.mme_grp_id = mme_cfg->mme_group_id;
+    memcpy(hoReq.gummei.plmn_id.idx, mme_cfg->plmns[1].idx, 3);
 
     secinfo& secInfo = const_cast<secinfo&>(ueCtxt.getUeSecInfo().secinfo_m);
     secInfo.next_hop_chaining_count = secInfo.next_hop_chaining_count + 1 ;

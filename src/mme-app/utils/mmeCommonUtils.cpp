@@ -16,14 +16,14 @@
 
 using namespace mme;
 
-extern mme_config g_mme_cfg;
+extern mme_config_t *mme_cfg;
 
 bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
 {
 	bool rc = false;
 
-	if (guti_r.mme_grp_id == g_mme_cfg.mme_group_id &&
-			guti_r.mme_code == g_mme_cfg.mme_code)
+	if (guti_r.mme_grp_id == mme_cfg->mme_group_id &&
+			guti_r.mme_code == mme_cfg->mme_code)
 	{
 		rc = true;
 	}
@@ -37,9 +37,9 @@ uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)
 
 	for(int i = 0; i < MAX_ALGO_COUNT; i++)
     {
-        if (val & (0x80 >> g_mme_cfg.integrity_alg_order[i]))
+        if (val & (0x80 >> mme_cfg->integrity_alg_order[i]))
         {
-            result = g_mme_cfg.integrity_alg_order[i];
+            result = mme_cfg->integrity_alg_order[i];
             break;
         }
     }
@@ -53,9 +53,9 @@ uint8_t MmeCommonUtils::select_preferred_sec_algo(uint8_t &val)
 
 	for(int i = 0; i < MAX_ALGO_COUNT; i++)
     {
-        if (val & (0x80 >> g_mme_cfg.ciphering_alg_order[i]))
+        if (val & (0x80 >> mme_cfg->ciphering_alg_order[i]))
         {
-            result = g_mme_cfg.ciphering_alg_order[i];
+            result = mme_cfg->ciphering_alg_order[i];
             break;
         }
     }

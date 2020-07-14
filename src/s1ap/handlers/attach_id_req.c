@@ -45,14 +45,6 @@ get_attach_id_request_protoie_value(struct proto_IE *value,struct attachIdReq_in
 	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
 			g_attachIdReqInfo->ue_idx, g_attachIdReqInfo->s1ap_enb_ue_id);
 
-#ifdef S1AP_ENCODE_NAS
-	/* TODO: Add enum for security header type */
-	value->data[2].val.nas.header.security_header_type = 0;
-	value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
-	value->data[2].val.nas.header.message_type = IdentityRequest;
-	value->data[2].val.nas.header.nas_security_param = 0;
-#endif
-
 	return SUCCESS;
 }
 
@@ -145,33 +137,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-#ifdef S1AP_ENCODE_NAS
-	struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
-	uint8_t value = (nas->header.security_header_type) |
-			nas->header.proto_discriminator;
-
-	g_nas_buffer.pos = 0;
-
-	buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-	buffer_copy(&g_nas_buffer, &nas->header.message_type,
-						sizeof(nas->header.message_type));
-
-    value = g_attachIdReqInfo->ue_type; 
-	buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-	datalen = g_nas_buffer.pos + 1;
-
-	buffer_copy(&g_value_buffer, &datalen,
-						sizeof(datalen));
-
-	buffer_copy(&g_value_buffer, &g_nas_buffer.pos,
-						sizeof(g_nas_buffer.pos));
-
-
-	buffer_copy(&g_value_buffer, &g_nas_buffer,
-						g_nas_buffer.pos);
-#else
 	log_msg(LOG_INFO, "Received Id Req has nas message %d \n",g_attachIdReqInfo->nasMsgSize);
 	datalen = g_attachIdReqInfo->nasMsgSize + 1; 
 
@@ -181,7 +146,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
-#endif
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(g_value_buffer.pos));

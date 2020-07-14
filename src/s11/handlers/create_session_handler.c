@@ -44,7 +44,7 @@ extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 
-extern s11_config g_s11_cfg;
+extern s11_config_t g_s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 
 /****Global and externs end***/
@@ -93,11 +93,20 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
+    struct sockaddr_in sgw_addr = {0};
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = 0; 
+
+	sgw_addr.sin_family = AF_INET;
+	sgw_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
+    if(g_csReqInfo->sgw_ip != 0) {
+        sgw_addr.sin_addr.s_addr = g_csReqInfo->sgw_ip;
+    } else {
+        sgw_addr = g_s11_cp_addr; 
+    }
 	
 	g_s11_sequence++;
 	
@@ -169,7 +178,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.pgwS5S8AddressForControlPlaneOrPmipIePresent = true;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipv4present = true;
 	msgData.pgwS5S8AddressForControlPlaneOrPmip.interfaceType = 7;
-	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = ntohl(g_s11_cfg.pgw_ip);
+	msgData.pgwS5S8AddressForControlPlaneOrPmip.ipV4Address.ipValue = ntohl(g_csReqInfo->pgw_ip); /* host order address */
 
 	msgData.accessPointName.apnValue.count = g_csReqInfo->selected_apn.len;
 	memcpy(msgData.accessPointName.apnValue.values, g_csReqInfo->selected_apn.val, g_csReqInfo->selected_apn.len);
@@ -226,7 +235,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),
 			MsgBuffer_getBufLen(csReqMsgBuf_p), 0,
-			(struct sockaddr*)&g_s11_cp_addr,
+			(struct sockaddr*)(&sgw_addr),
 			g_s11_serv_size);
 	if (res < 0) {
 		log_msg(LOG_ERROR,"Error in sendto in detach stage 3 post to next\n");

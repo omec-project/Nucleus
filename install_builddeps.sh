@@ -30,6 +30,7 @@ install_build_pkg_deps() {
 		curl \
   		automake \
 		make \
+        rapidjson-dev \
 		unzip
 }
 

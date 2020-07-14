@@ -16,6 +16,7 @@ namespace mme
  * Timer ID range used by different modules in mme-app
  ******************************************************/
 const uint16_t stateGuardTimer_c = 1;
+const uint16_t mmeConfigDnsResolve_c = 2;
 
 /******************************************************
  * Timeout durations in milliseconds
