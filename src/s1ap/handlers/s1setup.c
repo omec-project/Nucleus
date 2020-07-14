@@ -27,7 +27,7 @@
 #include "ProtocolIE-Field.h"
 #include "SupportedTAs-Item.h"
 #include "TAC.h"
-//void ut_ho(void *msg, int enb_fd);
+
 /******************************************************
   S1_SETUP_RESPONSE handling
 ******************************************************/
