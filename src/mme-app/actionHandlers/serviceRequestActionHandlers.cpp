@@ -482,7 +482,7 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
 	service_rej.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
 	service_rej.enb_fd = ue_ctxt->getEnbFd();
 	service_rej.cause = emmCause_ue_id_not_derived_by_network;
-#ifndef S1AP_ENCODE_NAS
+
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	const uint8_t num_nas_elements = 1;
@@ -496,7 +496,7 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
 	memcpy(&service_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	service_rej.nasMsgSize = nasBuffer.pos;
 	free(nas.elements);
-#endif
+
 	cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 

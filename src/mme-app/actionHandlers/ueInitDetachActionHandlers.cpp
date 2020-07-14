@@ -178,13 +178,6 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	detach_accpt.ue_idx = ue_ctxt->getContextID();
 	detach_accpt.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
 	
-#ifdef S1AP_ENCODE_NAS
-	detach_accpt.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    detach_accpt.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    detach_accpt.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	memcpy(&(detach_accpt.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	nas.header.security_header_type = IntegrityProtectedCiphered;
@@ -201,7 +194,6 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&detach_accpt.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	detach_accpt.nasMsgSize = nasBuffer.pos;
-#endif
 	
 	/* Send message to S11app in S11q*/
 	cmn::ipc::IpcAddress destAddr;
