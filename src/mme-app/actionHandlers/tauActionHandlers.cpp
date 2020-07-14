@@ -89,17 +89,6 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	tau_resp.ue_idx = ue_ctxt->getContextID();
 	tau_resp.status = 0;
 
-#ifdef S1AP_ENCODE_NAS
-	//tau_resp.status = 0;
-	tau_resp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    tau_resp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    tau_resp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	memcpy(&(tau_resp.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
-			NAS_INT_KEY_SIZE);
-
-	tau_resp.m_tmsi = ue_ctxt->getMTmsi();
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	const uint8_t num_nas_elements = 5;
@@ -136,7 +125,6 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	memcpy(&tau_resp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	tau_resp.nasMsgSize = nasBuffer.pos;
 	free(nas.elements);
-#endif
 	
 	ue_ctxt->setTai(Tai(tau_resp.tai)); /* ajaymerge --need careful reading here... Did i merge correctly ?? */
 	cmn::ipc::IpcAddress destAddr;

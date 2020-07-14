@@ -89,9 +89,6 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	idReqMsg.enb_fd = ueCtxt_p->getEnbFd();
 	idReqMsg.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
 	idReqMsg.ue_idx = ueCtxt_p->getContextID();
-#ifdef S1AP_ENCODE_NAS
-	idReqMsg.ue_type = ID_IMSI;
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	const uint8_t num_nas_elements = 1;
@@ -105,7 +102,6 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	memcpy(&idReqMsg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	idReqMsg.nasMsgSize = nasBuffer.pos;
 	free(nas.elements);
-#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -189,8 +185,7 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req; 
-	RESET_S6A_REQ_MSG(s6a_req);
-	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
+	RESET_S6A_REQ_MSG(&s6a_req);
 	 
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
 
@@ -231,9 +226,8 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	}
 
 	s6a_Q_msg s6a_req;
-    RESET_S6A_REQ_MSG(s6a_req);
+    RESET_S6A_REQ_MSG(&s6a_req);
 
-	memset(s6a_req.imsi, '\0', sizeof(s6a_req.imsi));
 	ue_ctxt->getImsi().getImsiDigits(s6a_req.imsi);
 
 	memcpy(&(s6a_req.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
@@ -329,7 +323,8 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setSubscriptionStatus(ula_msg.subscription_status);
 	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
-    ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
+  ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
+  log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
 
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
@@ -370,10 +365,6 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 
-#ifdef S1AP_ENCODE_NAS
-	memcpy(&(authreq.rand), &(secVect->rand.val), NAS_RAND_SIZE);
-	memcpy(&(authreq.autn), &(secVect->autn.val), NAS_AUTN_SIZE);
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	const uint8_t num_nas_elements = 2;
@@ -388,7 +379,7 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	memcpy(&authreq.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	authreq.nasMsgSize = nasBuffer.pos;
 	free(nas.elements);
-#endif
+
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
@@ -536,26 +527,6 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	SecUtils::create_integrity_key(ue_ctxt->getUeSecInfo().getSelectIntAlg(), 
                                    secVect->kasme.val, secInfo.int_key);
 	
-#ifdef S1AP_ENCODE_NAS
-	memcpy(&(sec_mode_msg.ue_network), &(ue_ctxt->getUeNetCapab().ue_net_capab_m),
-		sizeof(struct UE_net_capab));
-
-	memcpy(&(sec_mode_msg.ms_net_capab), &(ue_ctxt->getMsNetCapab().ms_net_capab_m),
-                sizeof(struct MS_net_capab));
-
-	memcpy(&(sec_mode_msg.key), &(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->kasme),
-			sizeof(struct KASME));
-
-	memcpy(&(sec_mode_msg.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key),
-			NAS_INT_KEY_SIZE);
-
-	sec_mode_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-  sec_mode_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-
-  sec_mode_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-  sec_mode_msg.sec_alg = ue_ctxt->getUeSecInfo().getSelectSecAlg();
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	nas.header.message_type = SecurityModeCommand;
@@ -618,7 +589,6 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	memcpy(&sec_mode_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	sec_mode_msg.nasMsgSize = nasBuffer.pos;
 	free(nas.elements); 
-#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -744,15 +714,6 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	esmreq.ue_idx = ue_ctxt->getContextID();
 	esmreq.enb_fd = ue_ctxt->getEnbFd();
 	esmreq.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
-#ifdef S1AP_ENCODE_NAS 
-	esmreq.pti = sessionCtxt->getPti();
-	esmreq.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    esmreq.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    esmreq.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	memcpy(&(esmreq.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
-			NAS_INT_KEY_SIZE);
-#else 
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	uint8_t mac[MAC_SIZE] = {0};
@@ -773,7 +734,6 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	memcpy(&esmreq.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	esmreq.nasMsgSize = nasBuffer.pos;
 	free(nas.elements); 
-#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -885,6 +845,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	formattedApn.str().length()); */
 
 	const Apn_name &apnName = ue_ctxt->getSubscribedApn();
+    log_msg(LOG_DEBUG, "apn = %s length = %d ", apnName.apnname_m.val, apnName.apnname_m.len);
 	// TODO: ApnSelection
 	// Set the subscribed apn to selected apn for now
 	sessionCtxt->setAccessPtName(apnName);
@@ -1081,23 +1042,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	memcpy(&(icr_msg.gtp_teid), &(bearerCtxt->getS1uSgwUserFteid().fteid_m), sizeof(struct fteid));
 	memcpy(&(icr_msg.sec_key), &((ue_ctxt->getUeSecInfo().secinfo_m).kenb_key),
 			KENB_SIZE);	
-#ifdef S1AP_ENCODE_NAS
-	memcpy(&(icr_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
-	memcpy(&(icr_msg.apn), &(sessionCtxt->getAccessPtName().apnname_m), sizeof(struct apn_name));
-	memcpy(&(icr_msg.pdn_addr), &(sessionCtxt->getPdnAddr().paa_m), sizeof(struct PAA));
-	memcpy(&(icr_msg.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
-			NAS_INT_KEY_SIZE);
-	icr_msg.pti = sessionCtxt->getPti();
-
-  icr_msg.m_tmsi = ue_ctxt->getMTmsi();
-	icr_msg.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-  icr_msg.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    icr_msg.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	icr_msg.pco_length = procedure_p->getPcoOptionsLen();
-	if(procedure_p->getPcoOptionsLen() > 0)
-		memcpy(&(icr_msg.pco_options[0]), procedure_p->getPcoOptions(), icr_msg.pco_length);
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
     nasBuffer.pos = 0; 
@@ -1133,6 +1077,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.eps_qos = 9;
 	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
 	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
+    log_msg(LOG_DEBUG, "ESM apn length = %d \n",nas.elements[3].pduElement.esm_msg.apn.len);
 
 	log_msg(LOG_DEBUG, "PCO length %d\n", procedure_p->getPcoOptionsLen());
 	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
@@ -1159,8 +1104,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	icr_msg.nasMsgSize = nasBuffer.pos;
 	log_msg(LOG_DEBUG, "nas message size %d \n",icr_msg.nasMsgSize);
 	free(nas.elements);
-
-#endif
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
@@ -1329,21 +1272,6 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	temp.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
     	temp.mme_s1ap_ue_id = ue_ctxt->getContextID();
 
-#ifdef S1AP_ENCODE_NAS
-    	/*Logically MME should have TAC database. and based on TAC
-     	* MME can send different name. For now we are sending Aether for
-     	* all TACs
-     	*/
-    	strcpy(temp.short_network_name, "Aether");
-    	strcpy(temp.full_network_name, "Aether");
-    	memcpy(&(temp.int_key), &((ue_ctxt->getUeSecInfo().secinfo_m).int_key),
-    	NAS_INT_KEY_SIZE);
-
-      temp.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-      temp.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-      temp.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-      ue_ctxt->getUeSecInfo().increment_downlink_count();
-#else
 		struct Buffer nasBuffer;
 		struct nasPDU nas = {0};
 		const uint8_t num_nas_elements = 1;
@@ -1369,13 +1297,12 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
 		memcpy(&temp.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 		temp.nasMsgSize = nasBuffer.pos;
 		free(nas.elements);
-#endif
 
     	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
     	
-	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
 
     	ProcedureStats::num_of_emm_info_sent++;
     }
@@ -1440,7 +1367,6 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
         attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
-#ifndef S1AP_ENCODE_NAS
 		struct Buffer nasBuffer;
 		struct nasPDU nas = {0};
 		const uint8_t num_nas_elements = 1;
@@ -1454,7 +1380,6 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 		attach_rej.nasMsgSize = nasBuffer.pos;
 		free(nas.elements);
-#endif
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

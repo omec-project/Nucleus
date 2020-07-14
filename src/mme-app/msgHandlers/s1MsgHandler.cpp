@@ -64,7 +64,6 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 
 	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
 
-#ifndef S1AP_DECODE_NAS
 	struct nasPDU nas={0};
 	/* Below function should take care of decryption and integrity check */
 	/* Get the control block and pass it to below function */
@@ -81,7 +80,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
         }
 		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
 	}
-#endif
+
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
