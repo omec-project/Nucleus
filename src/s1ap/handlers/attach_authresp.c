@@ -31,7 +31,7 @@ int
 s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
 {
 	//TODO: use static instead of synamic for perf.
-	struct s1_incoming_msg_data_t auth_resp= {0};
+	s1_incoming_msg_data_t auth_resp= {0};
 
 	/*****Message structure***
 	*/
@@ -53,6 +53,7 @@ s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
                 {
 	                auth_resp.ue_idx = s1_auth_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     if(s1_auth_resp_ies->data[i].val.nas.header.message_type != NAS_AUTH_RESP)
@@ -67,7 +68,9 @@ s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies)
                     memcpy(&(auth_resp.msg_data.authresp_Q_msg_m.res), 
                            &(s1_auth_resp_ies->data[i].val.nas.elements[0].pduElement.auth_resp),
                            sizeof(struct XRES));
+
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_auth_resp_ies->data[i].IE_type);
         }
@@ -90,7 +93,7 @@ int
 s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 {
 	//TODO: use static instead of synamic for perf.
-	struct s1_incoming_msg_data_t auth_resp={0};
+	s1_incoming_msg_data_t auth_resp={0};
 
 	/*****Message structure***
 	*/
@@ -115,6 +118,7 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
                 {
 	                auth_resp.ue_idx = s1_auth_resp_ies->data[i].val.mme_ue_s1ap_id;
                 }break;
+#ifdef S1AP_DECODE_NAS
             case S1AP_IE_NAS_PDU:
                 {
                     auth_resp.msg_data.authresp_Q_msg_m.status = S1AP_AUTH_FAILED;//Error in authentication
@@ -122,6 +126,7 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
                            &(s1_auth_resp_ies->data[i].val.nas.elements[0].pduElement.auth_fail_resp),
 		                   sizeof(struct AUTS));
                 }break;
+#endif
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_auth_resp_ies->data[i].IE_type);
         }
@@ -134,7 +139,7 @@ s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&auth_resp, S1_READ_MSG_BUF_SIZE);
 
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Auth resp send to mme-app stage3.\n");
+	log_msg(LOG_INFO, "Sent Auth fail resp indication to mme-app stage3.\n");
 
 	//TODO: free IEs
 	return SUCCESS;

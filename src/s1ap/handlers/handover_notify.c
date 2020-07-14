@@ -19,7 +19,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 int s1_handover_notify_handler(InitiatingMessage_t *msg)
 {
-    struct s1_incoming_msg_data_t notify = {0};
+    s1_incoming_msg_data_t notify = {0};
     struct proto_IE ho_notify_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover notify message\n");
 

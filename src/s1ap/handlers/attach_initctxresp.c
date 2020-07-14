@@ -30,7 +30,7 @@ int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 {
 	struct proto_IE s1_ics_ies;
-	struct s1_incoming_msg_data_t ics_resp= {0};
+	s1_incoming_msg_data_t ics_resp= {0};
 
 	/*****Message structure****/
 	log_msg(LOG_INFO, "Parse int ctx s1ap response message:--\n");
@@ -61,7 +61,6 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
                 log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_ics_ies.data[i].IE_type);
         }
     }
-	
 	
 	
 	ics_resp.destInstAddr = htonl(mmeAppInstanceNum_c);

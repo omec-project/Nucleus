@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-export LD_LIBRARY_PATH=./lib:/usr/local/lib
+export LD_LIBRARY_PATH=./lib:/usr/local/lib:/usr/local/ssl/lib
 echo "Start MME application"
 ./bin/mme-app &
 sleep 1
