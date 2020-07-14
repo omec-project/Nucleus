@@ -9,6 +9,9 @@
 #ifndef __MME_APP_H_
 #define __MME_APP_H_
 
+#include <string>
+#include <list>
+#include <iostream>
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -18,9 +21,6 @@ extern "C"{
 #include "log.h"
 #include "s1ap_error.h"
 #include "defines.h"
-#include <string>
-#include <list>
-#include <iostream>
 
 /**
  * MME main application configuration parameters structures.

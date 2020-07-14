@@ -28,6 +28,7 @@
             "__comment__": " apn name to ip addresss/service name mapping.",
             "internet": "spgwc-headless",
             "apps": "spgwc-headless"
+        },
         "security": {
             "int_alg_list": "[EIA1, EIA2, EIA0]",
             "sec_alg_list": "[EEA0, EEA1, EEA2]"
