@@ -132,60 +132,11 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 		    sizeof(protocolIe_criticality));
 
 
-#ifdef S1AP_ENCODE_NAS
-    Buffer g_nas_buffer = {0};
-    g_nas_buffer.pos = 0; 
-
-    unsigned char nas_sec_hdr[1] = { 0x27}; 
-    buffer_copy(&g_nas_buffer, nas_sec_hdr, 1);
-	
-    uint8_t mac_data_pos;
-    char mac[4] = { 0x00, 0x00, 0x00, 0x00}; 
-    buffer_copy(&g_nas_buffer, mac, 4);
-    mac_data_pos = g_nas_buffer.pos;
-
-    unsigned char seq_no = g_ueEmmInfoMsg->dl_seq_no;
-    buffer_copy(&g_nas_buffer, &seq_no, sizeof(seq_no));
-   
-    char nas_plain_hdr[2] = { 0x07, 0x61}; 
-    buffer_copy(&g_nas_buffer, nas_plain_hdr, 2);
-
-    char bufBig[128] = {'\0'};
-    bufBig[0] = 0x43;
-    encode_network_name_ie(g_ueEmmInfoMsg->full_network_name, &bufBig[1]);
-    buffer_copy(&g_nas_buffer, bufBig, bufBig[1] + 2);
-
-    char bufShort[20] = {'\0'};
-    bufShort[0] = 0x45;
-    encode_network_name_ie(g_ueEmmInfoMsg->short_network_name, &bufShort[1]);
-    buffer_copy(&g_nas_buffer, bufShort, bufShort[1] + 2);
-    
-    /* Calculate mac */
-    uint8_t direction = 1;
-    uint8_t bearer = 0;
-    
-    calculate_mac(g_ueEmmInfoMsg->int_key, g_ueEmmInfoMsg->dl_count, direction,
-		    bearer, &g_nas_buffer.buf[mac_data_pos],
-		    g_nas_buffer.pos - mac_data_pos,
-		    &g_nas_buffer.buf[mac_data_pos - MAC_SIZE],
-            g_ueEmmInfoMsg->int_alg);
-
-    uint8_t naslen = g_nas_buffer.pos+1;
-    buffer_copy(&g_s1ap_buffer, &naslen, 1);
-
-    naslen = g_nas_buffer.pos;
-    buffer_copy(&g_s1ap_buffer, &naslen, 1);
-
-    /* Now lets add NAS buffer to s1ap buffer */
-    buffer_copy(&g_s1ap_buffer, &g_nas_buffer.buf[0], (g_nas_buffer.pos));
-#else
 	log_msg(LOG_INFO, "Received EMM information request has nas message %d \n",g_ueEmmInfoMsg->nasMsgSize);
 	datalen = g_ueEmmInfoMsg->nasMsgSize + 1; 
 	buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
 	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));
 	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgBuf[0], g_ueEmmInfoMsg->nasMsgSize);
-
-#endif
 
     /* adding length of s1ap message before adding s1ap message */
 	uint8_t s1applen = g_s1ap_buffer.pos;

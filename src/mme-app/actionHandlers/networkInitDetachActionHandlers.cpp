@@ -57,23 +57,6 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	ni_detach_req.enb_fd = ue_ctxt->getEnbFd();
 	ni_detach_req.ue_idx = ue_ctxt->getContextID();
 	ni_detach_req.enb_s1ap_ue_id =  ue_ctxt->getS1apEnbUeId();
-#ifdef S1AP_ENCODE_NAS
-	if(procCtxt->getNasDetachType() > 0)
-                ni_detach_req.detach_type = procCtxt->getNasDetachType();
-        else
-                ni_detach_req.detach_type = reattachRequired;
-	if(procCtxt->getDetachCause() > 0)
-                ni_detach_req.nas_emm_cause = procCtxt->getDetachCause();	
-	else
-		ni_detach_req.nas_emm_cause = 0;
-	
-	ni_detach_req.dl_seq_no = ue_ctxt->getUeSecInfo().getDownlinkSeqNo();
-    ni_detach_req.dl_count = ue_ctxt->getUeSecInfo().getDownlinkCount();
-    ni_detach_req.int_alg = ue_ctxt->getUeSecInfo().getSelectIntAlg();
-	ue_ctxt->getUeSecInfo().increment_downlink_count();
-	
-	memcpy(&(ni_detach_req.int_key), &(ue_ctxt->getUeSecInfo().secinfo_m.int_key), NAS_INT_KEY_SIZE);
-#else
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
 	nas.header.security_header_type = IntegrityProtectedCiphered;
@@ -98,7 +81,6 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&ni_detach_req.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	ni_detach_req.nasMsgSize = nasBuffer.pos;
-#endif
 	
 	/* Send message to S1app in S1q*/
 	cmn::ipc::IpcAddress destAddr;

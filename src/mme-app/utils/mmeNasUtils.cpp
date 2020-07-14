@@ -17,7 +17,6 @@ using namespace cmn;
 
 #define NAS_SERVICE_REQUEST 0x4D
 #define AES_128_KEY_SIZE 16
-#ifndef S1AP_DECODE_NAS
 static unsigned short get_length(unsigned char **msg) 
 {
     /* get length and consume msg bytes accordingly */
@@ -1057,9 +1056,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 	}
 	return;
 }
-#endif
 
-#ifndef S1AP_ENCODE_NAS
 void
 MmeNasUtils::get_negotiated_qos_value(struct esm_qos *qos)
 {
@@ -1583,4 +1580,3 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
 	}
 }
-#endif

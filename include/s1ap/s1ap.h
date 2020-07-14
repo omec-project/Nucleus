@@ -31,18 +31,8 @@ typedef struct s1ap_instance
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
 
-#if 0
-int
-parse_IEs(char *msg, struct proto_IE *proto_ies, unsigned short proc_code);
-#endif
-
-#ifdef S1AP_DECODE_NAS
-int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
-int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
-#else
 int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
 int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
-#endif
 
 int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);
@@ -58,9 +48,6 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
 int
 s1_setup_handler(InitiatingMessage_t *msg, int enb_fd);
 
-int
-s1_init_ue_handler(struct proto_IE *s1_init_ies, int enb_fd);
-
 void
 handle_s1ap_message(void *message);
 
@@ -72,27 +59,6 @@ read_config();
 
 void*
 IAM_handler(void *data);
-
-int s1_esm_resp_handler(struct proto_IE *s1_esm_resp_ies);
-
-int s1_secmode_resp_handler(struct proto_IE *s1_sec_resp_ies);
-
-int s1_auth_resp_handler(struct proto_IE *s1_auth_resp_ies);
-
-int s1_auth_fail_handler(struct proto_IE *s1_auth_resp_ies);
-
-int s1_identity_resp_handler(struct proto_IE *s1_id_resp_ies);
-
-int s1_attach_complete_handler(struct proto_IE *s1_esm_resp_ies);
-
-int
-detach_stage1_handler(struct proto_IE *detach_ies, bool retransmit);
-
-int
-s1_init_ue_service_req_handler(struct proto_IE *service_req_ies, int enb_fd);
-
-int
-tau_request_handler(struct proto_IE *s1_tau_req_ies, int enb_fd);
 
 int
 s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg);
@@ -121,8 +87,6 @@ s1_handover_faliure_handler(UnsuccessfulOutcome_t *msg);
 int
 s1_handover_cancel_handler(InitiatingMessage_t *msg);
 
-int
-detach_accept_from_ue_handler(struct proto_IE *detach_ies, bool retransmit);
 
 int
 erab_mod_indication_handler(InitiatingMessage_t *msg);

@@ -48,15 +48,6 @@ get_serviceReject_protoie_value(struct proto_IE *value, struct commonRej_info *g
     log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
 		g_mmeS1apInfo->ue_idx, g_mmeS1apInfo->s1ap_enb_ue_id);
 
-#ifdef S1AP_ENCODE_NAS
-    /* TODO: Add enum for security header type */
-    value->data[2].val.nas.header.security_header_type = 0;
-    value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
-    value->data[2].val.nas.header.message_type = ServiceReject;
-    value->data[2].val.nas.header.nas_security_param = 0;
-#endif
-
-
     return SUCCESS;
 }
 
@@ -145,34 +136,6 @@ s1ap_service_reject_processing(struct commonRej_info *g_mmeS1apInfo)
     buffer_copy(&g_value_buffer, &protocolIe_criticality,
                     sizeof(protocolIe_criticality));
 
-#ifdef S1AP_ENCODE_NAS
-    struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
-    uint8_t value = (nas->header.security_header_type) |
-            nas->header.proto_discriminator;
-
-    struct Buffer g_nas_buffer = {0};
-    g_nas_buffer.pos = 0;
-
-    buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-    buffer_copy(&g_nas_buffer, &nas->header.message_type,
-                        sizeof(nas->header.message_type));
-
-    value = 0x09; // UE identity can not be derived by the network
-    buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-    datalen = g_nas_buffer.pos + 1;
-
-    buffer_copy(&g_value_buffer, &datalen,
-                        sizeof(datalen));
-
-    buffer_copy(&g_value_buffer, &g_nas_buffer.pos,
-                        sizeof(g_nas_buffer.pos));
-
-
-    buffer_copy(&g_value_buffer, &g_nas_buffer,
-                        g_nas_buffer.pos);
-#else
 	log_msg(LOG_INFO, "Received service request reject nas message %d \n",g_mmeS1apInfo->nasMsgSize);
 	datalen = g_mmeS1apInfo->nasMsgSize + 1; 
 
@@ -181,8 +144,6 @@ s1ap_service_reject_processing(struct commonRej_info *g_mmeS1apInfo)
 	buffer_copy(&g_buffer, &g_mmeS1apInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_mmeS1apInfo->nasMsgBuf[0], g_mmeS1apInfo->nasMsgSize);
-
-#endif
 
     buffer_copy(&g_buffer, &g_value_buffer.pos,
                         sizeof(g_value_buffer.pos));
@@ -212,25 +173,6 @@ get_attachReject_protoie_value(struct proto_IE *value, struct commonRej_info *g_
 
 	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
 			g_attachReqRejInfo->ue_idx, g_attachReqRejInfo->s1ap_enb_ue_id);
-
-#ifdef S1AP_ENCODE_NAS
-	/* TODO: Add enum for security header type */
-	value->data[2].val.nas.header.security_header_type = 0;
-	value->data[2].val.nas.header.proto_discriminator = EPSMobilityManagementMessages;
-	value->data[2].val.nas.header.message_type = AttachReject;
-	value->data[2].val.nas.header.nas_security_param = 0;
-#endif
-
-#if 0
-	value->data[2].nas.elements = (nas_pdu_elements *)
-			malloc(AUTH_REQ_NO_OF_NAS_IES * sizeof(nas_pdu_elements));
-
-	memcpy(value->data[2].nas.elements[0].rand,
-			g_attachReqRejInfo->rand, NAS_RAND_SIZE);
-	memcpy(value->data[2].nas.elements[1].autn,
-			g_attachReqRejInfo->autn, NAS_AUTN_SIZE);
-#endif
-
 
 	return SUCCESS;
 }
@@ -322,51 +264,6 @@ s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-#ifdef S1AP_ENCODE_NAS
-	struct nasPDU *nas = &(s1apPDU.value.data[2].val.nas);
-	uint8_t value = (nas->header.security_header_type) |
-			nas->header.proto_discriminator;
-
-	struct Buffer g_nas_buffer = {0};
-	g_nas_buffer.pos = 0;
-
-	buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-	buffer_copy(&g_nas_buffer, &nas->header.message_type,
-						sizeof(nas->header.message_type));
-
-#if 0
-	buffer_copy(&g_nas_buffer, &nas->header.nas_security_param,
-						sizeof(nas->header.nas_security_param));
-
-#endif
-    value = 0x09; // UE identity can not be derived by the network
-	buffer_copy(&g_nas_buffer, &value, sizeof(value));
-
-#if 0
-	buffer_copy(&g_nas_buffer, &nas->elements[0].pduElement.rand,
-						sizeof(nas->elements[0].pduElement.rand));
-
-	datalen = 16;
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-
-	buffer_copy(&g_nas_buffer, &nas->elements[1].pduElement.autn,
-						sizeof(nas->elements[1].pduElement.autn));
-
-    /* Done with filling NAS message */
-#endif
-	datalen = g_nas_buffer.pos + 1;
-
-	buffer_copy(&g_value_buffer, &datalen,
-						sizeof(datalen));
-
-	buffer_copy(&g_value_buffer, &g_nas_buffer.pos,
-						sizeof(g_nas_buffer.pos));
-
-
-	buffer_copy(&g_value_buffer, &g_nas_buffer,
-						g_nas_buffer.pos);
-#else
 	log_msg(LOG_INFO, "Received attach reject nas message %d \n",g_attachReqRejInfo->nasMsgSize);
 	datalen = g_attachReqRejInfo->nasMsgSize + 1; 
 
@@ -375,8 +272,6 @@ s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 	buffer_copy(&g_buffer, &g_attachReqRejInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_attachReqRejInfo->nasMsgBuf[0], g_attachReqRejInfo->nasMsgSize);
-
-#endif
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(g_value_buffer.pos));
