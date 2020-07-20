@@ -361,7 +361,7 @@ void mmeConfig::initiate_spgw_resolution()
             // We shall be doing this once timer library is integrated 
             log_msg(LOG_ERROR, "%s - getaddr info failed %s\n",temp->get_spgw_srv().c_str(), gai_strerror(err));
             if(started == false)
-              MmeTimerUtils::startTimer(10000, 1 /* ue_index */, 1 /*timer type*/, mmeConfigDnsResolve_c);
+              MmeTimerUtils::startTimer(10000, 1 /* ue_index */, mmeConfigDnsResolve_c/* timer type */, 0 /* timer Id */);
             started = true;
         }
         else 
@@ -381,3 +381,4 @@ void mmeConfig::initiate_spgw_resolution()
         }
     }
 }
+
