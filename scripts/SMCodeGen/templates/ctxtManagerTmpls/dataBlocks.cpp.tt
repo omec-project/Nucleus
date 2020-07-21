@@ -1,6 +1,6 @@
 [%- DataStore = TemplateInputVar %]
 [%- USE String %]
-[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt -%]
+[%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim -%]
 /*
  * Copyright 2019-present Infosys Limited
  *
@@ -14,7 +14,13 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/dataBlocks.cpp.tt>
  ***************************************/
+[% FOREACH DataGroup = DataStore.DataGroups %]
+[%- IF DataGroup.DgName == 'Subs' -%]
 #include "contextManager/dataBlocks.h"
+[%- ELSE -%]
+#include "[% FILENAME(DataGroup.DgName) %]ContextManager/[%  FILENAME(DataGroup.DgName) %]DataBlocks.h"
+[%- END %]
+[%- END %]
 
 namespace mme
 {
@@ -30,8 +36,8 @@ namespace mme
 	/******************************************************************************
 	* Constructor
 	******************************************************************************/
-	[% dataBlockClassName %]::[% dataBlockClassName %]():[% PROCESS defaultValList FILTER indent 12 %]
-	
+	[% dataBlockClassName %]::[% dataBlockClassName %]():[% INITIALIZER(DataBlock) FILTER indent 11 -%]
+
 	{[%- FOREACH Data = DataBlock.Data -%]
 [%-UNLESS Data.Cardinality=='' %]
 		memset([% Data.Name %]_m,0,sizeof([% Data.Name %]_m));
@@ -56,7 +62,7 @@ namespace mme
 		[% Data.Name %]_m = [% Data.Name %]_i;
 	[%-ELSE%]
 		[% Data.Name %]Len_m=len;
-		memcpy([% Data.Name %]_m, [% Data.Name %]_i, [% Data.Name %]Len_m);
+		memcpy([% Data.Name %]_m, [% Data.Name %]_i, ([% Data.Name %]Len_m * sizeof([% Data.Type %])));
 	[%- END %]
 	}
 	
@@ -98,19 +104,3 @@ namespace mme
 [%- END %]
 [%- END %]
 } // mme
-[%- BLOCK defaultValList-%]
-[%- FOREACH Data = DataBlock.Data %]
-[%- defaultval = String.new() %]
-[%- primTypeList = [ 'int', "short", "uint8_t", "uint16_t", "uint32_t", "unsigned int", "unsigned short","unsigned char"] %]
-[%- defaultval="$Data.Name/_m($Data.DefaultVal)"%]
-[%-IF Data.Cardinality=='' %]
-[%- FOREACH type = primTypeList %]
-[%- 	IF Data.Type == type %]
-[%- defaultval="$Data.Name/_m(0)"%]
-[%-END-%][%-END-%]
-[%-ELSE%]
-[%- defaultval="$Data.Name/Len_m(0)"%]
-[%-END%]
-[% defaultval.remove("/") %]
-[%-UNLESS loop.last -%],[%END-%][%END-%]
-[%- FOREACH Child = DataBlock.Children %],[% Child %]_mp(NULL)[%END-%][% END -%]

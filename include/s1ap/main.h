@@ -16,6 +16,7 @@
 
 #include <time.h>
 #include <stdint.h>
+#include <msgType.h>
 
 #include "stimer.h"
 
@@ -66,6 +67,9 @@ void
 void
 *emm_info_req_handler(void *);
 
+void
+*gen_reset_request_handler(void *);
+
 void 
 *s1ap_attach_id_req_handler(void *);
 
@@ -85,10 +89,50 @@ void
 void
 *ics_req_paging_handler(void *);
 
+void printBytes(unsigned char *buf, size_t len);
+
+void
+*handover_request_handler(void *);
+
+void
+*handover_command_handler(void *);
+
+void
+*mme_status_transfer_handler(void *);
+
+void
+*handover_preparation_failure_handler(void *);
+
+void
+*handover_cancel_ack_handler(void *);
+
+void
+*erab_mod_confirm_handler(void *);
+
 void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
 		uint8_t bearer, uint8_t *data, uint16_t data_len,
+		uint8_t *mac, nas_int_algo_enum int_alg);
+
+void
+calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
+		uint8_t bearer, uint8_t *data, uint16_t data_len,
 		uint8_t *mac);
+
+void
+*handover_request_handler(void *);
+
+void
+*handover_command_handler(void *);
+
+void
+*mme_status_transfer_handler(void *);
+
+void
+*handover_preparation_failure_handler(void *);
+
+void
+*handover_cancel_ack_handler(void *);
 
 typedef long long int stimer_t;
 

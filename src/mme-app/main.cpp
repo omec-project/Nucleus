@@ -1,21 +1,10 @@
-//test
 /*
+ * Copyright 2020-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
-
-
+#include <assert.h>
 #include <iostream>
 #include <pthread.h>
 #include <thread>
@@ -41,6 +30,7 @@ using namespace std;
 using namespace mme;
 
 
+mmeConfig *mme_tables = nullptr;
 /*********************************************************
  *
  * Circular FIFOs for sender IPC and Reader IPC threads
@@ -62,6 +52,7 @@ int init_sock();
 
 extern JobFunction monitorConfigFunc_fpg;
 extern void init_parser(char *path);
+extern void parse_done();
 extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);
 
@@ -71,7 +62,7 @@ int g_unix_fd = 0;
 struct thread_pool *g_tpool;
 pthread_t acceptUnix_t;
 
-mme_config g_mme_cfg;
+mme_config_t *mme_cfg = NULL;
 pthread_t stage_tid[5];
 
 MmeIpcInterface* mmeIpcIf_g = NULL;
@@ -85,15 +76,6 @@ void setThreadName(std::thread* thread, const char* threadName)
 	pthread_setname_np(handle,threadName);
 }
 
-void mme_parse_config(mme_config *config)
-{
-    /*Read MME configurations*/
-    init_parser((char *)("conf/mme.json"));
-    parse_mme_conf(config);
-    /* Lets apply logging setting */
-    set_logging_level(config->logging);
-}
-
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
@@ -101,10 +83,10 @@ int main(int argc, char *argv[])
 
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
-		init_logging("container", NULL);
+		init_logging((char*)("container"), NULL);
 	}
 	else { 
-		init_logging("hostbased", "/tmp/mmelogs.txt");
+		init_logging((char*)("hostbased"), (char*)("/tmp/mmelogs.txt"));
 	}
 	
 	init_backtrace(argv[0]);
@@ -119,7 +101,14 @@ int main(int argc, char *argv[])
 	mmeIpcIf_g = new MmeIpcInterface();
 	mmeIpcIf_g->setup();
 
-	mme_parse_config(&g_mme_cfg);
+    mme_cfg = new (mme_config_t);
+    assert(mme_cfg != NULL);
+
+    mme_tables = new mmeConfig();
+    mmeConfig::mme_parse_config_new(mme_cfg);
+
+    /* Lets apply logging setting */
+    set_logging_level(mme_cfg->logging);
 
 	register_config_updates();
 
@@ -147,11 +136,11 @@ int main(int argc, char *argv[])
 
 	monitorConfigFunc_fpg = &(MonitorSubscriber::handle_monitor_processing);
 
-    /*if (init_sock() != SUCCESS)
+    if (init_sock() != SUCCESS)
     {
         log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
         return -E_FAIL_INIT;
-    }*/
+    }
 
 	while(1)
 	{

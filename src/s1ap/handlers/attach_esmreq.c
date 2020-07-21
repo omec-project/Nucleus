@@ -45,24 +45,6 @@ get_esmreq_protoie_value(struct proto_IE *value, struct esm_req_Q_msg * g_esmReq
 	value->data[0].val.mme_ue_s1ap_id = g_esmReqInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_esmReqInfo->enb_s1ap_ue_id;
 
-	value->data[2].val.nas.header.security_header_type =
-			IntegrityProtectedCiphered;
-
-	value->data[2].val.nas.header.proto_discriminator =
-			EPSMobilityManagementMessages;
-
-	/* placeholder for mac. mac value will be calculated later */
-	uint8_t mac[MAC_SIZE] = {0};
-	memcpy(value->data[2].val.nas.header.mac, mac, MAC_SIZE);
-
-	value->data[2].val.nas.header.seq_no = g_esmReqInfo->dl_seq_no;
-
-	value->data[2].val.nas.header.message_type = ESMInformationRequest;
-
-	/* TODO: Remove hardcoded value */
-	value->data[2].val.nas.header.eps_bearer_identity = 0;
-	value->data[2].val.nas.header.procedure_trans_identity = g_esmReqInfo->pti;
-
 	return SUCCESS;
 }
 
@@ -75,50 +57,11 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 {
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
 
 	get_esmreq_protoie_value(&s1apPDU.value, g_esmReqInfo);
-
-	/* Copy values to g_sec_nas_buffer */
-
-	/* id-NAS-PDU */
-	g_esm_nas_buffer.pos = 0;
-	nasPDU nas = s1apPDU.value.data[2].val.nas;
-
-	unsigned char value = (nas.header.security_header_type << 4 |
-			nas.header.proto_discriminator);
-	buffer_copy(&g_esm_nas_buffer, &value, sizeof(value));
-
-	/* placeholder for mac. mac value will be calculated later */
-	buffer_copy(&g_esm_nas_buffer, &nas.header.mac, MAC_SIZE);
-	mac_data_pos = g_esm_nas_buffer.pos;
-
-	buffer_copy(&g_esm_nas_buffer, &nas.header.seq_no,
-			sizeof(nas.header.seq_no));
-
-	nas.header.proto_discriminator = EPSSessionManagementMessage;
-	value = (nas.header.eps_bearer_identity << 4 |
-				nas.header.proto_discriminator);
-	buffer_copy(&g_esm_nas_buffer, &value, sizeof(value));
-
-	buffer_copy(&g_esm_nas_buffer,
-			&nas.header.procedure_trans_identity,
-			sizeof(nas.header.procedure_trans_identity));
-
-	buffer_copy(&g_esm_nas_buffer, &nas.header.message_type,
-			sizeof(nas.header.message_type));
-
-	/* Calculate mac */
-	uint8_t direction = 1;
-	uint8_t bearer = 0;
-
-	calculate_mac(g_esmReqInfo->int_key, nas.header.seq_no, direction,
-			bearer, &g_esm_nas_buffer.buf[mac_data_pos],
-			g_esm_nas_buffer.pos - mac_data_pos,
-			&g_esm_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
 
 	/* Copy values in g_sec_value_buffer */
 	g_esm_value_buffer.pos = 0;
@@ -171,15 +114,14 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 			sizeof(protocolIe_criticality));
 
 
-	datalen = g_esm_nas_buffer.pos + 1;
+	datalen = g_esmReqInfo->nasMsgSize + 1; 
+
 	buffer_copy(&g_esm_value_buffer, &datalen,
-			sizeof(datalen));
+						sizeof(datalen));
 
-	buffer_copy(&g_esm_value_buffer, &g_esm_nas_buffer.pos,
-			sizeof(g_esm_nas_buffer.pos));
+	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgSize, sizeof(uint8_t));
 
-	buffer_copy(&g_esm_value_buffer, &g_esm_nas_buffer,
-			g_esm_nas_buffer.pos);
+	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgBuf[0], g_esmReqInfo->nasMsgSize);
 
 	/* Copy values in g_sec_buffer */
 	g_esm_buffer.pos = 0;

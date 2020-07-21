@@ -93,7 +93,19 @@ namespace SM
 
 			cmn::EventMessage * event_data = currentEvent.getEventData();
 
-			State *currentState_p = cb->getCurrentState();
+			TempDataBlock *tempData = cb->getTempDataBlock();
+			if (tempData == NULL)
+			{
+			    log_msg(LOG_INFO, "Temp Data block is NULL"
+			            " for control block idx %d\n", cb->getCBIndex());
+
+			    if (event_data != NULL)
+			        delete event_data;
+
+			    break;
+			}
+
+			State *currentState_p = tempData->getCurrentState();
 			if (currentState_p == NULL)
 			{
 				log_msg(LOG_INFO, "Current state is NULL"
@@ -105,17 +117,28 @@ namespace SM
 				break;
 			}
 
+			if (currentState_p->validateEvent(*cb, tempData, currentEvent) == IGNORE)
+			{
+			    log_msg(LOG_INFO, "Event ignored for control block idx %d\n",
+			            cb->getCBIndex());
+
+			    if (event_data != NULL)
+			        delete event_data;
+
+			    continue;
+			}
 			ActStatus ret = handleProcedureEvent(*cb, *currentState_p, currentEvent);
 
 			if (ret == ABORT)
 			{
 				log_msg(LOG_INFO,"Abort Event Initiated \n");
-				Event abortEvent(ABORT_EVENT,NULL);
+
+				Event abortEvent(ABORT_EVENT, NULL);
 				ret = handleProcedureEvent(*cb, *currentState_p, abortEvent);
 			}
 
-                        if (event_data != NULL)
-                                delete event_data;
+			if (event_data != NULL)
+			    delete event_data;
 
 			if (ret == HALT)
 				break;			

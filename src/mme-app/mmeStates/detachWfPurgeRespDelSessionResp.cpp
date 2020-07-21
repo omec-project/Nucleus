@@ -1,6 +1,5 @@
-  
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,9 +12,11 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/stateMachineTmpls/state.cpp.tt>
  **************************************/
 
-#include "mmeSmDefs.h"
 #include "actionTable.h"
 #include "actionHandlers/actionHandlers.h"
+#include "mmeSmDefs.h"
+#include "utils/mmeStatesUtils.h"
+#include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/detachWfPurgeRespDelSessionResp.h"	
 #include "mmeStates/detachWfPurgeResp.h"	
@@ -29,6 +30,9 @@ using namespace SM;
 ******************************************************************************/
 DetachWfPurgeRespDelSessionResp::DetachWfPurgeRespDelSessionResp():State(detach_wf_purge_resp_del_session_resp)
 {
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
 }
 
 /******************************************************************************

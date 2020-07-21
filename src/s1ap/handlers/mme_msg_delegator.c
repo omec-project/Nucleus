@@ -1,17 +1,7 @@
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <stdio.h>
@@ -85,6 +75,27 @@ handle_mmeapp_message(void * data)
 	case emm_info_request:
 	    emm_info_req_handler(msg);
 	    break;
+	case erab_mod_confirmation:
+	    erab_mod_confirm_handler(msg);
+	    break;
+	case s1_reset:
+	    gen_reset_request_handler(msg);
+	    break;
+	case handover_request:
+		handover_request_handler(msg);
+		break;
+	case handover_command:
+		handover_command_handler(msg);
+		break;
+	case mme_status_transfer:
+		mme_status_transfer_handler(msg);
+		break;
+	case handover_preparation_failure:
+		handover_preparation_failure_handler(msg);
+		break;
+	case handover_cancel_ack:
+		handover_cancel_ack_handler(msg);
+		break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

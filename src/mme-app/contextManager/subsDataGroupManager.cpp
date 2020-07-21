@@ -12,9 +12,6 @@
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.cpp.tt>
  ***************************************/
 #include "contextManager/subsDataGroupManager.h"
-#include "log.h"
-#include "mmeStates/defaultMmeState.h"
-#include <sstream>
 
 namespace mme
 {
@@ -33,6 +30,8 @@ namespace mme
 			MmeS1RelProcedureCtxtManagerm_p = NULL;
 			MmeSvcReqProcedureCtxtManagerm_p = NULL;
 			MmeTauProcedureCtxtManagerm_p = NULL;
+			S1HandoverProcedureContextManagerm_p = NULL;
+			MmeErabModIndProcedureCtxtManagerm_p = NULL;
 
 			initialize();
 	}
@@ -52,6 +51,8 @@ namespace mme
 			delete MmeS1RelProcedureCtxtManagerm_p;
 			delete MmeSvcReqProcedureCtxtManagerm_p;
 			delete MmeTauProcedureCtxtManagerm_p;
+			delete S1HandoverProcedureContextManagerm_p;
+			delete MmeErabModIndProcedureCtxtManagerm_p;
 	}
 	
 	/******************************************
@@ -71,6 +72,8 @@ namespace mme
 		MmeS1RelProcedureCtxtManagerm_p = new MmeS1RelProcedureCtxtManager(8000);
 		MmeSvcReqProcedureCtxtManagerm_p = new MmeSvcReqProcedureCtxtManager(8000);
 		MmeTauProcedureCtxtManagerm_p = new MmeTauProcedureCtxtManager(8000);
+		S1HandoverProcedureContextManagerm_p = new S1HandoverProcedureContextManager(8000);
+		MmeErabModIndProcedureCtxtManagerm_p = new MmeErabModIndProcedureCtxtManager(8000);
 	}
 	
 	/******************************************************************************
@@ -78,8 +81,8 @@ namespace mme
 	******************************************************************************/
 	SubsDataGroupManager* SubsDataGroupManager::Instance()
 	{
-			static SubsDataGroupManager subDataGroupMgr;
-			return &subDataGroupMgr;
+			static SubsDataGroupManager subsDataGroupMgr;
+			return &subsDataGroupMgr;
 	}
 
 	UEContext* SubsDataGroupManager::getUEContext()
@@ -171,6 +174,24 @@ namespace mme
 	void SubsDataGroupManager::deleteMmeTauProcedureCtxt(MmeTauProcedureCtxt* MmeTauProcedureCtxtp )
 	{
 		MmeTauProcedureCtxtManagerm_p->deallocateMmeTauProcedureCtxt( MmeTauProcedureCtxtp );
+	}
+	S1HandoverProcedureContext* SubsDataGroupManager::getS1HandoverProcedureContext()
+	{
+		return S1HandoverProcedureContextManagerm_p->allocateS1HandoverProcedureContext();
+	}
+
+	void SubsDataGroupManager::deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp )
+	{
+		S1HandoverProcedureContextManagerm_p->deallocateS1HandoverProcedureContext( S1HandoverProcedureContextp );
+	}
+	MmeErabModIndProcedureCtxt* SubsDataGroupManager::getMmeErabModIndProcedureCtxt()
+	{
+		return MmeErabModIndProcedureCtxtManagerm_p->allocateMmeErabModIndProcedureCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp )
+	{
+		MmeErabModIndProcedureCtxtManagerm_p->deallocateMmeErabModIndProcedureCtxt( MmeErabModIndProcedureCtxtp );
 	}
 	
 	/******************************************

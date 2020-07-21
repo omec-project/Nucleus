@@ -1,3 +1,4 @@
+tags
 .metadata
 bin/
 tmp/
@@ -64,3 +65,5 @@ __pycache__/
 .idea
 output
 
+/.ptp-sync/
+*ptp-sync-folder

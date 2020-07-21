@@ -5,6 +5,7 @@
  */
 
 #include "timerQueue.h"
+#include <iostream>
 
 TimerContext::TimerContext(const CTime &expiryTime,
         uint16_t timerType, uint16_t timerId):
@@ -64,22 +65,23 @@ uint32_t TimerQueue::removeTimerInQueue(TimerContext* item)
 
 void TimerQueue::onTimer(Callback appCb)
 {
-   CTime now;
+    CTime now;
 
-   std::unique_lock<std::mutex> lock(mutex_m);
-
-   std::set<TimerContext*>::iterator itr = container_m.begin();
-   while (itr != container_m.end())
-   {
-       TimerContext* timerCtxt = *itr;
-       if (timerCtxt->getExpiryTime() <= now)
-       {
-           itr = container_m.erase(itr);
-           appCb(timerCtxt);
-       }
-       else
-       {
-           break;
-       }
-   }
+    while(true)
+    {
+        std::unique_lock<std::mutex> lock(mutex_m);
+        std::set<TimerContext*>::iterator itr = container_m.begin();
+        if (itr != container_m.end())
+        {
+            TimerContext* timerCtxt = *itr;
+            if (timerCtxt->getExpiryTime() <= now)
+            {
+                itr = container_m.erase(itr);
+                mutex_m.unlock();
+                appCb(timerCtxt);
+                continue; 
+            }
+        }
+        break; // no more timer or no more timers need expiry handling 
+    }
 }

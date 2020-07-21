@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2019, Infosys Ltd.
+ /*
+ * Copyright 2019-present Infosys Limited
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include "../../include/cmn/tipcSocket.h"
@@ -71,7 +61,7 @@ bool TipcSocket::bindTipcSocket(IpcAddress myAddress)
 
     if (0 != bind(ipcHdl_m.u32, (sockaddr*)&server, sizeof(server)))
     {
-    	log_msg(LOG_ERROR, "Failed to bind TIPC socket. error: %s", strerror(errno));
+    	log_msg(LOG_ERROR, "Failed to bind TIPC socket. error: %s\n", strerror(errno));
         rc = false;
     }
     return rc;
@@ -90,11 +80,11 @@ void TipcSocket::sendMsgTo(void * buffer, uint32_t len, IpcAddress destAddress)
 
    if (0 > sendto(ipcHdl_m.u32, buffer, len, 0, (sockaddr*)&dest, sizeof(dest)))
    {
-	   log_msg(LOG_ERROR, "Failed to send message via TIPC socket. error: %s", strerror(errno));
+	   log_msg(LOG_ERROR, "Failed to send message via TIPC socket. error: %s\n", strerror(errno));
    }
    else
    {
-	   log_msg(LOG_INFO, "Message sent successfully");
+	   log_msg(LOG_INFO, "Message sent successfully\n");
    }
 }
 

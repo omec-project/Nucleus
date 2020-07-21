@@ -15,14 +15,17 @@
 
 #include "sec.h"
 #include "secUtils.h"
-
+#define NEXT_HOP_FC 0x12
+#define SYNC_INPUT_LEN_BYTE_1 0x00
+#define SYNC_INPUT_LEN_BYTE_2 0x20
 /**
  * @brief Create integrity key
  * @param[in] kasme key
  * @param[out] int_key generated integrity key
  * @return void
  */
-void SecUtils::create_integrity_key(unsigned char *kasme, unsigned char *int_key)
+void SecUtils::create_integrity_key(uint8_t int_alg, 
+                                    unsigned char *kasme, unsigned char *int_key)
 {
 	/*TODO : Handle appropriate security values in salt. Remove
 	 * hardcoding*/
@@ -31,7 +34,7 @@ void SecUtils::create_integrity_key(unsigned char *kasme, unsigned char *int_key
 		0x02, /*sec algo code*/
 		0,
 		1,
-		1,
+		int_alg,
 		0,
 		1
 	};
@@ -70,7 +73,57 @@ void SecUtils::create_kenb_key(unsigned char *kasme, unsigned char *kenb_key,
 
 }
 
+/**
+ * @brief Create Cighering key
+ * @param[in] kasme key
+ * @param[out] int_key generated integrity key
+ * @return void
+ */
+void SecUtils::create_ciphering_key(uint8_t sec_alg,
+                                    unsigned char *kasme, unsigned char *sec_key)
+{
+	/*TODO : Handle appropriate security values in salt. Remove
+	 * hardcoding*/
+	uint8_t salt[HASH_SALT_LEN] = {
+		0x15,
+		0x01, /*sec algo code*/
+		0,
+		1,
+		sec_alg,
+		0,
+		1
+	};
 
+	unsigned char out_key[HMAC_SIZE] = {0};
+	unsigned int out_len = 0;
+	calculate_hmac_sha256(salt, HASH_SALT_LEN, kasme, AIA_KASME_SIZE, out_key, &out_len);
+
+	memcpy(sec_key, &out_key[AIA_KASME_SIZE - NAS_INT_KEY_SIZE],
+			NAS_INT_KEY_SIZE);
+}
+
+/**
+ * @brief Create Next hop value to exchange in Handover Request
+ * @param [in]kasme key
+ * @param [out]nh_key output the generated key
+ * @return void
+ */
+
+void SecUtils::create_nh_key(const unsigned char *kasme, unsigned char *nh_key,
+              const unsigned char *old_nh_key)
+{
+       uint8_t salt[35] = {0};
+       salt[0] = NEXT_HOP_FC; /*TODO : Sec algo. handle properly instead of harcoding here*/
+       memcpy(&(salt[1]),&( old_nh_key), KENB_SIZE);/* sync input*/
+       salt[33] = SYNC_INPUT_LEN_BYTE_1;
+       salt[34] = SYNC_INPUT_LEN_BYTE_2;
+
+       uint8_t out_key[HMAC_SIZE];
+       unsigned int out_len = 0;
+       calculate_hmac_sha256(salt, 35, kasme, AIA_KASME_SIZE, out_key, &out_len);
+       memcpy(nh_key, out_key, KENB_SIZE);
+
+}
 /**
 * @brief Create MAC(message authentication code)
 * @param [in]input data and  key
@@ -91,3 +144,5 @@ void SecUtils::calculate_hmac_sha256(const unsigned char *input_data,
 	*out_len = mac_length;
 
 }
+
+

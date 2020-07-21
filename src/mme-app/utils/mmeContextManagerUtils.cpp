@@ -1,25 +1,113 @@
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <controlBlock.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <log.h>
+#include <mmeStates/detachStart.h>
+#include <mmeStates/niDetachStart.h>
+#include <mmeStates/pagingStart.h>
+#include <mmeStates/serviceRequestStart.h>
+#include <mmeStates/tauStart.h>
+#include <mmeStates/erabModIndStart.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <mmeStates/intraS1HoStart.h>
+#include <utils/mmeTimerUtils.h>
 
 using namespace mme;
+
+MmeDetachProcedureCtxt* MmeContextManagerUtils::allocateDetachProcedureCtxt(SM::ControlBlock& cb_r, DetachType detachType)
+{
+    log_msg(LOG_DEBUG, "allocateDetachProcedureCtxt: Entry");
+
+    MmeDetachProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeDetachProcedureCtxt();
+
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::detach_c);
+        prcdCtxt_p->setDetachType(detachType);
+
+        if (detachType == ueInitDetach_c)
+        {
+            prcdCtxt_p->setNextState(DetachStart::Instance());
+        }
+        else
+        {
+            prcdCtxt_p->setNextState(NiDetachStart::Instance());
+        }
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+MmeSvcReqProcedureCtxt*
+MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb_r, PagingTrigger pagingTrigger)
+{
+    log_msg(LOG_DEBUG, "allocateServiceRequestProcedureCtxt: Entry");
+
+    MmeSvcReqProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeSvcReqProcedureCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::serviceRequest_c);
+        prcdCtxt_p->setPagingTrigger(pagingTrigger);
+
+        if (pagingTrigger == ddnInit_c)
+        {
+            prcdCtxt_p->setNextState(PagingStart::Instance());
+        }
+        else
+        {
+            prcdCtxt_p->setNextState(ServiceRequestStart::Instance());
+        }
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+
+    }
+    return prcdCtxt_p;
+}
+
+MmeTauProcedureCtxt*
+MmeContextManagerUtils::allocateTauProcedureCtxt(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateTauRequestProcedureCtxt: Entry");
+
+    MmeTauProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeTauProcedureCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::tau_c);
+        prcdCtxt_p->setNextState(TauStart::Instance());
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+MmeErabModIndProcedureCtxt*
+MmeContextManagerUtils::allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateErabModIndRequestProcedureCtxt: Entry");
+
+    MmeErabModIndProcedureCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeErabModIndProcedureCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::erabModInd_c);
+        prcdCtxt_p->setNextState(ErabModIndStart::Instance());
+
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
 
 bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 {
@@ -82,6 +170,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 
 			break;
 		}
+		case s1Handover_c:
+		{
+			S1HandoverProcedureContext* s1HoProc_p =
+					static_cast<S1HandoverProcedureContext*>(procedure_p);
+
+			subsDgMgr_p->deleteS1HandoverProcedureContext(s1HoProc_p);
+
+			break;
+		}
+		case erabModInd_c:
+		{
+			MmeErabModIndProcedureCtxt* erabModIndProc_p =
+                    			static_cast<MmeErabModIndProcedureCtxt*>(procedure_p);
+			
+			subsDgMgr_p->deleteMmeErabModIndProcedureCtxt(erabModIndProc_p);
+
+			break;
+		}
 		default:
 		{
 			log_msg(LOG_INFO, "Unsupported procedure type %d\n", procedure_p->getCtxtType());
@@ -94,12 +200,12 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType)
 {
     bool rc = false;
-
-	MmeProcedureCtxt* procedure_p =
+    
+    MmeProcedureCtxt* procedure_p =
 			static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
 
-	MmeProcedureCtxt* prevProcedure_p = NULL;
-	MmeProcedureCtxt* nextProcedure_p = NULL;
+    MmeProcedureCtxt* prevProcedure_p = NULL;
+    MmeProcedureCtxt* nextProcedure_p = NULL;
 
     while (procedure_p != NULL)
     {
@@ -110,8 +216,12 @@ bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, Pro
         if (procType == procedureType)
         {
             log_msg(LOG_INFO, "Procedure type %d\n", procedureType);
+
+	    // Stop procedure specific timers 
+	    // Stop state guard timer if its running
+    	    MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
             
-            rc = deleteProcedureCtxt(procedure_p);
+	    rc = deleteProcedureCtxt(procedure_p);
             
             if (rc == true)
             {
@@ -256,3 +366,21 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex)
 
     SubsDataGroupManager::Instance()->deAllocateCB(cb_p->getCBIndex());
 }
+
+S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateHoProcedureCtxt: Entry");
+
+    S1HandoverProcedureContext *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
+        prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
+        prcdCtxt_p->setHoType(intraMmeS1Ho_c);
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+

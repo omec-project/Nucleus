@@ -1,16 +1,7 @@
 /*
  * Copyright 2019-present, Infosys Limited.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef __SUBS_DATAGROUPMANAGER__
@@ -25,6 +16,7 @@
 #include <map>
 #include <mutex>
 #include "dataGroupManager.h"
+
 #include "contextManager/dataBlocks.h"
 #include "contextManager/uEContextManager.h"
 #include "contextManager/mmContextManager.h"
@@ -36,6 +28,8 @@
 #include "contextManager/mmeS1RelProcedureCtxtManager.h"
 #include "contextManager/mmeSvcReqProcedureCtxtManager.h"
 #include "contextManager/mmeTauProcedureCtxtManager.h"
+#include "contextManager/s1HandoverProcedureContextManager.h"
+#include "contextManager/mmeErabModIndProcedureCtxtManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -170,6 +164,28 @@ namespace mme
 			 *  Delete a MmeTauProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeTauProcedureCtxt(MmeTauProcedureCtxt* MmeTauProcedureCtxtp );
+			/******************************************
+			 * getS1HandoverProcedureContext
+			 * Get S1HandoverProcedureContext data block
+			 ******************************************/
+			S1HandoverProcedureContext* getS1HandoverProcedureContext();
+			
+			/******************************************
+			 * deleteS1HandoverProcedureContext
+			 *  Delete a S1HandoverProcedureContext data block
+			 ******************************************/
+			void deleteS1HandoverProcedureContext(S1HandoverProcedureContext* S1HandoverProcedureContextp );
+			/******************************************
+			 * getMmeErabModIndProcedureCtxt
+			 * Get MmeErabModIndProcedureCtxt data block
+			 ******************************************/
+			MmeErabModIndProcedureCtxt* getMmeErabModIndProcedureCtxt();
+			
+			/******************************************
+			 * deleteMmeErabModIndProcedureCtxt
+			 *  Delete a MmeErabModIndProcedureCtxt data block
+			 ******************************************/
+			void deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp );
 			
 			/******************************************
 			* addimsikey
@@ -213,7 +229,7 @@ namespace mme
 			* SubsDataGroupManager
 			*    Private constructor
 			****************************************/
-			SubsDataGroupManager();  
+			SubsDataGroupManager();
 			
 			/****************************************
 			* UEContext Pool Manager
@@ -265,6 +281,16 @@ namespace mme
 			****************************************/
 			MmeTauProcedureCtxtManager* MmeTauProcedureCtxtManagerm_p;
 			
+			/****************************************
+			* S1HandoverProcedureContext Pool Manager
+			****************************************/
+			S1HandoverProcedureContextManager* S1HandoverProcedureContextManagerm_p;
+			
+			/****************************************
+			* MmeErabModIndProcedureCtxt Pool Manager
+			****************************************/
+			MmeErabModIndProcedureCtxtManager* MmeErabModIndProcedureCtxtManagerm_p;
+			
 			
 			/****************************************
 			* imsi Key Map
@@ -286,6 +312,5 @@ namespace mme
 			std::mutex mTmsi_cb_id_map_mutex;
 	};
 };
-
 
 #endif

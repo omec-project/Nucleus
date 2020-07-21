@@ -1,17 +1,7 @@
 /*
- * Copyright (c) 2019, Infosys Ltd.
+ * Copyright 2019-present Infosys Limited
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include "dataGroupManager.h"
@@ -56,7 +46,13 @@ namespace DGM
 
 	ControlBlock* DataGroupManager::findControlBlock(uint32_t cbIndex)
 	{
-		ControlBlock* cbp = &cbstore_m[cbIndex - 1];
+		if (cbIndex > ControlBlock::controlBlockArrayIdx ||
+                    cbIndex == 0)
+                {
+                    return NULL;
+                }
+        
+                ControlBlock* cbp = &cbstore_m[cbIndex - 1];
 		if (cbp != NULL && cbp->getControlBlockState() != FREE)
 		    return cbp;
 		else
@@ -65,7 +61,13 @@ namespace DGM
 	
 	void DataGroupManager::deAllocateCB( uint32_t cbIndex )
 	{
-        cbstore_m[cbIndex - 1].reset();
+                if (cbIndex > ControlBlock::controlBlockArrayIdx ||
+                    cbIndex == 0)
+                {
+                    return;
+                }
+        
+                cbstore_m[cbIndex - 1].reset();
 
 		std::lock_guard<std::mutex> lock(mutex_m);
 		freeQ_m.push_back( &cbstore_m[cbIndex - 1]);

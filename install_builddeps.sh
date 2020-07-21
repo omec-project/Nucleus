@@ -2,17 +2,7 @@
 #
 # Copyright 2019-present Open Networking Foundation
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 #
 
 SUDO=''
@@ -28,7 +18,10 @@ install_build_pkg_deps() {
 		libidn11-dev \
 		bison \
 		flex \
+        wget \
 		libgnutls-dev \
+        zlib1g-dev \
+        checkinstall \
 		libsctp-dev \
 		libssl-dev \
 		autoconf \
@@ -37,6 +30,7 @@ install_build_pkg_deps() {
 		curl \
   		automake \
 		make \
+        rapidjson-dev \
 		unzip
 }
 
@@ -57,6 +51,17 @@ install_grpc() {
     	CXXFLAGS='-Wno-error' make && make install && ldconfig
 }
 
+
+install_openssl() {
+    $SUDO rm -rf /usr/local/src/openssl-3.0.0-alpha3
+    $SUDO rm -rf /usr/lcoal/src/openssl-3.0.0-alpha3.tar.gz
+    cd /usr/local/src/
+    $SUDO wget https://www.openssl.org/source/openssl-3.0.0-alpha3.tar.gz
+    $SUDO tar -xf openssl-3.0.0-alpha3.tar.gz
+    cd openssl-3.0.0-alpha3
+    $SUDO./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+    make && make install && ldconfig
+}
 install_build_deps() {
 	install_build_pkg_deps
 	install_freediameter

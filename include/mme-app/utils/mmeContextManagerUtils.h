@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2019, Infosys Ltd.
+ /*
+ * Copyright 2019-present Infosys Limited
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef INCLUDE_MME_APP_UTILS_MMECONTEXTMANAGERUTILS_H_
@@ -29,9 +19,22 @@ namespace mme
 {
 
 class MmeProcedureCtxt;
+class S1HandoverProcedureContext;
 class MmeContextManagerUtils
 {
 public:
+
+    static MmeDetachProcedureCtxt*
+    allocateDetachProcedureCtxt(SM::ControlBlock& cb_r, DetachType detachType);
+
+    static MmeSvcReqProcedureCtxt*
+    allocateServiceRequestProcedureCtxt( SM::ControlBlock& cb_r, PagingTrigger pagingTrigger);
+
+    static MmeTauProcedureCtxt*
+    allocateTauProcedureCtxt(SM::ControlBlock& cb_r);
+
+    static MmeErabModIndProcedureCtxt*
+    allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r);
 
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 
@@ -41,6 +44,8 @@ public:
 
 	static void deleteUEContext(uint32_t cbIndex);
 	static void deleteSessionContext(SM::ControlBlock& cb_r);
+
+	static S1HandoverProcedureContext* allocateHoContext(SM::ControlBlock& cb_r);
 
 private:
 	MmeContextManagerUtils();

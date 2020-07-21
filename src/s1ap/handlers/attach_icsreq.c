@@ -21,37 +21,6 @@
 #include "s1ap.h"
 #include "msgType.h"
 
-extern s1ap_config g_s1ap_cfg;
-
-static void
-get_negotiated_qos_value(struct esm_qos *qos)
-{
-	qos->delay_class = 1;
-	qos->reliability_class = 3;
-	qos->peak_throughput = 5;
-	qos->precedence_class = 2;
-	qos->mean_throughput = 31;
-	qos->traffic_class = 3;
-	qos->delivery_order = 2;
-	qos->delivery_err_sdu = 3;
-	qos->max_sdu_size = 140;
-	qos->mbr_ul = 254;
-	qos->mbr_dl = 86;
-	qos->residual_ber = 7;
-	qos->sdu_err_ratio = 6;
-	qos->transfer_delay = 18;
-	qos->trffic_prio = 3;
-	qos->gbr_ul = 86;
-	qos->gbr_dl = 86;
-	qos->sig_ind = 0;
-	qos->src_stat_desc = 0;
-	qos->mbr_dl_ext = 108;
-	qos->gbr_dl_ext = 0;
-	qos->mbr_ul_ext = 108;
-	qos->gbr_ul_ext = 0;
-
-	return;
-}
 
 /**
 * Get ProtocolIE value for ICS Request sent by mme-app
@@ -60,7 +29,6 @@ static int
 get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_icsReqInfo)
 {
 	uint8_t ieCnt = 0;
-	uint8_t nasIeCnt = 0;
 
 	value->no_of_IEs = ICS_REQ_NO_OF_IES;
 
@@ -101,87 +69,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 		memcpy(dst+3, src, 1);
 	}
 
-	/* NAS PDU values start */
-	e_rab->nas.header.security_header_type =
-				IntegrityProtectedCiphered;
-	e_rab->nas.header.proto_discriminator =
-			EPSMobilityManagementMessages;
-
-	/* placeholder for mac. mac value will be calculated later */
-	uint8_t mac[MAC_SIZE] = {0};
-	memcpy(e_rab->nas.header.mac, mac, MAC_SIZE);
-
-	e_rab->nas.header.seq_no = g_icsReqInfo->dl_seq_no;
-	e_rab->nas.header.message_type = AttachAccept;
-	/* TODO: Remove hardcoded value */
-	e_rab->nas.header.eps_bearer_identity = 0;
-	e_rab->nas.header.procedure_trans_identity = 1;
-
-	e_rab->nas.elements_len = ICS_REQ_NO_OF_NAS_IES;
-	e_rab->nas.elements = (nas_pdu_elements *)
-			malloc(ICS_REQ_NO_OF_NAS_IES * sizeof(nas_pdu_elements));
-
-	nas_pdu_elements *nasIEs = e_rab->nas.elements;
-	nasIEs[nasIeCnt].pduElement.attach_res = 2; /* EPS Only */
-	nasIeCnt++;
-
-    /* Refer : 24008. Section - 10.5.7.3. We want to disable TAU request coming from UE. 
-     */
-//#define DISABLE_TAU 0
-#if DISABLE_TAU
-	nasIEs[nasIeCnt].pduElement.t3412 = 224; 
-#else
-	nasIEs[nasIeCnt].pduElement.t3412 = 0x21; // per min
-#endif
-	nasIeCnt++;
-
-	nasIEs[nasIeCnt].pduElement.tailist.type = 1;
-	nasIEs[nasIeCnt].pduElement.tailist.num_of_elements = 0;
-
-    	/* S1AP TAI mcc 123, mnc 456 : 214365 */
-    	/* NAS TAI mcc 123, mnc 456 : 216354 */
-	memcpy(&(nasIEs[nasIeCnt].pduElement.tailist.partial_list[0]),
-			&(g_icsReqInfo->tai), sizeof(g_icsReqInfo->tai));
-	nasIeCnt++;
-
-	nasIEs[nasIeCnt].pduElement.esm_msg.eps_bearer_id = 5; /* TODO: revisit */
-	nasIEs[nasIeCnt].pduElement.esm_msg.proto_discriminator = 2;
-	memcpy(&(nasIEs[nasIeCnt].pduElement.esm_msg.procedure_trans_identity), &(g_icsReqInfo->pti), 1);
-	nasIEs[nasIeCnt].pduElement.esm_msg.session_management_msgs =
-			ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
-	nasIEs[nasIeCnt].pduElement.esm_msg.eps_qos = 9;
-
-	/* TODO: Remove hardcoded value */
-	/*char apnname[4] = "apn1";
-	memcpy(&(nasIEs[nasIeCnt].esm_msg.apn.val), apnname, 4);
-	nasIEs[nasIeCnt].esm_msg.apn.len =  4;
-	*/
-	nasIEs[nasIeCnt].pduElement.esm_msg.apn.len = g_icsReqInfo->apn.len;
-	memcpy(nasIEs[nasIeCnt].pduElement.esm_msg.apn.val,
-			g_icsReqInfo->apn.val, g_icsReqInfo->apn.len);
-
-
-	nasIEs[nasIeCnt].pduElement.esm_msg.pdn_addr.type = 1;
-    /*TODO : endian issue */
-	nasIEs[nasIeCnt].pduElement.esm_msg.pdn_addr.ipv4 = htonl(g_icsReqInfo->pdn_addr.ip_type.ipv4.s_addr);
-	nasIEs[nasIeCnt].pduElement.esm_msg.linked_ti.flag = 0;
-	nasIEs[nasIeCnt].pduElement.esm_msg.linked_ti.val = 0;
-	get_negotiated_qos_value(&nasIEs[nasIeCnt].pduElement.esm_msg.negotiated_qos);
-	nasIeCnt++;
-
-        /* Send the allocated GUTI to UE  */
-	nasIEs[nasIeCnt].pduElement.mi_guti.odd_even_indication = 0;
-	nasIEs[nasIeCnt].pduElement.mi_guti.id_type = 6;
-
-	memcpy(&(nasIEs[nasIeCnt].pduElement.mi_guti.plmn_id),
-			&(g_icsReqInfo->tai.plmn_id), sizeof(struct PLMN));
-	nasIEs[nasIeCnt].pduElement.mi_guti.mme_grp_id = htons(g_s1ap_cfg.mme_group_id);
-	nasIEs[nasIeCnt].pduElement.mi_guti.mme_code = g_s1ap_cfg.mme_code;
-	/* TODO : Revisit, temp fix for handling detach request retransmit.
-	 * M-TMSI should come from MME */
-	nasIEs[nasIeCnt].pduElement.mi_guti.m_TMSI = htonl(g_icsReqInfo->m_tmsi);
-	nasIeCnt++;
-
+    // ajaymerge ... check carefully this ieCnt 
 	ieCnt++;
 	/* NAS PDU values end */
 	/* E-RABToBeSetupItemCtxtSUReq values end */
@@ -223,7 +111,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     Buffer g_s1ap_buffer = {0};
     Buffer g_rab1_buffer = {0};
     Buffer g_rab2_buffer = {0};
-    Buffer g_nas_buffer = {0};
 
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
@@ -235,9 +122,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	//uint8_t erab_len_pos;
 	//uint8_t erab_item_len_pos;
 	//uint8_t nas_len_pos;
-	uint16_t esm_len_pos;
 	uint8_t u8value = 0;
-	uint8_t mac_data_pos;
 
 	s1apPDU.procedurecode = id_InitialContextSetup;
 	s1apPDU.criticality = CRITICALITY_REJECT;
@@ -404,231 +289,25 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	buffer_copy(&g_ics_buffer, &datalen, sizeof(datalen));
 #endif
 
-	nas_pdu_header *nas_hdr = &(erab->nas.header);
+	log_msg(LOG_INFO, "Received Nas message from mme-app size %d\n", g_icsReqInfo->nasMsgSize);
+//	datalen = g_icsReqInfo->nasMsgSize + 1; 
 
-    g_nas_buffer.pos = 0; 
-	/* security header and protocol discriminator */
-	u8value = (nas_hdr->security_header_type << 4 |
-			nas_hdr->proto_discriminator);
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
+//	buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
 
-	/* mac */
-	/* placeholder for mac. mac value will be calculated later */
-	buffer_copy(&g_nas_buffer, nas_hdr->mac, MAC_SIZE);
-	mac_data_pos = g_nas_buffer.pos;
+	log_msg(LOG_INFO, "RAB2 payload length before adding NAS %d\n", g_rab2_buffer.pos);
+	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgSize, sizeof(uint8_t));
 
-	/* sequence number */
-	buffer_copy(&g_nas_buffer, &(nas_hdr->seq_no),
-			sizeof(nas_hdr->seq_no));
-
-	/* security header and protocol discriminator */
-	nas_hdr->security_header_type = Plain;
-	u8value = (nas_hdr->security_header_type << 4 |
-			nas_hdr->proto_discriminator);
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-
-	/* message type */
-	buffer_copy(&g_nas_buffer, &(nas_hdr->message_type),
-			sizeof(nas_hdr->message_type));
-
-	nas_pdu_elements *ies = erab->nas.elements;
-
-	/* eps attach result */
-	buffer_copy(&g_nas_buffer, &(ies[0].pduElement.attach_res), sizeof(u8value));
-
-	/* GPRS timer */
-#define DISABLE_TAU 1
-#if DISABLE_TAU
-    uint8_t temp_timer = 224; /*e0*/
-#else
-    uint8_t temp_timer = 0x21; /*per min */
-#endif
-	//buffer_copy(&g_ics_buffer, &(ies[1].t3412), sizeof(ies[1].t3412));
-	buffer_copy(&g_nas_buffer, &temp_timer, sizeof(temp_timer));
-
-	/* TAI list */
-	u8value = 6;
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	u8value = 32; /* TODO: use value from tai list */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	buffer_copy(&g_nas_buffer, &(ies[2].pduElement.tailist.partial_list[0].plmn_id.idx), 3);
-	buffer_copy(&g_nas_buffer, &(ies[2].pduElement.tailist.partial_list[0].tac), 2);
-
-	esm_len_pos = g_nas_buffer.pos;
-
-	/* esm message container length */
-	char tmplen[2] = {0, 0};
-	buffer_copy(&g_nas_buffer, tmplen, 2);
-
-	/* ESM message container start */
-
-	/* esm message bearer id and protocol discriminator */
-	u8value = (ies[3].pduElement.esm_msg.eps_bearer_id << 4 |
-			ies[3].pduElement.esm_msg.proto_discriminator);
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-
-	/* esm message procedure identity */
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.procedure_trans_identity),
-			sizeof(ies[3].pduElement.esm_msg.procedure_trans_identity));
-
-	/* esm message session management message */
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.session_management_msgs),
-			sizeof(ies[3].pduElement.esm_msg.session_management_msgs));
-
-	/* eps qos */
-	datalen = 1;
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.eps_qos),
-			sizeof(ies[3].pduElement.esm_msg.eps_qos));
-
-	/* apn */
-	// There is one category of UE, they do not send not apn to MME.
-	// In this case, the apn length from esm will be 0.
-	// Then MME will use the selected apn name from HSS-DB.
-	if (ies[3].pduElement.esm_msg.apn.len == 0 ) {
-		datalen = g_icsReqInfo->selected_apn.len + 1;
-		buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-		buffer_copy(&g_nas_buffer + 1, g_icsReqInfo->selected_apn.val,
-				g_icsReqInfo->selected_apn.len);
-
-	}else {
-		// Return the same apn sent by UE
-		datalen = ies[3].pduElement.esm_msg.apn.len;
-		buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-		buffer_copy(&g_nas_buffer, (char *)ies[3].pduElement.esm_msg.apn.val, datalen);
-	}
-
-
-	/* pdn address */
-	//datalen = sizeof(ies[3].esm_msg.pdn_addr);
-	datalen = 5; //sizeof(ies[3].esm_msg.pdn_addr);
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-	u8value = 1;
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	//buffer_copy(&g_ics_buffer, &(ies[3].esm_msg.pdn_addr.pdn_type), 1);
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.pdn_addr.ipv4), datalen-1);
-
-	/* linked ti */
-	u8value = 0x5d; /* element id TODO: define macro or enum */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	datalen = 1;//sizeof(ies[3].esm_msg.linked_ti);
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.linked_ti), datalen);
-
-	/* negotiated qos */
-	u8value = 0x30; /* element id TODO: define macro or enum */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	datalen = 16;//sizeof(ies[3].esm_msg.negotiated_qos);
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_nas_buffer, &(ies[3].pduElement.esm_msg.negotiated_qos), datalen);
-
-	/* apn ambr */
-#if 0
-	u8value = 0x5e; /* element id TODO: define macro or enum */
-	buffer_copy(&g_ics_buffer, &u8value, sizeof(u8value));
-	datalen = sizeof(ies[3].esm_msg.apn_ambr);
-	buffer_copy(&g_ics_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_ics_buffer, &(ies[3].esm_msg.apn_ambr), datalen);
-#endif
-	/* TODO: remove hardcoded values of apn ambr */
-	char apn_ambr[8] = {0x5e, 0x06, 0x80, 0x00, 0x04, 0x05, 0x06, 0x07};
-	buffer_copy(&g_nas_buffer, apn_ambr, 8);
-
-	u8value = 0x27; /* element id TODO: define macro or enum */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	uint8_t pco_length = g_icsReqInfo->pco_length;
-	buffer_copy(&g_nas_buffer, &pco_length, sizeof(pco_length));
-	buffer_copy(&g_nas_buffer, &g_icsReqInfo->pco_options[0], pco_length);
-
-	/* ESM message container end */
-
-	/* Copy esm container length to esm container length field */
-	uint16_t esm_datalen = g_nas_buffer.pos - esm_len_pos - 2;
-	unsigned char esm_len[2];
-	copyU16(esm_len, esm_datalen);
-	/* memcpy(&g_ics_buffer.buf[esm_len_pos], tmplen, sizeof(esm_datalen)); */
-	/*TODO: needs proper handling */
-	g_nas_buffer.buf[esm_len_pos] = esm_len[0];
-	g_nas_buffer.buf[esm_len_pos + 1] = esm_len[1];
-
-	/* EPS mobile identity GUTI */
-#if 0
-	u8value = 0x50; /* element id TODO: define macro or enum */
-	buffer_copy(&g_ics_buffer, &u8value, sizeof(u8value));
-	datalen = sizeof(ies[4].mi_guti);
-	buffer_copy(&g_ics_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_ics_buffer, &(ies[4].mi_guti), datalen);
-#endif
-
-	u8value = 0x50; /* element id TODO: define macro or enum */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	datalen = 11;
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-
-	u8value = 246; /* TODO: remove hard coding */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	buffer_copy(&g_nas_buffer, &(ies[4].pduElement.mi_guti.plmn_id.idx), 3);
-	buffer_copy(&g_nas_buffer, &(ies[4].pduElement.mi_guti.mme_grp_id),
-			sizeof(ies[4].pduElement.mi_guti.mme_grp_id));
-	buffer_copy(&g_nas_buffer, &(ies[4].pduElement.mi_guti.mme_code),
-			sizeof(ies[4].pduElement.mi_guti.mme_code));
-	buffer_copy(&g_nas_buffer, &(ies[4].pduElement.mi_guti.m_TMSI),
-			sizeof(ies[4].pduElement.mi_guti.m_TMSI));
-
-#if 0
-    {
-        // sending mobile identity to UE 
-    /*TODO : Experiment */
-	u8value = 0x23; /* element id TODO: define macro or enum */
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	datalen = 0x05;
-	buffer_copy(&g_nas_buffer, &datalen, sizeof(datalen));
-    u8value = 0xf4; //
-	buffer_copy(&g_nas_buffer, &u8value, sizeof(u8value));
-	buffer_copy(&g_nas_buffer, &(ies[4].pduElement.mi_guti.m_TMSI),
-			sizeof(ies[4].pduElement.mi_guti.m_TMSI));
-    }
-#endif
-	/* E_RABToBeSetupListCtxtSUReq NAS PDU end */
-
-	/* Calculate mac */
-	uint8_t direction = 1;
-	uint8_t bearer = 0;
-
-	calculate_mac(g_icsReqInfo->int_key, nas_hdr->seq_no,
-			direction, bearer, &g_nas_buffer.buf[mac_data_pos],
-			g_nas_buffer.pos - mac_data_pos,
-			&g_nas_buffer.buf[mac_data_pos - MAC_SIZE]);
-
-	/* Copy nas length to nas length field */
-    //uint16_t nas_pay_len = g_nas_buffer.pos - nas_len_pos - 1;
-	log_msg(LOG_INFO, "NAS payload length %d\n", g_nas_buffer.pos);
-
-    /* start: RAB2 + NAS start */
-    /* Now lets append NAS buffer to rab2....so rab2 = rab2_buf + nas_length + nas_buf  */
-    if(g_nas_buffer.pos <= 127 )
-    {
-	  /* datalen = g_nas_buffer.pos - nas_len_pos - 1; */
-        datalen = g_nas_buffer.pos;
-	    buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
-    }
-    else
-    {
-        uint16_t nas_pay_len  = g_nas_buffer.pos | 0x8000; // set MSB to 1 
-        unsigned char lenStr[2];
-        lenStr[0] = nas_pay_len >> 8;
-        lenStr[1] = nas_pay_len & 0xff;
-	    buffer_copy(&g_rab2_buffer, lenStr, sizeof(lenStr));
-    }
-	buffer_copy(&g_rab2_buffer, &g_nas_buffer.buf[0], g_nas_buffer.pos);
-    /* end : RAB2 + NAS done */
+	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
 
 	log_msg(LOG_INFO, "RAB2 payload length %d\n", g_rab2_buffer.pos);
+	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %d\n", g_rab1_buffer.pos);
     /* Now lets append rab2 to rab1 */ 
     if(g_rab2_buffer.pos <= 127)
     {
         datalen = g_rab2_buffer.pos;
 	    buffer_copy(&g_rab1_buffer, &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
+    /* Now lets append rab2 to rab1 */ 
     }
     else
     {
@@ -637,18 +316,23 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab2_pay_len >> 8;
         lenStr[1] = rab2_pay_len & 0xff;
 	    buffer_copy(&g_rab1_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
     }
 	buffer_copy(&g_rab1_buffer, &g_rab2_buffer.buf[0], g_rab2_buffer.pos);
+
+
     /* rab1 + rab2 is appended */ 
     // rab1 is combined now ... 
 
     /*g_s1ap_buffer is having rab appended to it.. */
 
 	log_msg(LOG_INFO, "RAB1 payload length %d\n", g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length before appending RAB1 %d\n", g_s1ap_buffer.pos);
     if(g_rab1_buffer.pos <= 127)
     {
         datalen = g_rab1_buffer.pos;
 	    buffer_copy(&(g_s1ap_buffer), &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
     }
     else
     {
@@ -657,8 +341,10 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab1_pay_len >> 8;
         lenStr[1] = rab1_pay_len & 0xff;
 	    buffer_copy(&g_s1ap_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
     }
 	buffer_copy(&g_s1ap_buffer, &g_rab1_buffer.buf[0], g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length after appending RAB1 %d\n", g_s1ap_buffer.pos);
     /* RAB is appended to s1ap payload now */ 
 
 	/* id-UESecurityCapabilities */

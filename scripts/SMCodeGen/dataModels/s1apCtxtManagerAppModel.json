@@ -1,0 +1,46 @@
+{
+	"DataStore": {
+		"DataGroups": [
+			{
+				"DgName": "S1ap",
+				"PoolSize": "100",
+				"DataBlocks": [
+					{
+						"BlockName": "EnbContext",
+						"BlockType": "Permanent",
+						"Parent": "None",
+						"PoolSize": "500",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "enbFd",
+								"Type": "int",
+								"Key": "Yes"
+							},
+                            {
+                                "Name": "enbId",
+                                "Type": "int",
+                                "Key": "Yes"
+                            },
+                            {
+                                "Name": "s1apEnbUeId",
+                                "Type": "int",
+                                "Key": "No"
+                            },
+							{
+								"Name": "contextID",
+								"Type": "uint32_t",
+								"Key": "No"
+							},
+							{
+								"Name": "tai",
+								"Type": "TAI",
+								"Key": "No"
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

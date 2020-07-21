@@ -6,11 +6,15 @@
 
 #include "timeoutManager.h"
 #include "log.h"
+#include "mme_app.h"
 
 #include <cstring>
 #include <stdio.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
+#include <iostream>
+
+using namespace cmn;
 
 TimeoutManager::Timer::Timer() : fd_m(0)
 {
@@ -98,6 +102,7 @@ int TimeoutManager::Timer::getTimerFd() const
 TimeoutManager::TimeoutManager(Callback appCb):
         timerQueue_m(), timer_m()
 {
+    compDb.registerComponent(TimeoutManagerCompId, this);    
     appCb_m = appCb;
     thread_m = std::thread([this] { run(); });
 }

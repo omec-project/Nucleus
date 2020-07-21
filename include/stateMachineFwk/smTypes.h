@@ -1,17 +1,7 @@
 /*
  * Copyright (c) 2019, Infosys Ltd.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef INCLUDE_STATEMACHFWK_SMTYPES_H_
@@ -24,14 +14,26 @@ using namespace std;
 namespace SM{
 
 class ControlBlock;
-class State;
 class ActionTable;
+class TempDataBlock;
+class Event;
 
 enum ActStatus
 {
 	PROCEED,
 	HALT,
 	ABORT
+};
+
+/* IGNORE : Event will be ignored by the current procedure
+ * CONSUME: Event will be processed by the current procedure */
+enum EventStatus
+{
+    IGNORE,
+    CONSUME
+    // TODO: Concurrent procedure support
+    // FORWARD,
+    // CONSUME_AND_FORWARD,
 };
 
 enum ControlBlockState
@@ -50,6 +52,7 @@ const uint16_t STATE_GUARD_TIMEOUT = 2;
 const uint16_t default_state = 0;
 
 using ActionPointer = ActStatus(*)(ControlBlock&);
+using EventValidator = EventStatus(*)(ControlBlock&, TempDataBlock*, Event &event);
 using EventToActionTableMap = std::map <uint16_t, ActionTable>;
 using EventIdToStringMap = std::map <uint16_t, std::string>;
 using StateIdToStringMap = std::map <uint16_t, std::string>;

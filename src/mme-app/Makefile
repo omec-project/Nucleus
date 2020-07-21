@@ -1,25 +1,18 @@
 #
+# Copyright 2019-present Open Networking Foundation
 # Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
 # Copyright (c) 2017 Intel Corporation
 # Copyright (c) 2019, Infosys Ltd.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# SPDX-License-Identifier: Apache-2.0
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 #
 
 include ../../Makefile.common
 
 CC := g++
-CFLAGS += -Wall -DSTATS -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
+CFLAGS += -Wall -DSTATS -I/usr/include/openssl -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
 LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf
 
 ifeq ($(DEBUG),true)
@@ -35,19 +28,20 @@ LIBS :=	-lpthread \
         -lcrypto \
         -lcmnUtils \
         -ldatagroupmgr \
-	-ljson \
+		-ljson \
         -llog \
         -linterface \
         -lipcfwk \
-	-lmonitor_config \
-	-lusock \
-	-lthreadpool \
+		-lmonitor_config \
+		-lusock \
+		-lthreadpool \
         -lstatemachinefwk \
-	-lmmeGrpcProtoBuf \
-	-lgrpc++ \
+		-lmmeGrpcProtoBuf \
+		-lgrpc++ \
         -lgrpc \
         -lgpr \
         -lprotobuf \
+		-lsecutil
 
 SRCDIR := .
 SRCEXT := cpp
