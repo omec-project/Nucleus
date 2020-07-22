@@ -327,6 +327,17 @@
                                     "ATTACH_DONE"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ATTACH_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_ATTACH_REQUEST",
+                                    "DEL_SESSION_REQ",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH",
+                                    "DEFAULT_ATTACH_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -347,7 +358,7 @@
                                 "Name":"DETACH_REQ_FROM_UE",
                                 "Actions":[
                                     "DEL_SESSION_REQ",
-				    "PURGE_REQ"
+                                    "PURGE_REQ"
                                 ],
                                 "NextState":"detach_wf_purge_resp_del_session_resp"
                             }
@@ -392,7 +403,7 @@
                                 "Name":"PURGE_RESP_FROM_HSS",
                                 "Actions":[
                                     "PROCESS_PUR_RESP",
-				    "DETACH_ACCEPT_TO_UE"
+                                    "DETACH_ACCEPT_TO_UE"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -430,6 +441,17 @@
                                     "SEND_S1_REL_CMD_TO_UE"
                                 ],
                                 "NextState":"s1_release_wf_ue_ctxt_release_comp"
+                            },
+                            {
+                                "Name":"ATTACH_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_ATTACH_REQUEST",
+                                    "DEL_SESSION_REQ",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_S1_RELEASE",
+                                    "DEFAULT_ATTACH_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },

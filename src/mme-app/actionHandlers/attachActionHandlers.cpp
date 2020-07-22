@@ -1372,6 +1372,42 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
-	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    MmeErrorCause errorCause = noError_c;
+
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        errorCause = procCtxt->getMmeErrorCause();
+    }
+
+    if (errorCause == abortDueToAttachCollision_c)
+    {
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
+    }
+    else
+    {
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
 	return ActStatus::PROCEED;
 }
+
+/***************************************
+* Action handler : handle_attach_request
+***************************************/
+ActStatus ActionHandlers::handle_attach_request(ControlBlock& cb)
+{
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        log_msg(LOG_DEBUG, "Received Attach Req when procedure % in progress\n",
+                procCtxt->getCtxtType());
+
+        // abort current procedure. Set appropriate error cause for aborting the procedure
+        procCtxt->setMmeErrorCause(abortDueToAttachCollision_c);
+    }
+
+    return ActStatus::PROCEED;
+}
+

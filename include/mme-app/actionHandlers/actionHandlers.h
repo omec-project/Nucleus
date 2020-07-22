@@ -54,6 +54,11 @@ namespace mme
         static SM::ActStatus abort_handover(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_s1_release
+        ***********************************************/
+        static SM::ActStatus abort_s1_release(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_service_req_procedure
         ***********************************************/
         static SM::ActStatus abort_service_req_procedure(SM::ControlBlock& cb);                
@@ -147,6 +152,11 @@ namespace mme
         * Action handler : erab_mod_ind_complete
         ***********************************************/
         static SM::ActStatus erab_mod_ind_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : handle_attach_request
+        ***********************************************/
+        static SM::ActStatus handle_attach_request(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : handle_state_guard_timeouts_for_erab_mod_ind

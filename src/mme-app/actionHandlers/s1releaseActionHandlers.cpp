@@ -175,5 +175,25 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
     	return ActStatus::PROCEED;
 }
 
-	
-	
+/***************************************
+* Action handler : abort_s1_release
+***************************************/
+ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
+{
+    MmeErrorCause errorCause = noError_c;
+
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        errorCause = procCtxt->getMmeErrorCause();
+    }
+
+    if (errorCause == abortDueToAttachCollision_c)
+    {
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
+    }
+
+    return ActStatus::PROCEED;
+}
+
