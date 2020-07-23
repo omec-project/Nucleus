@@ -26,7 +26,7 @@
         },
         "apnlist": {
             "__comment__": " apn name to ip addresss/service name mapping.",
-            "internet": "127.0.0.1",
+            "test": "127.0.0.1",
             "apps": "127.0.0.1"
         },
         "security": {
