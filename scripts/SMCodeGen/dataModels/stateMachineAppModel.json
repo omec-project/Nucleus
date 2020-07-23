@@ -333,7 +333,6 @@
                                 "Actions":[
                                     "HANDLE_ATTACH_REQUEST",
                                     "DEL_SESSION_REQ",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH",
                                     "DEFAULT_ATTACH_REQ_HANDLER"
                                 ],
@@ -447,7 +446,6 @@
                                 "Actions":[
                                     "HANDLE_ATTACH_REQUEST",
                                     "DEL_SESSION_REQ",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_S1_RELEASE",
                                     "DEFAULT_ATTACH_REQ_HANDLER"
                                 ],

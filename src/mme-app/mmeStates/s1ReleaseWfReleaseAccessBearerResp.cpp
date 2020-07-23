@@ -68,7 +68,6 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_attach_request);
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_s1_release);
                 actionTable.addAction(&ActionHandlers::default_attach_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
