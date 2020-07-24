@@ -22,6 +22,7 @@
 
 #include "mmeStates/s1ReleaseWfReleaseAccessBearerResp.h"	
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
+#include "mmeStates/attachWfImsiValidateAction.h"
 
 using namespace mme;
 using namespace SM;
@@ -63,5 +64,11 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.setNextState(S1ReleaseWfUeCtxtReleaseComp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(REL_AB_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::validate_imsi_in_ue_context);
+                actionTable.setNextState(AttachWfImsiValidateAction::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
         }
 }
