@@ -73,9 +73,9 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
     MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
+        log_msg(LOG_DEBUG, "\n %s : %d invalid mmeTimerCtxt \n",__FUNCTION__,__LINE__);
         return;
     }
-
     if(mmeTimerCtxt->getTimerType() == mmeConfigDnsResolve_c)
     {
         log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");

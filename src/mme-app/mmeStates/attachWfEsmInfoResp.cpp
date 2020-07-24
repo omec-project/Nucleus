@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(attach_wf_esm_info_resp)
+AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(attach_wf_esm_info_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
