@@ -389,6 +389,14 @@
                                     "DETACH_ACCEPT_TO_UE"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "PROCESS_DEL_SESSION_RESP",
+                                    "DETACH_ACCEPT_TO_UE"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -408,7 +416,7 @@
                 ],
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "disabled"
+                        "stateGuardTimerFeature" : "enabled"
                     }
                 ]
             },

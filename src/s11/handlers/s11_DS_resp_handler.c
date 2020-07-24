@@ -23,6 +23,7 @@
 #include <gtpV2StackWrappers.h>
 /*Globals and externs*/
 extern int g_resp_fd;
+extern struct GtpV2Stack* gtpStack_gp;
 
 /*End : globals and externs*/
 
@@ -42,7 +43,10 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	/*Check whether has teid flag is set.
 	 * Also check whether this check is needed for DSR.
 	 * */
-	dsr_info.ue_idx = hdr->teid;	
+	//dsr_info.ue_idx = hdr->teid;	
+    dsr_info.ue_idx = GtpV2StackFindUeIdx(gtpStack_gp, 
+                                          hdr->sequenceNumber);
+    GtpV2StackDelSeqKey(gtpStack_gp, hdr->sequenceNumber);
 
 	dsr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
 	dsr_info.srcInstAddr = htonl(s11AppInstanceNum_c);

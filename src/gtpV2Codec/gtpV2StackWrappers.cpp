@@ -20,6 +20,22 @@ extern "C"
         	delete  buf_p;
         }
 
+        int GtpV2StackAddSeqNumKey(GtpV2Stack* stack_p, 
+                                   uint32_t key, uint32_t val)
+        {
+            return stack_p->addSeqKey(key, val);
+        }
+
+        int GtpV2StackFindUeIdx(GtpV2Stack* stack_p, uint32_t key)
+        {
+            return stack_p->findUeIdxWithSeq(key);
+        }
+
+        int GtpV2StackDelSeqKey(GtpV2Stack* stack_p, uint32_t key)
+        {
+            return stack_p->delSeqKey(key);
+        }
+
         void* MsgBuffer_getDataPointer(MsgBuffer* buf_p)
         {
         	return buf_p->getDataPointer();

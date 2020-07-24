@@ -63,6 +63,8 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	msgData.linkedEpsBearerIdIePresent = true;
 	msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
 
+    GtpV2StackAddSeqNumKey(gtpStack_gp, 
+                           gtpHeader.sequenceNumber, ds_msg->ue_idx);
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
 	g_s11_sequence++;
 

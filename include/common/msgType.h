@@ -544,6 +544,7 @@ struct MB_Q_msg {
 #define S11_DS_INDICATION_FLAG_SIZE 3
 struct DS_Q_msg {
 	msg_type_t msg_type;
+    int ue_idx;
 	unsigned char indication[S11_DS_INDICATION_FLAG_SIZE];/*Provision*/
 	unsigned char bearer_id;
 	struct fteid s11_sgw_c_fteid;

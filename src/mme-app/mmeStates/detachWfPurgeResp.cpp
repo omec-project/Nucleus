@@ -26,7 +26,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfPurgeResp::DetachWfPurgeResp():State(detach_wf_purge_resp)
+DetachWfPurgeResp::DetachWfPurgeResp():State(detach_wf_purge_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

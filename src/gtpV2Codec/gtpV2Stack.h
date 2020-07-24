@@ -25,8 +25,10 @@
 #include <sstream>
 #include <basicTypes.h>
 #include <msgBuffer.h>
+#include <map>
+#include <mutex>
 #include "msgClasses/gtpV2MsgDataTypes.h"
-
+using namespace std;
 class GtpV2Stack {
 public:
     GtpV2Stack();
@@ -55,6 +57,13 @@ public:
     bool decodeMessage(GtpV2MessageHeader& msgHeader, MsgBuffer& buffer,
                  void* data_p = NULL);
     void display_v(Uint8 msgType, Debug& stream, void* data_p = NULL);
+
+    int addSeqKey(uint32_t seq, uint32_t ue_idx);
+    int delSeqKey(uint32_t seq);
+    int findUeIdxWithSeq(uint32_t seq);
+
+	std::map<uint32_t,uint32_t> seq_ue_idx_map;
+	std::mutex seq_ueidx_map_mutex;
 };
 
 #endif /* GTPV2STACK_H_ */
