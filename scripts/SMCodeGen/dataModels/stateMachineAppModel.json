@@ -268,7 +268,14 @@
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
-                             }
+                             },
+                             {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS_FOR_CSREQ_IND"
+                                ],
+                                "NextState":"end_state"
+                            }
                         ]
                     },
                     {
@@ -333,7 +340,7 @@
                 ],
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "disabled"
+                        "stateGuardTimerFeature" : "enabled"
                     }
                 ]
             },
