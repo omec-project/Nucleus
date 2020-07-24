@@ -256,11 +256,11 @@ s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 	log_msg(LOG_INFO, "Received attach reject nas message %d \n",g_attachReqRejInfo->nasMsgSize);
 	datalen = g_attachReqRejInfo->nasMsgSize + 1; 
 
-	buffer_copy(&g_buffer, &datalen, sizeof(datalen));
+	buffer_copy(&g_value_buffer, &datalen, sizeof(datalen));
 
-	buffer_copy(&g_buffer, &g_attachReqRejInfo->nasMsgSize, sizeof(uint8_t));
+	buffer_copy(&g_value_buffer, &g_attachReqRejInfo->nasMsgSize, sizeof(uint8_t));
 
-	buffer_copy(&g_buffer, &g_attachReqRejInfo->nasMsgBuf[0], g_attachReqRejInfo->nasMsgSize);
+	buffer_copy(&g_value_buffer, &g_attachReqRejInfo->nasMsgBuf[0], g_attachReqRejInfo->nasMsgSize);
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(g_value_buffer.pos));
