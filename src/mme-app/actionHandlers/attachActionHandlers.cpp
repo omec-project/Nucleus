@@ -1397,3 +1397,16 @@ ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 	return ActStatus::PROCEED;
 }
+
+/***************************************
+* Action handler : handle_state_guard_timeouts_for_csreq_ind
+***************************************/
+ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock& cb)
+{
+    log_msg(LOG_ERROR,"CSRsp not received from SPGW, guard timer expired");
+    log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
+    // invalidate dns entries 
+    mme_tables->invalidate_dns();
+    mme_tables->initiate_spgw_resolution();
+    return ActStatus::ABORT;
+}

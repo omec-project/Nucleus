@@ -150,6 +150,11 @@ namespace mme
         static SM::ActStatus erab_mod_ind_complete(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_state_guard_timeouts_for_csreq_ind
+        ***********************************************/
+        static SM::ActStatus handle_state_guard_timeouts_for_csreq_ind(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_state_guard_timeouts_for_erab_mod_ind
         ***********************************************/
         static SM::ActStatus handle_state_guard_timeouts_for_erab_mod_ind(SM::ControlBlock& cb);                

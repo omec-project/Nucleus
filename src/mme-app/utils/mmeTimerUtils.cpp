@@ -72,32 +72,34 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
     MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
+        log_msg(LOG_DEBUG, "\n %s : %d invalid mmeTimerCtxt \n",__FUNCTION__,__LINE__);
         return;
     }
-    if(mmeTimerCtxt->getTimerId() == mmeConfigDnsResolve_c)
+    log_msg(LOG_DEBUG, "\n %s : %d timerId = %d \n",__FUNCTION__,__LINE__, mmeTimerCtxt->getTimerId());
+    if(mmeTimerCtxt->getTimerType() == mmeConfigDnsResolve_c)
     {
         log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
         mme_tables->initiate_spgw_resolution();
     }
-
-#if 0
-    ControlBlock* controlBlk_p =
-            SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getUeIndex());
-    if(controlBlk_p == NULL)
+    if(mmeTimerCtxt->getTimerType() == stateGuardTimer_c)
     {
-        log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
-                mmeTimerCtxt->getUeIndex());
+        ControlBlock* controlBlk_p =
+            SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getUeIndex());
+        if(controlBlk_p == NULL)
+        {
+            log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
+                    mmeTimerCtxt->getUeIndex());
 
-        return;
+            return;
+        }
+
+        log_msg(LOG_DEBUG, "State Guard Timeout fired. "
+                "Timer Type %d. Current Time %d\n",
+                mmeTimerCtxt->getTimerId(), time(NULL));
+
+        TimeoutMessage *eMsg = new TimeoutMessage(timerCtxt);
+
+        SM::Event evt(STATE_GUARD_TIMEOUT, eMsg);
+        controlBlk_p->addEventToProcQ(evt);
     }
-
-    log_msg(LOG_DEBUG, "State Guard Timeout fired. "
-                      "Timer Type %d. Current Time %d\n",
-                       mmeTimerCtxt->getTimerId(), time(NULL));
-
-    TimeoutMessage *eMsg = new TimeoutMessage(timerCtxt);
-
-    SM::Event evt(STATE_GUARD_TIMEOUT, eMsg);
-    controlBlk_p->addEventToProcQ(evt);
-#endif
 }

@@ -323,6 +323,19 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
     return ;
 }
 
+void mmeConfig::invalidate_dns()
+{
+    apn_config *temp;
+    std::list<apn_config*>::iterator it;
+
+    for(it = apn_list.begin(); it != apn_list.end(); it++) 
+    {
+        temp = *it;
+        temp->set_dns_pending();
+    }
+    return;
+}
+
 /* One resolution at a time with timer retry */
 void mmeConfig::initiate_spgw_resolution()
 {
@@ -361,7 +374,7 @@ void mmeConfig::initiate_spgw_resolution()
             // We shall be doing this once timer library is integrated 
             log_msg(LOG_ERROR, "%s - getaddr info failed %s\n",temp->get_spgw_srv().c_str(), gai_strerror(err));
             if(started == false)
-              MmeTimerUtils::startTimer(10000, 1 /* ue_index */, 1 /*timer type*/, mmeConfigDnsResolve_c);
+              MmeTimerUtils::startTimer(10000, 1 /* ue_index */, mmeConfigDnsResolve_c, 1 /*timer type*/);
             started = true;
         }
         else 

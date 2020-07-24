@@ -88,6 +88,7 @@ class apn_config
         void set_pgw_ip(uint32_t pgw_ip) { pgw_addr = pgw_ip; }
         void set_sgw_ip(uint32_t sgw_ip) { sgw_addr = sgw_ip; }
         void set_dns_resolved()         { dns_pending = false; }
+        void set_dns_pending()          { dns_pending = true; }
 };
 
 class mmeConfig
@@ -121,6 +122,7 @@ class mmeConfig
         static int getIntAlgOrder(char *alg_list, uint8_t* alg_order);
         static int getSecAlgOrder(char *alg_list, uint8_t* alg_order);
         void initiate_spgw_resolution();
+        void invalidate_dns();
 };
 
 
