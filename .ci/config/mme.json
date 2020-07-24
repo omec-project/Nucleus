@@ -26,8 +26,8 @@
         },
         "apnlist": {
             "__comment__": " apn name to ip addresss/service name mapping.",
-            "internet": "spgwc-headless",
-            "apps": "spgwc-headless"
+            "test": "127.0.0.1",
+            "apps": "127.0.0.1"
         },
         "security": {
             "int_alg_list": "[EIA1, EIA2, EIA0]",
