@@ -272,8 +272,7 @@
                              {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
-                                    "HANDLE_STATE_GUARD_TIMEOUTS_FOR_CSREQ_IND",
-                                    "ABORT_CSREQ_INDICATION"
+                                    "HANDLE_STATE_GUARD_TIMEOUTS_FOR_CSREQ_IND"
                                 ],
                                 "NextState":"end_state"
                             }
