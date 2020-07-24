@@ -64,6 +64,8 @@ release_bearer_processing(struct RB_Q_msg *rb_msg)
 	msgData.indicationFlagsIePresent = true;
         msgData.indicationFlags.iOI = true;
 
+        GtpV2StackAddSeqNumKey(gtpStack_gp, 
+                           gtpHeader.sequenceNumber, rb_msg->ue_idx);
         GtpV2Stack_buildGtpV2Message(gtpStack_gp, rbReqMsgBuf_p, &gtpHeader, &msgData);
 	
         sendto(g_s11_fd,

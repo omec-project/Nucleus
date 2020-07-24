@@ -73,8 +73,7 @@ int GtpV2Stack::delSeqKey( uint32_t key )
 }
 
 /******************************************
- * Find cb with given mTmsi from mTmsi_cb_id_map
- * returns -1 if not found, else cb index
+ * Find Ue Idx with given Seq number
  ******************************************/ 
 int GtpV2Stack::findUeIdxWithSeq( uint32_t key )
 {

@@ -71,4 +71,10 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 actionTable.setNextState(AttachWfImsiValidateAction::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
+        }
 }

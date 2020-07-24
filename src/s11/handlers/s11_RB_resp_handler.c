@@ -36,7 +36,18 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	
 	//TODO : check cause for the result verification
 	
-	rbr_info.ue_idx = hdr->teid;
+	if(hdr->teid)
+    {
+        rbr_info.ue_idx = hdr->teid;
+    }
+    else
+    {
+        log_msg(LOG_WARNING, "Unknown Teid in RABR.\n");
+        rbr_info.ue_idx = GtpV2StackFindUeIdx(gtpStack_gp, 
+                                          hdr->sequenceNumber);   
+    }
+
+    GtpV2StackDelSeqKey(gtpStack_gp, hdr->sequenceNumber);
 	rbr_info.msg_type = release_bearer_response;
 	
 	ReleaseAccessBearersResponseMsgData msgData;
