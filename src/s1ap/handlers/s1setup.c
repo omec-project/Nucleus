@@ -189,9 +189,6 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 							char plmn_s[10] = {'\0'};
 							memcpy(plmn_s, plmn->buf, plmn->size);
 							log_msg(LOG_INFO, "S1setup Supported PLMN %s Plmn buffer size %d \n", plmn_s, plmn->size);
-							char plmn_s1[10] = {'\0'};
-							sprintf(plmn_s1, "%d %d %d ",plmn->buf[0], plmn->buf[1], plmn->buf[2]);
-							log_msg(LOG_INFO, "S1setup Supported PLMN %s \n", plmn_s1);
 							struct PLMN plmn_struct = {0}; 
 							for(int b=0; b< plmn->size; b++) 
 							{

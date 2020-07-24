@@ -420,7 +420,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 else
                 {
                     log_msg(LOG_ERROR,"Control block not found\n");
-                    return E_FAIL;
+                    return SUCCESS;
                 }
             }
             else
