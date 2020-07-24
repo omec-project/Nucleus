@@ -21,6 +21,7 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/attachWfMbResp.h"
+#include "mmeStates/attachWfImsiValidateAction.h"
 
 using namespace mme;
 using namespace SM;
@@ -62,5 +63,12 @@ void AttachWfMbResp::initialize()
                 actionTable.addAction(&ActionHandlers::check_and_send_emm_info);
                 actionTable.addAction(&ActionHandlers::attach_done);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.addAction(&ActionHandlers::validate_imsi_in_ue_context);
+                actionTable.setNextState(AttachWfImsiValidateAction::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
         }
 }
