@@ -69,23 +69,27 @@ uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
 void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 {
     log_msg(LOG_DEBUG, "\n %s : %d \n",__FUNCTION__,__LINE__);
+
     MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
         log_msg(LOG_DEBUG, "\n %s : %d invalid mmeTimerCtxt \n",__FUNCTION__,__LINE__);
         return;
     }
-    log_msg(LOG_DEBUG, "\n %s : %d timerId = %d \n",__FUNCTION__,__LINE__, mmeTimerCtxt->getTimerId());
     if(mmeTimerCtxt->getTimerType() == mmeConfigDnsResolve_c)
     {
         log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
+
         mme_tables->initiate_spgw_resolution();
     }
-    if(mmeTimerCtxt->getTimerType() == stateGuardTimer_c)
+    else if (mmeTimerCtxt->getTimerType() == stateGuardTimer_c)
     {
-        ControlBlock* controlBlk_p =
-            SubsDataGroupManager::Instance()->findControlBlock(mmeTimerCtxt->getUeIndex());
-        if(controlBlk_p == NULL)
+        log_msg(LOG_DEBUG, "State Guard Timer expiry \n");
+
+        ControlBlock *controlBlk_p =
+                SubsDataGroupManager::Instance()->findControlBlock(
+                        mmeTimerCtxt->getUeIndex());
+        if (controlBlk_p == NULL)
         {
             log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
                     mmeTimerCtxt->getUeIndex());
@@ -94,8 +98,8 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
         }
 
         log_msg(LOG_DEBUG, "State Guard Timeout fired. "
-                "Timer Type %d. Current Time %d\n",
-                mmeTimerCtxt->getTimerId(), time(NULL));
+                "Timer Type %d. Current Time %d\n", mmeTimerCtxt->getTimerId(),
+                time(NULL));
 
         TimeoutMessage *eMsg = new TimeoutMessage(timerCtxt);
 

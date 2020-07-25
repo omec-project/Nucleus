@@ -242,6 +242,27 @@ static void log_buffer_free(unsigned char** buffer)
     *buffer = NULL;
 }
 
+void MmeNasUtils::select_sec_alg(UEContext *ue_ctxt)
+{
+    log_msg(LOG_DEBUG, "Inside select_sec_alg \n");
+
+    uint8_t eea;
+    uint8_t eia;
+    nas_int_algo_enum int_alg;
+    nas_ciph_algo_enum sec_alg;
+    memcpy(&eea,
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[0],sizeof(uint8_t));
+    memcpy(&eia,
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[1],sizeof(uint8_t));
+
+    int_alg = (nas_int_algo_enum)MmeCommonUtils::select_preferred_int_algo(eia);
+    sec_alg = (nas_ciph_algo_enum)MmeCommonUtils::select_preferred_sec_algo(eea);
+
+    ue_ctxt->getUeSecInfo().setSelectedIntAlg(int_alg);
+    ue_ctxt->getUeSecInfo().setSelectedSecAlg(sec_alg);
+
+}
+
 int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
    	unsigned short msg_len = nas_msg_len;
@@ -1477,6 +1498,12 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			buffer_copy(nasBuffer, &nas->header.message_type, sizeof(nas->header.message_type));
 			value = nas->header.detach_type; 
 			buffer_copy(nasBuffer, &value, sizeof(value));
+			if(nas->header.emm_cause > 0)
+			{
+			    uint8_t IEI = NAS_IE_TYPE_EMM_CAUSE;
+			    uint16_t u16value = ((uint16_t)nas->header.emm_cause << 8) | (IEI);
+			    buffer_copy(nasBuffer, &u16value, sizeof(u16value));
+			}
 			/* Calculate mac */
 			uint8_t direction = 1;
 			uint8_t bearer = 0;

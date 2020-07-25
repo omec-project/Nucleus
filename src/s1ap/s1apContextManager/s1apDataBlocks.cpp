@@ -51,10 +51,11 @@ namespace mme
 	/******************************************************************************
 	* returns enbFd
 	******************************************************************************/	
-	int EnbContext::getEnbFd() const
-	{
-		return enbFd_m;
-	}
+        int EnbContext::getEnbFd() const
+        {
+                return enbFd_m;
+        }
+
 	
 	/******************************************************************************
 	* sets enbId
@@ -67,10 +68,11 @@ namespace mme
 	/******************************************************************************
 	* returns enbId
 	******************************************************************************/	
-	int EnbContext::getEnbId() const
-	{
-		return enbId_m;
-	}
+        int EnbContext::getEnbId() const
+        {
+                return enbId_m;
+        }
+
 	
 	/******************************************************************************
 	* sets s1apEnbUeId
@@ -83,10 +85,11 @@ namespace mme
 	/******************************************************************************
 	* returns s1apEnbUeId
 	******************************************************************************/	
-	int EnbContext::getS1apEnbUeId() const
-	{
-		return s1apEnbUeId_m;
-	}
+        int EnbContext::getS1apEnbUeId() const
+        {
+                return s1apEnbUeId_m;
+        }
+
 	
 	/******************************************************************************
 	* sets contextID
@@ -99,10 +102,11 @@ namespace mme
 	/******************************************************************************
 	* returns contextID
 	******************************************************************************/	
-	uint32_t EnbContext::getContextID() const
-	{
-		return contextID_m;
-	}
+        uint32_t EnbContext::getContextID() const
+        {
+                return contextID_m;
+        }
+
 	
 	/******************************************************************************
 	* sets tai
@@ -115,9 +119,10 @@ namespace mme
 	/******************************************************************************
 	* returns tai
 	******************************************************************************/	
-	const TAI& EnbContext::getTai() const
-	{
-		return tai_m;
-	}
+        const TAI& EnbContext::getTai() const
+        {
+                return tai_m;
+        }
+
 	
 } // mme

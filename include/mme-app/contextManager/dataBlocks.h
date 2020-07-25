@@ -61,7 +61,7 @@ namespace mme
 			* getEnbFd
 			*    get enbFd from UEContext
 			****************************************/
-			uint32_t getEnbFd()const;				
+			uint32_t getEnbFd()const;			
 			
 			/****************************************
 			* setS1apEnbUeId
@@ -73,7 +73,7 @@ namespace mme
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from UEContext
 			****************************************/
-			uint32_t getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;			
 			
 			/****************************************
 			* setSubscriptionStatus
@@ -85,7 +85,7 @@ namespace mme
 			* getSubscriptionStatus
 			*    get subscriptionStatus from UEContext
 			****************************************/
-			int getSubscriptionStatus()const;				
+			int getSubscriptionStatus()const;			
 			
 			/****************************************
 			* setNetAccessMode
@@ -97,7 +97,7 @@ namespace mme
 			* getNetAccessMode
 			*    get netAccessMode from UEContext
 			****************************************/
-			int getNetAccessMode()const;				
+			int getNetAccessMode()const;			
 			
 			/****************************************
 			* setContextID
@@ -109,7 +109,7 @@ namespace mme
 			* getContextID
 			*    get contextID from UEContext
 			****************************************/
-			uint32_t getContextID()const;				
+			uint32_t getContextID()const;			
 			
 			/****************************************
 			* setRauTauTimer
@@ -121,7 +121,7 @@ namespace mme
 			* getRauTauTimer
 			*    get rauTauTimer from UEContext
 			****************************************/
-			uint32_t getRauTauTimer()const;				
+			uint32_t getRauTauTimer()const;			
 			
 			/****************************************
 			* setAccessRestrictionData
@@ -133,7 +133,7 @@ namespace mme
 			* getAccessRestrictionData
 			*    get accessRestrictionData from UEContext
 			****************************************/
-			uint32_t getAccessRestrictionData()const;				
+			uint32_t getAccessRestrictionData()const;			
 			
 			/****************************************
 			* setImsi
@@ -145,7 +145,7 @@ namespace mme
 			* getImsi
 			*    get imsi from UEContext
 			****************************************/
-			const DigitRegister15& getImsi()const;				
+			const DigitRegister15& getImsi()const;			
 			
 			/****************************************
 			* setMsisdn
@@ -157,7 +157,7 @@ namespace mme
 			* getMsisdn
 			*    get msisdn from UEContext
 			****************************************/
-			const DigitRegister15& getMsisdn()const;				
+			const DigitRegister15& getMsisdn()const;			
 			
 			/****************************************
 			* setUeState
@@ -169,7 +169,7 @@ namespace mme
 			* getUeState
 			*    get ueState from UEContext
 			****************************************/
-			UE_State_e getUeState()const;				
+			UE_State_e getUeState()const;			
 			
 			/****************************************
 			* setTai
@@ -181,7 +181,7 @@ namespace mme
 			* getTai
 			*    get tai from UEContext
 			****************************************/
-			const Tai& getTai()const;				
+			const Tai& getTai()const;			
 			
 			/****************************************
 			* setUtranCgi
@@ -193,7 +193,7 @@ namespace mme
 			* getUtranCgi
 			*    get utranCgi from UEContext
 			****************************************/
-			const Cgi& getUtranCgi()const;				
+			const Cgi& getUtranCgi()const;			
 			
 			/****************************************
 			* setMsNetCapab
@@ -205,7 +205,7 @@ namespace mme
 			* getMsNetCapab
 			*    get msNetCapab from UEContext
 			****************************************/
-			const Ms_net_capab& getMsNetCapab()const;				
+			const Ms_net_capab& getMsNetCapab()const;			
 			
 			/****************************************
 			* setUeNetCapab
@@ -217,7 +217,7 @@ namespace mme
 			* getUeNetCapab
 			*    get ueNetCapab from UEContext
 			****************************************/
-			const Ue_net_capab& getUeNetCapab()const;				
+			const Ue_net_capab& getUeNetCapab()const;			
 			
 			/****************************************
 			* setUeSecInfo
@@ -229,7 +229,7 @@ namespace mme
 			* getUeSecInfo
 			*    get ueSecInfo from UEContext
 			****************************************/
-			Secinfo& getUeSecInfo();
+			Secinfo& getUeSecInfo();			
 			
 			/****************************************
 			* setAmbr
@@ -241,7 +241,7 @@ namespace mme
 			* getAmbr
 			*    get ambr from UEContext
 			****************************************/
-			const Ambr& getAmbr()const;				
+			const Ambr& getAmbr()const;			
 			
 			/****************************************
 			* setAiaSecInfo
@@ -253,7 +253,7 @@ namespace mme
 			* getAiaSecInfo
 			*    get aiaSecInfo from UEContext
 			****************************************/
-			const E_utran_sec_vector& getAiaSecInfo()const;				
+			const E_utran_sec_vector& getAiaSecInfo()const;			
 			
 			/****************************************
 			* setMTmsi
@@ -265,7 +265,7 @@ namespace mme
 			* getMTmsi
 			*    get mTmsi from UEContext
 			****************************************/
-			uint32_t getMTmsi()const;				
+			uint32_t getMTmsi()const;			
 			
 			/****************************************
 			* setSubscribedApn
@@ -277,7 +277,7 @@ namespace mme
 			* getSubscribedApn
 			*    get subscribedApn from UEContext
 			****************************************/
-			const Apn_name& getSubscribedApn()const;				
+			const Apn_name& getSubscribedApn()const;			
 			
 			/****************************************
 			* setPdnAddr
@@ -289,7 +289,7 @@ namespace mme
 			* getPdnAddr
 			*    get pdnAddr from UEContext
 			****************************************/
-			const Paa& getPdnAddr()const;				
+			const Paa& getPdnAddr()const;			
 			
 			/****************************************
 			* setMmContext
@@ -344,12 +344,6 @@ namespace mme
 			
 			// DataName
 			DigitRegister15 msisdn_m;
-			
-			// DataName
-			uint16_t dwnLnkSeqNo_m;
-			
-			// DataName
-			uint16_t upLnkSeqNo_m;
 			
 			// DataName
 			UE_State_e ueState_m;
@@ -418,7 +412,7 @@ namespace mme
 			* getMmState
 			*    get mmState from MmContext
 			****************************************/
-			EmmState getMmState()const;				
+			EmmState getMmState()const;			
 			
 			/****************************************
 			* setEcmState
@@ -430,7 +424,7 @@ namespace mme
 			* getEcmState
 			*    get ecmState from MmContext
 			****************************************/
-			EcmState getEcmState()const;				
+			EcmState getEcmState()const;			
 			
 		
 		private:
@@ -469,7 +463,7 @@ namespace mme
 			* getSessionId
 			*    get sessionId from SessionContext
 			****************************************/
-			uint8_t getSessionId()const;				
+			uint8_t getSessionId()const;			
 			
 			/****************************************
 			* setS11SgwCtrlFteid
@@ -481,7 +475,7 @@ namespace mme
 			* getS11SgwCtrlFteid
 			*    get s11SgwCtrlFteid from SessionContext
 			****************************************/
-			const Fteid& getS11SgwCtrlFteid()const;				
+			const Fteid& getS11SgwCtrlFteid()const;			
 			
 			/****************************************
 			* setS5S8PgwCtrlFteid
@@ -493,7 +487,7 @@ namespace mme
 			* getS5S8PgwCtrlFteid
 			*    get s5S8PgwCtrlFteid from SessionContext
 			****************************************/
-			const Fteid& getS5S8PgwCtrlFteid()const;				
+			const Fteid& getS5S8PgwCtrlFteid()const;			
 			
 			/****************************************
 			* setPdnAddr
@@ -505,7 +499,7 @@ namespace mme
 			* getPdnAddr
 			*    get pdnAddr from SessionContext
 			****************************************/
-			const Paa& getPdnAddr()const;				
+			const Paa& getPdnAddr()const;			
 			
 			/****************************************
 			* setAccessPtName
@@ -517,7 +511,7 @@ namespace mme
 			* getAccessPtName
 			*    get accessPtName from SessionContext
 			****************************************/
-			const Apn_name& getAccessPtName()const;				
+			const Apn_name& getAccessPtName()const;			
 			
 			/****************************************
 			* setApnConfigProfileCtxId
@@ -529,7 +523,7 @@ namespace mme
 			* getApnConfigProfileCtxId
 			*    get apnConfigProfileCtxId from SessionContext
 			****************************************/
-			uint32_t getApnConfigProfileCtxId()const;				
+			uint32_t getApnConfigProfileCtxId()const;			
 			
 			/****************************************
 			* setPti
@@ -541,7 +535,7 @@ namespace mme
 			* getPti
 			*    get pti from SessionContext
 			****************************************/
-			uint8_t getPti()const;				
+			uint8_t getPti()const;			
 			
 			/****************************************
 			* setBearerContext
@@ -610,7 +604,7 @@ namespace mme
 			* getS1uSgwUserFteid
 			*    get s1uSgwUserFteid from BearerContext
 			****************************************/
-			const Fteid& getS1uSgwUserFteid()const;				
+			const Fteid& getS1uSgwUserFteid()const;			
 			
 			/****************************************
 			* setS5S8PgwUserFteid
@@ -622,7 +616,7 @@ namespace mme
 			* getS5S8PgwUserFteid
 			*    get s5S8PgwUserFteid from BearerContext
 			****************************************/
-			const Fteid& getS5S8PgwUserFteid()const;				
+			const Fteid& getS5S8PgwUserFteid()const;			
 			
 			/****************************************
 			* setS1uEnbUserFteid
@@ -634,7 +628,7 @@ namespace mme
 			* getS1uEnbUserFteid
 			*    get s1uEnbUserFteid from BearerContext
 			****************************************/
-			const Fteid& getS1uEnbUserFteid()const;				
+			const Fteid& getS1uEnbUserFteid()const;			
 			
 			/****************************************
 			* setBearerId
@@ -646,7 +640,7 @@ namespace mme
 			* getBearerId
 			*    get bearerId from BearerContext
 			****************************************/
-			uint8_t getBearerId()const;				
+			uint8_t getBearerId()const;			
 			
 		
 		private:
@@ -691,7 +685,7 @@ namespace mme
 			* getCtxtType
 			*    get ctxtType from MmeProcedureCtxt
 			****************************************/
-			ProcedureType getCtxtType()const;				
+			ProcedureType getCtxtType()const;			
 			
 			/****************************************
 			* setMmeErrorCause
@@ -703,7 +697,7 @@ namespace mme
 			* getMmeErrorCause
 			*    get mmeErrorCause from MmeProcedureCtxt
 			****************************************/
-			MmeErrorCause getMmeErrorCause()const;				
+			MmeErrorCause getMmeErrorCause()const;			
 			
 			/****************************************
 			* setS1apCause
@@ -715,7 +709,7 @@ namespace mme
 			* getS1apCause
 			*    get s1apCause from MmeProcedureCtxt
 			****************************************/
-			const S1apCause& getS1apCause()const;				
+			const S1apCause& getS1apCause()const;			
 			
 			/****************************************
 			* setStateGuardTimerCtxt
@@ -727,7 +721,7 @@ namespace mme
 			* getStateGuardTimerCtxt
 			*    get stateGuardTimerCtxt from MmeProcedureCtxt
 			****************************************/
-			MmeUeTimerContext* getStateGuardTimerCtxt()const;				
+			MmeUeTimerContext* getStateGuardTimerCtxt()const;			
 			
 			/****************************************
 			* setAuthRespStatus
@@ -739,7 +733,7 @@ namespace mme
 			* getAuthRespStatus
 			*    get authRespStatus from MmeProcedureCtxt
 			****************************************/
-			int getAuthRespStatus()const;				
+			int getAuthRespStatus()const;			
 			
 			/****************************************
 			* setAuts
@@ -751,7 +745,7 @@ namespace mme
 			* getAuts
 			*    get auts from MmeProcedureCtxt
 			****************************************/
-			const Auts& getAuts()const;				
+			const Auts& getAuts()const;			
 			
 		
 		private:
@@ -802,7 +796,7 @@ namespace mme
 			* getEsmInfoTxRequired
 			*    get esmInfoTxRequired from MmeAttachProcedureCtxt
 			****************************************/
-			bool getEsmInfoTxRequired()const;				
+			bool getEsmInfoTxRequired()const;			
 			
 			/****************************************
 			* setAttachType
@@ -814,7 +808,7 @@ namespace mme
 			* getAttachType
 			*    get attachType from MmeAttachProcedureCtxt
 			****************************************/
-			AttachType getAttachType()const;				
+			AttachType getAttachType()const;			
 			
 			/****************************************
 			* setPcoOptions
@@ -826,7 +820,8 @@ namespace mme
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
-			const uint8_t* getPcoOptions()const;							
+			const uint8_t* getPcoOptions()const;
+
 			/****************************************
 			* getPcoOptionsLen
 			*    get pcoOptionsLen from MmeAttachProcedureCtxt
@@ -843,7 +838,7 @@ namespace mme
 			* getPti
 			*    get pti from MmeAttachProcedureCtxt
 			****************************************/
-			uint8_t getPti()const;				
+			uint8_t getPti()const;			
 			
 			/****************************************
 			* setRequestedApn
@@ -855,7 +850,7 @@ namespace mme
 			* getRequestedApn
 			*    get requestedApn from MmeAttachProcedureCtxt
 			****************************************/
-			const Apn_name& getRequestedApn()const;				
+			const Apn_name& getRequestedApn()const;			
 			
 		
 		private:
@@ -905,7 +900,7 @@ namespace mme
 			* getDetachType
 			*    get detachType from MmeDetachProcedureCtxt
 			****************************************/
-			DetachType getDetachType()const;				
+			DetachType getDetachType()const;			
 			
 			/****************************************
 			* setCancellationType
@@ -917,7 +912,7 @@ namespace mme
 			* getCancellationType
 			*    get cancellationType from MmeDetachProcedureCtxt
 			****************************************/
-			CancellationType getCancellationType()const;				
+			CancellationType getCancellationType()const;			
 			
 			/****************************************
 			* setNasDetachType
@@ -929,7 +924,7 @@ namespace mme
 			* getNasDetachType
 			*    get nasDetachType from MmeDetachProcedureCtxt
 			****************************************/
-			uint32_t getNasDetachType()const;				
+			uint32_t getNasDetachType()const;			
 			
 			/****************************************
 			* setDetachCause
@@ -941,7 +936,7 @@ namespace mme
 			* getDetachCause
 			*    get detachCause from MmeDetachProcedureCtxt
 			****************************************/
-			uint32_t getDetachCause()const;				
+			uint32_t getDetachCause()const;			
 			
 		
 		private:
@@ -986,7 +981,7 @@ namespace mme
 			* getS1ReleaseTrigger
 			*    get s1ReleaseTrigger from MmeS1RelProcedureCtxt
 			****************************************/
-			S1ReleaseTrigger getS1ReleaseTrigger()const;				
+			S1ReleaseTrigger getS1ReleaseTrigger()const;			
 			
 		
 		private:
@@ -1022,7 +1017,7 @@ namespace mme
 			* getDdnSeqNo
 			*    get ddnSeqNo from MmeSvcReqProcedureCtxt
 			****************************************/
-			uint32_t getDdnSeqNo()const;				
+			uint32_t getDdnSeqNo()const;			
 			
 			/****************************************
 			* setPagingTrigger
@@ -1034,7 +1029,7 @@ namespace mme
 			* getPagingTrigger
 			*    get pagingTrigger from MmeSvcReqProcedureCtxt
 			****************************************/
-			PagingTrigger getPagingTrigger()const;				
+			PagingTrigger getPagingTrigger()const;			
 			
 			/****************************************
 			* setEpsBearerId
@@ -1046,7 +1041,7 @@ namespace mme
 			* getEpsBearerId
 			*    get epsBearerId from MmeSvcReqProcedureCtxt
 			****************************************/
-			uint8_t getEpsBearerId()const;				
+			uint8_t getEpsBearerId()const;			
 			
 			/****************************************
 			* setArp
@@ -1058,7 +1053,7 @@ namespace mme
 			* getArp
 			*    get arp from MmeSvcReqProcedureCtxt
 			****************************************/
-			const Arp& getArp()const;				
+			const Arp& getArp()const;			
 			
 		
 		private:
@@ -1103,7 +1098,7 @@ namespace mme
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from MmeTauProcedureCtxt
 			****************************************/
-			uint32_t getS1apEnbUeId()const;				
+			uint32_t getS1apEnbUeId()const;			
 			
 			/****************************************
 			* setTai
@@ -1115,7 +1110,7 @@ namespace mme
 			* getTai
 			*    get tai from MmeTauProcedureCtxt
 			****************************************/
-			const Tai& getTai()const;				
+			const Tai& getTai()const;			
 			
 			/****************************************
 			* setEUtranCgi
@@ -1127,7 +1122,7 @@ namespace mme
 			* getEUtranCgi
 			*    get eUtranCgi from MmeTauProcedureCtxt
 			****************************************/
-			const Cgi& getEUtranCgi()const;				
+			const Cgi& getEUtranCgi()const;			
 			
 			/****************************************
 			* setEnbFd
@@ -1139,7 +1134,7 @@ namespace mme
 			* getEnbFd
 			*    get enbFd from MmeTauProcedureCtxt
 			****************************************/
-			uint32_t getEnbFd()const;				
+			uint32_t getEnbFd()const;			
 			
 		
 		private:
@@ -1184,7 +1179,7 @@ namespace mme
 			* getHoType
 			*    get hoType from S1HandoverProcedureContext
 			****************************************/
-			HoType getHoType()const;				
+			HoType getHoType()const;			
 			
 			/****************************************
 			* setTargetEnbContextId
@@ -1196,7 +1191,7 @@ namespace mme
 			* getTargetEnbContextId
 			*    get targetEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			uint32_t getTargetEnbContextId()const;				
+			uint32_t getTargetEnbContextId()const;			
 			
 			/****************************************
 			* setTargetS1apEnbUeId
@@ -1208,7 +1203,7 @@ namespace mme
 			* getTargetS1apEnbUeId
 			*    get targetS1apEnbUeId from S1HandoverProcedureContext
 			****************************************/
-			uint32_t getTargetS1apEnbUeId()const;				
+			uint32_t getTargetS1apEnbUeId()const;			
 			
 			/****************************************
 			* setTargetTai
@@ -1220,7 +1215,7 @@ namespace mme
 			* getTargetTai
 			*    get targetTai from S1HandoverProcedureContext
 			****************************************/
-			const Tai& getTargetTai()const;				
+			const Tai& getTargetTai()const;			
 			
 			/****************************************
 			* setTargetCgi
@@ -1232,7 +1227,7 @@ namespace mme
 			* getTargetCgi
 			*    get targetCgi from S1HandoverProcedureContext
 			****************************************/
-			const Cgi& getTargetCgi()const;				
+			const Cgi& getTargetCgi()const;			
 			
 			/****************************************
 			* setSrcToTargetTransContainer
@@ -1244,7 +1239,7 @@ namespace mme
 			* getSrcToTargetTransContainer
 			*    get srcToTargetTransContainer from S1HandoverProcedureContext
 			****************************************/
-			const src_target_transparent_container& getSrcToTargetTransContainer()const;				
+			const src_target_transparent_container& getSrcToTargetTransContainer()const;			
 			
 			/****************************************
 			* setTargetToSrcTransContainer
@@ -1256,7 +1251,7 @@ namespace mme
 			* getTargetToSrcTransContainer
 			*    get targetToSrcTransContainer from S1HandoverProcedureContext
 			****************************************/
-			const src_target_transparent_container& getTargetToSrcTransContainer()const;				
+			const src_target_transparent_container& getTargetToSrcTransContainer()const;			
 			
 			/****************************************
 			* setErabAdmittedItem
@@ -1268,7 +1263,7 @@ namespace mme
 			* getErabAdmittedItem
 			*    get erabAdmittedItem from S1HandoverProcedureContext
 			****************************************/
-			const ERAB_admitted& getErabAdmittedItem()const;				
+			const ERAB_admitted& getErabAdmittedItem()const;			
 			
 			/****************************************
 			* setS1HoCause
@@ -1280,7 +1275,7 @@ namespace mme
 			* getS1HoCause
 			*    get s1HoCause from S1HandoverProcedureContext
 			****************************************/
-			const S1apCause& getS1HoCause()const;				
+			const S1apCause& getS1HoCause()const;			
 			
 			/****************************************
 			* setSrcEnbContextId
@@ -1292,7 +1287,7 @@ namespace mme
 			* getSrcEnbContextId
 			*    get srcEnbContextId from S1HandoverProcedureContext
 			****************************************/
-			uint32_t getSrcEnbContextId()const;				
+			uint32_t getSrcEnbContextId()const;			
 			
 			/****************************************
 			* setSrcS1apEnbUeId
@@ -1304,7 +1299,7 @@ namespace mme
 			* getSrcS1apEnbUeId
 			*    get srcS1apEnbUeId from S1HandoverProcedureContext
 			****************************************/
-			uint32_t getSrcS1apEnbUeId()const;				
+			uint32_t getSrcS1apEnbUeId()const;			
 			
 		
 		private:
@@ -1370,7 +1365,8 @@ namespace mme
 			* getErabToBeModifiedList
 			*    get erabToBeModifiedList from MmeErabModIndProcedureCtxt
 			****************************************/
-			const erab_to_be_modified_item* getErabToBeModifiedList()const;							
+			const erab_to_be_modified_item* getErabToBeModifiedList()const;
+
 			/****************************************
 			* getErabToBeModifiedListLen
 			*    get erabToBeModifiedListLen from MmeErabModIndProcedureCtxt
@@ -1387,7 +1383,8 @@ namespace mme
 			* getErabModifiedList
 			*    get erabModifiedList from MmeErabModIndProcedureCtxt
 			****************************************/
-			const uint8_t* getErabModifiedList()const;							
+			const uint8_t* getErabModifiedList()const;
+
 			/****************************************
 			* getErabModifiedListLen
 			*    get erabModifiedListLen from MmeErabModIndProcedureCtxt

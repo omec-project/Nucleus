@@ -21,6 +21,7 @@ const MmeErrorCause secModeRespFailure_c = 0x03;
 const MmeErrorCause s6AiaFailure_c = 0x04;
 const MmeErrorCause hoRequestAckFailure_c = 0x05;
 const MmeErrorCause s11MBRespFailure_c = 0x06;
+const MmeErrorCause abortDueToAttachCollision_c = 0x07;
 }
 
 #endif /* INCLUDE_MME_APP_UTILS_MMECAUSETYPES_H_ */
