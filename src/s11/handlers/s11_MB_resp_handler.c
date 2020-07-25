@@ -40,7 +40,19 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	//TODO : check cause foor the result verification
 	
 	/*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
-	mbr_info.ue_idx = hdr->teid;
+	if(hdr->teid)
+    {
+        mbr_info.ue_idx = hdr->teid;
+    }
+    else
+    {
+        log_msg(LOG_WARNING, "Unknown Teid in MBR.\n");
+        mbr_info.ue_idx = GtpV2StackFindUeIdx(gtpStack_gp, 
+                                          hdr->sequenceNumber);
+    }
+
+    GtpV2StackDelSeqKey(gtpStack_gp, hdr->sequenceNumber);
+
 	mbr_info.msg_type = modify_bearer_response;
 
 	ModifyBearerResponseMsgData msgData;

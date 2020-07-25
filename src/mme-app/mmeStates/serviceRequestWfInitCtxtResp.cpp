@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfInitCtxtResp::ServiceRequestWfInitCtxtResp():State(service_request_wf_init_ctxt_resp)
+ServiceRequestWfInitCtxtResp::ServiceRequestWfInitCtxtResp():State(service_request_wf_init_ctxt_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

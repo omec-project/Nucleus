@@ -106,6 +106,6 @@ namespace SM
 			return actions_r.executeActions(cb, this);
 		}
 		else
-			return ActStatus::ABORT;
+			return ActStatus::HALT;
 	}
 }
