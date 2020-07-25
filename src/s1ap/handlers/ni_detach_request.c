@@ -117,19 +117,22 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 
 	datalen = g_acptReqInfo->nasMsgSize + 1; 
 
-	buffer_copy(&g_acpt_buffer, &datalen,
-						sizeof(datalen));
+	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
 
 	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+
+	/* Copy length to s1ap length field */
+	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
+	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 
 	/* TODO: temp fix */
 	//g_ics_buffer.buf[1] = 0x09;
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
 
 	log_msg(LOG_INFO, "NI Detach Request sent to UE.");
-    free(s1apPDU.value.data);
+    	free(s1apPDU.value.data);
 
 	return SUCCESS;
 }

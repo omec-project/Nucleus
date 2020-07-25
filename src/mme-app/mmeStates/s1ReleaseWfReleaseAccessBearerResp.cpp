@@ -22,7 +22,6 @@
 
 #include "mmeStates/s1ReleaseWfReleaseAccessBearerResp.h"	
 #include "mmeStates/s1ReleaseWfUeCtxtReleaseComp.h"
-#include "mmeStates/attachWfImsiValidateAction.h"
 
 using namespace mme;
 using namespace SM;
@@ -67,8 +66,10 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
         }
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::validate_imsi_in_ue_context);
-                actionTable.setNextState(AttachWfImsiValidateAction::Instance());
+                actionTable.addAction(&ActionHandlers::handle_attach_request);
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                actionTable.addAction(&ActionHandlers::default_attach_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
         }
         {

@@ -42,7 +42,7 @@ public:
 	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r);
 
-	static void deleteUEContext(uint32_t cbIndex);
+	static void deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag=true);
 	static void deleteSessionContext(SM::ControlBlock& cb_r);
 
 	static S1HandoverProcedureContext* allocateHoContext(SM::ControlBlock& cb_r);

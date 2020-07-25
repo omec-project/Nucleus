@@ -153,7 +153,7 @@ typedef long     s1apCauseRadioNetwork_t;
 	
 typedef enum emmCause {
     emmCause_ue_id_not_derived_by_network   = 9,
-    emmCause_network_failure = 11
+    emmCause_network_failure = 17
 } e_emmCause;
 
 typedef enum nasDetachType {
