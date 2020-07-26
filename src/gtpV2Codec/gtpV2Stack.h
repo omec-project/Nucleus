@@ -58,10 +58,6 @@ public:
                  void* data_p = NULL);
     void display_v(Uint8 msgType, Debug& stream, void* data_p = NULL);
 
-    int addSeqKey(uint32_t seq, uint32_t ue_idx);
-    int delSeqKey(uint32_t seq);
-    int findUeIdxWithSeq(uint32_t seq);
-
 	std::map<uint32_t,uint32_t> seq_ue_idx_map;
 	std::mutex seq_ueidx_map_mutex;
 };

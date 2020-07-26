@@ -11,10 +11,6 @@ extern "C" {
 	typedef struct MsgBuffer MsgBuffer;
 
 	GtpV2Stack* createGtpV2Stack();
-    int GtpV2StackAddSeqNumKey(GtpV2Stack* stack_p, 
-                               uint32_t key, uint32_t val);
-    int GtpV2StackFindUeIdx(GtpV2Stack* stack_p, uint32_t key);
-    int GtpV2StackDelSeqKey(GtpV2Stack* stack_p, uint32_t key);
 	MsgBuffer* createMsgBuffer(uint16_t size);
 
 	void* MsgBuffer_getDataPointer(MsgBuffer* buf_p);

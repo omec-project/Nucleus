@@ -45,48 +45,6 @@ GtpV2Stack::~GtpV2Stack ()
     // TODO Auto-generated destructor stub
 }
 
-/******************************************
- * Add Seq as key and ue_idx as value to map
- ******************************************/
-int GtpV2Stack::addSeqKey( uint32_t key, uint32_t ue_index )
-{
-    std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-
-    int rc = 1;
-
-    auto itr = seq_ue_idx_map.insert(std::pair<uint32_t, uint32_t>( key, ue_index ));
-    if (itr.second == false)
-    {
-        rc = -1;
-    }
-    return rc;
-}
-
-/******************************************
- * Delete seq number key
- ******************************************/
-int GtpV2Stack::delSeqKey( uint32_t key )
-{
-    std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-
-    return seq_ue_idx_map.erase( key );
-}
-
-/******************************************
- * Find Ue Idx with given Seq number
- ******************************************/ 
-int GtpV2Stack::findUeIdxWithSeq( uint32_t key )
-{
-    std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-
-    auto itr = seq_ue_idx_map.find( key );
-    if( itr != seq_ue_idx_map.end())
-    {
-        return itr->second;
-    }
-    return -1;
-}
-
 bool
 GtpV2Stack::encodeMessage (GtpV2MessageHeader & msgHeader, 
 			   MsgBuffer & buffer, void *data_p)
