@@ -19,6 +19,7 @@ extern "C"{
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
+#define REQ_ARGS 0x0000
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
 

@@ -18,6 +18,7 @@
 #include "gtpv2c_ie.h"
 #include "msgType.h"
 #include "s11_config.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
 
 
@@ -51,10 +52,8 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
-    sgw_ip.sin_family = AF_INET;
-    sgw_ip.sin_port = htons(g_s11_cfg.egtp_def_port);
-    sgw_ip.sin_addr = ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4;
-	memset(sgw_ip.sin_zero, '\0', sizeof(sgw_ip.sin_zero));
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DownlinkDataNotificationAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));

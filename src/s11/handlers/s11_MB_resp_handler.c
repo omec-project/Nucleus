@@ -14,13 +14,14 @@
 #include <pthread.h>
 
 #include "err_codes.h"
-#include "options.h"
+#include "s11_options.h"
 #include "ipc_api.h"
 #include "s11.h"
 #include "s11_config.h"
 #include "msgType.h"
 
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 /*Globals and externs*/
 extern int g_resp_fd;
 extern struct GtpV2Stack* gtpStack_gp;
@@ -47,11 +48,10 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
     else
     {
         log_msg(LOG_WARNING, "Unknown Teid in MBR.\n");
-        mbr_info.ue_idx = GtpV2StackFindUeIdx(gtpStack_gp, 
-                                          hdr->sequenceNumber);
+        mbr_info.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
     }
 
-    GtpV2StackDelSeqKey(gtpStack_gp, hdr->sequenceNumber);
+    delete_gtp_transaction(hdr->sequenceNumber);
 
 	mbr_info.msg_type = modify_bearer_response;
 

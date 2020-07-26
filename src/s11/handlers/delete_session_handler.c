@@ -20,7 +20,9 @@
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
 #include "msgType.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 /************************************************************************
 Current file : Stage 1 handler.
 ATTACH stages :
@@ -56,10 +58,8 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ds_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
-    sgw_ip.sin_family = AF_INET;
-    sgw_ip.sin_port = htons(g_s11_cfg.egtp_def_port);
-    sgw_ip.sin_addr = ds_msg->s11_sgw_c_fteid.ip.ipv4;
-	memset(sgw_ip.sin_zero, '\0', sizeof(sgw_ip.sin_zero));
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    ds_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DeleteSessionRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteSessionRequestMsgData));
@@ -70,8 +70,7 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	msgData.linkedEpsBearerIdIePresent = true;
 	msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
 
-    GtpV2StackAddSeqNumKey(gtpStack_gp, 
-                           gtpHeader.sequenceNumber, ds_msg->ue_idx);
+    add_gtp_transaction(gtpHeader.sequenceNumber, ds_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
 	g_s11_sequence++;
 

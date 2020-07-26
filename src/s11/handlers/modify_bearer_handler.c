@@ -20,7 +20,9 @@
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /************************************************************************
 Current file : Stage 7 handler. To listen MB from mme-app and fwd to CP
@@ -61,10 +63,8 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = mb_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
-    sgw_ip.sin_family = AF_INET;
-    sgw_ip.sin_port = htons(g_s11_cfg.egtp_def_port);
-    sgw_ip.sin_addr = mb_msg->s11_sgw_c_fteid.ip.ipv4;
-	memset(sgw_ip.sin_zero, '\0', sizeof(sgw_ip.sin_zero));
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    mb_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	g_s11_sequence++;
 
@@ -129,8 +129,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.teidGreKey = mb_msg->s1u_enb_fteid.header.teid_gre;
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->s1u_enb_fteid.ip.ipv4.s_addr;
 
-    GtpV2StackAddSeqNumKey(gtpStack_gp, 
-                           gtpHeader.sequenceNumber, mb_msg->ue_idx);
+    add_gtp_transaction(gtpHeader.sequenceNumber, mb_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
 	sendto(g_s11_fd,
 			MsgBuffer_getDataPointer(mbReqMsgBuf_p),
