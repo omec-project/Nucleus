@@ -625,6 +625,22 @@ typedef struct gtp_incoming_msg_data_t {
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 
+typedef union gtp_outgoing_msgs_t {
+    msg_type_t msg_type;
+    int ue_idx;
+    struct CS_Q_msg  csr_req_msg; 
+}gtp_outgoing_msgs_t;
+
+typedef struct gtp_outgoing_msg_data_t {
+    uint32_t destInstAddr;
+    uint32_t srcInstAddr;
+    gtp_outgoing_msgs_t msg_data;
+}gtp_outgoing_msg_data_t;
+
+#define GTP_OUTGOING_MSG_BUF_SIZE sizeof(gtp_outgoing_msg_data_t)
+
+
+
 /*************************
  * Outgoing S6 Messages
  *************************/

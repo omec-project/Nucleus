@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
@@ -18,7 +17,6 @@
 #include "Criticality.h"
 #include "S1AP-PDU.h"
 #include "InitiatingMessage.h"
-
 
 #define AUTH_REQ_NO_OF_IES 3
 #define SEC_MODE_NO_OF_IES 3

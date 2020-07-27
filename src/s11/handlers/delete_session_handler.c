@@ -34,8 +34,6 @@ extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 extern volatile uint32_t g_s11_sequence;
 
-struct thread_pool *g_tpool;
-
 extern struct GtpV2Stack* gtpStack_gp;
 extern volatile uint32_t g_s11_sequence;
 

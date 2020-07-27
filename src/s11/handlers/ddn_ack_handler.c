@@ -32,7 +32,6 @@ extern volatile uint32_t g_s11_sequence;
 
 
 extern struct GtpV2Stack* gtpStack_gp;
-struct thread_pool *g_tpool;
 
 struct MsgBuffer* ddnAckMsgBuf_p = NULL;
 /****Global and externs end***/

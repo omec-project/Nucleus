@@ -9,7 +9,12 @@
 
 #ifndef __UE_S11_H_
 #define __UE_S11_H_
-
+#include <string>
+#include <list>
+#include <iostream>
+#ifdef __cplusplus
+extern "C"{
+#endif
 #include <stdint.h>
 #include "log.h"
 #include "s11_structs.h"
@@ -69,5 +74,14 @@ void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len);
 
 int parse_gtpv2c_IEs(char *msg, int len, struct s11_proto_IE *proto_ies);
+
+const size_t fifoQSize_c = 1000;
+const uint16_t S11IpcInterfaceCompId = 1;
+const uint16_t TimeoutManagerCompId = 2;
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*S11_H*/

@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 #include "log.h"
 
-s11_config_t g_s11_cfg;
+extern s11_config_t g_s11_cfg;
 
 void
 init_parser(char *path)
@@ -24,7 +24,7 @@ init_parser(char *path)
 }
 
 int
-parse_s11_conf()
+parse_s11_conf(s11_config_t *config)
 {
 	/*s1ap information*/
 	g_s11_cfg.local_egtp_ip = get_ip_scalar("s11.egtp_local_addr");

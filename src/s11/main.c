@@ -206,7 +206,6 @@ s11_reader()
 
 			insert_job(g_tpool, handle_s11_message, tmp_buf_p);
 		}
-
 	}
 }
 

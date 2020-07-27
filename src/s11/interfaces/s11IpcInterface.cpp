@@ -4,17 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <interfaces/mmeIpcInterface.h>
+#include <interfaces/s11IpcInterface.h>
 #include <blockingCircularFifo.h>
 #include <eventMessage.h>
 #include <ipcTypes.h>
 #include <tipcSocket.h>
 #include <tipcTypes.h>
 #include <msgBuffer.h>
-#include <mme_app.h>
-#include <msgHandlers/gtpMsgHandler.h>
-#include <msgHandlers/s1MsgHandler.h>
-#include <msgHandlers/s6MsgHandler.h>
+#include <s11.h>
+#include <msgHandlers/s11MsgHandler.h>
 
 extern "C" {
 	#include "log.h"
@@ -24,30 +22,30 @@ using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
 
-extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
+extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> s11IpcEgressFifo_g;
 
-MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
+s11IpcInterface::s11IpcInterface():sender_mp(), reader_mp()
 {
-     compDb.registerComponent(MmeIpcInterfaceCompId, this);
+     compDb.registerComponent(S11IpcInterfaceCompId, this);
 }
 
-MmeIpcInterface::~MmeIpcInterface()
+s11IpcInterface::~s11IpcInterface()
 {
 	teardown();
 }
 
-bool MmeIpcInterface::setup()
+bool s11IpcInterface::setup()
 {
 
 	// INIT socket for receiving ipc message
 	TipcSocket* receiver_sock = new TipcSocket();
 
 	IpcAddress myAddress;
-	myAddress.u32 = mmeAppInstanceNum_c;
+	myAddress.u32 = s11AppInstanceNum_c;
 
 	if (receiver_sock->bindTipcSocket(myAddress) == false)
 	{
-		log_msg(LOG_ERROR, "MmeIpcInterface Setup Failed!!!\n");
+		log_msg(LOG_ERROR, "s11AppInstanceNum_c Setup Failed!!!\n");
 
 		delete receiver_sock;
 
@@ -63,7 +61,7 @@ bool MmeIpcInterface::setup()
 	return true;
 }
 
-void MmeIpcInterface::teardown()
+void s11IpcInterface::teardown()
 {
 	if (sender_mp != NULL)
 		delete sender_mp;
@@ -72,7 +70,7 @@ void MmeIpcInterface::teardown()
 		delete reader_mp;
 }
 
-cmn::ipc::IpcChannel* MmeIpcInterface::sender()
+cmn::ipc::IpcChannel* s11IpcInterface::sender()
 {
 	if (sender_mp != NULL)
 		return sender_mp;
@@ -80,7 +78,7 @@ cmn::ipc::IpcChannel* MmeIpcInterface::sender()
 		return NULL;
 }
 
-cmn::ipc::IpcChannel* MmeIpcInterface::reader()
+cmn::ipc::IpcChannel* s11IpcInterface::reader()
 {
 	if (reader_mp != NULL)
 		return reader_mp;
@@ -88,7 +86,7 @@ cmn::ipc::IpcChannel* MmeIpcInterface::reader()
 		return NULL;
 }
 
-void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
+void s11IpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 {
 	uint32_t srcAddr, destAddr;
 
@@ -97,26 +95,20 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 	msgBuf->readUint32(destAddr);
 	msgBuf->readUint32(srcAddr);
 
-	log_msg(LOG_INFO, "IPC Message received from src %u to dest %u\n", srcAddr, destAddr);
+	log_msg(LOG_INFO, "IPC Message of size %d received from src %u to dest %u\n", msgBuf->getLength(), srcAddr, destAddr);
 
 	switch (srcAddr)
 
 	{
-	case TipcInstanceTypes::s1apAppInstanceNum_c:
-		S1MsgHandler::Instance()->handleS1Message_v(eMsg);
-		break;
-	case TipcInstanceTypes::s11AppInstanceNum_c:
-		GtpMsgHandler::Instance()->handleGtpMessage_v(eMsg);
-		break;
-	case TipcInstanceTypes::s6AppInstanceNum_c:
-		S6MsgHandler::Instance()->handleS6Message_v(eMsg);
+	case TipcInstanceTypes::mmeAppInstanceNum_c:
+		S11MsgHandler::Instance()->handleMmeMessage_v(eMsg);
 		break;
 	default:
 		log_msg(LOG_INFO, "IPC Message from unsupported instance\n");
 	}
 }
 
-bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr)
+bool s11IpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr)
 {
 	cmn::ipc::IpcMsgHeader msgHeader;
 	msgHeader.srcAddr.u32 = TipcInstanceTypes::mmeAppInstanceNum_c;
@@ -126,11 +118,11 @@ bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddre
 	        len + sizeof(cmn::ipc::IpcMsgHeader));
 	MsgBuffer *msgBuf = eMsg->getMsgBuffer();
 	msgBuf->writeUint32(msgHeader.destAddr.u32);
-    msgBuf->writeUint32(msgHeader.srcAddr.u32);
+        msgBuf->writeUint32(msgHeader.srcAddr.u32);
 	msgBuf->writeBytes((uint8_t*)buf, len);
 
 	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d\n", msgBuf->getLength());
 
-	return mmeIpcEgressFifo_g.push(eMsg);
+	return s11IpcEgressFifo_g.push(eMsg);
 }
 

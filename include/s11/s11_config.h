@@ -9,10 +9,16 @@
 #ifndef __S11_CONFIG_H_
 #define __S11_CONFIG_H_
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+
 #include <stdbool.h>
 
 typedef struct s11_config
 {
+    char  logging[16];
 	unsigned int sgw_ip;
 	unsigned int pgw_ip;
 	unsigned int egtp_def_port;
@@ -23,6 +29,16 @@ void
 init_parser(char *path);
 
 int
-parse_s11_conf();
+parse_s11_conf(s11_config_t *config); /* remove once we move to c++ container */
+
+class s11Config
+{
+    public:
+        static void s11_parse_config(s11_config_t *);
+        static void register_config_updates(void);
+};
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*__S11_CONFIG_H*/

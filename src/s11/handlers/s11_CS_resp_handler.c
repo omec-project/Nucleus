@@ -82,6 +82,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 		csr_info.msg_data.csr_Q_msg_m.pco_length = msgData.protocolConfigurationOptions.pcoValue.count; 
 		memcpy(&csr_info.msg_data.csr_Q_msg_m.pco_options[0], &msgData.protocolConfigurationOptions.pcoValue.values[0], msgData.protocolConfigurationOptions.pcoValue.count);
 	}
+#if 0
 	else
 	{
 		/* Temporary hardcoding so that UE gets min DNS address.*/
@@ -89,6 +90,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 		memcpy(&csr_info.msg_data.csr_Q_msg_m.pco_options[0], &pco_options[0], 27);
 		csr_info.msg_data.csr_Q_msg_m.pco_length = 27;
 	}
+#endif
 
 
 
