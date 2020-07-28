@@ -447,20 +447,6 @@ void DigitRegister15::convertFromBcdArray( const uint8_t* bcdArrayIn )
 		digitsArray[14] = (uint8_t)((bcdArrayIn[7]  & 0x0f) );
 	}
                 
-    int len = 15;
-    log_msg(LOG_DEBUG," digit array key\n");
-
-    for(unsigned int i=0; i<len; i++) {
-        log_msg(LOG_DEBUG,"%02x \n", digitsArray[i]);
-    }
-    log_msg(LOG_DEBUG,"\n");
-
-    len = 8;
-    log_msg(LOG_DEBUG,"imsi key\n");
-    for(unsigned int i=0; i<len; i++) {
-        log_msg(LOG_DEBUG,"%02x \n", bcdArrayIn[i]);
-    }
-    log_msg(LOG_DEBUG,"\n");
 	return;
 }
 
