@@ -70,9 +70,11 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 	rb_msg.ue_idx = ue_ctxt->getContextID();
 	memset(rb_msg.indication, 0 , S11_RB_INDICATION_FLAG_SIZE);
 	rb_msg.bearer_id = bearerCtxt->getBearerId();
-	memcpy(&(rb_msg.s11_sgw_c_fteid), &(sessionCtxt->getS11SgwCtrlFteid()),
-			sizeof(struct fteid));
-	memcpy(&(rb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid()),
+	memcpy(&(rb_msg.s11_sgw_c_fteid), 
+           &(sessionCtxt->getS11SgwCtrlFteid().fteid_m), 
+           sizeof(struct fteid));
+	memcpy(&(rb_msg.s1u_enb_fteid), 
+           &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
 			sizeof(struct fteid));
 			
 	cmn::ipc::IpcAddress destAddr;
