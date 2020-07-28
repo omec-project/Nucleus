@@ -176,7 +176,6 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			{
 				log_msg(LOG_INFO, "IMSI attach received.\n");
 
-                /*
 				uint8_t imsi[BINARY_IMSI_LEN] = {0};
                 memcpy( imsi, ue_info.IMSI, BINARY_IMSI_LEN );
 
@@ -191,8 +190,9 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				{
                     log_msg(LOG_DEBUG, "existing cb for IMSI.\n");
 					cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
-				}*/
-				if (cb == NULL)
+				}
+				
+                if (cb == NULL)
 				{
                     log_msg(LOG_DEBUG, "create new cb for IMSI.\n");
 					cb = SubsDataGroupManager::Instance()->allocateCB();
