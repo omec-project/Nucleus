@@ -57,9 +57,6 @@ public:
     bool decodeMessage(GtpV2MessageHeader& msgHeader, MsgBuffer& buffer,
                  void* data_p = NULL);
     void display_v(Uint8 msgType, Debug& stream, void* data_p = NULL);
-
-	std::map<uint32_t,uint32_t> seq_ue_idx_map;
-	std::mutex seq_ueidx_map_mutex;
 };
 
 #endif /* GTPV2STACK_H_ */
