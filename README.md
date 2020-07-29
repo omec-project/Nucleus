@@ -28,7 +28,7 @@ about algorithms and count.
 Nucleus is a grounds up implementation of the Mobility management Entity (MME). Its design is performance optimized for high speed mobility events over the S1-MME interface, while maintaining state coherent high transaction rate interactions over the S6a interface to the HSS and the S11 interface to the Serving Gateway Control (SGWC). The design allows maximum utilization of the transaction rate allowed by the S1-MME/Non-Access Stratum (NAS) messages over SCTP, S6a DIAMETER Attribute Value Pairs (AVPs) over TCP and S11 GTPV2C messages over UDP protocols.
 
 ## Build and Installation Procedure
-### Update config 
+### Update config
 Update following config files
 
     {install_path}/Nucleus/src/mme-app/conf/mme.json
@@ -37,22 +37,22 @@ Update following config files
     {install_path}/Nucleus/src/s6a/conf/*.json
     update the Diameter Configuration File:
         {install_path}/Nucleus/src/s6a/conf/s6a_fd.conf
-       
+
 - the following values shall be defined:
-   - Identity:  
+   - Identity:
       - the diameter identity.
       - default value: mme.localdomain
    - Realm:
           - the diameter realm (everything past the first period of Identity)
           - default value: localdomain
-          
-  - Refer free diameter  [config link](http://www.freediameter.net/trac/wiki/Configuration) 
+
+  - Refer free diameter  [config link](http://www.freediameter.net/trac/wiki/Configuration)
 
 ### Build open mme components as follows:
     cd {install_path}/Nucleus
     make clean; make; make install
 
-### Generate certificates   
+### Generate certificates
 The "Diameter Identity" is a fully qualified domain name that is used to access the the Diameter peer. The "Diameter Host" is everything up to the first period of the "Diameter Identity". The  "Diameter Realm" is everything after the first period of the "Diameter Identity".
 
 Execute the following command, using the "Identity" configured in        {install_path}/Nucleus/src/s6a/conf/s6a_fd.conf
@@ -86,9 +86,9 @@ Before starting Nucleus applications respective parameters should be  configured
   egtp_addr             | Unused | MME's s11 interface IP address |
   sctp_port             | Unused | MME's sctp(s1ap) port number. |
   name                  | Unused | MME's name to use in s1 setup with eNB |
-  egtp_default_hostname | Optional| | 
+  egtp_default_hostname | Optional| |
   MCC, MNC              | Mandatory | MCC, MNC for the MME|
-  
+
 
 #### "s1ap" -eNB information. Relevant for s1ap-app.
 Config Parameter Name | Reserved/Unused/Mandatory | Comments |
@@ -97,7 +97,7 @@ s1ap_local_addr | Mandatory | MME's s1ap interface source IP address |
 sctp_port       | Mandatory | MME's s1ap interface source port |
 
 
-#### "s11" - SGW information for s11 communication. Relevant for s11-app  
+#### "s11" - SGW information for s11 communication. Relevant for s11-app
 Config Parameter Name | Reserved/Unused/Mandatory | Comments |
 ----------------------|---------------------------|----------|
 egtp_local_addr | Mandatory | MME's source s11 interface IP address. |
