@@ -208,7 +208,7 @@ s1ap_service_reject_processing(struct commonRej_info *g_mmeS1apInfo)
 	buffer_copy(&g_buffer, &g_mmeS1apInfo->nasMsgBuf[0], g_mmeS1apInfo->nasMsgSize);
 
     buffer_copy(&g_buffer, &g_value_buffer.pos,
-                        sizeof(g_value_buffer.pos));
+                        sizeof(uint8_t));
 
     buffer_copy(&g_buffer, &g_value_buffer,
                         g_value_buffer.pos);
@@ -336,7 +336,7 @@ s1ap_attach_reject_processing(struct commonRej_info *g_attachReqRejInfo)
 	buffer_copy(&g_value_buffer, &g_attachReqRejInfo->nasMsgBuf[0], g_attachReqRejInfo->nasMsgSize);
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
-						sizeof(g_value_buffer.pos));
+						sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_value_buffer,
 						g_value_buffer.pos);

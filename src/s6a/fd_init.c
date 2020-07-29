@@ -253,13 +253,13 @@ s6a_fd_objs_init()
 					"Max-Requested-Bandwidth-DL",
 					g_fd_dict_objs.max_req_bandwidth_DL);
 	
-	/*FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
+	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
                                         "Extended-Max-Requested-BW-UL",
                                         g_fd_dict_objs.extended_max_req_bandwidth_UL);
 
         FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
                                         "Extended-Max-Requested-BW-DL",
-                                        g_fd_dict_objs.extended_max_req_bandwidth_DL);*/
+                                        g_fd_dict_objs.extended_max_req_bandwidth_DL);
 
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
                                         "Feature-List-ID",
@@ -471,13 +471,13 @@ s6a_fd_data_init()
 				&g_fd_dict_data.max_req_bandwidth_DL),
 				return S6A_FD_ERROR);
 
-/*	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.extended_max_req_bandwidth_UL,
+	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.extended_max_req_bandwidth_UL,
                                 &g_fd_dict_data.extended_max_req_bandwidth_UL),
                                 return S6A_FD_ERROR);
 
         CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.extended_max_req_bandwidth_DL,
                                 &g_fd_dict_data.extended_max_req_bandwidth_DL),
-                                return S6A_FD_ERROR); */
+                                return S6A_FD_ERROR); 
 
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.feature_list_id,
                                 &g_fd_dict_data.feature_list_id),

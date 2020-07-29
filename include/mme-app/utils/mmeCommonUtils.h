@@ -49,7 +49,8 @@ namespace mme
         	static uint8_t select_preferred_sec_algo(uint8_t &val);
 
 		static bool isEmmInfoRequired(SM::ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt);
-
+        
+        	static bool isUeNRCapable(UEContext& ueCtxt);
 
 	private:
 		MmeCommonUtils();

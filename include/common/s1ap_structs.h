@@ -43,7 +43,7 @@
 
 typedef struct Buffer {
 	unsigned char buf[BUFFER_SIZE];
-	unsigned char pos;
+	size_t pos;
 }Buffer;
 
 
@@ -360,11 +360,29 @@ typedef struct eRAB_elements {
 }eRAB_elements;
 /**eRAB structures end**/
 
+static const uint64_t UEAMBR_MAX = 10000000000;
+static const uint64_t EXT_UEAMBR_MIN = 10000000001;
+
+typedef struct extended_ue_ambr {
+	uint64_t ext_ue_ambr_DL;
+	uint64_t ext_ue_ambr_UL;
+} extended_ue_ambr;
+
 /* TODO : Change type */
 typedef struct ue_aggregate_maximum_bitrate {
 	uint32_t uEaggregateMaxBitRateDL;
 	uint32_t uEaggregateMaxBitRateUL;
+    	extended_ue_ambr ext_ue_ambr;
 } ue_aggregate_maximum_bitrate;
+
+enum nrRestrictedInEPS {
+	nRrestrictedinEPSasSecondaryRAT = 0,
+};
+
+typedef struct ho_restriction_list {
+	struct PLMN serving_plmn;
+	enum nrRestrictedInEPS nr_restricted_in_eps;
+} ho_restriction_list;
 
 typedef struct allocation_retention_prio {
 	uint8_t prioLevel :4;
@@ -447,13 +465,16 @@ enum protocolie_id {
 	id_eNB_UE_S1AP_ID = 8,
 	id_ERABToBeSetupListCtxtSUReq = 24,
 	id_NAS_PDU = 26,
+    	id_HandoverRestrictionList = 41,
 	id_ERABToBeSetupItemCtxtSUReq = 52,
 	id_uEaggregatedMaximumBitrate = 66,
 	id_SecurityKey = 73,
-    id_ueAssociatedLogicalS1Conn = 91,
-    id_ResetType = 92, 
+    	id_ueAssociatedLogicalS1Conn = 91,
+    	id_ResetType = 92, 
 	id_UE_S1AP_IDs = 99,
 	id_UESecurityCapabilities = 107,
+    	id_extended_uEaggregateMaximumBitRateDL = 259,
+	id_extended_uEaggregateMaximumBitRateUL = 260
 };
 
 enum criticality{
@@ -466,7 +487,7 @@ enum criticality{
 enum procedure_code {
 	id_InitialContextSetup = 9,
 	id_downlinkNASTransport = 11,
-    id_reset           = 14,
+    	id_reset           = 14,
 	id_errorIndication = 15,
 	id_UEContexRelease = 23,
 };

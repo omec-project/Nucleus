@@ -99,6 +99,22 @@
 							{
 								"Name": "pdnAddr",
 								"Type": "Paa"
+							},
+							{
+								"Name": "ueAddSecCapab",
+								"Type": "ue_add_sec_capabilities"
+							},
+							{
+								"Name": "ueAddSecCapabPres",
+								"Type": "bool"
+							},
+							{
+                                                                "Name": "hssFeatList2",
+                                                                "Type": "supported_features"
+                                                        },
+							{
+								"Name": "dcnrCapable",
+								"Type": "bool"
 							}
 						]
 					},
@@ -159,7 +175,11 @@
 							{
 								"Name": "pti",
 								"Type": "uint8_t"
-							}
+							},
+							{
+                                                                "Name": "apnAmbr",
+                                                                "Type": "Ambr"
+                                                        }
 						]
 					},
 					{

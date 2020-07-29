@@ -131,7 +131,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 			sizeof(s1apPDU.criticality));
 
 	buffer_copy(&g_sec_buffer, &g_sec_value_buffer.pos,
-			sizeof(g_sec_value_buffer.pos));
+			sizeof(uint8_t));
 
 	buffer_copy(&g_sec_buffer, &g_sec_value_buffer,
 			g_sec_value_buffer.pos);

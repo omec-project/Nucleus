@@ -68,6 +68,8 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	}
 
 	struct tauResp_Q_msg tau_resp;
+	memset(&tau_resp, 0, sizeof(struct tauResp_Q_msg));
+
 	if( prcdCtxt_p->getCtxtType() == s1Handover_c)
 	{
 		S1HandoverProcedureContext *s1HoPrCtxt = static_cast<S1HandoverProcedureContext*>(prcdCtxt_p);
@@ -84,7 +86,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 		memcpy(&tau_resp.tai, &(tauPrCtxt->getTai().tai_m), sizeof(struct TAI));
 		ue_ctxt->setUtranCgi(tauPrCtxt->getEUtranCgi());
 	}
-
+       
 	tau_resp.msg_type = tau_response;
 	tau_resp.ue_idx = ue_ctxt->getContextID();
 	tau_resp.status = 0;
@@ -118,7 +120,18 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
 	nas.elements[3].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
-
+    
+    	// If UE supports DCNR
+    	if (ue_ctxt->getUeNetCapab().ue_net_capab_m.u.bits.dcnr)
+    	{
+            // But the network does not allow DCNR for the UE
+            if (ue_ctxt->getDcnrCapable() == false)
+            {
+                nas.opt_ies_flags.eps_nw_feature_supp_presence = true;
+                // add EPS Nwk Feature Support with restrict dcnr flag set
+                nas.elements[4].pduElement.eps_nw_feature_supp.restrictDcnr = 1;
+	    }
+    	}
 
 	//nas.elements[4].pduElement. MS identity  tmsi 
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());

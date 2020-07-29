@@ -44,7 +44,11 @@ namespace mme
             aiaSecInfo_m(),
             mTmsi_m(0),
             subscribedApn_m(),
-            pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
+            pdnAddr_m(),
+            ueAddSecCapab_m(),
+            ueAddSecCapabPres_m(false),
+            hssFeatList2_m(),
+            dcnrCapable_m(false),MmContext_mp(NULL),SessionContext_mp(NULL)
 	{	
 	}
 	
@@ -396,6 +400,74 @@ namespace mme
 
 	
 	/******************************************************************************
+	* sets ueAddSecCapab
+	******************************************************************************/
+	void UEContext::setUeAddSecCapab( const ue_add_sec_capabilities& ueAddSecCapab_i )
+	{
+		ueAddSecCapab_m = ueAddSecCapab_i;
+	}
+	
+	/******************************************************************************
+	* returns ueAddSecCapab
+	******************************************************************************/	
+        const ue_add_sec_capabilities& UEContext::getUeAddSecCapab() const
+        {
+                return ueAddSecCapab_m;
+        }
+
+	
+	/******************************************************************************
+	* sets ueAddSecCapabPres
+	******************************************************************************/
+	void UEContext::setUeAddSecCapabPres( bool ueAddSecCapabPres_i )
+	{
+		ueAddSecCapabPres_m = ueAddSecCapabPres_i;
+	}
+	
+	/******************************************************************************
+	* returns ueAddSecCapabPres
+	******************************************************************************/	
+        bool UEContext::getUeAddSecCapabPres() const
+        {
+                return ueAddSecCapabPres_m;
+        }
+
+	
+	/******************************************************************************
+	* sets hssFeatList2
+	******************************************************************************/
+	void UEContext::setHssFeatList2( const supported_features& hssFeatList2_i )
+	{
+		hssFeatList2_m = hssFeatList2_i;
+	}
+	
+	/******************************************************************************
+	* returns hssFeatList2
+	******************************************************************************/	
+        const supported_features& UEContext::getHssFeatList2() const
+        {
+                return hssFeatList2_m;
+        }
+
+	
+	/******************************************************************************
+	* sets dcnrCapable
+	******************************************************************************/
+	void UEContext::setDcnrCapable( bool dcnrCapable_i )
+	{
+		dcnrCapable_m = dcnrCapable_i;
+	}
+	
+	/******************************************************************************
+	* returns dcnrCapable
+	******************************************************************************/	
+        bool UEContext::getDcnrCapable() const
+        {
+                return dcnrCapable_m;
+        }
+
+	
+	/******************************************************************************
 	* sets MmContext
 	******************************************************************************/
 	void UEContext::setMmContext( MmContext* MmContextp )
@@ -497,7 +569,8 @@ namespace mme
             pdnAddr_m(),
             accessPtName_m(),
             apnConfigProfileCtxId_m(0),
-            pti_m(0),BearerContext_mp(NULL)
+            pti_m(0),
+            apnAmbr_m(),BearerContext_mp(NULL)
 	{	
 	}
 	
@@ -624,6 +697,23 @@ namespace mme
         uint8_t SessionContext::getPti() const
         {
                 return pti_m;
+        }
+
+	
+	/******************************************************************************
+	* sets apnAmbr
+	******************************************************************************/
+	void SessionContext::setApnAmbr( const Ambr& apnAmbr_i )
+	{
+		apnAmbr_m = apnAmbr_i;
+	}
+	
+	/******************************************************************************
+	* returns apnAmbr
+	******************************************************************************/	
+        const Ambr& SessionContext::getApnAmbr() const
+        {
+                return apnAmbr_m;
         }
 
 	

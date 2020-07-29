@@ -137,7 +137,7 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 			sizeof(s1apPDU.criticality));
 
 	buffer_copy(&g_esm_buffer, &g_esm_value_buffer.pos,
-			sizeof(g_esm_value_buffer.pos));
+			sizeof(uint8_t));
 
 	buffer_copy(&g_esm_buffer, &g_esm_value_buffer,
 			g_esm_value_buffer.pos);

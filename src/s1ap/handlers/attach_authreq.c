@@ -23,8 +23,8 @@
 void
 buffer_copy(struct Buffer *buffer, void *value, size_t size)
 {
-	memcpy(buffer->buf + buffer->pos , value, size);
-	buffer->pos += size;
+    	memcpy(buffer->buf + buffer->pos , value, size);
+    	buffer->pos += size;
 	return;
 }
 
@@ -147,7 +147,7 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgBuf[0], g_authreqInfo->nasMsgSize);
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
-						sizeof(g_value_buffer.pos));
+						sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_value_buffer,
 						g_value_buffer.pos);

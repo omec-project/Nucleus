@@ -10,6 +10,7 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
+#include <math.h>
 
 using namespace SM;
 using namespace mme;
@@ -251,9 +252,9 @@ void MmeNasUtils::select_sec_alg(UEContext *ue_ctxt)
     nas_int_algo_enum int_alg;
     nas_ciph_algo_enum sec_alg;
     memcpy(&eea,
-           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[0],sizeof(uint8_t));
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets[0],sizeof(uint8_t));
     memcpy(&eia,
-           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[1],sizeof(uint8_t));
+           &ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets[1],sizeof(uint8_t));
 
     int_alg = (nas_int_algo_enum)MmeCommonUtils::select_preferred_int_algo(eia);
     sec_alg = (nas_ciph_algo_enum)MmeCommonUtils::select_preferred_sec_algo(eea);
@@ -569,10 +570,52 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
         }
 
         case NAS_TAU_REQUEST:
-		{
+	{
             log_msg(LOG_INFO, "NAS_TAU_REQUEST recvd\n");
-            break;
-		}
+            nas->elements_len = 2;
+            nas->elements = (nas_pdu_elements *)calloc(sizeof(nas_pdu_elements), 2);
+
+            uint8_t elem_id = msg[0];
+            uint8_t index = 0;
+            uint8_t datalen = 0;
+
+            while(msg != msg_end)
+            {
+                //Handling only UE Network Capability and UE Additional Sec Capab as a part of NSA Support
+                elem_id = msg[0];
+                switch(elem_id)
+                {
+                    case NAS_IE_TYPE_UE_NETWORK_CAPABILITY:
+                    {
+                        log_msg(LOG_DEBUG, "NAS TAU REQ - UE Network capability : Handling.\n");
+                        nas->elements[index].msgType = NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
+                        msg++; //skipping Element ID
+                        datalen = msg[0];
+                        nas->elements[index].pduElement.ue_network.len = datalen;
+                        log_msg(LOG_INFO, "UE NET CAP Length %d", datalen);
+                        msg++; 
+                        memcpy(&(nas->elements[index].pduElement.ue_network.u.octets), msg, datalen);
+                        msg += datalen;
+                        index++;
+                        break;
+                    }
+                    case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
+                    {
+                        log_msg(LOG_DEBUG, "NAS TAU REQ - UE Additional Security capability : Handling.\n");
+                        nas->elements[index].msgType = NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
+                        msg++; //skipping Element ID
+                        datalen = msg[0];
+                        msg++;
+                        memcpy(&(nas->elements[index].pduElement.ue_add_sec_capab), msg, datalen);
+                        msg += datalen;
+                        index++;
+                        break;
+                    }
+                    default:
+                        msg++;
+                }
+            }     
+	}break;
 
         case NAS_AUTH_FAILURE:
         {
@@ -608,7 +651,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             int index = 0;
             unsigned short imsi_len = get_length(&msg);
 
-            bool odd = msg[0] & 0x08;
             unsigned char eps_identity = msg[0] & 0x07;
             switch(eps_identity) 
 			{
@@ -663,8 +705,8 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                         NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
                 nas->elements[index].pduElement.ue_network.len = msg[0];
                 msg++;
-                memcpy((nas->elements[index].pduElement.ue_network.capab)
-                       ,msg, nas->elements[index].pduElement.ue_network.len);
+                memcpy(&(nas->elements[index].pduElement.ue_network.u.octets), msg, 
+                                    nas->elements[index].pduElement.ue_network.len);
                 msg += nas->elements[index].pduElement.ue_network.len;
 
                 index++;
@@ -796,6 +838,17 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                                                     msg += 
                                                             nas->elements[index].pduElement.ms_network.len;
                                             }break;
+                                    case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
+                                        {
+                                                log_msg(LOG_DEBUG, "UE Additional Security capability : Handling.\n");
+                                                index++;
+                                                nas->elements[index].msgType = NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
+                                                msg++; //Skipping Element ID
+                                                uint8_t datalen = msg[0];
+                                                msg++;
+                                                memcpy(&(nas->elements[index].pduElement.ue_add_sec_capab), msg, datalen);
+                                                msg += datalen;
+                                        }break;
                                     default:
                                             log_msg(LOG_WARNING, "Unknown AVP in Attach Req  %d \n", elem_id);
                                             msg++;
@@ -819,7 +872,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
 
             /*EPS mobility identity*/
-            uint8_t msg_len = msg[1];
             unsigned char eps_identity = msg[2] & 0x07;
             log_msg(LOG_INFO, "NAS Detach Request Rcvd :  %d %d %d %d, eps id %d\n", msg[0],msg[1],msg[2],msg[4],eps_identity); 
             if(eps_identity == 0x06)
@@ -941,6 +993,12 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 
                             break;
                         }
+                    case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
+                        {
+                            s1Msg->msg_data.ue_attach_info_m.ue_add_sec_cap_present = true;
+			    memcpy(&s1Msg->msg_data.ue_attach_info_m.ue_add_sec_capab, &nas->elements[nas_index].pduElement.ue_add_sec_capab, sizeof(struct ue_add_sec_capabilities));
+                            break;
+                        }
                     default:
                         {
                             log_msg(LOG_INFO, "nas element not handled\n");
@@ -1042,12 +1100,45 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 		case NAS_TAU_REQUEST:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message TAU REQUEST \n");
+            		int nas_index = 0;
 			s1Msg->msg_type = msg_type_t::tau_request;
 			s1Msg->msg_data.tauReq_Q_msg_m.enb_fd = s1Msg->msg_data.rawMsg.enodeb_fd;
-	        s1Msg->msg_data.tauReq_Q_msg_m.s1ap_enb_ue_id = s1Msg->msg_data.rawMsg.s1ap_enb_ue_id;
+	        	s1Msg->msg_data.tauReq_Q_msg_m.s1ap_enb_ue_id = s1Msg->msg_data.rawMsg.s1ap_enb_ue_id;
 			//ue_idx no need to copy 
-           	s1Msg->msg_data.tauReq_Q_msg_m.seq_num = nas->header.seq_no;
-	    	break;
+           	
+            		while (nas_index < nas->elements_len)
+            		{
+                	    log_msg(LOG_INFO, "nasIndex %d, msgType %d\n", nas_index, nas->elements[nas_index].msgType);
+                	    s1Msg->msg_data.tauReq_Q_msg_m.seq_num = nas->header.seq_no;
+                	    switch (nas->elements[nas_index].msgType)
+                	    {
+                    		case NAS_IE_TYPE_UE_NETWORK_CAPABILITY:
+                    		{
+                        	    log_msg(LOG_DEBUG, "NAS_IE_TYPE_UE_NETWORK_CAPABILITY\n");
+
+                        	    s1Msg->msg_data.tauReq_Q_msg_m.ue_net_capab.len =
+                            		nas->elements[nas_index].pduElement.ue_network.len;
+
+                        	    memcpy(&(s1Msg->msg_data.tauReq_Q_msg_m.ue_net_capab.u.octets),
+                            		&(nas->elements[nas_index].pduElement.ue_network.u.octets),
+                            		s1Msg->msg_data.tauReq_Q_msg_m.ue_net_capab.len);
+                        	    break;
+                    		}
+                    		case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
+                    		{
+                        	    memcpy(&(s1Msg->msg_data.tauReq_Q_msg_m.ue_add_sec_capab),
+                            		&(nas->elements[nas_index].pduElement.ue_add_sec_capab),
+                            		sizeof(ue_add_sec_capabilities));
+                        	    break;
+                    		}
+                    		default:
+                    		{
+                        	    log_msg(LOG_INFO, "nas element %d not handled\n", nas->elements[nas_index].msgType );
+                    		}
+                	    }
+                	    nas_index++;
+            		}         
+	    		break;
 		}
 		case NAS_IDENTITY_RESPONSE:
 		{
@@ -1106,6 +1197,93 @@ MmeNasUtils::get_negotiated_qos_value(struct esm_qos *qos)
 	qos->gbr_ul_ext = 0;
 
 	return;
+}
+
+void MmeNasUtils::calculate_ext_apn_ambr(const uint64_t &ambr_Mbps, uint8_t &unit, uint16_t& ambr_derived)
+{
+    static uint64_t nas_ambr_convertor[] = {
+            0,                /* not used */
+            0,                /* not used */
+            0,                /* not used */
+            4,                /* increment in multiples of 4Mbps */
+            16,               /* increment in multiples of 16Mbps */
+            64,               /* increment in multiples of 64Mbps */
+            256,              /* increment in multiples of 256Mbps */
+            1000,             /* increment in multiples of 1Gbps */
+            4000,             /* increment in multiples of 4Gbps */
+            16000,            /* increment in multiples of 16Gbps */
+            64000,            /* increment in multiples of 64Gbps */
+            256000,           /* increment in multiples of 256Gbps */
+            1000000,          /* increment in multiples of 1Tbps */
+            4000000,          /* increment in multiples of 4Tbps */
+            16000000,         /* increment in multiples of 16Tbps */
+            64000000,         /* increment in multiples of 64Tbps */
+            256000000,        /* increment in multiples of 256Tbps */
+            1000000000ull,    /* increment in multiples of 1Pbps */
+            4000000000ull,    /* increment in multiples of 4Pbps */
+            16000000000ull,   /* increment in multiples of 16Pbps */
+            64000000000ull,   /* increment in multiples of 64Pbps */
+            256000000000ull   /* increment in multiples of 256Pbps */
+    };
+
+    uint32_t conv_ambr = 0;
+
+    /* AMBR in the range 65280 and 2^16-1 * 256Mbps */
+    if (ambr_Mbps > 65280 && ambr_Mbps <= 16776960)
+    {
+        for (int i = 3; i <= 6; i++)
+        {
+            conv_ambr = round(static_cast<double>(ambr_Mbps)/static_cast<double>(nas_ambr_convertor[i]));
+            if (conv_ambr <= 65535)
+            {
+                unit = i;
+                ambr_derived = conv_ambr;
+                break;
+            }
+        }
+    }
+    /* AMBR in the range 16776961 and 2^16-1 * 256Gbps */
+    else if (ambr_Mbps <= 16776960000ull)
+    {
+        for (int i = 7; i <= 11; i++)
+        {
+            conv_ambr = round(static_cast<double>(ambr_Mbps)/static_cast<double>(nas_ambr_convertor[i]));
+            if (conv_ambr <= 65535)
+            {
+                unit = i;
+                ambr_derived = conv_ambr;
+                break;
+            }
+        }
+    }
+    /* AMBR in the range 16776960001 and 2^16-1 * 256Tbps */
+    else if (ambr_Mbps <= 16776960000000ull)
+    {
+        for (int i = 12; i <= 16; i++)
+        {
+            conv_ambr = round(static_cast<double>(ambr_Mbps)/static_cast<double>(nas_ambr_convertor[i]));
+            if (conv_ambr <= 65535)
+            {
+                unit = i;
+                ambr_derived = conv_ambr;
+                break;
+            }
+        }
+    }
+    /* AMBR in the range 16776960001 and 2^16-1 * 256Pbps */
+    else if (ambr_Mbps <= 16776960000000000ull)
+    {
+        for (int i = 17; i <= 21; i++)
+        {
+            conv_ambr = round(static_cast<double>(ambr_Mbps)/static_cast<double>(nas_ambr_convertor[i]));
+            if (conv_ambr <= 65535)
+            {
+                unit = i;
+                ambr_derived = conv_ambr;
+                break;
+            }
+        }
+    }
 }
 
 static void buffer_copy(struct Buffer *buffer, void *value, size_t size)
@@ -1250,12 +1428,23 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.len,
 						sizeof(nas->elements->pduElement.ue_network.len));
 
-			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.capab,
+			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.u.octets,
 						nas->elements->pduElement.ue_network.len);
 
  			/* Request IMEI from the device */
 			uint8_t imei = 0xc1;
 			buffer_copy(nasBuffer, &imei, sizeof(imei));
+            
+            		/*Additional UE Security Capability */
+            		if (nas->opt_ies_flags.ue_add_sec_cap_presence)
+            		{
+                	    uint8_t ue_add_sec_cap_id = NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
+                	    buffer_copy(nasBuffer, &ue_add_sec_cap_id, sizeof(ue_add_sec_cap_id));
+                	    uint8_t datalength = 4;
+                	    buffer_copy(nasBuffer, &datalength, sizeof(datalength));
+                	    buffer_copy(nasBuffer, &nas->elements->pduElement.ue_add_sec_capab, datalength);
+            		}
+
 			/* Calculate mac */
 			uint8_t direction = 1;
 			uint8_t bearer = 0;
@@ -1361,6 +1550,34 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			/* apn ambr */
 			/* TODO: remove hardcoded values of apn ambr */
 			unsigned char apn_ambr[8] = {0x5e, 0x06, 0x80, 0x00, 0x04, 0x05, 0x06, 0x07};
+
+			/*TBD: The value of apn_ambr while supporting 5G bitrates*/
+
+			if (nas->elements[3].pduElement.esm_msg.extd_apn_ambr.length > 0)
+			{
+			    uint8_t ext_apn_ambr [6] = { 0 };
+			    memcpy(ext_apn_ambr, nas->elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr, 6);
+			    
+			    if(ext_apn_ambr[1] != 0 || ext_apn_ambr[2] != 0)  //ext_apn_ambr is present for DL
+			    {
+			        /* apn_ambr for DL should be set to the max of 65280 mbps
+			         * APN_AMBR_DL involves Octet 3, 5 and 7
+			         * Octet 3(max:8640 kbps) + Octet 5(max:256 Mbps) + Octet 7(max:65280 mbps) */
+
+			        apn_ambr[2] = 0xfe; // as in spec 24.301 v 15.6.0 sec:9.9.4.2
+			        apn_ambr[4] = 0xfa; 
+			        apn_ambr[6] = 0xfe; 
+			    }
+			    if(ext_apn_ambr[4] != 0 || ext_apn_ambr[5] != 0)
+			    {
+			        /*apn_ambr for UL should be set to the max of 65280 mbps
+			         * Same as DL. Here, Octets 4, 6 and 8 are involved */
+			        apn_ambr[3] = 0xfe;
+			        apn_ambr[5] = 0xfa;
+			        apn_ambr[7] = 0xfe;
+			    }
+			}
+
 			buffer_copy(nasBuffer, apn_ambr, 8);
 
 			u8value = 0x27; /* element id TODO: define macro or enum */
@@ -1368,6 +1585,19 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			uint8_t pco_length = nas->elements[3].pduElement.esm_msg.pco_opt.pco_length;
 			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.pco_opt.pco_length), sizeof(pco_length));
 			buffer_copy(nasBuffer, &nas->elements[3].pduElement.esm_msg.pco_opt.pco_options[0], pco_length);
+            
+			/*Extended APN-AMBR*/
+			if (nas->elements[3].pduElement.esm_msg.extd_apn_ambr.length != 0)
+			{
+				u8value = NAS_IE_TYPE_EXTENDED_APN_AMBR;
+				buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+				datalen = nas->elements[3].pduElement.esm_msg.extd_apn_ambr.length;
+				buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+				buffer_copy(nasBuffer,
+					nas->elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr,
+					datalen);
+			}
+
 			/* ESM message container end */
 
 			/* Copy esm container length to esm container length field */
@@ -1392,6 +1622,16 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 					sizeof(nas->elements[4].pduElement.mi_guti.mme_code));
 			buffer_copy(nasBuffer, &(nas->elements[4].pduElement.mi_guti.m_TMSI),
 					sizeof(nas->elements[4].pduElement.mi_guti.m_TMSI));
+
+			/*EPS network Feature Support*/
+			if (nas->opt_ies_flags.eps_nw_feature_supp_presence)
+			{
+			    u8value = NAS_IE_TYPE_EPS_NETWORK_FEATURE_SUPPORT; //IEI
+			    buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			    datalen = 2;
+			    buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			    buffer_copy(nasBuffer, &(nas->elements[5].pduElement.eps_nw_feature_supp), datalen);
+			}
 
 			/* Calculate mac */
 			uint8_t direction = 1;
@@ -1577,7 +1817,17 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 					sizeof(nas->elements[3].pduElement.mi_guti.mme_code));
 			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.mi_guti.m_TMSI),
 					sizeof(nas->elements[3].pduElement.mi_guti.m_TMSI));
-			
+                    
+			/*EPS network Feature Support*/
+			if (nas->opt_ies_flags.eps_nw_feature_supp_presence)
+			{
+			    u8value = NAS_IE_TYPE_EPS_NETWORK_FEATURE_SUPPORT; //IEI
+			    buffer_copy(nasBuffer, &u8value, sizeof(u8value));
+			    datalen = 2;
+			    buffer_copy(nasBuffer, &datalen, sizeof(datalen));
+			    buffer_copy(nasBuffer, &(nas->elements[4].pduElement.eps_nw_feature_supp), datalen);
+			}
+		
 #if 0
 			/* add MS identity - MTMSI */
 			u8value = 0x23; /* element id TODO: define macro or enum */

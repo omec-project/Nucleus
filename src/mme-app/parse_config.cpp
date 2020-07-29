@@ -183,6 +183,19 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
         {
             strcpy(config->logging, mmeSection["logging"].GetString());
         }
+        config->feature_list.dcnr_support = false;
+        if(mmeSection.HasMember("feature_list"))
+        {
+            const rapidjson::Value& featureListSection = mmeSection["feature_list"];
+            if(featureListSection.HasMember("dcnr_support"))
+            {
+                std::string dcnr_support = featureListSection["dcnr_support"].GetString();
+                if(dcnr_support == "enabled")
+                {
+                    config->feature_list.dcnr_support = true;
+                }
+            }
+        }
         if(mmeSection.HasMember("mcc"))
         {
             const rapidjson::Value& mccSection = mmeSection["mcc"];

@@ -292,6 +292,54 @@ namespace mme
 			const Paa& getPdnAddr()const;			
 			
 			/****************************************
+			* setUeAddSecCapab
+			*    set ueAddSecCapab to UEContext
+			****************************************/
+			void setUeAddSecCapab(const ue_add_sec_capabilities& ueAddSecCapab_i);
+			
+			/****************************************
+			* getUeAddSecCapab
+			*    get ueAddSecCapab from UEContext
+			****************************************/
+			const ue_add_sec_capabilities& getUeAddSecCapab()const;			
+			
+			/****************************************
+			* setUeAddSecCapabPres
+			*    set ueAddSecCapabPres to UEContext
+			****************************************/
+			void setUeAddSecCapabPres(bool ueAddSecCapabPres_i);
+			
+			/****************************************
+			* getUeAddSecCapabPres
+			*    get ueAddSecCapabPres from UEContext
+			****************************************/
+			bool getUeAddSecCapabPres()const;			
+			
+			/****************************************
+			* setHssFeatList2
+			*    set hssFeatList2 to UEContext
+			****************************************/
+			void setHssFeatList2(const supported_features& hssFeatList2_i);
+			
+			/****************************************
+			* getHssFeatList2
+			*    get hssFeatList2 from UEContext
+			****************************************/
+			const supported_features& getHssFeatList2()const;			
+			
+			/****************************************
+			* setDcnrCapable
+			*    set dcnrCapable to UEContext
+			****************************************/
+			void setDcnrCapable(bool dcnrCapable_i);
+			
+			/****************************************
+			* getDcnrCapable
+			*    get dcnrCapable from UEContext
+			****************************************/
+			bool getDcnrCapable()const;			
+			
+			/****************************************
 			* setMmContext
 			*    set MmContext to UEContext
 			****************************************/
@@ -377,6 +425,18 @@ namespace mme
 			
 			// DataName
 			Paa pdnAddr_m;
+			
+			// DataName
+			ue_add_sec_capabilities ueAddSecCapab_m;
+			
+			// DataName
+			bool ueAddSecCapabPres_m;
+			
+			// DataName
+			supported_features hssFeatList2_m;
+			
+			// DataName
+			bool dcnrCapable_m;
 			
 			// MmContext
 			MmContext* MmContext_mp;
@@ -538,6 +598,18 @@ namespace mme
 			uint8_t getPti()const;			
 			
 			/****************************************
+			* setApnAmbr
+			*    set apnAmbr to SessionContext
+			****************************************/
+			void setApnAmbr(const Ambr& apnAmbr_i);
+			
+			/****************************************
+			* getApnAmbr
+			*    get apnAmbr from SessionContext
+			****************************************/
+			const Ambr& getApnAmbr()const;			
+			
+			/****************************************
 			* setBearerContext
 			*    set BearerContext to SessionContext
 			****************************************/
@@ -572,6 +644,9 @@ namespace mme
 			
 			// DataName
 			uint8_t pti_m;
+			
+			// DataName
+			Ambr apnAmbr_m;
 			
 			// BearerContext
 			BearerContext* BearerContext_mp;
