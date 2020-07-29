@@ -159,6 +159,11 @@ namespace mme
         static SM::ActStatus handle_attach_request(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_state_guard_timeouts
+        ***********************************************/
+        static SM::ActStatus handle_state_guard_timeouts(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_state_guard_timeouts_for_csreq_ind
         ***********************************************/
         static SM::ActStatus handle_state_guard_timeouts_for_csreq_ind(SM::ControlBlock& cb);                

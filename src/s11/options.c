@@ -6,13 +6,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <getopt.h>
-
-#include "options.h"
+#include "s11_options.h"
+#include "msgType.h"
+#include <string.h>
 #include "log.h"
+
+uint8_t create_sock_addr(
+                struct sockaddr_in *addr, 
+                uint16_t port, uint32_t val)
+{
+	uint8_t result = 0;
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(port);
+    addr->sin_addr.s_addr = htonl(val);
+	memset(addr->sin_zero, '\0', sizeof(addr->sin_zero));
+	return result;
+}
 
 void parse_args(int argc, char **argv)
 {

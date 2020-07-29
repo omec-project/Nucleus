@@ -14,13 +14,14 @@
 #include <pthread.h>
 
 #include "err_codes.h"
-#include "options.h"
+#include "s11_options.h"
 #include "ipc_api.h"
 #include "s11.h"
 #include "s11_config.h"
 #include "msgType.h"
 
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /*Globals and externs*/
 extern int g_resp_fd;
@@ -40,6 +41,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 	csr_info.ue_idx = hdr->teid;
 	csr_info.msg_type = create_session_response;
 
+    delete_gtp_transaction(hdr->sequenceNumber);
 	CreateSessionResponseMsgData msgData;
 	memset(&msgData, 0, sizeof(CreateSessionResponseMsgData));
 

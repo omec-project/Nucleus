@@ -52,6 +52,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	
 	struct DS_Q_msg g_ds_msg;
 	g_ds_msg.msg_type = delete_session_request;
+	g_ds_msg.ue_idx = ue_ctxt->getContextID();
 	
 	memset(g_ds_msg.indication, 0, S11_DS_INDICATION_FLAG_SIZE);
 	g_ds_msg.indication[0] = 8; /* TODO : define macro or enum */

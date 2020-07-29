@@ -446,6 +446,7 @@ void DigitRegister15::convertFromBcdArray( const uint8_t* bcdArrayIn )
 		}
 		digitsArray[14] = (uint8_t)((bcdArrayIn[7]  & 0x0f) );
 	}
+                
 	return;
 }
 
@@ -490,21 +491,11 @@ bool DigitRegister15::operator == ( const DigitRegister15& data_i )const
 
 bool DigitRegister15::operator < ( const DigitRegister15& data_i )const
 {
-	bool rc = true;
-	if(*this == data_i)
-		rc = false;
-	else
-	{
-		for(int i=0; i<15; i++)
-		{
-			if(digitsArray[i] > data_i.digitsArray[i])
-			{
-				rc = false;
-				break;
-			}
-		}
-	}
-	return rc;
+    bool rc = true;
+    int data_cmp = memcmp(digitsArray, data_i.digitsArray,  sizeof( data_i.digitsArray));
+    if (data_cmp >= 0)
+        rc = false;
+    return rc;
 }
 
 std::ostream& operator << ( std::ostream& os, const DigitRegister15& data_i )

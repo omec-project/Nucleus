@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingWfServiceReq::PagingWfServiceReq():State(paging_wf_service_req)
+PagingWfServiceReq::PagingWfServiceReq():State(paging_wf_service_req, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;

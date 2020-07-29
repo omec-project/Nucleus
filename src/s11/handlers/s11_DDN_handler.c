@@ -12,7 +12,7 @@
 #include <pthread.h>
 
 #include "err_codes.h"
-#include "options.h"
+#include "s11_options.h"
 #include "ipc_api.h"
 #include "s11.h"
 #include "s11_config.h"
@@ -28,8 +28,6 @@ extern struct GtpV2Stack* gtpStack_gp;
 int
 s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
 {
-
-
 	struct gtp_incoming_msg_data_t ddn_info;
 	ddn_info.msg_type = downlink_data_notification;
 	ddn_info.ue_idx = hdr->teid;
