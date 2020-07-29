@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfAuthResp::AttachWfAuthResp():State(attach_wf_auth_resp)
+AttachWfAuthResp::AttachWfAuthResp():State(attach_wf_auth_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -62,5 +62,17 @@ void AttachWfAuthResp::initialize()
                 actionTable.addAction(&ActionHandlers::auth_response_validate);
                 actionTable.setNextState(AttachWfAuthRespValidate::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

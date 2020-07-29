@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfInitCtxtRespAttCmp::AttachWfInitCtxtRespAttCmp():State(attach_wf_init_ctxt_resp_att_cmp)
+AttachWfInitCtxtRespAttCmp::AttachWfInitCtxtRespAttCmp():State(attach_wf_init_ctxt_resp_att_cmp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -69,5 +69,18 @@ void AttachWfInitCtxtRespAttCmp::initialize()
                 actionTable.addAction(&ActionHandlers::process_attach_cmp_from_ue);
                 actionTable.setNextState(AttachWfInitCtxtResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATT_CMP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

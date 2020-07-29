@@ -235,7 +235,7 @@ int s1ap_mme_encode_attach_rej(
 
 	buffer_copy(&g_nas_buffer, &message_type, sizeof(message_type));
 
-    value = 0x09; // UE identity can not be derived by the network
+    value = s1apPDU->emm_cause; // UE identity can not be derived by the network
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
     val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;

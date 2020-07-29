@@ -64,4 +64,12 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 actionTable.setNextState(S1ReleaseWfUeCtxtReleaseComp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(REL_AB_RESP_FROM_SGW, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_attach_request);
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                actionTable.addAction(&ActionHandlers::default_attach_req_handler);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
+        }
 }

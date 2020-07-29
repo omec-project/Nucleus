@@ -482,28 +482,6 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 	return ActStatus::HALT;
 }
 
-ActStatus ActionHandlers::select_sec_alg(UEContext *ue_ctxt)
-{
-	log_msg(LOG_DEBUG, "Inside select_sec_alg \n");
-
-	uint8_t eea;
-    uint8_t eia;
-    nas_int_algo_enum int_alg;
-    nas_ciph_algo_enum sec_alg;
-    memcpy(&eea, 
-           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[0],sizeof(uint8_t));
-    memcpy(&eia, 
-           &ue_ctxt->getUeNetCapab().ue_net_capab_m.capab[1],sizeof(uint8_t));
-
-    int_alg = (nas_int_algo_enum)MmeCommonUtils::select_preferred_int_algo(eia);
-    sec_alg = (nas_ciph_algo_enum)MmeCommonUtils::select_preferred_sec_algo(eea);
-
-    ue_ctxt->getUeSecInfo().setSelectedIntAlg(int_alg);
-    ue_ctxt->getUeSecInfo().setSelectedSecAlg(sec_alg);
-	
-	return ActStatus::PROCEED;
-}
-
 ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside sec_mode_cmd_to_ue \n");
@@ -523,7 +501,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	sec_mode_msg.enb_fd = ue_ctxt->getEnbFd();
 	sec_mode_msg.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
 
-    select_sec_alg(ue_ctxt);
+    	MmeNasUtils::select_sec_alg(ue_ctxt);
 	SecUtils::create_integrity_key(ue_ctxt->getUeSecInfo().getSelectIntAlg(), 
                                    secVect->kasme.val, secInfo.int_key);
 	
@@ -1394,6 +1372,62 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
-	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    MmeErrorCause errorCause = noError_c;
+
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        errorCause = procCtxt->getMmeErrorCause();
+    }
+
+    if (errorCause == abortDueToAttachCollision_c)
+    {
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
+    }
+    else
+    {
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
 	return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : handle_attach_request
+***************************************/
+ActStatus ActionHandlers::handle_attach_request(ControlBlock& cb)
+{
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        log_msg(LOG_DEBUG, "Received Attach Req when procedure % in progress\n",
+                procCtxt->getCtxtType());
+
+        // abort current procedure. Set appropriate error cause for aborting the procedure
+        procCtxt->setMmeErrorCause(abortDueToAttachCollision_c);
+    }
+
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : handle_state_guard_timeouts
+***************************************/
+ActStatus ActionHandlers::handle_state_guard_timeouts(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG,"State guard timeout.Abort.\n");
+    return ActStatus::ABORT;
+}
+/***************************************
+* Action handler : handle_state_guard_timeouts_for_csreq_ind
+***************************************/
+ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock& cb)
+{
+    log_msg(LOG_ERROR,"CSRsp not received from SPGW, guard timer expired");
+    log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
+    // invalidate dns entries 
+    mme_tables->invalidate_dns();
+    mme_tables->initiate_spgw_resolution();
+    return ActStatus::ABORT;
 }

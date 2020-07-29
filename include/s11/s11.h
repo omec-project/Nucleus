@@ -11,6 +11,7 @@
 #define __UE_S11_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "log.h"
 #include "s11_structs.h"
 #include <gtpV2StackWrappers.h>

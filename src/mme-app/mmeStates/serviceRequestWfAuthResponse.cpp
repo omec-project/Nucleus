@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse():State(service_request_wf_auth_response)
+ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse():State(service_request_wf_auth_response, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -62,5 +62,12 @@ void ServiceRequestWfAuthResponse::initialize()
                 actionTable.addAction(&ActionHandlers::auth_response_validate);
                 actionTable.setNextState(ServiceRequestWfAuthRespValidate::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(AUTH_RESP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

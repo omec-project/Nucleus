@@ -47,7 +47,7 @@ namespace mme
 			* getEnbFd
 			*    get enbFd from EnbContext
 			****************************************/
-			int getEnbFd()const;				
+			int getEnbFd()const;			
 			
 			/****************************************
 			* setEnbId
@@ -59,7 +59,7 @@ namespace mme
 			* getEnbId
 			*    get enbId from EnbContext
 			****************************************/
-			int getEnbId()const;				
+			int getEnbId()const;			
 			
 			/****************************************
 			* setS1apEnbUeId
@@ -71,7 +71,7 @@ namespace mme
 			* getS1apEnbUeId
 			*    get s1apEnbUeId from EnbContext
 			****************************************/
-			int getS1apEnbUeId()const;				
+			int getS1apEnbUeId()const;			
 			
 			/****************************************
 			* setContextID
@@ -83,7 +83,7 @@ namespace mme
 			* getContextID
 			*    get contextID from EnbContext
 			****************************************/
-			uint32_t getContextID()const;				
+			uint32_t getContextID()const;			
 			
 			/****************************************
 			* setTai
@@ -95,7 +95,7 @@ namespace mme
 			* getTai
 			*    get tai from EnbContext
 			****************************************/
-			const TAI& getTai()const;				
+			const TAI& getTai()const;			
 			
 		
 		private:
