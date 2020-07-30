@@ -1,3 +1,10 @@
+/*
+ * Copyright 2010-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
 #ifndef _INCLUDE_MME_APP_PROM_CLIENT_H
 #define _INCLUDE_MME_APP_PROM_CLIENT_H
 
@@ -14,10 +21,8 @@ class statistics {
         void ue_attached(mme::UEContext *ue);
         void ue_detached(mme::UEContext *ue);
     public:
-#if 1
         Family<Gauge> &ue_info;
         Gauge &current_sub;
-#endif
 };
 
 #endif
