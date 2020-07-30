@@ -24,6 +24,7 @@
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /************************************************************************
 Current file : Stage 5 handler.
@@ -93,7 +94,7 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
-    	struct sockaddr_in sgw_addr = {0};
+    struct sockaddr_in sgw_addr = {0};
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
@@ -102,16 +103,18 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	sgw_addr.sin_family = AF_INET;
 	sgw_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
-    	if(g_csReqInfo->sgw_ip != 0) {
-            sgw_addr.sin_addr.s_addr = g_csReqInfo->sgw_ip;
-    	} else {
-            sgw_addr = g_s11_cp_addr; 
-    	}
+    if(g_csReqInfo->sgw_ip != 0) {
+        sgw_addr.sin_addr.s_addr = g_csReqInfo->sgw_ip;
+    } else {
+        sgw_addr = g_s11_cp_addr; 
+    }
 	
 	g_s11_sequence++;
 	
 	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
 
+    add_gtp_transaction(gtpHeader.sequenceNumber, 
+                          g_csReqInfo->ue_idx); 
 	CreateSessionRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
 
@@ -224,18 +227,20 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.aggregateMaximumBitRate.maxMbrUplink = g_csReqInfo->max_requested_bw_ul;
 	msgData.aggregateMaximumBitRate.maxMbrDownlink = g_csReqInfo->max_requested_bw_dl;
 
-        log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
-    	if(g_csReqInfo->pco_length > 0)
-    	{
-            msgData.protocolConfigurationOptionsIePresent = true;
-            msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
-            memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
-    	}
+    log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
+    if(g_csReqInfo->pco_length > 0)
+    {
+        msgData.protocolConfigurationOptionsIePresent = true;
+        msgData.protocolConfigurationOptions.pcoValue.count = g_csReqInfo->pco_length;
+        memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &g_csReqInfo->pco_options[0], g_csReqInfo->pco_length);
+    }
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
 
+    uint32_t seq = g_s11_sequence;
+ 
 	int res = sendto (
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),

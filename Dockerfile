@@ -35,6 +35,7 @@ COPY include/s11 ./include/s11
 COPY include/s6a ./include/s6a
 COPY include/s1ap ./include/s1ap
 COPY src/s11 ./src/s11
+RUN make -C src/s11/cpp_utils --debug
 RUN make -C src/s11
 COPY src/s6a ./src/s6a
 RUN make -C src/s6a

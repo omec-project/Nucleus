@@ -19,7 +19,10 @@
 
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
+#include "s11_config.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /************************************************************************
 Current file : Stage 7 handler. To listen MB from mme-app and fwd to CP
@@ -37,6 +40,7 @@ ATTACH stages :
 
 extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
+extern s11_config_t g_s11_cfg;
 extern socklen_t g_s11_serv_size;
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
@@ -58,6 +62,9 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = mb_msg->s11_sgw_c_fteid.header.teid_gre;
+    struct sockaddr_in sgw_ip = {0};
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    mb_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	g_s11_sequence++;
 
@@ -122,11 +129,12 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.teidGreKey = mb_msg->s1u_enb_fteid.header.teid_gre;
 	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->s1u_enb_fteid.ip.ipv4.s_addr;
 
+    add_gtp_transaction(gtpHeader.sequenceNumber, mb_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
 	sendto(g_s11_fd,
 			MsgBuffer_getDataPointer(mbReqMsgBuf_p),
 			MsgBuffer_getBufLen(mbReqMsgBuf_p), 0,
-			(struct sockaddr*)&g_s11_cp_addr,
+			(struct sockaddr*)&sgw_ip,
 			g_s11_serv_size);
 	//TODO " error chk, eagain etc?	
 	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));

@@ -19,6 +19,7 @@ extern "C"{
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
+#define REQ_ARGS 0x0000
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
 
@@ -552,6 +553,7 @@ struct MB_Q_msg {
 #define S11_DS_INDICATION_FLAG_SIZE 3
 struct DS_Q_msg {
 	msg_type_t msg_type;
+    int ue_idx;
 	unsigned char indication[S11_DS_INDICATION_FLAG_SIZE];/*Provision*/
 	unsigned char bearer_id;
 	struct fteid s11_sgw_c_fteid;
@@ -575,6 +577,7 @@ struct DDN_ACK_Q_msg{
 	int s11_sgw_cp_teid;
 	uint32_t seq_no;
 	uint8_t cause;
+	struct fteid s11_sgw_c_fteid;
 };
 #define S11_DDN_ACK_BUF_SIZE sizeof(struct DDN_ACK_Q_msg)
 

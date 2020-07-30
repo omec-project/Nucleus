@@ -14,7 +14,7 @@
 #include <pthread.h>
 
 #include "err_codes.h"
-#include "options.h"
+#include "s11_options.h"
 #include "ipc_api.h"
 #include "s11.h"
 #include "s11_config.h"

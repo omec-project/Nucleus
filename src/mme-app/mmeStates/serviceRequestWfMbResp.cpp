@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp)
+ServiceRequestWfMbResp::ServiceRequestWfMbResp():State(service_request_wf_mb_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -61,5 +61,12 @@ void ServiceRequestWfMbResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_mb_resp_svc_req);
                 actionTable.addAction(&ActionHandlers::service_request_complete);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(MB_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

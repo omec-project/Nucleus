@@ -309,13 +309,14 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
     if (gtpCause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
-        struct DDN_ACK_Q_msg ddnAck =
-        {
-                ddn_acknowledgement,
-                sgw_cp_teid,
-                ddn_info.seq_no,
-                gtpCause
-        };
+        SessionContext *sess_p = ueCtxt->getSessionContext();
+        struct DDN_ACK_Q_msg ddnAck;
+        ddnAck.msg_type = ddn_acknowledgement;
+        ddnAck.s11_sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
+        ddnAck.seq_no= ddn_info.seq_no;
+        memcpy(&(ddnAck.s11_sgw_c_fteid), 
+               &(sess_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct Fteid));
+        ddnAck.cause = gtpCause;
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;

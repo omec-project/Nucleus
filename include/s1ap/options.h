@@ -16,7 +16,6 @@
 
 #include "s1ap.h"
 
-#define REQ_ARGS 0x0000
 void parse_args(int argc, char **argv);
 void log_buffer_free(char** buffer);
 void convert_imsi_to_bcd_str(uint8_t *src, uint8_t* dest); 

@@ -1585,6 +1585,14 @@ ActStatus ActionHandlers::handle_attach_request(ControlBlock& cb)
 }
 
 /***************************************
+* Action handler : handle_state_guard_timeouts
+***************************************/
+ActStatus ActionHandlers::handle_state_guard_timeouts(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG,"State guard timeout.Abort.\n");
+    return ActStatus::ABORT;
+}
+/***************************************
 * Action handler : handle_state_guard_timeouts_for_csreq_ind
 ***************************************/
 ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock& cb)
