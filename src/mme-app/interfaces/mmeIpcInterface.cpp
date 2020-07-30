@@ -15,6 +15,7 @@
 #include <msgHandlers/gtpMsgHandler.h>
 #include <msgHandlers/s1MsgHandler.h>
 #include <msgHandlers/s6MsgHandler.h>
+#include <mme_prometheus.h>
 
 extern "C" {
 	#include "log.h"
@@ -26,7 +27,10 @@ using namespace cmn::utils;
 
 extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
-MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
+MmeIpcInterface::MmeIpcInterface():
+                    sender_mp(), 
+                    reader_mp(),
+                    msg_info(BuildCounter().Name("number_of_messages_received").Help("Number of messaged received by mme-app ").Labels({{"rx_messages", "tipc"}}).Register(*registry))
 {
      compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }
@@ -103,7 +107,7 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 
 	{
 	case TipcInstanceTypes::s1apAppInstanceNum_c:
-		S1MsgHandler::Instance()->handleS1Message_v(eMsg);
+		S1MsgHandler::Instance(std::ref(msg_info))->handleS1Message_v(eMsg);
 		break;
 	case TipcInstanceTypes::s11AppInstanceNum_c:
 		GtpMsgHandler::Instance()->handleGtpMessage_v(eMsg);

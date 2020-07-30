@@ -5,7 +5,6 @@
  */
 
 #include <msgHandlers/s1MsgHandler.h>
-
 #include <event.h>
 #include <ipcTypes.h>
 #include <log.h>
@@ -19,7 +18,28 @@ using namespace SM;
 using namespace mme;
 using namespace cmn;
 
-S1MsgHandler::S1MsgHandler()
+S1MsgHandler::S1MsgHandler(Family<Counter> &msg_info):
+            attach_req_counter(msg_info.Add({{"message_type", "attach_request"}})),
+            id_rsp_counter(msg_info.Add({{"message_type", "identity_response"}})),
+            auth_rsp_counter(msg_info.Add({{"message_type", "auth_response"}})),
+            sec_mod_complete_counter(msg_info.Add({{"message_type", "sec_mode_complete"}})),
+            esm_rsp_counter(msg_info.Add({{"message_type", "esm_response"}})),
+            init_ctxt_rsp_counter(msg_info.Add({{"message_type", "init_context_rsp_response"}})),
+            attach_complete_counter(msg_info.Add({{"message_type", "attach_complete"}})),
+            detach_req_counter(msg_info.Add({{"message_type", "detach_request"}})),
+            s1_release_req_counter(msg_info.Add({{"message_type", "s1_release_request"}})),
+            s1_release_comp_counter(msg_info.Add({{"message_type", "s1_release_complete"}})),
+            detach_accept_counter(msg_info.Add({{"message_type", "detach_accept"}})),
+            service_req_counter(msg_info.Add({{"message_type", "service_request"}})),
+            tau_req_counter(msg_info.Add({{"message_type", "tau_request"}})),
+            handover_req_ack_counter(msg_info.Add({{"message_type", "handover_req_ack"}})),
+            handover_notify_counter(msg_info.Add({{"message_type", "handover_notify"}})),
+            handover_required_counter(msg_info.Add({{"message_type", "handover_required"}})),
+            enb_status_transfer_counter(msg_info.Add({{"message_type", "enb_status_transfer"}})),
+            handover_cancel_counter(msg_info.Add({{"message_type", "handover_cancel"}})),
+            handover_failure_counter(msg_info.Add({{"message_type", "handover_failure"}})),
+            erab_mod_ind_counter(msg_info.Add({{"message_type", "erab_mod_ind"}})),
+            unknown_msg_counter(msg_info.Add({{"message_type", "unknown_message"}}))
 {
 
 }
@@ -29,9 +49,9 @@ S1MsgHandler::~S1MsgHandler()
 
 }
 
-S1MsgHandler* S1MsgHandler::Instance()
+S1MsgHandler* S1MsgHandler::Instance(Family<Counter> &msg_info)
 {
-	static S1MsgHandler msgHandler;
+	static S1MsgHandler msgHandler(msg_info);
 	return &msgHandler;
 }
 
@@ -85,87 +105,108 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
+            attach_req_counter.Increment();
 			handleInitUeAttachRequestMsg_v(eMsg);
 			break;
 
 		case msg_type_t::id_response:
+            id_rsp_counter.Increment();
 			handleIdentityResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::auth_response:
+            auth_rsp_counter.Increment();
 			handleAuthResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::sec_mode_complete:
+            sec_mod_complete_counter.Increment();
 			handleSecurityModeResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::esm_info_response:
+            esm_rsp_counter.Increment();
 			handleEsmInfoResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::init_ctxt_response:
+            init_ctxt_rsp_counter.Increment();
 			handleInitCtxtResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::attach_complete:
+            attach_complete_counter.Increment();
 			handleAttachComplete_v(eMsg, msgData_p->ue_idx);
 			break;
                 
 		case msg_type_t::detach_request:
+            detach_req_counter.Increment();
 			handleDetachRequest_v(eMsg, msgData_p->ue_idx);
 			break;
 					
 		case msg_type_t::s1_release_request:
+            s1_release_req_counter.Increment();
 			handleS1ReleaseRequestMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 			
 		case msg_type_t::s1_release_complete:
+            s1_release_comp_counter.Increment();
 			handleS1ReleaseComplete_v(eMsg, msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::detach_accept_from_ue:
+            detach_accept_counter.Increment();
 			handleDetachAcceptFromUE_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case  msg_type_t::service_request:
+            service_req_counter.Increment();
 		    handleServiceRequest_v(eMsg, msgData_p->ue_idx);
 		    break;
 					
 		case msg_type_t::tau_request:
+            tau_req_counter.Increment();
 			handleTauRequestMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::handover_request_acknowledge:
+            handover_req_ack_counter.Increment();
 		    handleHandoverRequestAckMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_notify:
+            handover_notify_counter.Increment();
 		    handleHandoverNotifyMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_required:
+            handover_required_counter.Increment();
 		    handleHandoverRequiredMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 		
 		case msg_type_t::enb_status_transfer:
+            enb_status_transfer_counter.Increment();
 			handleEnbStatusTransferMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_cancel:
+            handover_cancel_counter.Increment();
 			handleHandoverCancelMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_failure:
+            handover_failure_counter.Increment();
 			handleHandoverFailureMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
             
 		case msg_type_t::erab_mod_indication:
+            erab_mod_ind_counter.Increment();
 			handleErabModificationIndicationMsg_v(eMsg, msgData_p->ue_idx);		
 			break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled S1 Message %d \n", msgData_p->msg_type);
+            unknown_msg_counter.Increment();
+			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
 			delete eMsg;
 	}
 }

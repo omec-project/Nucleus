@@ -30,6 +30,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeNasUtils.h"
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -172,7 +173,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_detach_accept: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
-	
+    statistics::Instance()->ue_detached(ue_ctxt);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();

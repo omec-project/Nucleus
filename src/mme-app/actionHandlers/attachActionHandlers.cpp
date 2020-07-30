@@ -39,6 +39,7 @@
 #include "mmeNasUtils.h"
 #include "mme_app.h"
 #include "gtpCauseTypes.h"
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -1318,6 +1319,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
+    statistics::Instance()->ue_attached(ue_ctxt);
 
 	return ActStatus::PROCEED;
 }
