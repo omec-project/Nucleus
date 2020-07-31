@@ -38,6 +38,7 @@
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeNasUtils.h"
 //#include <utils/mmeCauseUtils.h>
+#include "promClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -73,6 +74,7 @@ ActStatus ActionHandlers::send_paging_req_to_ue(ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::paging_request);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &pag_req, sizeof(pag_req), destAddr);
 
@@ -154,6 +156,7 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::ddn_acknowledgement);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &ddn_ack, sizeof(ddn_ack), destAddr);
 	
@@ -213,8 +216,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
+        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::ics_req_paging);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
+	    mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 
         ProcedureStats::num_of_init_ctxt_req_to_ue_sent ++;
         log_msg(LOG_DEBUG, "Leaving send_init_ctxt_req_to_ue_svc_req_ \n");
@@ -336,6 +340,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
                 cmn::ipc::IpcAddress destAddr;
                 destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+                statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::modify_bearer_request);
                 MmeIpcInterface &mmeIpcIf =
                         static_cast<MmeIpcInterface&>(compDb.getComponent(
                                 MmeIpcInterfaceCompId));
@@ -501,10 +506,11 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
 	free(nas.elements);
 
 	cmn::ipc::IpcAddress destAddr;
-        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-        mmeIpcIf.dispatchIpcMsg((char *) &service_rej, sizeof(service_rej), destAddr);
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::service_reject);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &service_rej, sizeof(service_rej), destAddr);
 
 	ProcedureStats::num_of_service_reject_sent ++;
 

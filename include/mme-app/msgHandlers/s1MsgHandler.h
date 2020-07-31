@@ -8,7 +8,6 @@
 #define INCLUDE_MME_APP_MSGHANDLERS_S1MSGHANDLER_H_
 
 #include <stdint.h>
-#include <mme_prometheus.h>
 
 namespace cmn
 {
@@ -17,35 +16,12 @@ namespace cmn
 
 class S1MsgHandler {
 public:
-    Counter &attach_req_counter;
-    Counter &id_rsp_counter;
-    Counter &auth_rsp_counter;
-    Counter &sec_mod_complete_counter;
-    Counter &esm_rsp_counter;
-    Counter &init_ctxt_rsp_counter;
-    Counter &attach_complete_counter;
-    Counter &detach_req_counter;
-    Counter &s1_release_req_counter;
-    Counter &s1_release_comp_counter;
-    Counter &detach_accept_counter;
-    Counter &service_req_counter;
-    Counter &tau_req_counter;
-    Counter &handover_req_ack_counter;
-    Counter &handover_notify_counter;
-    Counter &handover_required_counter;
-    Counter &enb_status_transfer_counter;
-    Counter &handover_cancel_counter;
-    Counter &handover_failure_counter;
-    Counter &erab_mod_ind_counter;
-    Counter &unknown_msg_counter;
-
-	static S1MsgHandler* Instance(Family<Counter> &msg_info);
+	static S1MsgHandler* Instance();
 	~S1MsgHandler();
-
 	void handleS1Message_v(cmn::IpcEventMessage* eMsg);
 
 private:
-	S1MsgHandler(Family<Counter> &msg_info);
+	S1MsgHandler();
 
 	void handleInitUeAttachRequestMsg_v(cmn::IpcEventMessage* eMsg);
 	void handleIdentityResponseMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);

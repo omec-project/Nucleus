@@ -9,7 +9,6 @@
 
 #include <ipcChannel.h>
 #include <componentDb.h>
-#include <mme_prometheus.h>
 
 namespace cmn{
     class IpcEventMessage;
@@ -38,7 +37,6 @@ private:
 	cmn::ipc::IpcChannel* sender_mp;
 	cmn::ipc::IpcChannel* reader_mp;
 public:
-    Family<Counter> &msg_info;
 };
 
 #endif /* INCLUDE_MME_APP_INTERFACES_MMEIPCINTERFACE_H_ */

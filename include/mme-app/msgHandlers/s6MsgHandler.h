@@ -18,12 +18,10 @@ class S6MsgHandler {
 public:
 	static S6MsgHandler* Instance();
 	virtual ~S6MsgHandler();
-
 	void handleS6Message_v(cmn::IpcEventMessage* eMsg);
 
 private:
 	S6MsgHandler();
-
 	void handleAuthInfoAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 	void handleUpdateLocationAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
 	void handlePurgeAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
