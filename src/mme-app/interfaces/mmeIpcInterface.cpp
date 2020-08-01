@@ -15,7 +15,6 @@
 #include <msgHandlers/gtpMsgHandler.h>
 #include <msgHandlers/s1MsgHandler.h>
 #include <msgHandlers/s6MsgHandler.h>
-#include <msgType.h>
 
 extern "C" {
 	#include "log.h"
@@ -27,9 +26,7 @@ using namespace cmn::utils;
 
 extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
-MmeIpcInterface::MmeIpcInterface():
-                    sender_mp(), 
-                    reader_mp()
+MmeIpcInterface::MmeIpcInterface(): sender_mp(), reader_mp()
 {
      compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }

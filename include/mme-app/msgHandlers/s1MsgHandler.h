@@ -18,6 +18,7 @@ class S1MsgHandler {
 public:
 	static S1MsgHandler* Instance();
 	~S1MsgHandler();
+
 	void handleS1Message_v(cmn::IpcEventMessage* eMsg);
 
 private:

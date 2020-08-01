@@ -36,7 +36,6 @@ public:
 private:
 	cmn::ipc::IpcChannel* sender_mp;
 	cmn::ipc::IpcChannel* reader_mp;
-public:
 };
 
 #endif /* INCLUDE_MME_APP_INTERFACES_MMEIPCINTERFACE_H_ */
