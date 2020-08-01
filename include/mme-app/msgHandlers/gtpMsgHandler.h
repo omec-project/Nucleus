@@ -16,7 +16,6 @@ namespace cmn
 
 class GtpMsgHandler {
 public:
-public:
 	static GtpMsgHandler* Instance();
 	~GtpMsgHandler();
 
