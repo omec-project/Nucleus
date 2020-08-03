@@ -9,6 +9,7 @@
 
 #include <ipcChannel.h>
 #include <componentDb.h>
+#include "msgType.h"
 
 namespace cmn{
     class IpcEventMessage;
@@ -31,7 +32,7 @@ public:
 
 	void handleIpcMsg(cmn::IpcEventMessage* buf);
 
-	bool dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr);
+	bool dispatchIpcMsg(gtp_incoming_msg_data_t* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr);
 
 private:
 	cmn::ipc::IpcChannel* sender_mp;

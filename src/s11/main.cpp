@@ -1,6 +1,15 @@
+/*
+ * Copyright 2020-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <iostream>
-#include <pthread.h>
 #include <thread>
+#include <mutex> 
+#include <queue>
+#include <condition_variable> 
+#include <chrono> 
+#include <sys/types.h>
 #include "s11Threads.h"
 #include <string.h>
 #include <sys/stat.h>
@@ -10,13 +19,13 @@
 #include <interfaces/s11IpcInterface.h>
 #include "s11.h"
 #include "msgType.h"
-#include <sys/types.h>
 #include "log.h"
 #include "json_data.h"
 #include "timeoutManager.h"
 #include <utils/s11TimerUtils.h>
 #include "eventMessage.h"
 #include "s11_config.h"
+#include "msgHandlers/gtpIncomingMsgHandler.h"
 
 using namespace std;
 using namespace s11;
@@ -26,10 +35,10 @@ using namespace s11;
  * Circular FIFOs for sender IPC and Reader IPC threads
  *
  **********************************************************/
-cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> s11IpcIngressFifo_g;
-cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> s11IpcEgressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> fromMmeIpcIngressFifo_g;
+cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> toMmeIpcIngressFifo_g;
 
-int init_gtpv2();
+local_endpoint init_gtpv2(uint32_t local_ip, uint16_t local_port);
 void s11_reader();
 /*********************************************************
  *
@@ -38,28 +47,24 @@ void s11_reader();
  **********************************************************/
 extern "C"
 {
+#if 0
 #include "thread_pool.h"
 int init_sock();
+#endif
 }
 
 struct GtpV2Stack* gtpStack_gp = NULL;
 
 extern char processName[255];
 extern int pid;
-int g_unix_fd = 0;
 struct thread_pool *g_tpool;
-pthread_t acceptUnix_t;
-
-int g_s11_fd;
-struct sockaddr_in g_s11_cp_addr;
-struct sockaddr_in g_client_addr;
-socklen_t g_client_addr_size;
-socklen_t g_s11_serv_size;
-
 s11_config_t *s11_cfg = NULL;
-
 s11IpcInterface* s11IpcIf_g = NULL;
 TimeoutManager* timeoutMgr_g = NULL;
+local_endpoint le;
+
+void gtp_msg_processing(uint16_t id);
+void handle_s11_message(MsgBuffer *msg); 
 
 using namespace std::placeholders;
 
@@ -101,100 +106,109 @@ int main(int argc, char *argv[])
 	if (gtpStack_gp == NULL)
 	{
 		log_msg(LOG_ERROR, "Error in initializing ipc.\n");
+        assert(0);
 		return -1;
 	}
+    log_msg(LOG_INFO, "GTPv2 stack initialized \n");
 
-	if (init_gtpv2() != 0)
-		return -1;
+	le = init_gtpv2(s11_cfg->local_egtp_ip, s11_cfg->egtp_def_port); 
 
-
-	MmeIngressIpcProducerThread ipcReader;
+	MmeIpcProducerThread ipcReader;
 	std::thread t1(ipcReader);
 	setThreadName(&t1, "IpcReader");
 	t1.detach();
+    log_msg(LOG_INFO, "mme-ipc IpcReader started \n");
 
-	MmeIngressIpcConsumerThread msgHandlerThread;
+	MmeIpcConsumerThread msgHandlerThread;
 	std::thread t2(msgHandlerThread);
 	setThreadName(&t2, "s11MsgHandlerThread");
 	t2.detach();
+    log_msg(LOG_INFO, "mme-ipc consumer started \n");
 
-	MmeEgressIpcConsumerThread ipcWriter;
+	GtpMsgConsumerThread ipcWriter;
 	std::thread t3(ipcWriter);
 	setThreadName(&t3, "IpcWriter");
 	t3.detach();
-
-    if (init_sock() != SUCCESS)
-    {
-        log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
-        return -E_FAIL_INIT;
-    }
+    log_msg(LOG_INFO, "gtp packets dispath thread started \n");
 
     std::thread gtp_reader(s11_reader);
 	setThreadName(&gtp_reader, "gtpMsgHandlerThread");
 	gtp_reader.detach();
+    log_msg(LOG_INFO, "gtp socket reader started \n");
+
+    for(int pool=0; pool<2;pool++) {
+        log_msg(LOG_INFO, "gtp message processing thread  started \n");
+        std::thread gtp_processing(gtp_msg_processing, pool+1);
+        gtp_processing.detach();
+    }
 
 	while(1)
 	{
-        sleep(1);
+        std::this_thread::sleep_for (std::chrono::seconds(1));
 	}
 }
 
 /*Initialize sctp socket connection for eNB*/
-int
-init_gtpv2()
+local_endpoint
+init_gtpv2(uint32_t local_ip, uint16_t local_port)
 {
+    local_endpoint le;
+
 	/*Create UDP socket*/
-	g_s11_fd = socket(PF_INET, SOCK_DGRAM, 0);
-
-	g_client_addr.sin_family = AF_INET;
-	//g_client_addr.sin_addr.s_addr = htonl(s11_cfg->local_egtp_ip);
-	struct in_addr mme_local_addr = {s11_cfg->local_egtp_ip};
-	fprintf(stderr, "....................local egtp %s\n", inet_ntoa(mme_local_addr));
-	g_client_addr.sin_addr.s_addr = s11_cfg->local_egtp_ip;
-	g_client_addr.sin_port = s11_cfg->egtp_def_port;
-
-	bind(g_s11_fd, (struct sockaddr *)&g_client_addr, sizeof(g_client_addr));
-	g_client_addr_size = sizeof(g_client_addr);
-
-	/*Configure settings in address struct*/
-	g_s11_cp_addr.sin_family = AF_INET;
-	//g_s11_cp_addr.sin_port = htons(s11_cfg->egtp_def_port);
-	fprintf(stderr, ".................... egtp def port %d\n", s11_cfg->egtp_def_port);
-	g_s11_cp_addr.sin_port = htons(s11_cfg->egtp_def_port);
-	//g_s11_cp_addr.sin_addr.s_addr = htonl(s11_cfg->sgw_ip);
-	struct in_addr sgw_addr = {s11_cfg->sgw_ip};
-	fprintf(stderr, "....................sgw ip %s\n", inet_ntoa(sgw_addr));
-	g_s11_cp_addr.sin_addr.s_addr = s11_cfg->sgw_ip;
-	memset(g_s11_cp_addr.sin_zero, '\0', sizeof(g_s11_cp_addr.sin_zero));
-
-	g_s11_serv_size = sizeof(g_s11_cp_addr);
-
-	return SUCCESS;
+	le.s11_fd = socket(PF_INET, SOCK_DGRAM, 0);
+	le.local_addr.sin_family = AF_INET;
+	le.local_addr.sin_addr.s_addr = htonl(local_ip);
+	le.local_addr.sin_port = htons(local_port);
+	if(bind(le.s11_fd, (struct sockaddr *)&(le.local_addr), sizeof(struct sockaddr_in)) != 0) {
+        log_msg(LOG_ERROR, "failed to bind s11 socker %s",strerror(errno));
+        assert(0);
+    }
+    log_msg(LOG_INFO, "local port opened for gtp packets %s %d \n", inet_ntoa(le.local_addr.sin_addr), local_port);
+	return le;
 }
 /**
   Read incoming S11 messages and pass to threadpool
   for processing.
 */
+std::condition_variable cv;
+std::mutex gtp_msg_mtx;
+std::queue<MsgBuffer*> incoming_gtp_msg_q;
+
 void s11_reader()
 {
 	unsigned char buffer[S11_GTPV2C_BUF_LEN];
 	int len;
+    socklen_t g_s11_serv_size = sizeof(struct sockaddr_in);
+    struct sockaddr_in g_s11_cp_addr = {0};
 
 	while(1) {
-		//len = recvfrom(g_s11_fd, buffer, S11_GTPV2C_BUF_LEN, 0,
-		//	&g_client_addr, &g_client_addr_size);
-		len = recvfrom(g_s11_fd, buffer, S11_GTPV2C_BUF_LEN, 0,
+		len = recvfrom(le.s11_fd, buffer, S11_GTPV2C_BUF_LEN, 0,
 			(struct sockaddr*)&g_s11_cp_addr, &g_s11_serv_size);
-
 		if(len > 0) {
+            std::unique_lock<std::mutex> lock(gtp_msg_mtx);
+			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
 			MsgBuffer* tmp_buf_p = createMsgBuffer(len);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
-
-			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
-
-			insert_job(g_tpool, handle_s11_message, tmp_buf_p);
+            incoming_gtp_msg_q.push(tmp_buf_p);   
+            cv.notify_one();
 		}
 	}
 }
 
+
+void gtp_msg_processing(uint16_t id)
+{
+    log_msg(LOG_DEBUG, "Start thread %d for gtp message processing", id);
+    while(1)
+    {
+        std::unique_lock<std::mutex> lock(gtp_msg_mtx);
+        log_msg(LOG_DEBUG, "thead (%d) - Waiting for gtp message \n",id);
+        cv.wait(lock, [] { return !incoming_gtp_msg_q.empty();}); 
+        log_msg(LOG_DEBUG, "thread (%d) - processing gtp message job\n", id);
+        MsgBuffer *msg = incoming_gtp_msg_q.front();
+        incoming_gtp_msg_q.pop();
+        gtp_msg_mtx.unlock();
+        gtpIncomingMsgHandler::handle_s11_message(msg);
+    }
+}

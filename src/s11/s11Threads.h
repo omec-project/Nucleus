@@ -1,4 +1,5 @@
 /*
+ * Copyright 2020-present Open Networking Foundation
  * Copyright 2019-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -20,10 +21,10 @@ using namespace cmn;
 using namespace cmn::ipc;
 using namespace cmn::utils;
 
-extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> s11IpcIngressFifo_g;
-extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> s11IpcEgressFifo_g;
+extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> fromMmeIpcIngressFifo_g;
+extern cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> toMmeIpcIngressFifo_g;
 
-class MmeIngressIpcProducerThread
+class MmeIpcProducerThread
 {
 public:
 	void operator()()
@@ -41,7 +42,7 @@ public:
 				MsgBuffer *msgBuf = ipcMsg->getMsgBuffer();
 				msgBuf->writeBytes(buf, bytesRead);
 				msgBuf->rewind();
-				if (!s11IpcIngressFifo_g.push(ipcMsg))
+				if (!fromMmeIpcIngressFifo_g.push(ipcMsg))
 				{
 					delete ipcMsg;
 				}
@@ -50,7 +51,7 @@ public:
 	}
 };
 
-class MmeIngressIpcConsumerThread
+class MmeIpcConsumerThread
 {
 public:
 	void operator()()
@@ -58,7 +59,7 @@ public:
 		while(1)
 		{
 			cmn::IpcEventMessage* eMsg = NULL;
-			while(s11IpcIngressFifo_g.pop(eMsg) == true)
+			while(fromMmeIpcIngressFifo_g.pop(eMsg) == true)
 			{
 				s11IpcInterface &mmeIpcIf = static_cast<s11IpcInterface&>(compDb.getComponent(S11IpcInterfaceCompId));   
 				mmeIpcIf.handleIpcMsg(eMsg);
@@ -67,7 +68,23 @@ public:
 	}
 };
 
-class MmeEgressIpcConsumerThread
+class GtpMsgProducerThread
+{
+public:
+	void operator()(unsigned char *buf, uint16_t bytesRead)
+	{
+	    cmn::IpcEventMessage *ipcMsg = new cmn::IpcEventMessage(bytesRead);
+		MsgBuffer *msgBuf = ipcMsg->getMsgBuffer();
+		msgBuf->writeBytes(buf, bytesRead);
+		msgBuf->rewind();
+		if (!toMmeIpcIngressFifo_g.push(ipcMsg))
+		{
+			delete ipcMsg;
+		}
+	}
+};
+
+class GtpMsgConsumerThread
 {
 public:
 	void operator()()
@@ -75,7 +92,7 @@ public:
 		while(1)
 		{
 			cmn::IpcEventMessage* eMsg = NULL;
-			while(s11IpcEgressFifo_g.pop(eMsg) == true)
+			while(toMmeIpcIngressFifo_g.pop(eMsg) == true)
 			{
 				if (eMsg != NULL)
 				{

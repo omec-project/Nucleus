@@ -1,4 +1,5 @@
 /*
+ * Copyright 2020-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -13,11 +14,11 @@
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
+#include "s11.h"
 #include <gtpV2StackWrappers.h>
 
 
-extern int g_s11_fd;
-extern socklen_t g_s11_serv_size;
+extern local_endpoint le; 
 extern s11_config_t *s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
 MsgBuffer*  csReqMsgBuf_p = NULL;
@@ -93,19 +94,23 @@ void S11MsgHandler::handleMmeMessage_v(cmn::IpcEventMessage* eMsg)
 			handleCreateSessionRequestMsg_v(eMsg);
 			break;
         case msg_type_t::modify_bearer_request:
+            handleModifyBearerRequestMsg_v(eMsg); 
             break;
 
         case msg_type_t::delete_session_request:
+            handleDeleteSessionRequestMsg_v(eMsg);
             break;
 
         case msg_type_t::release_bearer_request:
+            handleReleaseAccessBearerRequestMsg_v(eMsg);
             break;
 
         case msg_type_t::ddn_acknowledgement:
+            handleDownlinkDataNotificationAckMsg_v(eMsg);
             break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled S1 Message %d \n", msgData_p->msg_data.msg_type);
+			log_msg(LOG_INFO, "Unhandled message (%d) received from mme-app \n", msgData_p->msg_data.msg_type);
 			delete eMsg;
 	}
 }
@@ -288,11 +293,11 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
 
 	int res = sendto (
-			g_s11_fd,
+			le.s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),
 			MsgBuffer_getBufLen(csReqMsgBuf_p), 0,
 			(struct sockaddr*)(&sgw_addr),
-			g_s11_serv_size);
+			sizeof(struct sockaddr_in));
 	if (res < 0) {
 		log_msg(LOG_ERROR,"Error in sendto in detach stage 3 post to next\n");
 	}
@@ -303,4 +308,240 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
 	MsgBuffer_reset(csReqMsgBuf_p);
 
 	return;
+}
+
+void 
+S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
+{
+	log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+    struct sockaddr_in sgw_addr = {0};
+	sgw_addr.sin_family = AF_INET;
+	sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
+    sgw_addr.sin_addr.s_addr = s11_cfg->sgw_ip; 
+
+	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+	if (msgBuf == NULL)
+        return; // error 
+
+	gtp_outgoing_msg_data_t* msgData_p = (gtp_outgoing_msg_data_t*)(msgBuf->getDataPointer());
+
+    struct MB_Q_msg *mb_msg = &msgData_p->msg_data.mbr_req_msg;
+
+	GtpV2MessageHeader gtpHeader;
+	gtpHeader.msgType = GTP_MODIFY_BEARER_REQ;
+	gtpHeader.sequenceNumber = g_s11_sequence;
+	gtpHeader.teidPresent = true;
+	gtpHeader.teid = mb_msg->s11_sgw_c_fteid.header.teid_gre;
+
+	g_s11_sequence++;
+
+	ModifyBearerRequestMsgData msgData;
+	memset(&msgData, 0, sizeof(msgData));
+	struct TAI *tai = &(mb_msg->tai);
+	struct CGI *cgi = &(mb_msg->utran_cgi);
+
+	if (mb_msg->servingNetworkIePresent)
+    {
+        msgData.servingNetworkIePresent = true;
+        msgData.servingNetwork.mccDigit1 = tai->plmn_id.idx[0] & 0x0F;
+        msgData.servingNetwork.mccDigit2 = (tai->plmn_id.idx[0] & 0xF0) >> 4;
+        msgData.servingNetwork.mccDigit3 = tai->plmn_id.idx[1] & 0x0F;
+        msgData.servingNetwork.mncDigit1 = tai->plmn_id.idx[2] & 0x0F;
+        msgData.servingNetwork.mncDigit2 = (tai->plmn_id.idx[2] & 0xF0) >> 4;
+        msgData.servingNetwork.mncDigit3 = (tai->plmn_id.idx[1] & 0xF0) >> 4;
+    }
+
+    if (mb_msg->userLocationInformationIePresent)
+    {
+        msgData.userLocationInformationIePresent = true;
+        msgData.userLocationInformation.taipresent = true;
+        msgData.userLocationInformation.ecgipresent = true;
+
+        msgData.userLocationInformation.tai.trackingAreaCode = ntohs(tai->tac);
+        msgData.userLocationInformation.tai.mccDigit1 = tai->plmn_id.idx[0]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mccDigit2 = (tai->plmn_id.idx[0]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.tai.mccDigit3 = tai->plmn_id.idx[1]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mncDigit1 = tai->plmn_id.idx[2]
+                & 0x0F;
+        msgData.userLocationInformation.tai.mncDigit2 = (tai->plmn_id.idx[2]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.tai.mncDigit3 = (tai->plmn_id.idx[1]
+                & 0xF0) >> 4;
+
+        msgData.userLocationInformation.ecgi.eUtranCellId = ntohl(cgi->cell_id)
+                >> 4;
+        msgData.userLocationInformation.ecgi.mccDigit1 = cgi->plmn_id.idx[0]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mccDigit2 = (cgi->plmn_id.idx[0]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.ecgi.mccDigit3 = cgi->plmn_id.idx[1]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mncDigit1 = cgi->plmn_id.idx[2]
+                & 0x0F;
+        msgData.userLocationInformation.ecgi.mncDigit2 = (cgi->plmn_id.idx[2]
+                & 0xF0) >> 4;
+        msgData.userLocationInformation.ecgi.mncDigit3 = (cgi->plmn_id.idx[1]
+                & 0xF0) >> 4;
+    }
+
+	//TODO:Support dedicated bearer
+	msgData.bearerContextsToBeModifiedCount = 1;
+	msgData.bearerContextsToBeModified[0].epsBearerId.epsBearerId = 5;
+	msgData.bearerContextsToBeModified[0].s1EnodebFTeidIePresent = true;
+	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipv4present = true;
+	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.interfaceType = mb_msg->s1u_enb_fteid.header.iface_type;
+	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.teidGreKey = mb_msg->s1u_enb_fteid.header.teid_gre;
+	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->s1u_enb_fteid.ip.ipv4.s_addr;
+
+	GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
+	sendto(le.s11_fd,
+			MsgBuffer_getDataPointer(mbReqMsgBuf_p),
+			MsgBuffer_getBufLen(mbReqMsgBuf_p), 0,
+			(struct sockaddr*)(&sgw_addr),
+			sizeof(struct sockaddr_in));
+	//TODO " error chk, eagain etc?	
+	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
+
+	MsgBuffer_reset(mbReqMsgBuf_p);
+
+	return;
+}
+
+
+void 
+S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
+{
+	log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+    struct sockaddr_in sgw_addr = {0};
+	sgw_addr.sin_family = AF_INET;
+	sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
+    sgw_addr.sin_addr.s_addr = s11_cfg->sgw_ip; 
+
+	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+	if (msgBuf == NULL)
+        return; // error 
+
+	gtp_outgoing_msg_data_t* msgData_p = (gtp_outgoing_msg_data_t*)(msgBuf->getDataPointer());
+
+    struct DS_Q_msg *ds_msg = &msgData_p->msg_data.dsr_req_msg;
+
+	GtpV2MessageHeader gtpHeader;
+	gtpHeader.msgType = GTP_DELETE_SESSION_REQ;
+	gtpHeader.sequenceNumber = g_s11_sequence;
+	gtpHeader.teidPresent = true;
+	gtpHeader.teid = ds_msg->s11_sgw_c_fteid.header.teid_gre;
+
+	DeleteSessionRequestMsgData msgData;
+	memset(&msgData, 0, sizeof(DeleteSessionRequestMsgData));
+
+	msgData.indicationFlagsIePresent = true;
+	msgData.indicationFlags.iOI = true;
+
+	msgData.linkedEpsBearerIdIePresent = true;
+	msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
+
+	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
+	g_s11_sequence++;
+
+	sendto(le.s11_fd,
+			MsgBuffer_getDataPointer(dsReqMsgBuf_p),
+			MsgBuffer_getBufLen(dsReqMsgBuf_p), 0,
+			(struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
+	log_msg(LOG_INFO, "Send delete session request\n");
+
+	MsgBuffer_reset(dsReqMsgBuf_p);
+
+	return;
+}
+
+
+void 
+S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
+{
+    log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+    struct sockaddr_in sgw_addr = {0};
+	sgw_addr.sin_family = AF_INET;
+	sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
+    sgw_addr.sin_addr.s_addr = s11_cfg->sgw_ip; 
+
+    utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+    if (msgBuf == NULL)
+        return; // error 
+
+    gtp_outgoing_msg_data_t* msgData_p = (gtp_outgoing_msg_data_t*)(msgBuf->getDataPointer());
+
+    struct RB_Q_msg *rb_msg = &msgData_p->msg_data.rabr_req_msg;
+    GtpV2MessageHeader gtpHeader;	
+    gtpHeader.msgType = GTP_RABR_REQ;
+    gtpHeader.sequenceNumber = g_s11_sequence;
+    gtpHeader.teidPresent = true;
+    gtpHeader.teid = rb_msg->s11_sgw_c_fteid.header.teid_gre;
+
+    g_s11_sequence++;
+
+    ReleaseAccessBearersRequestMsgData msgData;
+    memset(&msgData, 0, sizeof(msgData));
+
+    msgData.indicationFlagsIePresent = true;
+    msgData.indicationFlags.iOI = true;
+
+    GtpV2Stack_buildGtpV2Message(gtpStack_gp, rbReqMsgBuf_p, &gtpHeader, &msgData);
+
+    sendto(le.s11_fd,
+            MsgBuffer_getDataPointer(rbReqMsgBuf_p),
+            MsgBuffer_getBufLen(rbReqMsgBuf_p), 0,
+            (struct sockaddr*)(&sgw_addr),
+            sizeof(struct sockaddr_in));
+    //TODO " error chk, eagain etc?
+    log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(rbReqMsgBuf_p));
+
+    MsgBuffer_reset(rbReqMsgBuf_p);
+
+    return;
+}
+
+
+void 
+S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
+{
+	log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+    struct sockaddr_in sgw_addr = {0};
+	sgw_addr.sin_family = AF_INET;
+	sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
+    sgw_addr.sin_addr.s_addr = s11_cfg->sgw_ip; 
+
+	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+	if (msgBuf == NULL)
+        return; // error 
+
+	gtp_outgoing_msg_data_t* msgData_p = (gtp_outgoing_msg_data_t*)(msgBuf->getDataPointer());
+
+    struct DDN_ACK_Q_msg *ddn_ack_msg = &msgData_p->msg_data.ddn_ack_msg;
+	GtpV2MessageHeader gtpHeader;
+	gtpHeader.msgType =  GTP_DOWNLINK_DATA_NOTIFICATION_ACK;
+	gtpHeader.sequenceNumber = ddn_ack_msg->seq_no;
+	gtpHeader.teidPresent = true;
+	gtpHeader.teid = ddn_ack_msg->s11_sgw_cp_teid;
+
+	DownlinkDataNotificationAcknowledgeMsgData msgData;
+	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
+
+
+	msgData.cause.causeValue = ddn_ack_msg->cause;
+	
+
+	GtpV2Stack_buildGtpV2Message(gtpStack_gp, ddnAckMsgBuf_p, &gtpHeader, &msgData);
+
+
+	sendto(le.s11_fd,
+			MsgBuffer_getDataPointer(ddnAckMsgBuf_p),
+			MsgBuffer_getBufLen(ddnAckMsgBuf_p), 0,
+			(struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
+	
+	log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
+	MsgBuffer_reset(ddnAckMsgBuf_p);
+	return ;
 }

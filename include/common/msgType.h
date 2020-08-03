@@ -589,46 +589,52 @@ struct csr_Q_msg {
     struct PAA pdn_addr;
     uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
-};
+}__attribute__((packed));
 
 struct MB_resp_Q_msg {
     uint8_t cause;
     struct fteid s1u_sgw_fteid;
-};
+}__attribute__((packed));
 
 
 struct RB_resp_Q_msg {
     struct fteid s1u_sgw_fteid;
-};
+}__attribute__((packed));
 
 struct ddn_Q_msg {
     struct ARP arp;
     uint8_t cause;
     uint8_t eps_bearer_id;
     uint32_t seq_no;
-};
+}__attribute__((packed));
 
-typedef union gtp_incoming_msgs_t {
+union gtp_incoming_msgs {
     struct csr_Q_msg csr_Q_msg_m;
     struct MB_resp_Q_msg MB_resp_Q_msg_m;
     struct RB_resp_Q_msg RB_resp_Q_msg_m;
     struct ddn_Q_msg ddn_Q_msg_m;    
-}gtp_incoming_msgs_t;
+}__attribute__((packed));
+typedef union gtp_incoming_msgs gtp_incoming_msgs_t;
 
-typedef struct gtp_incoming_msg_data_t {
-    uint32_t destInstAddr;
-    uint32_t srcInstAddr;
+struct gtp_incoming_msg_data {
+	uint32_t destInstAddr;
+	uint32_t srcInstAddr;
     msg_type_t msg_type;
     int ue_idx;
     gtp_incoming_msgs_t msg_data;
-}gtp_incoming_msg_data_t;
+}__attribute__((packed));
+typedef struct gtp_incoming_msg_data  gtp_incoming_msg_data_t;
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 
 typedef union gtp_outgoing_msgs_t {
     msg_type_t msg_type;
     int ue_idx;
-    struct CS_Q_msg  csr_req_msg; 
+    struct CS_Q_msg         csr_req_msg; 
+    struct MB_Q_msg         mbr_req_msg; 
+    struct DS_Q_msg         dsr_req_msg; 
+    struct RB_Q_msg         rabr_req_msg;
+    struct DDN_ACK_Q_msg    ddn_ack_msg;
 }gtp_outgoing_msgs_t;
 
 typedef struct gtp_outgoing_msg_data_t {

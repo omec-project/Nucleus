@@ -46,7 +46,6 @@ LIBS :=	-lpthread \
         -linterface \
         -lipcfwk \
 		-lmonitor_config \
-		-lusock \
 		-lthreadpool \
         -lstatemachinefwk \
 		-lmmeGrpcProtoBuf \

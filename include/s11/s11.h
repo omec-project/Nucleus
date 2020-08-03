@@ -79,6 +79,12 @@ const size_t fifoQSize_c = 1000;
 const uint16_t S11IpcInterfaceCompId = 1;
 const uint16_t TimeoutManagerCompId = 2;
 
+class local_endpoint {
+    public:
+        int s11_fd;
+        struct sockaddr_in local_addr;
+     
+};
 
 #ifdef __cplusplus
 }

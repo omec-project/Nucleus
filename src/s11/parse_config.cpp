@@ -67,12 +67,12 @@ s11Config::s11_parse_config(s11_config_t *config)
             config->local_egtp_ip = 0;
             struct in_addr temp = {0};
             inet_aton(addr.c_str(), &temp);
-            config->local_egtp_ip = temp.s_addr; /* network order */
+            config->local_egtp_ip = ntohl(temp.s_addr); 
         }
         if(s11Section.HasMember("egtp_default_port"))
         {
             config->egtp_def_port = s11Section["egtp_default_port"].GetInt();
-            config->egtp_def_port = htons(config->egtp_def_port);
+            config->egtp_def_port = config->egtp_def_port;
         }
         if(s11Section.HasMember("sgw_addr"))
         {

@@ -1,4 +1,5 @@
 /*
+ * Copyright 2020-present Open Networking Foundation
  * Copyright 2019-present Infosys Limited  
  *   
  * SPDX-License-Identifier: Apache-2.0    
@@ -24,6 +25,10 @@ public:
 private:
 	S11MsgHandler();
 	void handleCreateSessionRequestMsg_v(cmn::IpcEventMessage* eMsg);
+    void handleModifyBearerRequestMsg_v(cmn::IpcEventMessage* eMsg);
+    void handleDeleteSessionRequestMsg_v(cmn::IpcEventMessage *eMsg);
+    void handleReleaseAccessBearerRequestMsg_v(cmn::IpcEventMessage *eMsg);
+    void handleDownlinkDataNotificationAckMsg_v(cmn::IpcEventMessage *eMsg);
 };
 
 #endif /* INCLUDE_S11_APP_MSGHANDLERS_S11MSGHANDLER_H_ */
