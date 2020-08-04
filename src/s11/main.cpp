@@ -39,22 +39,19 @@ cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> fromMmeIpcIn
 cmn::utils::BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> toMmeIpcIngressFifo_g;
 
 local_endpoint init_gtpv2(uint32_t local_ip, uint16_t local_port);
-void s11_reader();
+
+/* Thread functions */
+void s11_reader(void);
+void condition_notify(void);
+void gtp_msg_processing(uint16_t id);
+void handle_s11_message(MsgBuffer *msg); 
+
 /*********************************************************
  *
  * Externs
  *
  **********************************************************/
-extern "C"
-{
-#if 0
-#include "thread_pool.h"
-int init_sock();
-#endif
-}
-
 struct GtpV2Stack* gtpStack_gp = NULL;
-
 extern char processName[255];
 extern int pid;
 struct thread_pool *g_tpool;
@@ -63,8 +60,6 @@ s11IpcInterface* s11IpcIf_g = NULL;
 TimeoutManager* timeoutMgr_g = NULL;
 local_endpoint le;
 
-void gtp_msg_processing(uint16_t id);
-void handle_s11_message(MsgBuffer *msg); 
 
 using namespace std::placeholders;
 
@@ -134,7 +129,11 @@ int main(int argc, char *argv[])
     std::thread gtp_reader(s11_reader);
 	setThreadName(&gtp_reader, "gtpMsgHandlerThread");
 	gtp_reader.detach();
-    log_msg(LOG_INFO, "gtp socket reader started \n");
+
+    std::thread c_notify(condition_notify);
+	setThreadName(&c_notify, "conditionNotifyThread");
+	c_notify.detach();
+
 
     for(int pool=0; pool<2;pool++) {
         log_msg(LOG_INFO, "gtp message processing thread  started \n");
@@ -174,41 +173,57 @@ std::condition_variable cv;
 std::mutex gtp_msg_mtx;
 std::queue<MsgBuffer*> incoming_gtp_msg_q;
 
-void s11_reader()
+void s11_reader(void)
 {
 	unsigned char buffer[S11_GTPV2C_BUF_LEN];
 	int len;
     socklen_t g_s11_serv_size = sizeof(struct sockaddr_in);
     struct sockaddr_in g_s11_cp_addr = {0};
+    log_msg(LOG_INFO, "gtp socket reader started \n");
 
 	while(1) {
 		len = recvfrom(le.s11_fd, buffer, S11_GTPV2C_BUF_LEN, 0,
 			(struct sockaddr*)&g_s11_cp_addr, &g_s11_serv_size);
 		if(len > 0) {
-            std::unique_lock<std::mutex> lock(gtp_msg_mtx);
+            std::unique_lock<std::mutex> q_lock(gtp_msg_mtx, std::defer_lock);
 			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
 			MsgBuffer* tmp_buf_p = createMsgBuffer(len);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
+            q_lock.lock();
             incoming_gtp_msg_q.push(tmp_buf_p);   
-            cv.notify_one();
+            q_lock.unlock();
 		}
 	}
 }
 
+void 
+condition_notify(void)
+{
+    log_msg(LOG_INFO, "notify condition thread started \n");
+    while(1) {
+        std::unique_lock<std::mutex> lock(gtp_msg_mtx);
+        if(!incoming_gtp_msg_q.empty()) {
+            cv.notify_one();
+        } else {
+            std::this_thread::sleep_for (std::chrono::microseconds(1));
+        }
+    }
+}
 
-void gtp_msg_processing(uint16_t id)
+void 
+gtp_msg_processing(uint16_t id)
 {
     log_msg(LOG_DEBUG, "Start thread %d for gtp message processing", id);
     while(1)
     {
-        std::unique_lock<std::mutex> lock(gtp_msg_mtx);
-        log_msg(LOG_DEBUG, "thead (%d) - Waiting for gtp message \n",id);
-        cv.wait(lock, [] { return !incoming_gtp_msg_q.empty();}); 
-        log_msg(LOG_DEBUG, "thread (%d) - processing gtp message job\n", id);
+        log_msg(LOG_DEBUG, "thead (%d) - Waiting for condition variable \n",id);
+        std::unique_lock<std::mutex> q_lock(gtp_msg_mtx);
+        cv.wait(q_lock, [] { return !incoming_gtp_msg_q.empty();}); 
         MsgBuffer *msg = incoming_gtp_msg_q.front();
         incoming_gtp_msg_q.pop();
-        gtp_msg_mtx.unlock();
+        q_lock.unlock();
+        log_msg(LOG_DEBUG, "thread (%d) - processing gtp message job\n", id);
         gtpIncomingMsgHandler::handle_s11_message(msg);
     }
 }
