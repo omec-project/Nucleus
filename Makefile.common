@@ -18,6 +18,7 @@ INC_DIRS= \
           -I$(INCLUDE_DIR)/mme-app \
           -I$(INCLUDE_DIR)/mme-app/utils \
           -I$(INCLUDE_DIR)/s11 \
+          -I$(TOPDIR)/src/s11/cpp_utils \
           -I$(INCLUDE_DIR)/s1ap \
           -I$(INCLUDE_DIR)/s6a \
           -I$(TOPDIR)/src/s1ap/asn1c/asnGenFiles \

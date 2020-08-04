@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfDelSessionResp::DetachWfDelSessionResp():State(detach_wf_del_session_resp)
+DetachWfDelSessionResp::DetachWfDelSessionResp():State(detach_wf_del_session_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -61,5 +61,11 @@ void DetachWfDelSessionResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
                 actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DEL_SESSION_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_del_session_resp);
+                actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

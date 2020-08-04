@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(service_request_wf_sec_cmp)
+ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State(service_request_wf_sec_cmp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -63,6 +63,13 @@ void ServiceRequestWfSecCmp::initialize()
                 actionTable.addAction(&ActionHandlers::send_init_ctxt_req_to_ue_svc_req);
                 actionTable.setNextState(ServiceRequestWfInitCtxtResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(SEC_MODE_RESP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
         {
                 ActionTable actionTable;

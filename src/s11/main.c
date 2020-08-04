@@ -15,13 +15,14 @@
 #include <pthread.h>
 #include "thread_pool.h"
 #include "err_codes.h"
-#include "options.h"
 #include "ipc_api.h"
 #include "s11.h"
 #include "s11_config.h"
 #include <sys/types.h>
 #include "msgType.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /**Global and externs **/
 extern s11_config_t g_s11_cfg;
@@ -226,6 +227,7 @@ main(int argc, char **argv)
 		init_logging("hostbased","/tmp/s11logs.txt" );
 	}
 
+    init_cpp_gtp_tables();
 
 	init_parser("conf/s11.json");
 	parse_s11_conf();

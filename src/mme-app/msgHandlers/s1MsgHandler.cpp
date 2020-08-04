@@ -51,7 +51,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	    	delete eMsg;
 	    	return;
 	}
-    log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
+    	log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_data_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"

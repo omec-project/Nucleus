@@ -21,6 +21,7 @@ SUBDIRS 		 := src/cmn \
 					src/mme-app \
 					src/s1ap/s1apContextManager \
 					src/s1ap \
+					src/s11/cpp_utils/ \
 					src/s11 \
 					src/s6a
 

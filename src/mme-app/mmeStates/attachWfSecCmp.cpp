@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfSecCmp::AttachWfSecCmp():State(attach_wf_sec_cmp)
+AttachWfSecCmp::AttachWfSecCmp():State(attach_wf_sec_cmp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -63,6 +63,11 @@ void AttachWfSecCmp::initialize()
                 actionTable.addAction(&ActionHandlers::check_esm_info_req_required);
                 actionTable.setNextState(AttachWfEsmInfoCheck::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(SEC_MODE_RESP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
         {
                 ActionTable actionTable;

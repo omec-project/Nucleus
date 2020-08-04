@@ -18,8 +18,11 @@
 #include "ipc_api.h"
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
+#include "s11_config.h"
 #include "msgType.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 /************************************************************************
 Current file : Stage 1 handler.
 ATTACH stages :
@@ -31,6 +34,7 @@ ATTACH stages :
 /*S11 CP communication parameters*/
 extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
+extern s11_config_t g_s11_cfg;
 extern socklen_t g_s11_serv_size;
 extern volatile uint32_t g_s11_sequence;
 
@@ -51,6 +55,9 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	gtpHeader.sequenceNumber = g_s11_sequence;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ds_msg->s11_sgw_c_fteid.header.teid_gre;
+    struct sockaddr_in sgw_ip = {0};
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    ds_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DeleteSessionRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteSessionRequestMsgData));
@@ -61,13 +68,14 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	msgData.linkedEpsBearerIdIePresent = true;
 	msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
 
+    add_gtp_transaction(gtpHeader.sequenceNumber, ds_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
 	g_s11_sequence++;
 
 	sendto(g_s11_fd,
 			MsgBuffer_getDataPointer(dsReqMsgBuf_p),
 			MsgBuffer_getBufLen(dsReqMsgBuf_p), 0,
-			(struct sockaddr*)&g_s11_cp_addr, g_s11_serv_size);
+			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	log_msg(LOG_INFO, "Send delete session request\n");
 
 	MsgBuffer_reset(dsReqMsgBuf_p);

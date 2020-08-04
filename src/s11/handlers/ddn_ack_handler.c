@@ -17,6 +17,8 @@
 #include "gtpv2c.h"
 #include "gtpv2c_ie.h"
 #include "msgType.h"
+#include "s11_config.h"
+#include "s11_options.h"
 #include <gtpV2StackWrappers.h>
 
 
@@ -24,6 +26,7 @@
 
 /*S11 CP communication parameters*/
 extern int g_s11_fd;
+extern s11_config_t g_s11_cfg;
 extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 
@@ -46,7 +49,10 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	gtpHeader.msgType =  GTP_DOWNLINK_DATA_NOTIFICATION_ACK;
 	gtpHeader.sequenceNumber = ddn_ack_msg->seq_no;
 	gtpHeader.teidPresent = true;
-	gtpHeader.teid = ddn_ack_msg->s11_sgw_cp_teid;
+	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
+    struct sockaddr_in sgw_ip = {0};
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+                    ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DownlinkDataNotificationAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
@@ -61,7 +67,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	sendto(g_s11_fd,
 			MsgBuffer_getDataPointer(ddnAckMsgBuf_p),
 			MsgBuffer_getBufLen(ddnAckMsgBuf_p), 0,
-			(struct sockaddr*)&g_s11_cp_addr, g_s11_serv_size);
+			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	
 	log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
 	MsgBuffer_reset(ddnAckMsgBuf_p);

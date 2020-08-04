@@ -24,6 +24,7 @@
 #include "gtpv2c_ie.h"
 #include "s11_config.h"
 #include <gtpV2StackWrappers.h>
+#include "gtp_cpp_wrapper.h"
 
 /************************************************************************
 Current file : Stage 5 handler.
@@ -112,6 +113,8 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	
 	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
 
+    add_gtp_transaction(gtpHeader.sequenceNumber, 
+                          g_csReqInfo->ue_idx); 
 	CreateSessionRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
 
@@ -231,6 +234,8 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
 
+    uint32_t seq = g_s11_sequence;
+ 
 	int res = sendto (
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),

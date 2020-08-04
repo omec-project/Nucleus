@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(attach_wf_esm_info_resp)
+AttachWfEsmInfoResp::AttachWfEsmInfoResp():State(attach_wf_esm_info_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -63,5 +63,17 @@ void AttachWfEsmInfoResp::initialize()
                 actionTable.addAction(&ActionHandlers::send_ulr_to_hss);
                 actionTable.setNextState(AttachWfUla::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ESM_INFO_RESP_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

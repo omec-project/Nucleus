@@ -7,9 +7,11 @@ import utils
 for state in procedure['States']:
     for event in state['Events']:
         for action in event['Actions']:
-            rc = utils.searchWordInDir(utils.outputDir, action.lower()) 
+            actionName = action.lower()
+            rc = utils.searchWordInDir(utils.outputDir, actionName) 
             if rc is False:
-                actionNames.append(action.lower())
+                if actionName not in actionNames:
+                    actionNames.append(actionName)
 flag =  utils.isFileEmpty(utils.outputDir, utils.outputFileName)
 stash.set('actionList', actionNames)
 stash.set('includeHeader', flag)

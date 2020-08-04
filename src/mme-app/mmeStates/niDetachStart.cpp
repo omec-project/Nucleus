@@ -21,7 +21,6 @@
 #include "utils/mmeTimerTypes.h"
 
 #include "mmeStates/niDetachStart.h"	
-#include "mmeStates/niDetachWfDetAccptDelSessResp.h"	
 #include "mmeStates/niDetachWfDetAccptDelSessResp.h"
 
 using namespace mme;

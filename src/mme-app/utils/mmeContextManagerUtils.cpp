@@ -327,7 +327,7 @@ void MmeContextManagerUtils::deleteSessionContext(SM::ControlBlock& cb_r)
     ueCtxt_p->setSessionContext(NULL);
 }
 
-void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex)
+void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag)
 {
     SM::ControlBlock* cb_p = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
     if (cb_p == NULL)
@@ -362,9 +362,11 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex)
         SubsDataGroupManager::Instance()->deletemTmsikey(ueCtxt_p->getMTmsi());
 
         SubsDataGroupManager::Instance()->deleteUEContext(ueCtxt_p);
+        cb_p->setPermDataBlock(NULL);
     }
 
-    SubsDataGroupManager::Instance()->deAllocateCB(cb_p->getCBIndex());
+    if (deleteControlBlockFlag)
+        SubsDataGroupManager::Instance()->deAllocateCB(cb_p->getCBIndex());
 }
 
 S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::ControlBlock& cb_r)

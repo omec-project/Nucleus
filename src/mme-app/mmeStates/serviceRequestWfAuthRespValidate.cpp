@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAuthRespValidate::ServiceRequestWfAuthRespValidate():State(service_request_wf_auth_resp_validate)
+ServiceRequestWfAuthRespValidate::ServiceRequestWfAuthRespValidate():State(service_request_wf_auth_resp_validate, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
