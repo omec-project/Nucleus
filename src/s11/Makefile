@@ -8,19 +8,20 @@
 #
 include ../../Makefile.common
 
+CC := g++
+
 LIB_PATH +=-L../common/
 
 SRCDIR := .
 TARGET := $(BINDIR)/s11-app
 S11_JSON = s11.json
 
-SRCEXT := c
-
+SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
-
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/s11/%,$(SOURCES:.$(SRCEXT)=.o))
 
-CFLAGS += -Wall
+CFLAGS += -Wall -std=c++11
+CFLAGS += -I$(TOPDIR)/src/s11
 
 ifeq ($(DEBUG),true)
 	CFLAGS += -g
@@ -30,25 +31,29 @@ ifeq ($(DEBUG),false)
 	CFLAGS += -O3
 endif
 
-LIBS := \
-        -lpthread \
-	-lthreadpool \
-        -lsctp \
-	-lgtpV2Codec \
-	-lcmnUtils \
-	-linterface \
-	-llog \
-	-ljson \
-	-lmonitor_config
+LIBS :=	-lpthread \
+        -lgtpV2Codec \
+        -lcmnUtils \
+        -llog \
+        -linterface \
+        -lipcfwk \
+		-lmonitor_config 
 
-$(TARGET): $(OBJECTS)
+
+
+$(TARGET): $(OBJECTS) 
 	@echo " Linking..."
 	@mkdir -p $(BINDIR)
-	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS) -Lcpp_utils/ -ls11cpputil
+	$(CC) $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
 
 $(OBJDIR)/s11/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(OBJDIR)/s11/handlers
+	echo "Compiling..."
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(OBJDIR)/s11/interfaces
+	@mkdir -p $(OBJDIR)/s11/msgHandlers
+	@mkdir -p $(OBJDIR)/s11/utils
 	$(CC) $(CFLAGS) $(INC_DIRS) -c -o $@ $<
+
 
 all:$(TARGET)
 
@@ -57,6 +62,7 @@ clean:
 	@rm -rf $(OBJDIR)/s11 $(TARGET)
 
 install:
+	@echo "Installing s11-app"
 	@mkdir -p $(TARGET_DIR)/bin/
 	-@cp $(TARGET) $(TARGET_DIR)/bin/
 	-@cp conf/$(S11_JSON) $(TARGET_DIR)/conf/

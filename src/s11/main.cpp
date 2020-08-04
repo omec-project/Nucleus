@@ -63,13 +63,6 @@ local_endpoint le;
 
 using namespace std::placeholders;
 
-void setThreadName(std::thread* thread, const char* threadName)
-{
-   	auto handle = thread->native_handle();
-	pthread_setname_np(handle,threadName);
-}
-
-
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
@@ -110,28 +103,23 @@ int main(int argc, char *argv[])
 
 	MmeIpcProducerThread ipcReader;
 	std::thread t1(ipcReader);
-	setThreadName(&t1, "IpcReader");
 	t1.detach();
     log_msg(LOG_INFO, "mme-ipc IpcReader started \n");
 
 	MmeIpcConsumerThread msgHandlerThread;
 	std::thread t2(msgHandlerThread);
-	setThreadName(&t2, "s11MsgHandlerThread");
 	t2.detach();
     log_msg(LOG_INFO, "mme-ipc consumer started \n");
 
 	GtpMsgConsumerThread ipcWriter;
 	std::thread t3(ipcWriter);
-	setThreadName(&t3, "IpcWriter");
 	t3.detach();
     log_msg(LOG_INFO, "gtp packets dispath thread started \n");
 
     std::thread gtp_reader(s11_reader);
-	setThreadName(&gtp_reader, "gtpMsgHandlerThread");
 	gtp_reader.detach();
 
     std::thread c_notify(condition_notify);
-	setThreadName(&c_notify, "conditionNotifyThread");
 	c_notify.detach();
 
 

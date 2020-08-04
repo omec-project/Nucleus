@@ -11,12 +11,20 @@
 class gtpTables
 {
    public:
-      gtpTables()
-      {
-      }
-      ~gtpTables()
-      {
-      }
+    gtpTables()
+    {
+    }
+
+    ~gtpTables()
+    {
+    }
+
+    static gtpTables* Instance() 
+    {
+        static gtpTables obj;
+        return &obj; 
+    }
+
     int addSeqKey( uint32_t key, uint32_t ue_index);
     int delSeqKey( uint32_t key );
     int findUeIdxWithSeq( uint32_t key);
