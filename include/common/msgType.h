@@ -631,8 +631,7 @@ typedef struct gtp_incoming_msg_data  gtp_incoming_msg_data_t;
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 
 typedef union gtp_outgoing_msgs_t {
-    msg_type_t msg_type;
-    int ue_idx;
+	msg_type_t msg_type; /* weird.. msg_type is first element in all the union members..to avoid typecasting .*/
     struct CS_Q_msg         csr_req_msg; 
     struct MB_Q_msg         mbr_req_msg; 
     struct DS_Q_msg         dsr_req_msg; 

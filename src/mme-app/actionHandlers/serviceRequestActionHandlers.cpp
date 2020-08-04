@@ -154,8 +154,13 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = ddn_ack.msg_type;
+    memcpy(&top_msg.ddn_ack_msg, &ddn_ack, sizeof(ddn_ack)); 
+
+
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &ddn_ack, sizeof(ddn_ack), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving send_ddn_ack_to_sgw \n");
 
@@ -336,10 +341,14 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
                 cmn::ipc::IpcAddress destAddr;
                 destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+                gtp_outgoing_msgs_t top_msg;
+                top_msg.msg_type = mb_msg.msg_type;
+                memcpy(&top_msg.mbr_req_msg, &mb_msg, sizeof(mb_msg)); 
+
                 MmeIpcInterface &mmeIpcIf =
                         static_cast<MmeIpcInterface&>(compDb.getComponent(
                                 MmeIpcInterfaceCompId));
-                mmeIpcIf.dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
+                mmeIpcIf.dispatchIpcMsg((char*) &top_msg, sizeof(top_msg), destAddr);
 
                 ProcedureStats::num_of_mb_req_to_sgw_sent++;
             }

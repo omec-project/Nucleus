@@ -89,7 +89,6 @@ S11MsgHandler::handleMmeMessage_v(cmn::IpcEventMessage* eMsg)
 
     gtp_outgoing_msg_data_t *msgData_p = (gtp_outgoing_msg_data_t*)(msgBuf->getDataPointer());
 
-    log_msg(LOG_INFO, "mme-app - handleMmeMessage_v %d\n",msgData_p->msg_data.msg_type);
     switch (msgData_p->msg_data.msg_type)
     {
         case msg_type_t::create_session_request:

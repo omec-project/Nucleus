@@ -335,9 +335,13 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     MmeGtpMsgUtils::populateModifyBearerRequestHo(
             cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = mb_msg.msg_type;
+    memcpy(&top_msg.mbr_req_msg, &mb_msg, sizeof(mb_msg)); 
+ 
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s11AppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-    mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
+    mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
     log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_ho \n");

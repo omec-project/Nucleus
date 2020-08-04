@@ -873,7 +873,6 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 
     gtp_outgoing_msgs_t top_msg;
     top_msg.msg_type = cs_msg.msg_type;
-    top_msg.ue_idx = cs_msg.ue_idx;
     memcpy(&top_msg.csr_req_msg, &cs_msg, sizeof(cs_msg)); 
 
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
@@ -1194,7 +1193,6 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 
     gtp_outgoing_msgs_t top_msg;
     top_msg.msg_type = mb_msg.msg_type;
-    top_msg.ue_idx = mb_msg.ue_idx;
     memcpy(&top_msg.mbr_req_msg, &mb_msg, sizeof(mb_msg)); 
 
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   

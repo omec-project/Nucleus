@@ -67,7 +67,6 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 
 	struct RB_Q_msg rb_msg;
 	rb_msg.msg_type = release_bearer_request;
-	rb_msg.ue_idx = ue_ctxt->getContextID();
 	memset(rb_msg.indication, 0 , S11_RB_INDICATION_FLAG_SIZE);
 	rb_msg.bearer_id = bearerCtxt->getBearerId();
 	memcpy(&(rb_msg.s11_sgw_c_fteid), 
@@ -79,9 +78,14 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 			
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
-	
+
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = rb_msg.msg_type;
+    memcpy(&top_msg.rabr_req_msg, &rb_msg, sizeof(rb_msg)); 
+
+
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 
 	ProcedureStats::num_of_rel_access_bearer_req_sent ++;
 	

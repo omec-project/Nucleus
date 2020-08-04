@@ -67,8 +67,12 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = g_ds_msg.msg_type;
+    memcpy(&top_msg.dsr_req_msg, &g_ds_msg, sizeof(g_ds_msg)); 
+
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
 	ProcedureStats::num_of_del_session_req_sent ++;	
