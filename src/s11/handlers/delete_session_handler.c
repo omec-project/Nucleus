@@ -43,7 +43,6 @@ struct thread_pool *g_tpool;
 extern struct GtpV2Stack* gtpStack_gp;
 extern volatile uint32_t g_s11_sequence;
 
-struct MsgBuffer*  dsReqMsgBuf_p = NULL;
 /****Global and externs end***/
 
 /**
@@ -52,6 +51,12 @@ struct MsgBuffer*  dsReqMsgBuf_p = NULL;
 static int
 delete_session_processing(struct DS_Q_msg *ds_msg)
 {
+	struct MsgBuffer*  dsReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+	if(dsReqMsgBuf_p == NULL)
+	{
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+            return -1;
+	}
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_DELETE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
@@ -80,7 +85,7 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	log_msg(LOG_INFO, "Send delete session request\n");
 
-	MsgBuffer_reset(dsReqMsgBuf_p);
+	MsgBuffer_free(dsReqMsgBuf_p);
 
 	return SUCCESS;
 }
