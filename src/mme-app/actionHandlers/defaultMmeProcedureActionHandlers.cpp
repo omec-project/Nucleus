@@ -311,7 +311,8 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         struct DDN_ACK_Q_msg ddnAck;
         ddnAck.msg_type = ddn_acknowledgement;
 	/*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
-        ddnAck.s11_sgw_cp_teid = sgw_cp_teid;
+        ddnAck.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
+	ddnAck.s11_sgw_c_fteid.ip.ipv4.s_addr = ddn_info.sgw_ip;
         ddnAck.seq_no= ddn_info.seq_no;
         ddnAck.cause = gtpCause;
 

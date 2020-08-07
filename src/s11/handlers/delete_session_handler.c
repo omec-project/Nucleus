@@ -51,7 +51,7 @@ extern volatile uint32_t g_s11_sequence;
 static int
 delete_session_processing(struct DS_Q_msg *ds_msg)
 {
-	struct MsgBuffer*  dsReqMsgBuf_p = createMsgBuffer(1024);
+	struct MsgBuffer*  dsReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(dsReqMsgBuf_p == NULL)
 	{
 	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");

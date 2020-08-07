@@ -13,6 +13,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#define S11_MSGBUF_SIZE 2048
+
 #pragma pack(1)
 typedef struct gtpv2c_header {
 	struct gtpc{

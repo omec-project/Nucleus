@@ -566,9 +566,9 @@ struct RB_Q_msg{
 
 struct DDN_ACK_Q_msg{
 	msg_type_t msg_type;
-	int s11_sgw_cp_teid;
 	uint32_t seq_no;
 	uint8_t cause;
+	struct fteid s11_sgw_c_fteid;
 };
 #define S11_DDN_ACK_BUF_SIZE sizeof(struct DDN_ACK_Q_msg)
 
@@ -608,6 +608,7 @@ struct ddn_Q_msg {
     uint8_t cause;
     uint8_t eps_bearer_id;
     uint32_t seq_no;
+    uint32_t sgw_ip;
 };
 
 typedef union gtp_incoming_msgs_t {

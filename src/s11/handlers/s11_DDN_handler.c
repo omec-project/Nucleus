@@ -26,12 +26,13 @@ extern struct GtpV2Stack* gtpStack_gp;
 
 
 int
-s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 	struct gtp_incoming_msg_data_t ddn_info;
 	ddn_info.msg_type = downlink_data_notification;
 	ddn_info.ue_idx = hdr->teid;
 	ddn_info.msg_data.ddn_Q_msg_m.seq_no = hdr->sequenceNumber;
+	ddn_info.msg_data.ddn_Q_msg_m.sgw_ip = sgw_ip;
 
 
 	DownlinkDataNotificationMsgData msgData;

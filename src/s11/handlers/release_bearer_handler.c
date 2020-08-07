@@ -53,7 +53,7 @@ extern struct GtpV2Stack* gtpStack_gp;
 static int
 release_bearer_processing(struct RB_Q_msg *rb_msg)
 {
-    struct MsgBuffer*  rbReqMsgBuf_p = createMsgBuffer(1024);
+    struct MsgBuffer*  rbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
     if(rbReqMsgBuf_p == NULL)
     {
 	log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");

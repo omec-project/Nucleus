@@ -56,7 +56,7 @@ extern struct GtpV2Stack* gtpStack_gp;
 static int
 modify_bearer_processing(struct MB_Q_msg *mb_msg)
 {
-	struct MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(2048);
+	struct MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(mbReqMsgBuf_p == NULL)
 	{
 	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");

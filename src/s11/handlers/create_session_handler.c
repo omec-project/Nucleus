@@ -93,7 +93,7 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
-	struct MsgBuffer*  csReqMsgBuf_p = createMsgBuffer(2048);
+	struct MsgBuffer*  csReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(csReqMsgBuf_p == NULL)
 	{
                 log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
