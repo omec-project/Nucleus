@@ -267,6 +267,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         SessionContext *sess_p = ueCtxt->getSessionContext();
         if (sess_p != NULL)
         {
+	    /*We will fetch the s11_sgw_cp_teid from the session context if it's available*/
             sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
 
             MmeSvcReqProcedureCtxt *svcReqProc_p =
@@ -307,13 +308,12 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
     if (gtpCause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
-        SessionContext *sess_p = ueCtxt->getSessionContext();
         struct DDN_ACK_Q_msg ddnAck;
         ddnAck.msg_type = ddn_acknowledgement;
-        ddnAck.s11_sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
+	/*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
+        ddnAck.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
+	ddnAck.s11_sgw_c_fteid.ip.ipv4.s_addr = ddn_info.sgw_ip;
         ddnAck.seq_no= ddn_info.seq_no;
-        memcpy(&(ddnAck.s11_sgw_c_fteid), 
-               &(sess_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct Fteid));
         ddnAck.cause = gtpCause;
 
         cmn::ipc::IpcAddress destAddr;
