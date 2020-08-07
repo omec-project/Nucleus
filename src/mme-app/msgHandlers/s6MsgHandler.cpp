@@ -11,6 +11,7 @@
 #include <log.h>
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -20,7 +21,9 @@ using namespace cmn;
 S6MsgHandler::~S6MsgHandler() {
 
 }
-S6MsgHandler::S6MsgHandler() {
+
+S6MsgHandler::S6MsgHandler()
+{
 
 }
 
@@ -52,6 +55,7 @@ void S6MsgHandler::handleS6Message_v(IpcEventMessage* eMsg)
     	}
 
 	const s6_incoming_msg_data_t* msgData_p = (s6_incoming_msg_data_t*)(msgBuf->getDataPointer());
+    statistics::Instance()->Increment_s6_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::auth_info_answer:

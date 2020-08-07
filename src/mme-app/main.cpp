@@ -25,10 +25,10 @@
 #include "monitorSubscriber.h"
 #include "timeoutManager.h"
 #include <utils/mmeTimerUtils.h>
+#include "promClient.h"
 
 using namespace std;
 using namespace mme;
-
 
 mmeConfig *mme_tables = nullptr;
 /*********************************************************
@@ -76,6 +76,7 @@ void setThreadName(std::thread* thread, const char* threadName)
 	pthread_setname_np(handle,threadName);
 }
 
+
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
@@ -92,6 +93,9 @@ int main(int argc, char *argv[])
 	init_backtrace(argv[0]);
 
 	srand(time(0));
+
+    std::thread prom(promThreadSetup);
+    prom.detach();
 
     auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
     timeoutMgr_g = new TimeoutManager(cb);
