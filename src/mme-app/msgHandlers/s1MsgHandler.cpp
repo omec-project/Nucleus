@@ -5,7 +5,6 @@
  */
 
 #include <msgHandlers/s1MsgHandler.h>
-
 #include <event.h>
 #include <ipcTypes.h>
 #include <log.h>
@@ -14,6 +13,7 @@
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
 #include "mmeNasUtils.h"
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -82,6 +82,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	}
 
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
+    statistics::Instance()->Increment_s1ap_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
@@ -165,7 +166,7 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 			break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled S1 Message %d \n", msgData_p->msg_type);
+			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
 			delete eMsg;
 	}
 }

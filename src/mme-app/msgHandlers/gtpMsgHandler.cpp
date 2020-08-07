@@ -13,6 +13,7 @@
 #include <log.h>
 #include <mmeSmDefs.h>
 #include <utils/mmeCommonUtils.h>
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -22,8 +23,8 @@ GtpMsgHandler::~GtpMsgHandler() {
 
 }
 
-GtpMsgHandler::GtpMsgHandler() {
-
+GtpMsgHandler::GtpMsgHandler()
+{
 
 }
 
@@ -57,10 +58,10 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
     const gtp_incoming_msg_data_t *msgData_p =
             (gtp_incoming_msg_data_t*) (msgBuf->getDataPointer());
 
+    statistics::Instance()->Increment_s11_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::create_session_response:
-			log_msg(LOG_DEBUG,"Create Session Response msg rxed\n");
 			handleCreateSessionResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
