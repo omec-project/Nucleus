@@ -29,7 +29,7 @@ extern struct GtpV2Stack* gtpStack_gp;
 /*End : globals and externs*/
 
 int
-s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 	
 	struct gtp_incoming_msg_data_t mbr_info;

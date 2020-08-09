@@ -10,7 +10,8 @@ FROM $BASE_OS AS builder
 WORKDIR /openmme
 COPY install_builddeps.sh .
 RUN ./install_builddeps.sh
-
+COPY install_prometheus.sh .
+RUN ./install_prometheus.sh
 #COPY . ./
 COPY Makefile Makefile.common ./
 COPY include/cmn ./include/cmn
@@ -52,6 +53,7 @@ RUN bash -c "source ./install_rundeps.sh && install_run_deps && install_run_util
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib/x86_64-linux-gnu /usr/local/lib
 COPY --from=builder /tmp/grpc/libs /usr/lib/grpc
+COPY --from=builder /tmp/prometheus/_build/deploy/usr/local/lib /usr/local/lib
 
 WORKDIR /openmme/target
 COPY --from=builder /openmme/target .

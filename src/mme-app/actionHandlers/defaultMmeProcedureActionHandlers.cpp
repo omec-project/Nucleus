@@ -43,6 +43,7 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "contextManager/dataBlocks.h"
+#include "promClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -267,6 +268,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         SessionContext *sess_p = ueCtxt->getSessionContext();
         if (sess_p != NULL)
         {
+	    /*We will fetch the s11_sgw_cp_teid from the session context if it's available*/
             sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
 
             MmeSvcReqProcedureCtxt *svcReqProc_p =
@@ -307,7 +309,6 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
     if (gtpCause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
-        SessionContext *sess_p = ueCtxt->getSessionContext();
         struct DDN_ACK_Q_msg ddnAck;
         ddnAck.msg_type = ddn_acknowledgement;
         /*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
@@ -319,6 +320,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
         
+        statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::ddn_acknowledgement);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
         mmeIpcIf.dispatchIpcMsg((char *) &ddnAck, sizeof(ddnAck), destAddr);
     }
@@ -406,6 +408,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::service_reject);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &serviceRej, sizeof(struct commonRej_info), destAddr);
     }
@@ -572,6 +575,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
+        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::tau_response);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
         mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
     }

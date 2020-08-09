@@ -30,6 +30,7 @@
 #include <tipcTypes.h>
 #include <utils/mmeCauseUtils.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "promClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -75,6 +76,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
+        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::erab_mod_confirmation);
         MmeIpcInterface &mmeIpcIf =
                 static_cast<MmeIpcInterface&>(compDb.getComponent(
                         MmeIpcInterfaceCompId));

@@ -36,7 +36,6 @@ extern volatile uint32_t g_s11_sequence;
 
 extern struct GtpV2Stack* gtpStack_gp;
 
-struct MsgBuffer* ddnAckMsgBuf_p = NULL;
 /****Global and externs end***/
 
 /**
@@ -45,14 +44,19 @@ struct MsgBuffer* ddnAckMsgBuf_p = NULL;
 static int
 ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 {
+	struct MsgBuffer* ddnAckMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+	if(ddnAckMsgBuf_p == NULL)
+	{
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+            return -1;
+	}
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType =  GTP_DOWNLINK_DATA_NOTIFICATION_ACK;
 	gtpHeader.sequenceNumber = ddn_ack_msg->seq_no;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
-    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
-                    ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
+    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port, ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DownlinkDataNotificationAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
@@ -70,7 +74,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	
 	log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
-	MsgBuffer_reset(ddnAckMsgBuf_p);
+	MsgBuffer_free(ddnAckMsgBuf_p);
 	return SUCCESS;
 }
 
