@@ -22,11 +22,6 @@
 extern local_endpoint le; 
 extern s11_config_t *s11_cfg;
 volatile uint32_t g_s11_sequence = 1;
-MsgBuffer*  csReqMsgBuf_p = NULL;
-MsgBuffer* mbReqMsgBuf_p = NULL;
-MsgBuffer* dsReqMsgBuf_p = NULL;
-MsgBuffer* rbReqMsgBuf_p = NULL;
-MsgBuffer* ddnAckMsgBuf_p = NULL;
 
 extern struct GtpV2Stack* gtpStack_gp;
 
@@ -34,17 +29,6 @@ using namespace cmn;
 
 S11MsgHandler::S11MsgHandler()
 {
-    csReqMsgBuf_p = createMsgBuffer(4096);
-    mbReqMsgBuf_p = createMsgBuffer(4096);
-    dsReqMsgBuf_p = createMsgBuffer(4096);
-    rbReqMsgBuf_p = createMsgBuffer(4096);
-    ddnAckMsgBuf_p = createMsgBuffer(4096);
-
-    if (csReqMsgBuf_p == NULL || mbReqMsgBuf_p == NULL || dsReqMsgBuf_p == NULL || rbReqMsgBuf_p == NULL || ddnAckMsgBuf_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
-        assert(0);
-    }
 }
 
 S11MsgHandler::~S11MsgHandler()
@@ -143,6 +127,12 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 void 
 S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
 {
+    utils::MsgBuffer*  csReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+    if(csReqMsgBuf_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        return;
+    }
     log_msg(LOG_INFO, "S1 - handleInitUeAttachRequestMsg_v\n");
 
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
@@ -308,7 +298,7 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
     log_msg(LOG_INFO,"%d bytes sent. Err : %d, %s\n",res,errno,
             strerror(errno));
 
-    MsgBuffer_reset(csReqMsgBuf_p);
+	MsgBuffer_free(csReqMsgBuf_p);
 
     return;
 }
@@ -317,6 +307,13 @@ void
 S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
 {
     log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+
+	utils::MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+ 	if(mbReqMsgBuf_p == NULL)
+ 	{
+ 	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+             return ;
+ 	}
 
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -411,7 +408,7 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
     //TODO " error chk, eagain etc?	
     log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
 
-    MsgBuffer_reset(mbReqMsgBuf_p);
+	MsgBuffer_free(mbReqMsgBuf_p);
 
     return;
 }
@@ -420,6 +417,12 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
 void 
 S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
 {
+	utils::MsgBuffer*  dsReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+ 	if(dsReqMsgBuf_p == NULL)
+ 	{
+ 	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+             return ;
+ 	}
     log_msg(LOG_INFO, "%s\n",__FUNCTION__);
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -461,7 +464,7 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
             (struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
     log_msg(LOG_INFO, "Send delete session request\n");
 
-    MsgBuffer_reset(dsReqMsgBuf_p);
+	MsgBuffer_free(dsReqMsgBuf_p);
 
     return;
 }
@@ -471,6 +474,12 @@ void
 S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
 {
     log_msg(LOG_INFO, "%s\n",__FUNCTION__);
+    utils::MsgBuffer*  rbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+    if(rbReqMsgBuf_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        return ;
+    }
 
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -510,7 +519,7 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
     //TODO " error chk, eagain etc?
     log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(rbReqMsgBuf_p));
 
-    MsgBuffer_reset(rbReqMsgBuf_p);
+    MsgBuffer_free(rbReqMsgBuf_p);
 
     return;
 }
@@ -519,6 +528,12 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
 void 
 S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
 {
+    utils::MsgBuffer* ddnAckMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+    if(ddnAckMsgBuf_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        return ;
+    }
     log_msg(LOG_INFO, "%s\n",__FUNCTION__);
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -531,7 +546,8 @@ S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
     gtpHeader.msgType =  GTP_DOWNLINK_DATA_NOTIFICATION_ACK;
     gtpHeader.sequenceNumber = ddn_ack_msg->seq_no;
     gtpHeader.teidPresent = true;
-    gtpHeader.teid = ddn_ack_msg->s11_sgw_cp_teid;
+	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
+
 
 
     DownlinkDataNotificationAcknowledgeMsgData msgData;
@@ -554,6 +570,7 @@ S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
             (struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
 
     log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
-    MsgBuffer_reset(ddnAckMsgBuf_p);
+	MsgBuffer_free(ddnAckMsgBuf_p);
+
     return ;
 }

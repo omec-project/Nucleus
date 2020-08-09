@@ -24,11 +24,11 @@ public:
     static void handle_s11_message(MsgBuffer *msgBuf_p); 
 
 private:
-    static int  s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-    static int  s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-    static int  s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-    static int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-    static int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+    static int  s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+    static int  s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+    static int  s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+    static int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+    static int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 };
 
 #endif /* INCLUDE_S11_APP_MSGHANDLERS_S11MSGHANDLER_H_ */

@@ -28,6 +28,8 @@ gtpIncomingMsgHandler::handle_s11_message(MsgBuffer *msgBuf_p)
 {
     log_msg(LOG_INFO, "S11 recv msg handler.\n");
 
+	uint32_t sgw_ip = MsgBuffer_readUint32(msgBuf_p, sgw_ip);
+
     GtpV2MessageHeader msgHeader;
 
     bool rc = GtpV2Stack_decodeMessageHeader(gtpStack_gp, &msgHeader, msgBuf_p);
@@ -37,23 +39,23 @@ gtpIncomingMsgHandler::handle_s11_message(MsgBuffer *msgBuf_p)
 
     switch(msgHeader.msgType){
         case S11_GTP_CREATE_SESSION_RESP:
-            s11_CS_resp_handler(msgBuf_p, &msgHeader);
+            s11_CS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
             break;
 
         case S11_GTP_MODIFY_BEARER_RESP:
-            s11_MB_resp_handler(msgBuf_p, &msgHeader);
+            s11_MB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
             break;
 
         case S11_GTP_DELETE_SESSION_RESP:
-            s11_DS_resp_handler(msgBuf_p, &msgHeader);
+            s11_DS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
             break;
 
         case S11_GTP_REL_ACCESS_BEARER_RESP:
-            s11_RB_resp_handler(msgBuf_p, &msgHeader);
+            s11_RB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
             break;
 
         case S11_GTP_DOWNLINK_DATA_NOTIFICATION:
-            s11_DDN_handler(msgBuf_p, &msgHeader);
+            s11_DDN_handler(msgBuf_p, &msgHeader, sgw_ip);
             break;
 
     }
@@ -64,7 +66,7 @@ gtpIncomingMsgHandler::handle_s11_message(MsgBuffer *msgBuf_p)
 }
 
 int
-gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr,  uint32_t sgw_ip)
 {
 
     gtp_incoming_msg_data_t csr_info;
@@ -130,7 +132,7 @@ gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 }
 
 int
-gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr,  uint32_t sgw_ip)
 {
 
     gtp_incoming_msg_data_t mbr_info;
@@ -177,7 +179,7 @@ gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 }
 
 int
-gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr,  uint32_t sgw_ip)
 {
     gtp_incoming_msg_data_t dsr_info;
     dsr_info.msg_type = delete_session_response;
@@ -212,7 +214,7 @@ gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 }
 
 int
-gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr,  uint32_t sgw_ip)
 {	
     gtp_incoming_msg_data_t rbr_info;
 
@@ -257,13 +259,13 @@ gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 }
 
 int
-gtpIncomingMsgHandler::s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr)
+gtpIncomingMsgHandler::s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr,  uint32_t sgw_ip)
 {
     gtp_incoming_msg_data_t ddn_info;
     ddn_info.msg_type = downlink_data_notification;
     ddn_info.ue_idx = hdr->teid;
     ddn_info.msg_data.ddn_Q_msg_m.seq_no = hdr->sequenceNumber;
-
+	ddn_info.msg_data.ddn_Q_msg_m.sgw_ip = sgw_ip;
 
     DownlinkDataNotificationMsgData msgData;
     memset(&msgData, 0, sizeof(DownlinkDataNotificationMsgData));

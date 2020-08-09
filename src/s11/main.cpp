@@ -176,6 +176,8 @@ void s11_reader(void)
             std::unique_lock<std::mutex> q_lock(gtp_msg_mtx, std::defer_lock);
 			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
 			MsgBuffer* tmp_buf_p = createMsgBuffer(len);
+			uint32_t ip = ntohl(g_s11_cp_addr.sin_addr.s_addr);
+ 			MsgBuffer_writeUint32(tmp_buf_p, ip, true);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
             q_lock.lock();

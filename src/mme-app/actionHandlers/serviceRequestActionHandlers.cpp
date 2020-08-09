@@ -144,11 +144,9 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 
 	DDN_ACK_Q_msg ddn_ack;
 	ddn_ack.msg_type = ddn_acknowledgement;
-	ddn_ack.s11_sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
 	ddn_ack.seq_no= srPrcdCtxt_p->getDdnSeqNo();
-	memcpy(&(ddn_ack.s11_sgw_c_fteid), 
-               &(sess_p->getS11SgwCtrlFteid().fteid_m),
-               sizeof(struct Fteid));
+	memcpy(&(ddn_ack.s11_sgw_c_fteid), 	
+                &(sess_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct Fteid));
 	ddn_ack.cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
 	
 	cmn::ipc::IpcAddress destAddr;
