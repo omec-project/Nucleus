@@ -43,7 +43,6 @@ extern socklen_t g_s11_serv_size;
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
 
-struct MsgBuffer*  rbReqMsgBuf_p = NULL;
 extern struct GtpV2Stack* gtpStack_gp;
 
 
@@ -54,6 +53,12 @@ extern struct GtpV2Stack* gtpStack_gp;
 static int
 release_bearer_processing(struct RB_Q_msg *rb_msg)
 {
+    struct MsgBuffer*  rbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+    if(rbReqMsgBuf_p == NULL)
+    {
+	log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	return -1;
+    }
     GtpV2MessageHeader gtpHeader;	
     gtpHeader.msgType = GTP_RABR_REQ;
     gtpHeader.sequenceNumber = g_s11_sequence;
@@ -81,7 +86,7 @@ release_bearer_processing(struct RB_Q_msg *rb_msg)
     //TODO " error chk, eagain etc?
     log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(rbReqMsgBuf_p));
 
-    MsgBuffer_reset(rbReqMsgBuf_p);
+    MsgBuffer_free(rbReqMsgBuf_p);
 
     return SUCCESS;
 

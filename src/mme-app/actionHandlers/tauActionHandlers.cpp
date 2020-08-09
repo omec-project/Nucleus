@@ -37,6 +37,7 @@
 #include "mmeNasUtils.h"
 #include "mme_app.h"
 #include <utils/mmeCommonUtils.h>
+#include "promClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -128,10 +129,11 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	
 	ue_ctxt->setTai(Tai(tau_resp.tai)); /* ajaymerge --need careful reading here... Did i merge correctly ?? */
 	cmn::ipc::IpcAddress destAddr;
-    	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+    destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-        mmeIpcIf.dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::tau_response);
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
 
 	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
 	{

@@ -26,7 +26,7 @@ using namespace cmn::utils;
 
 extern BlockingCircularFifo<cmn::IpcEventMessage, fifoQSize_c> mmeIpcEgressFifo_g;
 
-MmeIpcInterface::MmeIpcInterface():sender_mp(), reader_mp()
+MmeIpcInterface::MmeIpcInterface(): sender_mp(), reader_mp()
 {
      compDb.registerComponent(MmeIpcInterfaceCompId, this);
 }

@@ -64,11 +64,11 @@ void* modify_bearer_handler(void *);
 void* release_bearer_handler(void *); 
 void* delete_session_handler(void *);
 void* ddn_ack_handler(void *);
-int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
-int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr);
+int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 
 
 void
