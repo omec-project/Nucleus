@@ -52,7 +52,6 @@ volatile uint32_t g_s11_sequence = 1;
 struct CS_Q_msg *g_csReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;
-struct MsgBuffer*  csReqMsgBuf_p = NULL;
 
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
@@ -94,7 +93,13 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
-    struct sockaddr_in sgw_addr = {0};
+	struct MsgBuffer*  csReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+	if(csReqMsgBuf_p == NULL)
+	{
+                log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+                return -1;
+        }
+    	struct sockaddr_in sgw_addr = {0};
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
@@ -254,7 +259,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	log_msg(LOG_INFO,"%d bytes sent. Err : %d, %s\n",res,errno,
 			strerror(errno));
 
-	MsgBuffer_reset(csReqMsgBuf_p);
+	MsgBuffer_free(csReqMsgBuf_p);
 
 	return SUCCESS;
 }

@@ -48,7 +48,6 @@ extern volatile uint32_t g_s11_sequence;
 /*TODO: S11 protocol sequence number - need to make it atomic. multiple thread to access this*/
 extern volatile uint32_t g_s11_sequence;
 
-struct MsgBuffer*  mbReqMsgBuf_p = NULL;
 extern struct GtpV2Stack* gtpStack_gp;
 /****Global and externs end***/
 /**
@@ -57,6 +56,12 @@ extern struct GtpV2Stack* gtpStack_gp;
 static int
 modify_bearer_processing(struct MB_Q_msg *mb_msg)
 {
+	struct MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
+	if(mbReqMsgBuf_p == NULL)
+	{
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+            return -1;
+	}
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_MODIFY_BEARER_REQ;
 	gtpHeader.sequenceNumber = g_s11_sequence;
@@ -139,7 +144,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	//TODO " error chk, eagain etc?	
 	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
 
-	MsgBuffer_reset(mbReqMsgBuf_p);
+	MsgBuffer_free(mbReqMsgBuf_p);
 
 	return SUCCESS;
 }
