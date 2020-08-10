@@ -193,9 +193,11 @@ condition_notify(void)
     while(1) {
         std::unique_lock<std::mutex> lock(gtp_msg_mtx);
         if(!incoming_gtp_msg_q.empty()) {
+            lock.unlock();
             cv.notify_one();
         } else {
-            std::this_thread::sleep_for (std::chrono::microseconds(1));
+            lock.unlock();
+            std::this_thread::sleep_for (std::chrono::microseconds(100));
         }
     }
 }
