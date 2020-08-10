@@ -215,6 +215,53 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 config->mnc_dig3 = mncSection["dig3"].GetInt(); 
             }
         }
+	if(mmeSection.HasMember("dns"))
+	{
+		const rapidjson::Value& dnsSection = mmeSection["dns"];
+		if(dnsSection.HasMember("dns_enable"))
+            	{
+			config->dns_config.dns_flag = dnsSection["dns_enable"].GetInt();
+		}
+		if( 1 ==  config->dns_config.dns_flag )
+		{
+			const rapidjson::Value& cacheSection = dnsSection["cache"];
+			if(cacheSection.HasMember("concurrent"))
+			{
+				config->dns_config.concurrent = cacheSection["concurrent"].GetInt();
+
+			}
+			if(cacheSection.HasMember("percentage"))
+                        {
+                                config->dns_config.percentage = cacheSection["percentage"].GetInt();
+
+                        }
+	 		if(cacheSection.HasMember("interval_seconds"))
+                        {
+                                config->dns_config.interval_seconds = cacheSection["interval_seconds"].GetInt();
+
+                        }
+			if(cacheSection.HasMember("query_timeout_ms"))
+                        {
+                                config->dns_config.query_timeout_ms = cacheSection["query_timeout_ms"].GetInt();
+
+                        }
+			if(cacheSection.HasMember("query_tries"))
+                        {
+                                config->dns_config.query_tries = cacheSection["query_tries"].GetInt();
+
+                        
+			}
+				
+			const rapidjson::Value& addressSection = dnsSection["dns1"];
+			if(addressSection.HasMember("address"))
+			{
+				config->dns_config.dns1_ip = (char*)addressSection["address"].GetString();
+				 log_msg(LOG_DEBUG,"mme_name sgw ip : %s \n", config->dns_config.dns1_ip);
+			}
+				
+		}
+		
+	}
         if(mmeSection.HasMember("plmnlist"))
         {
             int count = 1;

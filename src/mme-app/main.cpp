@@ -25,6 +25,7 @@
 #include "monitorSubscriber.h"
 #include "timeoutManager.h"
 #include <utils/mmeTimerUtils.h>
+#include <csignal>
 
 using namespace std;
 using namespace mme;
@@ -70,6 +71,11 @@ TimeoutManager* timeoutMgr_g = NULL;
 
 using namespace std::placeholders;
 
+void signalHandler( int signum ) {
+   std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+}
+
 void setThreadName(std::thread* thread, const char* threadName)
 {
    	auto handle = thread->native_handle();
@@ -78,6 +84,10 @@ void setThreadName(std::thread* thread, const char* threadName)
 
 int main(int argc, char *argv[])
 {
+	// register signal real time signal and signal handler
+        signal(SIGRTMIN+1, signalHandler);
+        signal(SIGRTMIN, signalHandler);
+
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 
