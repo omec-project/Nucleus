@@ -16,8 +16,7 @@ namespace s11
 /******************************************************
  * Timer ID range used by different modules in mme-app
  ******************************************************/
-const uint16_t stateGuardTimer_c = 1;
-const uint16_t mmeConfigDnsResolve_c = 2;
+const uint16_t transTimer_c = 1;
 
 /******************************************************
  * Timeout durations in milliseconds
@@ -25,29 +24,26 @@ const uint16_t mmeConfigDnsResolve_c = 2;
 const uint32_t defaultStateGuardTimerDuration_c = 5000;
 
 
+class gtpTransData;
 class s11TimerContext : public TimerContext
 {
 public:
-    s11TimerContext(uint32_t ueIdx,
+    s11TimerContext(gtpTransData *trans,
             uint16_t timerType,
             uint16_t timerId,
             CTime& expiryTime):
         TimerContext(expiryTime, timerType, timerId),
-        ueIndex_m(ueIdx)
+        trans_m(trans)
     {
     }
 
     ~s11TimerContext()
     {
     }
-
-    uint32_t getUeIndex() const
-    {
-        return ueIndex_m;
-    }
+    gtpTransData *getTrans() { return trans_m; }
 
 private:
-    uint32_t ueIndex_m;
+    gtpTransData *trans_m;
 };
 }
 

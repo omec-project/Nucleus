@@ -204,7 +204,7 @@ condition_notify(void)
 void 
 gtp_msg_processing(uint16_t id)
 {
-    log_msg(LOG_DEBUG, "Start thread %d for gtp message processing", id);
+    log_msg(LOG_DEBUG, "Start thread %d for gtp message processing \n", id);
     while(1)
     {
         log_msg(LOG_DEBUG, "thead (%d) - Waiting for condition variable \n",id);

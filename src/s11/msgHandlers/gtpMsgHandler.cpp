@@ -74,11 +74,9 @@ gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     gtp_incoming_msg_data_t csr_info;
 
     /*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
-    csr_info.ue_idx = hdr->teid;
-    csr_info.msg_type = create_session_response;
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    uint32_t ue_index = gtpTables::Instance()->delSeqKey(trans);
-    if(ue_index == -1) 
+    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    if(t1 == NULL) 
     {
         
         log_msg(LOG_DEBUG, "Transaction not found for CSRsp . Drop message. ");
@@ -96,6 +94,10 @@ gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
                 hdr->teid);
         return E_PARSING_FAILED;
     }
+
+    csr_info.ue_idx = t1->ue_index;
+    delete t1;
+    csr_info.msg_type = create_session_response;
     csr_info.msg_data.csr_Q_msg_m.status = msgData.cause.causeValue;
     csr_info.msg_data.csr_Q_msg_m.s11_sgw_fteid.header.iface_type = 11;
     csr_info.msg_data.csr_Q_msg_m.s11_sgw_fteid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
@@ -148,25 +150,17 @@ gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
      */
     log_msg(LOG_INFO, "Parse S11 MB resp message\n");
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    uint32_t ue_index = gtpTables::Instance()->delSeqKey(trans);
+    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
 
-    if(ue_index == -1) 
+    if(t1 == NULL) 
     {
         
         log_msg(LOG_DEBUG, "Transaction not found for MBRsp . Drop message. ");
         return -1;
     } 
 
-
-    //TODO : check cause foor the result verification
-    /*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
-    if(hdr->teid && hdr->teid != ue_index)
-    {
-        log_msg(LOG_DEBUG, "Transaction ue index not matching with header teid  in MBRsp");
-        return -1;
-    }
-
-    mbr_info.ue_idx = ue_index;
+    mbr_info.ue_idx = t1->ue_index;
+    delete t1;
     mbr_info.msg_type = modify_bearer_response;
 
     ModifyBearerResponseMsgData msgData;
@@ -200,8 +194,8 @@ gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     log_msg(LOG_INFO, "Parse S11 DS resp message\n");
 
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    uint32_t ue_index = gtpTables::Instance()->delSeqKey(trans);
-    if(ue_index == -1) 
+    s11::gtpTransData *t1= gtpTables::Instance()->delSeqKey(trans);
+    if(t1 == NULL) 
     {
         
         log_msg(LOG_DEBUG, "Transaction not found for DSRsp. Drop message. ");
@@ -214,13 +208,9 @@ gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     /*Check whether has teid flag is set.
      * Also check whether this check is needed for DSR.
      * */
-    if(hdr->teid && ue_index != hdr->teid)
-    {
-        log_msg(LOG_DEBUG, "Transaction ue index not matching with header teid  in DSRsp");
-        return -1;
-    }
 
-    dsr_info.ue_idx = hdr->teid;
+    dsr_info.ue_idx = t1->ue_index;
+    delete t1;
     cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::mmeAppInstanceNum_c;
     s11IpcInterface &mmeIpcIf = static_cast<s11IpcInterface&>(compDb.getComponent(S11IpcInterfaceCompId));        
@@ -236,8 +226,8 @@ gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     gtp_incoming_msg_data_t rbr_info;
 
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    uint32_t ue_index = gtpTables::Instance()->delSeqKey(trans);
-    if(ue_index == -1) 
+    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    if(t1 == NULL) 
     {
         
         log_msg(LOG_DEBUG, "Transaction not found for Rab Response. Drop message. ");
@@ -246,20 +236,14 @@ gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 
     /*****Message structure***
      */
-    log_msg(LOG_INFO, "Parse S11 RB resp message\n");
-    if(hdr->teid && hdr->teid != ue_index)
-    {
-        log_msg(LOG_DEBUG, "Transaction ue index not matching with header teid  in RAB Response ");
-        return -1;
-    }
-
-    //TODO : check cause for the result verification
-    rbr_info.ue_idx = hdr->teid;
+    rbr_info.ue_idx = t1->ue_index;
+    delete t1;
     rbr_info.msg_type = release_bearer_response;
 
     ReleaseAccessBearersResponseMsgData msgData;
     memset(&msgData, 0, sizeof(ReleaseAccessBearersResponseMsgData));
 
+    log_msg(LOG_INFO, "Parse S11 RB resp message\n");
     bool rc = GtpV2Stack_decodeMessage(gtpStack_gp, hdr, message, &msgData);
     if(rc == false)
     {
@@ -316,8 +300,10 @@ gtpIncomingMsgHandler::s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* h
         ddn_info.msg_data.ddn_Q_msg_m.eps_bearer_id = msgData.epsBearerId.epsBearerId;
 
     /* Real port should be used and not standard */
+    s11::gtpTransData *transData = new s11::gtpTransData(hdr->teid);
     gtpTrans trans(sgw_ip, le.local_addr.sin_port, hdr->sequenceNumber);
-    gtpTables::Instance()->addSeqKey(trans, hdr->teid); 
+    gtpTables::Instance()->addSeqKey(trans, transData); 
+    transData->key = trans;
 
     cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::mmeAppInstanceNum_c;

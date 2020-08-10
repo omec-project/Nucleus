@@ -7,11 +7,13 @@
 #include "gtp_tables.h"
 #include "log.h"
 
-uint32_t gtpTables::addSeqKey(gtpTrans &trans, uint32_t ue_index)
+using namespace s11;
+
+uint32_t gtpTables::addSeqKey(gtpTrans &trans, gtpTransData *data)
 {
     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
     int rc = 1;
-    auto itr = gtp_transaction_map.insert(std::pair<gtpTrans, uint32_t>(trans, ue_index));
+    auto itr = gtp_transaction_map.insert(std::pair<gtpTrans, gtpTransData*>(trans, data));
     if (itr.second == false)
     {
         rc = -1;
@@ -23,10 +25,10 @@ uint32_t gtpTables::addSeqKey(gtpTrans &trans, uint32_t ue_index)
  /******************************************
   * Delete seq number key
   ******************************************/
-uint32_t gtpTables::delSeqKey(gtpTrans &key)
+gtpTransData* gtpTables::delSeqKey(gtpTrans &key)
 {
     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-    std::map<gtpTrans, uint32_t>::iterator it;
+    std::map<gtpTrans, gtpTransData*>::iterator it;
 
     it = gtp_transaction_map.find(key);
     if(it == gtp_transaction_map.end())
@@ -38,19 +40,18 @@ uint32_t gtpTables::delSeqKey(gtpTrans &key)
     else
     {
         log_msg(LOG_DEBUG,"Delete GTP transaction %s, Result - found - \n",key.printTrans().c_str());
-        uint32_t temp = it->second;
         gtp_transaction_map.erase(it);
-        return temp;
+        return it->second;
     }
 }
 
 /******************************************
  * Find Ue Idx with given Seq number
  ******************************************/ 
-uint32_t gtpTables::findUeIdxWithSeq(gtpTrans &key )
+gtpTransData* gtpTables::findUeIdxWithSeq(gtpTrans &key )
 {
     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-    std::map<gtpTrans, uint32_t>::iterator it;
+    std::map<gtpTrans, gtpTransData*>::iterator it;
 
     it = gtp_transaction_map.find(key);
     if(it == gtp_transaction_map.end())
@@ -61,7 +62,6 @@ uint32_t gtpTables::findUeIdxWithSeq(gtpTrans &key )
     else
     {
         log_msg(LOG_DEBUG,"Find GTP transaction %s, Result - found - \n",key.printTrans().c_str());
-        uint32_t temp = it->second;
-        return temp;
+        return it->second;
     }
 }

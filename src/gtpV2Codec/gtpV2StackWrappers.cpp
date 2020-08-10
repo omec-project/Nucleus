@@ -5,6 +5,7 @@
 
 extern "C" 
 {
+        using namespace cmn::utils;
         GtpV2Stack* createGtpV2Stack() 
         {
         	return new GtpV2Stack();

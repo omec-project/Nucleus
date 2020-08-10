@@ -14,15 +14,18 @@ class TimerContext;
 namespace s11
 {
 class MmeUeTimerContext;
+class gtpTransData;
 
 class s11TimerUtils
 {
 public:
     static TimerContext* startTimer(uint32_t durationMs,
-                                        uint32_t ueIdx,
-                                        uint16_t timerType,
-                                        uint16_t timerId);
+                                    uint16_t timerType,
+                                    uint16_t timerId, 
+                                    gtpTransData *trans);
+
     static uint32_t stopTimer(TimerContext* timerCtxt);
+
     static void onTimeout(TimerContext* timerCtxt);
 
 private:

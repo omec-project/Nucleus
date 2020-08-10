@@ -23,6 +23,8 @@ typedef struct s11_config
 	unsigned int pgw_ip;
 	unsigned int egtp_def_port;
 	unsigned int local_egtp_ip;
+    unsigned int num_retransmission;
+    unsigned int retransmission_interval; 
 } s11_config_t;
 
 void

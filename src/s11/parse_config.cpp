@@ -91,6 +91,9 @@ s11Config::s11_parse_config(s11_config_t *config)
     }
     /* Print parsed configuraton */
     //log_msg(LOG_DEBUG,"logging  : %s \n", config->logging);
+    
+    config->num_retransmission = 3;
+    config->retransmission_interval = 3000; // 3 sec 
     return ;
 }
 

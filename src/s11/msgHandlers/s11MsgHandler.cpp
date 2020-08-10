@@ -17,6 +17,8 @@
 #include "s11.h"
 #include <gtpV2StackWrappers.h>
 #include "gtp_tables.h"
+#include "utils/s11TimerUtils.h"
+#include "utils/s11TimerTypes.h"
 
 
 extern local_endpoint le; 
@@ -26,6 +28,7 @@ volatile uint32_t g_s11_sequence = 1;
 extern struct GtpV2Stack* gtpStack_gp;
 
 using namespace cmn;
+using namespace s11;
 
 S11MsgHandler::S11MsgHandler()
 {
@@ -277,15 +280,16 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
         memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &csr_Q_msg_m->pco_options[0], csr_Q_msg_m->pco_length);
     }
 
+    gtpTransData *transData = new gtpTransData(csr_Q_msg_m->ue_idx);
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
-    gtpTables::Instance()->addSeqKey(trans, csr_Q_msg_m->ue_idx); 
+    gtpTables::Instance()->addSeqKey(trans, transData); 
 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
     int res = sendto (
             le.s11_fd,
-            MsgBuffer_getDataPointer(csReqMsgBuf_p),
-            MsgBuffer_getBufLen(csReqMsgBuf_p), 0,
+            csReqMsgBuf_p->getDataPointer(),
+            csReqMsgBuf_p->getLength(), 0,
             (struct sockaddr*)(&sgw_addr),
             sizeof(struct sockaddr_in));
     if (res < 0) {
@@ -294,7 +298,13 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
 
     log_msg(LOG_DEBUG,"%d CSReq message sent Bytes sent. Err : %d, %s\n",res,errno, strerror(errno));
 
-	MsgBuffer_free(csReqMsgBuf_p);
+	//MsgBuffer_free(csReqMsgBuf_p);
+    
+    transData->key = trans;
+    transData->buf = csReqMsgBuf_p;
+    transData->sgw_addr = sgw_addr;
+    transData->fd = le.s11_fd;
+    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
 
     return;
 }
@@ -393,19 +403,24 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
     sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
     sgw_addr.sin_addr.s_addr = htonl(mb_msg->s11_sgw_c_fteid.ip.ipv4.s_addr); 
 
+    gtpTransData *transData = new gtpTransData(mb_msg->ue_idx);
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
-    gtpTables::Instance()->addSeqKey(trans, mb_msg->ue_idx); 
+    gtpTables::Instance()->addSeqKey(trans, transData); 
 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
     sendto(le.s11_fd,
-            MsgBuffer_getDataPointer(mbReqMsgBuf_p),
-            MsgBuffer_getBufLen(mbReqMsgBuf_p), 0,
+            mbReqMsgBuf_p->getDataPointer(),
+            mbReqMsgBuf_p->getLength(), 0,
             (struct sockaddr*)(&sgw_addr),
             sizeof(struct sockaddr_in));
     //TODO " error chk, eagain etc?	
-    log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
+    log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", mbReqMsgBuf_p->getLength());
 
-	MsgBuffer_free(mbReqMsgBuf_p);
+    transData->key = trans;
+    transData->buf = mbReqMsgBuf_p;
+    transData->sgw_addr = sgw_addr;
+    transData->fd = le.s11_fd;
+    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
 
     return;
 }
@@ -444,8 +459,9 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
     msgData.linkedEpsBearerIdIePresent = true;
     msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
 
+    gtpTransData *transData = new gtpTransData(ds_msg->ue_idx);
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
-    gtpTables::Instance()->addSeqKey(trans, ds_msg->ue_idx);
+    gtpTables::Instance()->addSeqKey(trans, transData);
 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
     g_s11_sequence++;
@@ -456,12 +472,16 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
     sgw_addr.sin_addr.s_addr = htonl(ds_msg->s11_sgw_c_fteid.ip.ipv4.s_addr); 
 
     sendto(le.s11_fd,
-            MsgBuffer_getDataPointer(dsReqMsgBuf_p),
-            MsgBuffer_getBufLen(dsReqMsgBuf_p), 0,
+            dsReqMsgBuf_p->getDataPointer(),
+            dsReqMsgBuf_p->getLength(), 0,
             (struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
     log_msg(LOG_INFO, "Send delete session request\n");
 
-	MsgBuffer_free(dsReqMsgBuf_p);
+    transData->key = trans;
+    transData->buf = dsReqMsgBuf_p;
+    transData->sgw_addr = sgw_addr;
+    transData->fd = le.s11_fd;
+    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
 
     return;
 }
@@ -499,8 +519,9 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
     msgData.indicationFlagsIePresent = true;
     msgData.indicationFlags.iOI = true;
 
+    gtpTransData *transData = new gtpTransData(rb_msg->ue_idx);
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
-    gtpTables::Instance()->addSeqKey(trans, rb_msg->ue_idx); 
+    gtpTables::Instance()->addSeqKey(trans, transData); 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, rbReqMsgBuf_p, &gtpHeader, &msgData);
 
     struct sockaddr_in sgw_addr = {0};
@@ -510,14 +531,18 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
 
 
     sendto(le.s11_fd,
-            MsgBuffer_getDataPointer(rbReqMsgBuf_p),
-            MsgBuffer_getBufLen(rbReqMsgBuf_p), 0,
+            rbReqMsgBuf_p->getDataPointer(),
+            rbReqMsgBuf_p->getLength(), 0,
             (struct sockaddr*)(&sgw_addr),
             sizeof(struct sockaddr_in));
     //TODO " error chk, eagain etc?
-    log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(rbReqMsgBuf_p));
+    log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", rbReqMsgBuf_p->getLength());
 
-    MsgBuffer_free(rbReqMsgBuf_p);
+    transData->key = trans;
+    transData->buf = rbReqMsgBuf_p;
+    transData->sgw_addr = sgw_addr;
+    transData->fd = le.s11_fd;
+    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
 
     return;
 }
@@ -547,13 +572,14 @@ S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
 	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
 
     gtpTrans trans(ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
-    uint32_t index = gtpTables::Instance()->delSeqKey(trans);
-    if(index == -1)
+    gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    if(t1 == nullptr)
     {
         log_msg(LOG_DEBUG, "Transaction not found while sending DDN Ack \n");
         // for now not dropping ack message 
         // return -1;
     }
+    delete t1;
 
     DownlinkDataNotificationAcknowledgeMsgData msgData;
     memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
@@ -569,11 +595,11 @@ S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
     sgw_addr.sin_addr.s_addr = htonl(ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr); 
 
     sendto(le.s11_fd,
-            MsgBuffer_getDataPointer(ddnAckMsgBuf_p),
-            MsgBuffer_getBufLen(ddnAckMsgBuf_p), 0,
+            ddnAckMsgBuf_p->getDataPointer(),
+            ddnAckMsgBuf_p->getLength(), 0,
             (struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
 
-    log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
+    log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", ddnAckMsgBuf_p->getLength());
 	MsgBuffer_free(ddnAckMsgBuf_p);
 
     return ;
