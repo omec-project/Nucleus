@@ -121,6 +121,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	nas.elements[3].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
 	nas.elements[3].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
 	nas.elements[3].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+
+	/* Renegotiation of DCNR Capability, incase there is a change in UE Network Capability received during TAU Request*/
+        ue_ctxt->setDcnrCapable(MmeCommonUtils::isUeNRCapable(*ue_ctxt));
     
     	// If UE supports DCNR
     	if (ue_ctxt->getUeNetCapab().ue_net_capab_m.u.bits.dcnr)

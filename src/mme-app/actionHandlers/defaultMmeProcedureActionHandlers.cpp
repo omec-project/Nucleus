@@ -519,7 +519,6 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ueCtxt != NULL)
     {
-        ueCtxt->setUeNetCapab(Ue_net_capab(tauReq.ue_net_capab));
 	MmContext *mmCtxt = ueCtxt->getMmContext();
         if (mmCtxt != NULL)
         {
@@ -528,6 +527,16 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
             if (tauReqProc_p != NULL)
             {
                 mmCtxt->setEcmState(ecmConnected_c);
+
+		if(tauReq.ue_net_capab.len > 0)
+                {
+                    ueCtxt->setUeNetCapab(Ue_net_capab(tauReq.ue_net_capab));
+                }
+                if(tauReq.ue_add_sec_cap_present)
+                {
+                    ueCtxt->setUeAddSecCapabPres(tauReq.ue_add_sec_cap_present);
+                    ueCtxt->setUeAddSecCapab(tauReq.ue_add_sec_capab);
+                }
 
                 tauReqProc_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
                 tauReqProc_p->setEnbFd(tauReq.enb_fd);

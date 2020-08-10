@@ -223,6 +223,7 @@ struct tauReq_Q_msg {
     int enb_fd;
     int s1ap_enb_ue_id;
     UE_net_capab ue_net_capab;
+    bool ue_add_sec_cap_present;
     ue_add_sec_capabilities ue_add_sec_capab;
     struct TAI tai;
     struct CGI eUtran_cgi;

@@ -557,7 +557,9 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	nas.header.security_integrity_algo = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
         uint8_t num_nas_elements = SEC_MODE_NO_OF_NAS_IES;
-	if(ue_ctxt->getDcnrCapable())
+	/* UE additional security capability is replayed in sec_mode_command when MME supports the handling of the same
+         * Spec 24.301 v 15.6.0  sec:8.2.20.6*/
+	if(mme_cfg->feature_list.dcnr_support && ue_ctxt->getUeAddSecCapabPres())
     	{
             num_nas_elements += 1;
     	}

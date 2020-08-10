@@ -1115,7 +1115,6 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
                     		case NAS_IE_TYPE_UE_NETWORK_CAPABILITY:
                     		{
                         	    log_msg(LOG_DEBUG, "NAS_IE_TYPE_UE_NETWORK_CAPABILITY\n");
-
                         	    s1Msg->msg_data.tauReq_Q_msg_m.ue_net_capab.len =
                             		nas->elements[nas_index].pduElement.ue_network.len;
 
@@ -1126,6 +1125,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
                     		}
                     		case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
                     		{
+				    s1Msg->msg_data.tauReq_Q_msg_m.ue_add_sec_cap_present = true;
                         	    memcpy(&(s1Msg->msg_data.tauReq_Q_msg_m.ue_add_sec_capab),
                             		&(nas->elements[nas_index].pduElement.ue_add_sec_capab),
                             		sizeof(ue_add_sec_capabilities));
