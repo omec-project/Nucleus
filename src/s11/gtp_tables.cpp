@@ -1,7 +1,8 @@
-// Copyright 2020-present Open Networking Foundation
-//
-// SPDX-License-Identifier: LicenseRef-ONF-Member-Only-1.0
-
+/*
+ * Copyright 2020-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <iostream>
 #include <map>
 #include "gtp_tables.h"
