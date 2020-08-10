@@ -13,13 +13,12 @@
 #include "s11_config.h"
 #include "assert.h"
 
-using namespace s11;
 using namespace cmn;
 
 extern TimeoutManager* timeoutMgr_g;
 extern s11_config_t *s11_cfg;
 
-TimerContext* s11TimerUtils::startTimer(uint32_t durationMs,
+s11TimerContext* s11TimerUtils::startTimer(uint32_t durationMs,
                                         uint16_t timerType,
                                         uint16_t timerId,
                                         gtpTransData *trans)

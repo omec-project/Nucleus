@@ -28,7 +28,6 @@ volatile uint32_t g_s11_sequence = 1;
 extern struct GtpV2Stack* gtpStack_gp;
 
 using namespace cmn;
-using namespace s11;
 
 S11MsgHandler::S11MsgHandler()
 {
@@ -298,13 +297,12 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
 
     log_msg(LOG_DEBUG,"%d CSReq message sent Bytes sent. Err : %d, %s\n",res,errno, strerror(errno));
 
-	//MsgBuffer_free(csReqMsgBuf_p);
-    
+    s11TimerContext *timer = s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
     transData->key = trans;
     transData->buf = csReqMsgBuf_p;
     transData->sgw_addr = sgw_addr;
     transData->fd = le.s11_fd;
-    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
+    transData->timer = timer;
 
     return;
 }
@@ -416,11 +414,12 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
     //TODO " error chk, eagain etc?	
     log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", mbReqMsgBuf_p->getLength());
 
+    s11TimerContext *timer = s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
     transData->key = trans;
     transData->buf = mbReqMsgBuf_p;
     transData->sgw_addr = sgw_addr;
     transData->fd = le.s11_fd;
-    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
+    transData->timer = timer;
 
     return;
 }
@@ -477,11 +476,12 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
             (struct sockaddr*)(&sgw_addr), sizeof(struct sockaddr_in));
     log_msg(LOG_INFO, "Send delete session request\n");
 
+    s11TimerContext *timer = s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
     transData->key = trans;
     transData->buf = dsReqMsgBuf_p;
     transData->sgw_addr = sgw_addr;
     transData->fd = le.s11_fd;
-    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
+    transData->timer = timer;
 
     return;
 }
@@ -538,11 +538,12 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
     //TODO " error chk, eagain etc?
     log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", rbReqMsgBuf_p->getLength());
 
+    s11TimerContext *timer = s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
     transData->key = trans;
     transData->buf = rbReqMsgBuf_p;
     transData->sgw_addr = sgw_addr;
     transData->fd = le.s11_fd;
-    s11TimerUtils::startTimer(s11_cfg->retransmission_interval, 1, transTimer_c, transData);
+    transData->timer = timer;
 
     return;
 }

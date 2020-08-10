@@ -10,16 +10,14 @@
 
 #include <stdint.h>
 
-class TimerContext;
-namespace s11
-{
+class s11TimerContext;
 class MmeUeTimerContext;
 class gtpTransData;
 
 class s11TimerUtils
 {
 public:
-    static TimerContext* startTimer(uint32_t durationMs,
+    static s11TimerContext* startTimer(uint32_t durationMs,
                                     uint16_t timerType,
                                     uint16_t timerId, 
                                     gtpTransData *trans);
@@ -32,6 +30,5 @@ private:
     s11TimerUtils();
     ~s11TimerUtils();
 };
-}
 
 #endif 

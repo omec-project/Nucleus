@@ -14,8 +14,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "msgBuffer.h"
-
-
+#include "utils/s11TimerTypes.h"
 
 class gtpTrans 
 {
@@ -82,26 +81,31 @@ struct comp
     }
 };
 
-namespace s11 
+class gtpTransData
 {
-    class gtpTransData
-    {
-        public:
-          gtpTransData(uint32_t index):key(0,0,0) { ue_index = index; tx_count = 0; buf = nullptr;} 
-          ~gtpTransData() { delete buf;}
-        public:
-          gtpTrans key;
-          uint32_t ue_index; 
-          cmn::utils::MsgBuffer *buf;
-          struct sockaddr_in sgw_addr;
-          int fd;
-          uint16_t tx_count;
-    };
-}
+    public:
+        gtpTransData(uint32_t index):key(0,0,0) 
+    { 
+        ue_index = index; 
+        tx_count = 0; 
+        buf = nullptr;
+        timer = nullptr;
+    } 
+        ~gtpTransData() { delete buf;}
+    public:
+        gtpTrans key;
+        uint32_t ue_index; 
+        cmn::utils::MsgBuffer *buf;
+        s11TimerContext *timer;
+        struct sockaddr_in sgw_addr;
+        int fd;
+        uint16_t tx_count;
+};
+
 class gtpTables
 {
     public:
-        std::map<gtpTrans, s11::gtpTransData*, comp> gtp_transaction_map; 
+        std::map<gtpTrans, gtpTransData*, comp> gtp_transaction_map; 
         std::mutex seq_ueidx_map_mutex;
     public:
         gtpTables()
@@ -118,8 +122,8 @@ class gtpTables
             return &obj; 
         }
 
-        uint32_t addSeqKey(gtpTrans &key, s11::gtpTransData *trans);
-        s11::gtpTransData* delSeqKey(gtpTrans &key);
-        s11::gtpTransData* findUeIdxWithSeq(gtpTrans &key);
+        uint32_t addSeqKey(gtpTrans &key, gtpTransData *trans);
+        gtpTransData* delSeqKey(gtpTrans &key);
+        gtpTransData* findUeIdxWithSeq(gtpTrans &key);
 };
 #endif

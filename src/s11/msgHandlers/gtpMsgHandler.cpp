@@ -16,6 +16,8 @@
 #include <gtpV2StackWrappers.h>
 #include <interfaces/s11IpcInterface.h>
 #include "gtp_tables.h"
+#include "utils/s11TimerUtils.h"
+#include "utils/s11TimerTypes.h"
 
 using namespace cmn;
 using namespace cmn::utils;
@@ -75,7 +77,7 @@ gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
 
     /*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
     if(t1 == NULL) 
     {
         
@@ -96,6 +98,7 @@ gtpIncomingMsgHandler::s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     }
 
     csr_info.ue_idx = t1->ue_index;
+    s11TimerUtils::stopTimer(t1->timer);
     delete t1;
     csr_info.msg_type = create_session_response;
     csr_info.msg_data.csr_Q_msg_m.status = msgData.cause.causeValue;
@@ -150,7 +153,7 @@ gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
      */
     log_msg(LOG_INFO, "Parse S11 MB resp message\n");
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
 
     if(t1 == NULL) 
     {
@@ -160,6 +163,7 @@ gtpIncomingMsgHandler::s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     } 
 
     mbr_info.ue_idx = t1->ue_index;
+    s11TimerUtils::stopTimer(t1->timer);
     delete t1;
     mbr_info.msg_type = modify_bearer_response;
 
@@ -194,7 +198,7 @@ gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     log_msg(LOG_INFO, "Parse S11 DS resp message\n");
 
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    s11::gtpTransData *t1= gtpTables::Instance()->delSeqKey(trans);
+    gtpTransData *t1= gtpTables::Instance()->delSeqKey(trans);
     if(t1 == NULL) 
     {
         
@@ -210,6 +214,7 @@ gtpIncomingMsgHandler::s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeade
      * */
 
     dsr_info.ue_idx = t1->ue_index;
+    s11TimerUtils::stopTimer(t1->timer);
     delete t1;
     cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::mmeAppInstanceNum_c;
@@ -226,7 +231,7 @@ gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     gtp_incoming_msg_data_t rbr_info;
 
     gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, hdr->sequenceNumber);
-    s11::gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
+    gtpTransData *t1 = gtpTables::Instance()->delSeqKey(trans);
     if(t1 == NULL) 
     {
         
@@ -237,6 +242,7 @@ gtpIncomingMsgHandler::s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeade
     /*****Message structure***
      */
     rbr_info.ue_idx = t1->ue_index;
+    s11TimerUtils::stopTimer(t1->timer);
     delete t1;
     rbr_info.msg_type = release_bearer_response;
 
@@ -300,7 +306,7 @@ gtpIncomingMsgHandler::s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* h
         ddn_info.msg_data.ddn_Q_msg_m.eps_bearer_id = msgData.epsBearerId.epsBearerId;
 
     /* Real port should be used and not standard */
-    s11::gtpTransData *transData = new s11::gtpTransData(hdr->teid);
+    gtpTransData *transData = new gtpTransData(hdr->teid);
     gtpTrans trans(sgw_ip, le.local_addr.sin_port, hdr->sequenceNumber);
     gtpTables::Instance()->addSeqKey(trans, transData); 
     transData->key = trans;

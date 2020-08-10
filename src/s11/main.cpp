@@ -28,7 +28,6 @@
 #include "msgHandlers/gtpIncomingMsgHandler.h"
 
 using namespace std;
-using namespace s11;
 
 /*********************************************************
  *

@@ -11,8 +11,6 @@
 #include <stdint.h>
 #include <timerQueue.h>
 
-namespace s11
-{
 /******************************************************
  * Timer ID range used by different modules in mme-app
  ******************************************************/
@@ -45,7 +43,6 @@ public:
 private:
     gtpTransData *trans_m;
 };
-}
 
 
 

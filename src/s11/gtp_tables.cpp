@@ -8,8 +8,6 @@
 #include "gtp_tables.h"
 #include "log.h"
 
-using namespace s11;
-
 uint32_t gtpTables::addSeqKey(gtpTrans &trans, gtpTransData *data)
 {
     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
