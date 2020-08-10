@@ -46,10 +46,12 @@ S11MsgHandler* S11MsgHandler::Instance()
 void 
 S11MsgHandler::handleMmeMessage_v(cmn::IpcEventMessage* eMsg)
 {
-    log_msg(LOG_INFO, "mmea-app - handleMMEMessage_v\n");
 
     if (eMsg == NULL)
+    {
+        log_msg(LOG_INFO, "mme-app - handleMMEMessage_v message NULL \n");
         return;
+    }
 
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -58,9 +60,6 @@ S11MsgHandler::handleMmeMessage_v(cmn::IpcEventMessage* eMsg)
         delete eMsg;
         return;
     }
-    log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
-    log_msg(LOG_INFO, "message size %d  \n",sizeof(gtp_outgoing_msg_data_t));
-    log_msg(LOG_INFO, "message size %d  \n",sizeof(gtp_outgoing_msgs_t));
     if (msgBuf->getLength() < sizeof (gtp_outgoing_msgs_t))
     {
         log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
@@ -163,8 +162,6 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
     g_s11_sequence++;
 
     log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",csr_Q_msg_m->ue_idx);
-
-    gtpTables::Instance()->addSeqKey(gtpHeader.sequenceNumber, csr_Q_msg_m->ue_idx); 
 
     CreateSessionRequestMsgData msgData;
     memset(&msgData, 0, sizeof(msgData));
@@ -273,7 +270,6 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
     msgData.aggregateMaximumBitRate.maxMbrUplink = csr_Q_msg_m->max_requested_bw_ul;
     msgData.aggregateMaximumBitRate.maxMbrDownlink = csr_Q_msg_m->max_requested_bw_dl;
 
-    log_msg(LOG_INFO, "PCO length = %d\n", csr_Q_msg_m->pco_length);
     if(csr_Q_msg_m->pco_length > 0)
     {
         msgData.protocolConfigurationOptionsIePresent = true;
@@ -281,9 +277,10 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
         memcpy(&msgData.protocolConfigurationOptions.pcoValue.values[0], &csr_Q_msg_m->pco_options[0], csr_Q_msg_m->pco_length);
     }
 
-    GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
+    gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
+    gtpTables::Instance()->addSeqKey(trans, csr_Q_msg_m->ue_idx); 
 
-    log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
+    GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
     int res = sendto (
             le.s11_fd,
@@ -295,8 +292,7 @@ S11MsgHandler::handleCreateSessionRequestMsg_v(IpcEventMessage* eMsg)
         log_msg(LOG_ERROR,"Error in sendto in detach stage 3 post to next\n");
     }
 
-    log_msg(LOG_INFO,"%d bytes sent. Err : %d, %s\n",res,errno,
-            strerror(errno));
+    log_msg(LOG_DEBUG,"%d CSReq message sent Bytes sent. Err : %d, %s\n",res,errno, strerror(errno));
 
 	MsgBuffer_free(csReqMsgBuf_p);
 
@@ -309,11 +305,11 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
     log_msg(LOG_INFO, "%s\n",__FUNCTION__);
 
 	utils::MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
- 	if(mbReqMsgBuf_p == NULL)
- 	{
- 	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
-             return ;
- 	}
+    if(mbReqMsgBuf_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        return ;
+    }
 
     utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
@@ -397,7 +393,8 @@ S11MsgHandler::handleModifyBearerRequestMsg_v(IpcEventMessage* eMsg)
     sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
     sgw_addr.sin_addr.s_addr = htonl(mb_msg->s11_sgw_c_fteid.ip.ipv4.s_addr); 
 
-    gtpTables::Instance()->addSeqKey(gtpHeader.sequenceNumber, mb_msg->ue_idx); 
+    gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
+    gtpTables::Instance()->addSeqKey(trans, mb_msg->ue_idx); 
 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
     sendto(le.s11_fd,
@@ -447,7 +444,8 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
     msgData.linkedEpsBearerIdIePresent = true;
     msgData.linkedEpsBearerId.epsBearerId = ds_msg->bearer_id;
 
-    gtpTables::Instance()->addSeqKey(gtpHeader.sequenceNumber, ds_msg->ue_idx);
+    gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
+    gtpTables::Instance()->addSeqKey(trans, ds_msg->ue_idx);
 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
     g_s11_sequence++;
@@ -456,7 +454,6 @@ S11MsgHandler::handleDeleteSessionRequestMsg_v(IpcEventMessage* eMsg)
     sgw_addr.sin_family = AF_INET;
     sgw_addr.sin_port = htons(s11_cfg->egtp_def_port);
     sgw_addr.sin_addr.s_addr = htonl(ds_msg->s11_sgw_c_fteid.ip.ipv4.s_addr); 
-
 
     sendto(le.s11_fd,
             MsgBuffer_getDataPointer(dsReqMsgBuf_p),
@@ -502,7 +499,8 @@ S11MsgHandler::handleReleaseAccessBearerRequestMsg_v(IpcEventMessage* eMsg)
     msgData.indicationFlagsIePresent = true;
     msgData.indicationFlags.iOI = true;
 
-    gtpTables::Instance()->addSeqKey(gtpHeader.sequenceNumber, rb_msg->ue_idx); 
+    gtpTrans trans(le.local_addr.sin_addr.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
+    gtpTables::Instance()->addSeqKey(trans, rb_msg->ue_idx); 
     GtpV2Stack_buildGtpV2Message(gtpStack_gp, rbReqMsgBuf_p, &gtpHeader, &msgData);
 
     struct sockaddr_in sgw_addr = {0};
@@ -548,11 +546,17 @@ S11MsgHandler::handleDownlinkDataNotificationAckMsg_v(IpcEventMessage* eMsg)
     gtpHeader.teidPresent = true;
 	gtpHeader.teid = ddn_ack_msg->s11_sgw_c_fteid.header.teid_gre;
 
-
+    gtpTrans trans(ddn_ack_msg->s11_sgw_c_fteid.ip.ipv4.s_addr, le.local_addr.sin_port, gtpHeader.sequenceNumber);
+    uint32_t index = gtpTables::Instance()->delSeqKey(trans);
+    if(index == -1)
+    {
+        log_msg(LOG_DEBUG, "Transaction not found while sending DDN Ack \n");
+        // for now not dropping ack message 
+        // return -1;
+    }
 
     DownlinkDataNotificationAcknowledgeMsgData msgData;
     memset(&msgData, 0, sizeof(DownlinkDataNotificationAcknowledgeMsgData));
-
 
     msgData.cause.causeValue = ddn_ack_msg->cause;
 

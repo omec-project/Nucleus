@@ -5,42 +5,63 @@
 #include <iostream>
 #include <map>
 #include "gtp_tables.h"
+#include "log.h"
 
-int gtpTables::addSeqKey( uint32_t key, uint32_t ue_index )
+uint32_t gtpTables::addSeqKey(gtpTrans &trans, uint32_t ue_index)
 {
-     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
-
-     int rc = 1;
-
-     auto itr = seq_ue_idx_map.insert(std::pair<uint32_t, uint32_t>( key, ue_index ));
-     if (itr.second == false)
-     {
-         rc = -1;
-     }
-     return rc;
+    std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
+    int rc = 1;
+    auto itr = gtp_transaction_map.insert(std::pair<gtpTrans, uint32_t>(trans, ue_index));
+    if (itr.second == false)
+    {
+        rc = -1;
+    }
+    log_msg(LOG_DEBUG, "Added GTP transaction %s \n", trans.printTrans().c_str());
+    return rc;
 }
 
  /******************************************
   * Delete seq number key
   ******************************************/
-int gtpTables::delSeqKey( uint32_t key )
+uint32_t gtpTables::delSeqKey(gtpTrans &key)
 {
-     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
+    std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
+    std::map<gtpTrans, uint32_t>::iterator it;
 
-     return seq_ue_idx_map.erase( key );
+    it = gtp_transaction_map.find(key);
+    if(it == gtp_transaction_map.end())
+    {
+        std::cout<<"Key not Found"<<std::endl;
+        log_msg(LOG_DEBUG, "Delete GTP transaction %s, Result- Not Found \n", key.printTrans().c_str());
+        return 0;
+    }
+    else
+    {
+        log_msg(LOG_DEBUG,"Delete GTP transaction %s, Result - found - \n",key.printTrans().c_str());
+        uint32_t temp = it->second;
+        gtp_transaction_map.erase(it);
+        return temp;
+    }
 }
 
 /******************************************
  * Find Ue Idx with given Seq number
  ******************************************/ 
-int gtpTables::findUeIdxWithSeq( uint32_t key )
+uint32_t gtpTables::findUeIdxWithSeq(gtpTrans &key )
 {
     std::lock_guard<std::mutex> lock(seq_ueidx_map_mutex);
+    std::map<gtpTrans, uint32_t>::iterator it;
 
-    auto itr = seq_ue_idx_map.find( key );
-    if( itr != seq_ue_idx_map.end())
+    it = gtp_transaction_map.find(key);
+    if(it == gtp_transaction_map.end())
     {
-        return itr->second;
+        log_msg(LOG_DEBUG,"Find GTP transaction %s, Result - not found -\n ",key.printTrans().c_str());
+        return 0;
     }
-    return -1;
+    else
+    {
+        log_msg(LOG_DEBUG,"Find GTP transaction %s, Result - found - \n",key.printTrans().c_str());
+        uint32_t temp = it->second;
+        return temp;
+    }
 }
