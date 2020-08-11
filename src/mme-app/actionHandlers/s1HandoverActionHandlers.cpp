@@ -36,6 +36,7 @@
 #include <utils/mmeCauseUtils.h>
 #include <contextManager/dataBlocks.h>
 #include <utils/mmeContextManagerUtils.h>
+#include "promClient.h"
 
 using namespace cmn;
 using namespace cmn::utils;
@@ -73,6 +74,7 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
     MmeS1MsgUtils::populateHoRequest(cb, *ueCtxt, *hoProcCtxt, hoReq);
 
     /*Send message to S1AP-APP*/
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::handover_request);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
@@ -174,6 +176,7 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
 
     MmeS1MsgUtils::populateHoCommand(cb, *ue_ctxt, *ho_ctxt, ho_command);
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::handover_command);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &ho_command, sizeof(ho_command), destAddr);
@@ -236,6 +239,7 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
     	&(enb_status_trans.enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container),
 	sizeof(struct enB_status_transfer_transparent_container));
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::mme_status_transfer);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &mme_status_trans, sizeof(mme_status_trans), destAddr);
@@ -335,6 +339,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     MmeGtpMsgUtils::populateModifyBearerRequestHo(
             cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
 
+    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::modify_bearer_request);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s11AppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
@@ -386,6 +391,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
     // Fire and forget s1 release to src enb
 
     /*Send message to S1AP-APP*/
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::s1_release_command);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
@@ -571,6 +577,7 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
     ho_prep_failure.s1ap_mme_ue_id = ue_ctxt->getContextID();
     ho_prep_failure.cause = ho_ctxt->getS1HoCause().s1apCause_m;
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::handover_preparation_failure);
     cmn::ipc::IpcAddress destAddr =
     { TipcServiceInstance::s1apAppInstanceNum_c };
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
@@ -623,6 +630,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
 
     // Fire and forget s1 release to target enb
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::s1_release_command);
     /*Send message to S1AP-APP*/
     cmn::ipc::IpcAddress destAddr =
     { TipcServiceInstance::s1apAppInstanceNum_c };
@@ -702,6 +710,7 @@ ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
     ho_cancel_ack.s1ap_enb_ue_id = ho_ctxt->getSrcS1apEnbUeId();
     ho_cancel_ack.s1ap_mme_ue_id = ue_ctxt->getContextID();
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::handover_cancel_ack);
     cmn::ipc::IpcAddress destAddr =
     { TipcServiceInstance::s1apAppInstanceNum_c };
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   

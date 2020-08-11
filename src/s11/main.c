@@ -97,11 +97,6 @@ void * tipc_msg_handler_s11()
 	}
 }
 struct GtpV2Stack* gtpStack_gp = NULL;
-extern struct MsgBuffer* csReqMsgBuf_p;
-extern struct MsgBuffer* mbReqMsgBuf_p;
-extern struct MsgBuffer* dsReqMsgBuf_p;
-extern struct MsgBuffer* rbReqMsgBuf_p;
-extern struct MsgBuffer* ddnAckMsgBuf_p;
 
 int
 init_s11_workers()
@@ -200,6 +195,8 @@ s11_reader()
 
 		if(len > 0) {
 			MsgBuffer* tmp_buf_p = createMsgBuffer(len);
+			uint32_t ip = ntohl(g_s11_cp_addr.sin_addr.s_addr);
+			MsgBuffer_writeUint32(tmp_buf_p, ip, true);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
 
@@ -238,18 +235,6 @@ main(int argc, char **argv)
 	if (gtpStack_gp == NULL)
 	{
 		log_msg(LOG_ERROR, "Error in initializing ipc.\n");
-		return -1;
-	}
-
-	csReqMsgBuf_p = createMsgBuffer(4096);
-	mbReqMsgBuf_p = createMsgBuffer(4096);
-	dsReqMsgBuf_p = createMsgBuffer(4096);
-	rbReqMsgBuf_p = createMsgBuffer(4096);
-	ddnAckMsgBuf_p = createMsgBuffer(4096);
-
-	if (csReqMsgBuf_p == NULL || mbReqMsgBuf_p == NULL || dsReqMsgBuf_p == NULL || rbReqMsgBuf_p == NULL || ddnAckMsgBuf_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
 		return -1;
 	}
 
