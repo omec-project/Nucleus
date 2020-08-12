@@ -21,6 +21,10 @@ extern "C" {
 
 	bool MsgBuffer_writeBytes(MsgBuffer* msgBuf_p, Uint8* data, Uint16 size, bool append);
 
+	const uint32_t MsgBuffer_readUint32(MsgBuffer* msgBuf_p, Uint32 data);
+
+	bool MsgBuffer_writeUint32(MsgBuffer* msgBuf_p, Uint32 data, bool append);
+
 	void MsgBuffer_rewind(MsgBuffer* msgBuf_p);
 
 	void MsgBuffer_free(MsgBuffer* buf_p);

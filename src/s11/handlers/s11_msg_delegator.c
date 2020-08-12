@@ -165,6 +165,8 @@ handle_s11_message(void *message)
 	log_msg(LOG_INFO, "S11 recv msg handler.\n");
 
 	MsgBuffer* msgBuf_p = (MsgBuffer*)(message);
+
+	uint32_t sgw_ip = MsgBuffer_readUint32(msgBuf_p, sgw_ip);
 	
 	GtpV2MessageHeader msgHeader;
 
@@ -175,23 +177,23 @@ handle_s11_message(void *message)
 
 	switch(msgHeader.msgType){
 	case S11_GTP_CREATE_SESSION_RESP:
-		s11_CS_resp_handler(msgBuf_p, &msgHeader);
+		s11_CS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 
 	case S11_GTP_MODIFY_BEARER_RESP:
-		s11_MB_resp_handler(msgBuf_p, &msgHeader);
+		s11_MB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 
 	case S11_GTP_DELETE_SESSION_RESP:
-		s11_DS_resp_handler(msgBuf_p, &msgHeader);
+		s11_DS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 	
 	case S11_GTP_REL_ACCESS_BEARER_RESP:
-		s11_RB_resp_handler(msgBuf_p, &msgHeader);
+		s11_RB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 	
 	case S11_GTP_DOWNLINK_DATA_NOTIFICATION:
-                s11_DDN_handler(msgBuf_p, &msgHeader);
+                s11_DDN_handler(msgBuf_p, &msgHeader, sgw_ip);
                 break;
 
 	}

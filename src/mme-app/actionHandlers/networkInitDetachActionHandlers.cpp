@@ -25,6 +25,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeNasUtils.h"
+#include "promClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -86,6 +87,7 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::ni_detach_request);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &ni_detach_req, sizeof(ni_detach_req), destAddr);
 	
@@ -142,6 +144,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
     cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
     
+    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::s1_release_command);
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
