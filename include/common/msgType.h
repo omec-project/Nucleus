@@ -217,6 +217,7 @@ struct handover_cancel_Q_msg {
 };
 
 struct tauReq_Q_msg {
+    int ue_m_tmsi;
     int seq_num;
     int enb_fd;
 	int s1ap_enb_ue_id;
