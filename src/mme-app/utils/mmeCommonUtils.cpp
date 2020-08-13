@@ -277,7 +277,12 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi. %d\n", tau_Req.ue_m_tmsi);
+				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
+                                              " Allocate a temporary control block\n", tau_Req.ue_m_tmsi);
+
+                            	// Respond  with TAU Reject from default TAU event handler
+                            	cb = SubsDataGroupManager::Instance()->allocateCB();
+                            	cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;
