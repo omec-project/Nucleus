@@ -30,7 +30,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeNasUtils.h"
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -68,7 +68,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::delete_session_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_DELETE_SESSION_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
 	
@@ -99,7 +99,7 @@ ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 
-    statistics::Instance()->Increment_s6_msg_tx_stats(msg_type_t::purge_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S6A_PURGE_REQUEST);
     MmeIpcInterface &mmeIpcIf =static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));	
 	mmeIpcIf.dispatchIpcMsg((char *) &purge_msg, sizeof(purge_msg), destAddr);
 	
@@ -175,7 +175,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_detach_accept: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
-    statistics::Instance()->ue_detached(ue_ctxt);
+    mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_UE_ACTIVE);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();
@@ -203,7 +203,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::detach_accept);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_DETACH_ACCEPT);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
 	

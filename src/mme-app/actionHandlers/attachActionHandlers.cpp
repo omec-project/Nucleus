@@ -39,7 +39,7 @@
 #include "mmeNasUtils.h"
 #include "mme_app.h"
 #include "gtpCauseTypes.h"
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -107,7 +107,7 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::id_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_IDENTITY_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
 	mmeIpcIf.dispatchIpcMsg((char *) &idReqMsg, sizeof(idReqMsg), destAddr);
 
@@ -206,7 +206,7 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 
-    statistics::Instance()->Increment_s6_msg_tx_stats(msg_type_t::auth_info_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S6A_AUTHENTICATION_INFO_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
 	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
@@ -241,7 +241,7 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s6_msg_tx_stats(msg_type_t::update_loc_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S6A_UPDATE_LOCATION_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
@@ -387,7 +387,7 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::auth_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_AUTHENTICATION_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 	
@@ -576,7 +576,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::sec_mode_command);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_SECURITY_MODE_COMMAND);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
 	
@@ -722,7 +722,7 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::esm_info_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_ESM_INFORMATION_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
 
@@ -878,7 +878,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::create_session_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_CREATE_SESSION_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
 
@@ -1094,7 +1094,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::init_ctxt_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_INITIAL_CONTEXT_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 	
@@ -1196,7 +1196,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
-    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::modify_bearer_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_MODIFY_BEARER_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 		
@@ -1289,7 +1289,7 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	cmn::ipc::IpcAddress destAddr;
     	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
     	
-        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::emm_info_request);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_EMM_INFORMATION_REQ);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
         mmeIpcIf.dispatchIpcMsg((char*) &temp, sizeof(temp), destAddr);
 
@@ -1329,7 +1329,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
-    statistics::Instance()->ue_attached(ue_ctxt);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_ACTIVE);
 
 	return ActStatus::PROCEED;
 }
@@ -1374,7 +1374,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
-        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::attach_reject);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_ATTACH_REJECT);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
         mmeIpcIf.dispatchIpcMsg((char *) & attach_rej, sizeof(attach_rej), destAddr);
 

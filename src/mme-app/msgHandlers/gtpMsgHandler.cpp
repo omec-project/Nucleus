@@ -13,7 +13,7 @@
 #include <log.h>
 #include <mmeSmDefs.h>
 #include <utils/mmeCommonUtils.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -58,26 +58,30 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
     const gtp_incoming_msg_data_t *msgData_p =
             (gtp_incoming_msg_data_t*) (msgBuf->getDataPointer());
 
-    statistics::Instance()->Increment_s11_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::create_session_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_CREATE_SESSION_RESPONSE);
 			handleCreateSessionResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::modify_bearer_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_MODIFY_BEARER_RESPONSE);
 			handleModifyBearerResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::delete_session_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_SESSION_RESPONSE);
 			handleDeleteSessionResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 			
 		case msg_type_t::release_bearer_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_RELEASE_BEARER_RESPONSE);
 			handleReleaseBearerResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::downlink_data_notification:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION);
 			handleDdnMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 

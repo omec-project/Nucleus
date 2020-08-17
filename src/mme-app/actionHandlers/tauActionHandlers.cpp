@@ -37,7 +37,7 @@
 #include "mmeNasUtils.h"
 #include "mme_app.h"
 #include <utils/mmeCommonUtils.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -131,7 +131,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
     destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::tau_response);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_TAU_RESPONSE);
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
 

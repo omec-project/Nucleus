@@ -34,7 +34,7 @@
 #include <interfaces/mmeIpcInterface.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCauseUtils.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -81,7 +81,7 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 	
-    statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::release_bearer_request);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_RELEASE_BEARER_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
 
@@ -138,7 +138,7 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::s1_release_command);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_S1_RELEASE_COMMAND);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 	
