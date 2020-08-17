@@ -304,12 +304,14 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if( sessionCtxt == NULL )
-    	{
-		log_msg(LOG_ERROR, "Failed to retrieve Session Context for UE IDX %d\n", cb.getCBIndex());
-        	return ActStatus::HALT;
-    	}
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
+	{
+		log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n", cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -648,25 +650,14 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
 		return ActStatus::HALT;		
 	}
-	SessionContext* sessionCtxt = SubsDataGroupManager::Instance()->getSessionContext();
+	SessionContext* sessionCtxt = MmeContextManagerUtils::allocateSessionContext(cb, *ue_ctxt);
 	if( sessionCtxt == NULL )
 	{
 	    log_msg(LOG_ERROR, "Failed to allocate Session Context for UE IDX %d\n", cb.getCBIndex());
 
 	    return ActStatus::HALT;
 	}
-	BearerContext* bearerCtxt_p = SubsDataGroupManager::Instance()->getBearerContext();
-	if( bearerCtxt_p == NULL )
-	{
-	    log_msg(LOG_ERROR, "Failed to allocate Bearer context for UE IDx %d\n", cb.getCBIndex());
-
-	    return ActStatus::HALT;
-	}
-
-	bearerCtxt_p->setBearerId(5);
 	sessionCtxt->setPti(procedure_p->getPti());
-	sessionCtxt->setBearerContext( bearerCtxt_p );
-	ue_ctxt->setSessionContext(sessionCtxt);
 	
 	if (procedure_p->getEsmInfoTxRequired() == false)
 	{
@@ -692,7 +683,14 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
+	{
+		log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n", cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	esm_req_Q_msg esmreq;
 	esmreq.msg_type = esm_info_request;
 	esmreq.ue_idx = ue_ctxt->getContextID();
@@ -779,15 +777,16 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-   	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if( sessionCtxt == NULL )
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_ERROR, "Failed to allocate Session Context for UE IDX %d\n", cb.getCBIndex());
-
+		log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n", cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
-	BearerContext* bearerCtxt_p = sessionCtxt->getBearerContext();
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+
+	BearerContext* bearerCtxt_p = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if( bearerCtxt_p == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Bearer context for UE IDx %d\n", cb.getCBIndex());
@@ -902,16 +901,18 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (procedure_p == NULL)
 	{
-		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
+		log_msg(LOG_DEBUG, "handle_cs_resp: procedure context is NULL \n");
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt == NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_DEBUG, "handle_cs_resp: session ctxt is NULL \n");
+		log_msg(LOG_DEBUG, "handle_cs_resp: Session context list is empty \n");
 		return ActStatus::HALT;
 	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -927,7 +928,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
        	return ActStatus::ABORT;
     }
 
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if( bearerCtxt == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to retrive Bearer context for UE IDx %d\n", cb.getCBIndex());
@@ -986,12 +987,14 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		SubsDataGroupManager::Instance()->addmTmsikey(mTmsi, ue_ctxt->getContextID());
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt == NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: session ctxt is NULL \n");
+		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: Session context list is empty\n");
 		return ActStatus::HALT;
 	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 
 	/* 33.401 7.2.6.2	Establishment of keys for cryptographically protected 
        radio bearers
@@ -1015,7 +1018,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	icr_msg.exg_max_dl_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_dl;
 	icr_msg.exg_max_ul_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_ul;
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if( bearerCtxt == NULL )
 	{
 		log_msg(LOG_ERROR, "Failed to retrive Bearer context for UE IDx %d\n", cb.getCBIndex());
@@ -1117,12 +1120,14 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt == NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_DEBUG, "process_init_ctxt_resp: session ctxt is NULL \n");
+		log_msg(LOG_DEBUG, "process_init_ctxt_resp:Session context list is empty \n");
 		return ActStatus::HALT;
 	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -1138,7 +1143,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	S1uEnbUserFteid.header.teid_gre = ics_res.gtp_teid;
 	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.transp_layer_addr;
 	
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if (bearerCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_init_ctxt_resp: bearer ctxt is NULL \n");
@@ -1164,19 +1169,21 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt == NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_DEBUG, "send_mb_req_to_sgw: session ctxt is NULL \n");
+		log_msg(LOG_ERROR, "send_mb_req_to_sgw: Session context list is empty\n");
 		return ActStatus::HALT;
 	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	
 	struct MB_Q_msg mb_msg;
 	mb_msg.msg_type = modify_bearer_request;
 	mb_msg.ue_idx = ue_ctxt->getContextID();
 	
 	memset(mb_msg.indication, 0, S11_MB_INDICATION_FLAG_SIZE); /*TODO : future*/
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if (bearerCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_mb_req_to_sgw: bearer ctxt is NULL \n");

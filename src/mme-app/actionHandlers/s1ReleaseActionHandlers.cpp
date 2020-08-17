@@ -52,14 +52,16 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt == NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
 	{
-		log_msg(LOG_DEBUG, " send_rel_ab_req_to_sgw: session ctxt is NULL \n");
+		log_msg(LOG_DEBUG, "send_rel_ab_req_to_sgw:Session context list is empty\n");
 		return ActStatus::HALT;
 	}
 
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if (bearerCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, " send_rel_ab_req_to_sgw: bearer ctxt is NULL \n");

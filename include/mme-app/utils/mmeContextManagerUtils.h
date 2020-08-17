@@ -9,7 +9,6 @@
 
 #include <utils/mmeProcedureTypes.h>
 #include <stdint.h>
-
 namespace SM
 {
 class ControlBlock;
@@ -36,6 +35,9 @@ public:
     static MmeErabModIndProcedureCtxt*
     allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r);
 
+    static S1HandoverProcedureContext*
+    allocateHoContext(SM::ControlBlock& cb_r);
+
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 
 	static bool deleteProcedureCtxt(MmeProcedureCtxt* procedure_p);
@@ -43,13 +45,24 @@ public:
 	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r);
 
 	static void deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag=true);
-	static void deleteSessionContext(SM::ControlBlock& cb_r);
+	static void deleteAllSessionContext(SM::ControlBlock& cb_r);
 
-	static S1HandoverProcedureContext* allocateHoContext(SM::ControlBlock& cb_r);
+    static SessionContext*
+    allocateSessionContext (SM::ControlBlock &cb_r, UEContext &uectxt_r);
+    static BearerContext*
+    allocateBearerContext (SM::ControlBlock &cb_r, UEContext &ueCtxt_r,
+            SessionContext &sessionCtxt_r);
+    static void
+    deallocateSessionContext(SM::ControlBlock& cb_r,
+            SessionContext *sessionCtxt_p, UEContext *ueCtxt_p=NULL);
+    static void
+    deallocateBearerContext(SM::ControlBlock& cb_r, BearerContext *bearerCtxt_p,
+            SessionContext *sessionCtxt_p=NULL, UEContext *ueCtxt_p=NULL);
 
 private:
 	MmeContextManagerUtils();
 	~MmeContextManagerUtils();
+
 };
 }
 

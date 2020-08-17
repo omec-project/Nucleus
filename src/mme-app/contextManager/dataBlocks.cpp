@@ -44,7 +44,8 @@ namespace mme
             aiaSecInfo_m(),
             mTmsi_m(0),
             subscribedApn_m(),
-            pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
+            pdnAddr_m(),
+            bearerIdBitMap_m(0) ,MmContext_mp(NULL),SessionContext_m()
 	{	
 	}
 	
@@ -396,6 +397,23 @@ namespace mme
 
 	
 	/******************************************************************************
+	* sets bearerIdBitMap
+	******************************************************************************/
+	void UEContext::setBearerIdBitMap( uint16_t bearerIdBitMap_i )
+	{
+		bearerIdBitMap_m = bearerIdBitMap_i;
+	}
+	
+	/******************************************************************************
+	* returns bearerIdBitMap
+	******************************************************************************/	
+        uint16_t UEContext::getBearerIdBitMap() const
+        {
+                return bearerIdBitMap_m;
+        }
+
+	
+	/******************************************************************************
 	* sets MmContext
 	******************************************************************************/
 	void UEContext::setMmContext( MmContext* MmContextp )
@@ -410,21 +428,66 @@ namespace mme
 	{
 		return MmContext_mp;
 	}
+
 	/******************************************************************************
-	* sets SessionContext
+	* add SessionContext
 	******************************************************************************/
-	void UEContext::setSessionContext( SessionContext* SessionContextp )
+	bool UEContext::addSessionContext(SessionContext* SessionContext_i)
 	{
-		SessionContext_mp = SessionContextp;
+	        if( SessionContext_m.size() <= 15 )
+    		        SessionContext_m.push_back(SessionContext_i);
+    		else
+    		        return false;
+    		return true;
 	}
 	
 	/******************************************************************************
-	* returns SessionContext
+	* remove SessionContext
 	******************************************************************************/
-	SessionContext* UEContext::getSessionContext()
+	void UEContext::removeSessionContext(SessionContext* SessionContext_i)
 	{
-		return SessionContext_mp;
+    	    	SessionContext_m.remove(SessionContext_i);
 	}
+		
+	/******************************************************************************
+	* returns SessionContextList
+	******************************************************************************/
+	std::list<SessionContext*>& UEContext::getSessionContextContainer()
+	{
+		return SessionContext_m;
+	}
+	
+	/******************************************************************************
+	* find SessionContext ByAccessPtName
+	******************************************************************************/
+	SessionContext* UEContext::findSessionContextByAccessPtName( const Apn_name& accessPtName_i)
+	{
+		for( auto &it : SessionContext_m)
+    		{
+        		if(it->getAccessPtName() == accessPtName_i)
+        		{
+            			return it;
+        		}
+    		}
+    		return NULL;
+	}
+	
+	/******************************************************************************
+	* find SessionContext ByLinkedBearerId
+	******************************************************************************/
+	SessionContext* UEContext::findSessionContextByLinkedBearerId( uint8_t linkedBearerId_i)
+	{
+		for( auto &it : SessionContext_m)
+    		{
+        		if(it->getLinkedBearerId() == linkedBearerId_i)
+        		{
+            			return it;
+        		}
+    		}
+    		return NULL;
+	}
+
+
 	/******************************************************************************
 	*******************************************************************************
 	*							MmContext
@@ -492,12 +555,13 @@ namespace mme
 	******************************************************************************/
 	SessionContext::SessionContext():           
             sessionId_m(0),
+            linkedBearerId_m(0),
             s11SgwCtrlFteid_m(),
             s5S8PgwCtrlFteid_m(),
             pdnAddr_m(),
             accessPtName_m(),
             apnConfigProfileCtxId_m(0),
-            pti_m(0),BearerContext_mp(NULL)
+            pti_m(0),BearerContext_m()
 	{	
 	}
 	
@@ -522,6 +586,23 @@ namespace mme
         uint8_t SessionContext::getSessionId() const
         {
                 return sessionId_m;
+        }
+
+	
+	/******************************************************************************
+	* sets linkedBearerId
+	******************************************************************************/
+	void SessionContext::setLinkedBearerId( uint8_t linkedBearerId_i )
+	{
+		linkedBearerId_m = linkedBearerId_i;
+	}
+	
+	/******************************************************************************
+	* returns linkedBearerId
+	******************************************************************************/	
+        uint8_t SessionContext::getLinkedBearerId() const
+        {
+                return linkedBearerId_m;
         }
 
 	
@@ -628,20 +709,64 @@ namespace mme
 
 	
 	/******************************************************************************
-	* sets BearerContext
+	* add BearerContext
 	******************************************************************************/
-	void SessionContext::setBearerContext( BearerContext* BearerContextp )
+	bool SessionContext::addBearerContext(BearerContext* BearerContext_i)
 	{
-		BearerContext_mp = BearerContextp;
+	        if( BearerContext_m.size() <= 15 )
+    		        BearerContext_m.push_back(BearerContext_i);
+    		else
+    		        return false;
+    		return true;
 	}
 	
 	/******************************************************************************
-	* returns BearerContext
+	* remove BearerContext
 	******************************************************************************/
-	BearerContext* SessionContext::getBearerContext()
+	void SessionContext::removeBearerContext(BearerContext* BearerContext_i)
 	{
-		return BearerContext_mp;
+    	    	BearerContext_m.remove(BearerContext_i);
 	}
+		
+	/******************************************************************************
+	* returns BearerContextList
+	******************************************************************************/
+	std::list<BearerContext*>& SessionContext::getBearerContextContainer()
+	{
+		return BearerContext_m;
+	}
+	
+	/******************************************************************************
+	* find BearerContext ByBearerId
+	******************************************************************************/
+	BearerContext* SessionContext::findBearerContextByBearerId( uint8_t bearerId_i)
+	{
+		for( auto &it : BearerContext_m)
+    		{
+        		if(it->getBearerId() == bearerId_i)
+        		{
+            			return it;
+        		}
+    		}
+    		return NULL;
+	}
+	
+	/******************************************************************************
+	* find BearerContext ByS1uSgwUserFteid
+	******************************************************************************/
+	BearerContext* SessionContext::findBearerContextByS1uSgwUserFteid( const Fteid& s1uSgwUserFteid_i)
+	{
+		for( auto &it : BearerContext_m)
+    		{
+        		if(it->getS1uSgwUserFteid() == s1uSgwUserFteid_i)
+        		{
+            			return it;
+        		}
+    		}
+    		return NULL;
+	}
+
+
 	/******************************************************************************
 	*******************************************************************************
 	*							BearerContext
@@ -945,7 +1070,7 @@ namespace mme
 	******************************************************************************/	
 	uint16_t MmeAttachProcedureCtxt::getPcoOptionsLen() const
 	{
-		return pcoOptionsLen_m;
+    		return pcoOptionsLen_m;
 	}
 	
 	/******************************************************************************
@@ -1562,7 +1687,7 @@ namespace mme
 	******************************************************************************/	
 	uint16_t MmeErabModIndProcedureCtxt::getErabToBeModifiedListLen() const
 	{
-		return erabToBeModifiedListLen_m;
+    		return erabToBeModifiedListLen_m;
 	}
 	
 	/******************************************************************************
@@ -1587,7 +1712,7 @@ namespace mme
 	******************************************************************************/	
 	uint16_t MmeErabModIndProcedureCtxt::getErabModifiedListLen() const
 	{
-		return erabModifiedListLen_m;
+    		return erabModifiedListLen_m;
 	}
 	
 } // mme

@@ -58,8 +58,15 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 	memset(g_ds_msg.indication, 0, S11_DS_INDICATION_FLAG_SIZE);
 	g_ds_msg.indication[0] = 8; /* TODO : define macro or enum */
 	
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
+	{
+		log_msg(LOG_ERROR, "delete_session_req: Session context list is empty\n");
+		return ActStatus::HALT;
+	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	g_ds_msg.bearer_id = bearerCtxt->getBearerId();
 
 	memcpy(&(g_ds_msg.s11_sgw_c_fteid), &(sessionCtxt->getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
@@ -120,24 +127,15 @@ ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 	    log_msg(LOG_DEBUG, "delete_session_req: ue context is NULL\n");
 	    return ActStatus::HALT;
 	}
-
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if (sessionCtxt != NULL)
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() > 0)
 	{
-	    BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
-	    if (bearerCtxt)
-	    {
-	        SubsDataGroupManager::Instance()->deleteBearerContext( bearerCtxt );
-	    }
-	    SubsDataGroupManager::Instance()->deleteSessionContext( sessionCtxt );
+	    SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	    MmeContextManagerUtils::deallocateSessionContext(cb, sessionCtxt, ue_ctxt);
 	}
-
-	ue_ctxt->setSessionContext(NULL);
-	
 	log_msg(LOG_DEBUG, "Leaving handle_delete_session_resp \n");
 	ProcedureStats::num_of_processed_del_session_resp ++;
 	return ActStatus::PROCEED;
-	
 }
 
 
