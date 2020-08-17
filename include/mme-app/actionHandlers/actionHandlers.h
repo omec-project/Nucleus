@@ -214,6 +214,11 @@ namespace mme
         static SM::ActStatus process_detach_accept_from_ue(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : process_dns_resp
+        ***********************************************/
+        static SM::ActStatus process_dns_resp(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : process_esm_info_resp
         ***********************************************/
         static SM::ActStatus process_esm_info_resp(SM::ControlBlock& cb);                
@@ -312,6 +317,11 @@ namespace mme
         * Action handler : purge_req
         ***********************************************/
         static SM::ActStatus purge_req(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : req_to_dns
+        ***********************************************/
+        static SM::ActStatus req_to_dns(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : sec_mode_cmd_to_ue

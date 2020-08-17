@@ -25,7 +25,7 @@ install_run_utils() {
         dnsutils \
 		iproute2 \
 		iputils-ping \
-		tcpdump
+		tcpdump vim
 }
 
 install_ssh_server() {

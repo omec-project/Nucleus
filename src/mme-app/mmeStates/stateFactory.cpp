@@ -21,6 +21,7 @@
 #include "mmeStates/attachWfAuthResp.h"
 #include "mmeStates/attachWfAuthRespValidate.h"
 #include "mmeStates/attachWfCsResp.h"
+#include "mmeStates/attachWfDnsResp.h"
 #include "mmeStates/attachWfEsmInfoCheck.h"
 #include "mmeStates/attachWfEsmInfoResp.h"
 #include "mmeStates/attachWfIdentityResponse.h"
@@ -96,6 +97,7 @@ void StateFactory::initialize()
 	AttachWfAuthResp::Instance()->initialize();
 	AttachWfAuthRespValidate::Instance()->initialize();
 	AttachWfCsResp::Instance()->initialize();
+	AttachWfDnsResp::Instance()->initialize();
 	AttachWfEsmInfoCheck::Instance()->initialize();
 	AttachWfEsmInfoResp::Instance()->initialize();
 	AttachWfIdentityResponse::Instance()->initialize();
