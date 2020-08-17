@@ -530,6 +530,7 @@ ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::service_request_complete(ControlBlock& cb)
 {
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_RESULT_SUCCESS);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
     return ActStatus::PROCEED;
 }

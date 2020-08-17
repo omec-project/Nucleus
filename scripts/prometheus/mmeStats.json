@@ -38,10 +38,12 @@
         ],
         "counters":[
         { 
-            "name" : "nas_attach_request",
+            "name" : "attach_request",
             "help" : "number of attach request received from UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "attach_request"}
             ],
             "runtime_dimensions": [
@@ -51,8 +53,10 @@
         { 
             "name" : "nas_identity_response",
             "help" : "number of identity response received from UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "identity_response"}
             ],
             "runtime_dimensions": [
@@ -62,8 +66,10 @@
         { 
             "name" : "nas_authentication_response",
             "help" : "number of authentication response received from UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "authentication_response"}
             ],
             "runtime_dimensions": [
@@ -73,8 +79,10 @@
         { 
             "name" : "nas_security_mode_response",
             "help" : "number of security mode complete response received from UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "security_mode_response"}
             ],
             "runtime_dimensions": [
@@ -84,8 +92,10 @@
         { 
             "name" : "nas_esm_response",
             "help" : "number of ESM response messaged received by MME",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "esm_response"}
             ],
             "runtime_dimensions": [
@@ -95,9 +105,11 @@
         { 
             "name" : "s1ap_init_context_response",
             "help" : "number of NAS init context response messaged received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "init_context_rsp_response"}
+                {"msg_type": "init_context_response"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -106,8 +118,10 @@
         { 
             "name" : "nas_attach_complete",
             "help" : "number of NAS attach complete message received by MME",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "attach_complete"}
             ],
             "runtime_dimensions": [
@@ -117,8 +131,10 @@
         { 
             "name" : "nas_detach_request",
             "help" : "number of NAS detach message received by MME",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "detach_request"}
             ],
             "runtime_dimensions": [
@@ -128,9 +144,11 @@
         { 
             "name" : "s1ap_release_request",
             "help" : "number of s1ap release request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_release_request"}
+                {"msg_type": "release_request"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -139,9 +157,11 @@
         { 
             "name" : "s1ap_release_complete",
             "help" : "number of s1ap release complete received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_release_complete"}
+                {"msg_type": "release_complete"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -150,9 +170,11 @@
         { 
             "name" : "s1ap_detach_accept",
             "help" : "number of s1ap detach accept received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_detach_accpet"}
+                {"msg_type": "detach_accept"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -161,9 +183,11 @@
         { 
             "name" : "s1ap_service_request",
             "help" : "number of s1ap service request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_service_request"}
+                {"msg_type": "service_request"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -172,9 +196,11 @@
         { 
             "name" : "s1ap_tau_request",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_tau_request"}
+                {"msg_type": "tau_request"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -183,9 +209,11 @@
         { 
             "name" : "s1ap_handover_request_ack",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_handover_request_ack"}
+                {"msg_type": "handover_request_ack"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -194,9 +222,11 @@
         { 
             "name" : "s1ap_handover_notify",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_handover_notify"}
+                {"msg_type": "handover_notify"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -205,9 +235,11 @@
         { 
             "name" : "s1ap_handover_required",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_handover_required"}
+                {"msg_type": "handover_required"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -216,9 +248,11 @@
         { 
             "name" : "s1ap_enb_status_transfer",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_enb_status_transfer"}
+                {"msg_type": "enb_status_transfer"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -227,9 +261,11 @@
         { 
             "name" : "s1ap_handover_cancel",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_handover_cancel"}
+                {"msg_type": "handover_cancel"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -238,9 +274,11 @@
         { 
             "name" : "s1ap_handover_failure",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_handover_failure"}
+                {"msg_type": "handover_failure"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -249,9 +287,11 @@
         { 
             "name" : "s1ap_erab_modification_indication",
             "help" : "number of s1ap TAU request received by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
-                {"msg_type": "s1ap_erab_modification_indication"}
+                {"msg_type": "erab_modification_indication"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -260,8 +300,10 @@
         { 
             "name" : "s6a_authentication_information_answer",
             "help" : "number of authentication answer received from HSS",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "authentication_information_answer"}
             ],
             "runtime_dimensions": [
@@ -271,8 +313,10 @@
         { 
             "name" : "s6a_update_location_answer",
             "help" : "number of update location answer received from HSS",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "update_location_answer"}
             ],
             "runtime_dimensions": [
@@ -282,8 +326,10 @@
         { 
             "name" : "s6a_purge_answer",
             "help" : "number of purge answer received from HSS",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "purge_answer"}
             ],
             "runtime_dimensions": [
@@ -293,8 +339,10 @@
         { 
             "name" : "s6a_cancel_location_request",
             "help" : "number of cancel location request received by MME",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "cancel_location_request"}
             ],
             "runtime_dimensions": [
@@ -304,8 +352,10 @@
         { 
             "name" : "s11_create_session_response",
             "help" : "number of CSRsp received by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "create_session_response"}
             ],
             "runtime_dimensions": [
@@ -315,8 +365,10 @@
         { 
             "name" : "s11_modify_bearer_response",
             "help" : "number of MBRsp received by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "modify_bearer_response"}
             ],
             "runtime_dimensions": [
@@ -326,8 +378,10 @@
         { 
             "name" : "s11_delete_session_response",
             "help" : "number of DSRsp received by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "delete_session_response"}
             ],
             "runtime_dimensions": [
@@ -337,8 +391,10 @@
         { 
             "name" : "s11_release_bearer_response",
             "help" : "number of RAB Rsp received by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "release_bearer_response"}
             ],
             "runtime_dimensions": [
@@ -348,8 +404,10 @@
         { 
             "name" : "s11_downlink_notification_indication",
             "help" : "number of DDN Ind received by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "downlink_notification_indication"}
             ],
             "runtime_dimensions": [
@@ -369,8 +427,10 @@
         { 
             "name" : "nas_identity_request",
             "help" : "number of identity request sent by MME",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "identity_request"}
             ],
             "runtime_dimensions": [
@@ -380,8 +440,10 @@
         { 
             "name" : "nas_authentication_request",
             "help" : "number of authentication request sent by MME",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "authentication_request"}
             ],
             "runtime_dimensions": [
@@ -391,8 +453,10 @@
         { 
             "name" : "nas_security_mode_command",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "security_mode_command"}
             ],
             "runtime_dimensions": [
@@ -402,8 +466,10 @@
         { 
             "name" : "nas_esm_information_request",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "esm_information_request"}
             ],
             "runtime_dimensions": [
@@ -414,8 +480,10 @@
         { 
             "name" : "nas_initial_context_request",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "initial_context_request"}
             ],
             "runtime_dimensions": [
@@ -426,8 +494,10 @@
         { 
             "name" : "nas_emm_information_req",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "emm_information_req"}
             ],
             "runtime_dimensions": [
@@ -438,8 +508,10 @@
         { 
             "name" : "nas_attach_reject",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "attach_reject"}
             ],
             "runtime_dimensions": [
@@ -450,8 +522,10 @@
         { 
             "name" : "nas_service_reject",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "service_reject"}
             ],
             "runtime_dimensions": [
@@ -462,8 +536,10 @@
         { 
             "name" : "nas_tau_response",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "tau_response"}
             ],
             "runtime_dimensions": [
@@ -472,11 +548,13 @@
         },
 
         { 
-            "name" : "nas_erab_modification",
-            "help" : "number of security mode command sent to UE",
+            "name" : "s1ap_erab_modification",
+            "help" : "number of ERAB modification message sent by MME",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "nas"},
-                {"msg_type": "erab_modification"}
+                {"msg_type": "erab_modification_indication"}
             ],
             "runtime_dimensions": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -486,8 +564,10 @@
         { 
             "name" : "nas_network_initiated_detach",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"nas"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "network_initiated_detach"}
             ],
             "runtime_dimensions": [
@@ -498,8 +578,10 @@
         { 
             "name" : "s1ap_s1_release_command",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "s1_release_command"}
             ],
             "runtime_dimensions": [
@@ -510,8 +592,10 @@
         { 
             "name" : "s1ap_handover_request",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "handover_request"}
             ],
             "runtime_dimensions": [
@@ -522,8 +606,10 @@
         { 
             "name" : "s1ap_handover_command",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "handover_command"}
             ],
             "runtime_dimensions": [
@@ -534,8 +620,10 @@
         { 
             "name" : "s1ap_mme_status_transfer",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "nas"},
                 {"msg_type": "mme_status_transfer"}
             ],
             "runtime_dimensions": [
@@ -546,8 +634,10 @@
         { 
             "name" : "s1ap_handover_preparation_failure",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "handover_preparation_failure"}
             ],
             "runtime_dimensions": [
@@ -558,8 +648,10 @@
         { 
             "name" : "s1ap_handover_cancel_ack",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "handover_cancel_ack"}
             ],
             "runtime_dimensions": [
@@ -570,8 +662,10 @@
         { 
             "name" : "s1ap_paging_request",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "paging_request"}
             ],
             "runtime_dimensions": [
@@ -582,8 +676,10 @@
         { 
             "name" : "s1ap_ics_request_paging",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "ics_request_paging"}
             ],
             "runtime_dimensions": [
@@ -594,8 +690,10 @@
         { 
             "name" : "s1ap_detach_accept",
             "help" : "number of security mode command sent to UE",
+            "common_label": [
+                { "interface":"s1ap"}
+            ],
             "static_label": [
-                {"interface": "s1ap"},
                 {"msg_type": "detach_accept"}
             ],
             "runtime_dimensions": [
@@ -605,8 +703,10 @@
         { 
             "name" : "s11_create_session_request",
             "help" : "number of CSReq sent by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "create_session_request"}
             ],
             "runtime_dimensions": [
@@ -616,8 +716,10 @@
         { 
             "name" : "s11_modify_bearer_request",
             "help" : "number of MBReq sent by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "modify_bearer_request"}
             ],
             "runtime_dimensions": [
@@ -627,8 +729,10 @@
         { 
             "name" : "s11_delete_session_request",
             "help" : "number of DSReq sent by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "delete_session_request"}
             ],
             "runtime_dimensions": [
@@ -638,8 +742,10 @@
         { 
             "name" : "s11_downlink_data_notification_ack",
             "help" : "number of DDN Ack sent by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "downlink_data_notification_ack"}
             ],
             "runtime_dimensions": [
@@ -649,8 +755,10 @@
         { 
             "name" : "s11_release_bearer_request",
             "help" : "number of RAB request sent by MME",
+            "common_label": [
+                { "interface":"s11"}
+            ],
             "static_label": [
-                {"interface": "s11"},
                 {"msg_type": "release_bearer_request"}
             ],
             "runtime_dimensions": [
@@ -660,8 +768,10 @@
         { 
             "name" : "s6a_authentication_info_request",
             "help" : "number of authentication information request sent by MME",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "authentication_info_request"}
             ],
             "runtime_dimensions": [
@@ -671,8 +781,10 @@
         { 
             "name" : "s6a_update_location_request",
             "help" : "number of ULR request sent by MME ",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "update_location_request"}
             ],
             "runtime_dimensions": [
@@ -682,8 +794,10 @@
         { 
             "name" : "s6a_purge_request",
             "help" : "number of Purge request sent by MME",
+            "common_label": [
+                { "interface":"s6a"}
+            ],
             "static_label": [
-                {"interface": "s6a"},
                 {"msg_type": "purge_request"}
             ],
             "runtime_dimensions": [
@@ -691,5 +805,205 @@
             ]
         }
         ]
+    },
+    "mme_procedures": {
+        "name": "number_of_procedures",
+        "help": "Number of procedures executed/started by mme ",
+        "type": "Counter",
+        "family_labels": [
+                {"mme-app": "procedure"}
+        ],
+        "counters":[
+        { 
+            "name" : "attach_ue_proc",
+            "help" : "number of UE attach procedure started by MME",
+            "common_label": [
+                { "procedure":"attach_proc"}
+            ],
+            "static_label": [
+                {"attach_type": "imsi"},
+                {"attach_type": "guti"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        { 
+            "name" : "attach_ue_proc_result",
+            "help" : "UE attach procedure results",
+            "common_label": [
+                { "procedure":"attach_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        { 
+            "name" : "detach_ue_proc",
+            "help" : "number of UE detach procedure started by MME",
+            "common_label": [
+                { "procedure":"detach_proc"}
+            ],
+            "static_label": [
+                {"detach_type": "network_init"},
+                {"detach_type": "ue_init"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "},
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
+        { 
+            "name" : "detach_ue_proc_result",
+            "help" : "UE detach procedure results",
+            "common_label": [
+                { "procedure":"detach_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "s1_release_proc",
+            "help" : "number of S1 Release procedure started by MME",
+            "common_label": [
+            ],
+            "static_label": [
+                { "procedure":"s1_release"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "s1_release_proc_result",
+            "help" : "s1 release procedure results",
+            "common_label": [
+                { "procedure":"s1_release_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "service_request_proc",
+            "help" : "number of service request procedure started by MME",
+            "common_label": [
+                { "procedure":"service_request_proc"}
+            ],
+            "static_label": [
+                { "init_by":"ddn_init"},
+                { "init_by":"ue_init"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "service_request_proc_result",
+            "help" : "service request procedure results",
+            "common_label": [
+                { "procedure":"service_request_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "tau_proc",
+            "help" : "number of TAU procedure started by MME",
+            "common_label": [
+            ],
+            "static_label": [
+                { "procedure":"tau_proc"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "tau_proc_result",
+            "help" : "TAU procedure results",
+            "common_label": [
+                { "procedure":"tau_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "s1_enb_handover_proc",
+            "help" : "number of s1 enb handover procedure started by MME",
+            "common_label": [
+            ],
+            "static_label": [
+                { "procedure":"s1_enb_handiver_proc"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "s1_enb_handover_proc_result",
+            "help" : "s1 enb handover procedure results",
+            "common_label": [
+                { "procedure":"s1_enb_handover_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "erab_mod_ind_proc",
+            "help" : "number of erab modification indication procedure started by MME",
+            "common_label": [
+            ],
+            "static_label": [
+                { "procedure":"erab_mod_ind_proc"}
+            ],
+            "runtime_dimensions": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "erab_mod_ind_proc_result",
+            "help" : "erab modification indication indication procedure results",
+            "common_label": [
+                { "procedure":"erab_mod_ind_proc_result"}
+            ],
+            "static_label": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "runtime_dimensions": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        }
+        ]
     }
 }
+

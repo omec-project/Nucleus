@@ -76,7 +76,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_ERAB_MODIFICATION);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_ERAB_MODIFICATION_INDICATION);
         MmeIpcInterface &mmeIpcIf =
                 static_cast<MmeIpcInterface&>(compDb.getComponent(
                         MmeIpcInterfaceCompId));
@@ -102,6 +102,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
 ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 {
     log_msg(LOG_DEBUG, "Inside erab_mod_ind_complete\n");
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_RESULT_SUCCESS);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
     return ActStatus::PROCEED;
 
@@ -145,6 +146,7 @@ ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
 
     ActStatus actStatus = ActStatus::PROCEED;
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_RESULT_FAILURE);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
 
     // Start MME_INIT Detach procedure

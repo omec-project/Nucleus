@@ -171,6 +171,7 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
         mmCtxt->setEcmState(ecmIdle_c);
 
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE);
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
 	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_s1_rel_comp_received++;
@@ -193,6 +194,7 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
         errorCause = procCtxt->getMmeErrorCause();
     }
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_RESULT_FAILURE);
     if (errorCause == abortDueToAttachCollision_c)
     {
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);

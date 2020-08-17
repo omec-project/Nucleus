@@ -125,6 +125,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_IMSI);
 	prcdCtxt_p->setCtxtType( ProcedureType::attach_c );
 	prcdCtxt_p->setNextState(AttachStart::Instance());
 

@@ -10,25 +10,55 @@ module_name = "mmeStats"
 
 #define class 
 class Gauge:
-    def __init__(self, name, labeldict):
+    def __init__(self, name, common_labels, specific_label):
         self.familyname = name
-        print("Gauge labeldict = {}".format(labeldict))
+        print("common_labels = {} and specific_label = {} ".format(common_labels, specific_label))
+        #generate enum name 
+        e_name = name
+        for l in common_labels:
+           print("l = {}".format(l)) 
+           for k in l.keys():
+              v = l[k]
+              e_name = e_name + "_" + k + "_" + v
+        for l in specific_label:
+           print("l = {}".format(l)) 
+           for k in l.keys():
+              v = l[k]
+              e_name = e_name + "_" + k + "_" + v
+        self.enum_name = e_name.upper()
+        print("enum name {}".format(self.enum_name))
+
         labels = "{"
-        for l in labeldict:
+        for l in common_labels:
+            if labels != "{":
+              labels = labels + ","
+            for k in l.keys():
+               v = l[k]
+               labels = labels + "{\"" + k + "\",\"" + v + "\"}"
+        for l in specific_label:
            if labels != "{":
              labels = labels + ","
-           print("l = {}".format(l)) 
            for k in l:
               v = l[k]
               labels = labels + "{\"" + k + "\",\"" + v + "\"}"
+        labels = labels + "}" 
+        self.gauge_labels = labels
+        print("Gauge labels = {}".format(self.gauge_labels))
+            
+        labelk = ""
+        labelv = ""
+        labeldict = common_labels
+        for l in specific_label:
+           for k in l.keys():
+              v = l[k]
+              labeldict.append({k:v})
               labelk = k
               labelv = v
-        labels = labels + "}" 
+
         self.labeldict = labeldict
-        self.gauge_labels = labels
+        print("Gauge labeldict = {}".format(labeldict))
+ 
         self.gauge_name = "current_" + labelk + "_" + labelv
-        e_name = name + "_" + labelv
-        self.enum_name = e_name.upper()
 
         print("\n\tGauge \n\t\tFamily {} \n\t\tgauge name - {} \n\t\tlabels {}\n".format(self.familyname, self.gauge_name, self.gauge_labels))
 
@@ -44,7 +74,6 @@ class GaugeFamily:
         for l in labeldict:
            if labels != "{":
              labels = labels + ","
-           print("l = {}".format(l)) 
            for k in l:
               v = l[k]
               labels = labels + "{\"" + k + "\",\"" + v + "\"}"
@@ -60,29 +89,56 @@ class GaugeFamily:
         self.gaugeMetricList = []
         print("Gaugefamily :  \n\tFamily - {} \n\t\tFamilyName - {} \n\t\tFamilyHelp {} \n\t\tFamilyLabels {} \n\t\tClassname {} \n\t\tPromFamily = {}****** \n".format(self.family, self.familyname, self.familyhelp, self.family_labels, self.classname, self.promfamily))
 
-    def add_gauge(self, family, labeldict): 
-        g = Gauge(family, labeldict)
+    def add_gauge(self, family, common_label, specific_label): 
+        g = Gauge(family, common_label, specific_label)
         self.gaugeMetricList.append(g)
 
 class Counter:
-    def __init__(self, family, metric_name, labeldict):
+    def __init__(self, family, metric_name, common_labels, specific_label):
         self.family = family
         self.metric_name = metric_name 
-        self.labeldict = labeldict
-        self.counter_name = metric_name
-        e_name = family + "_" + metric_name
+        #self.labeldict = labeldict
+        for l in specific_label:
+           for v in l.values():
+              self.counter_name = metric_name + "_" + v
+
+        e_name = family
+
+        print("Counter common_labels = {}".format(common_labels))
+        print("Counter specific_label = {}".format(specific_label))
+        for l in common_labels:
+           for v in l.values():
+              e_name = e_name + "_" + v
+        for l in specific_label:
+           for v in l.values():
+              e_name = e_name + "_" + v
         self.enum_name = e_name.upper()
-        print("Counter labeldict = {}".format(labeldict))
+        print("enum name {}".format(self.enum_name))
+
         labels = "{"
-        for l in labeldict:
+        for l in common_labels:
            if labels != "{":
              labels = labels + ","
-           print("l = {}".format(l)) 
-           for k in l:
+           for k in l.keys():
+              v = l[k]
+              labels = labels + "{\"" + k + "\",\"" + v + "\"}"
+        for l in specific_label:
+           if labels != "{":
+             labels = labels + ","
+           for k in l.keys():
               v = l[k]
               labels = labels + "{\"" + k + "\",\"" + v + "\"}"
         labels = labels + "}" 
         self.counter_labels = labels
+
+        labeldict = common_labels
+        for l in specific_label:
+           for k in l.keys():
+              v = l[k]
+              labeldict.append({k:v})
+
+        self.labeldict = labeldict
+        print("final labeldict = {}".format(labeldict))
         print("\n\tCounter \n\t\tFamily {} \n\t\tCounterName {} \n\t\tlabels {}\n".format(self.family, self.counter_name, self.counter_labels))
 
 class CounterFamily:
@@ -107,8 +163,8 @@ class CounterFamily:
         print("\n**** CounterFamily :  \n\tFamily {} \n\tFamilyname {} \n\tFamilyhelpStr {} \n\tFamilylabels {} \n\tClassname - {} \n\tPromFamily {}******\n".format(self.family, self.familyname, self.familyhelp, self.family_labels, self.classname, self.promfamily))
         self.counterMetricList = []
 
-    def add_counter(self, family, metric_name, labeldict): 
-        c = Counter(family, metric_name, labeldict)
+    def add_counter(self, family, metric_name, common_labels, specific_label): 
+        c = Counter(family, metric_name, common_labels, specific_label)
         self.counterMetricList.append(c)
 
 def add_copyright(fh):
@@ -219,14 +275,41 @@ def parse_json_file():
         metrics = family['gauges']
         for metric in metrics:
           labeldict = metric["static_label"]
-          gaugeFamilyObj.add_gauge(family_name, labeldict)
+          for onelabel in labeldict:
+             onelabeldict = []
+             for tempk in onelabel.keys():
+                onelabeldict = [{tempk: onelabel[tempk]}]
+             common_label_list = []
+             if metric.get("common_label"):
+               common_label_list = metric["common_label"]
+               print("common_label_list = {}".format(common_label_list))
+             print("specific label = {}".format(onelabeldict))
+             gaugeFamilyObj.add_gauge(family_name, common_label_list, onelabeldict)
       else:
         counterFamilyObj = CounterFamily(family_name, nameStr, helpStr, flabel_dict) 
         counter_family_object_list.append(counterFamilyObj)
         metrics = family['counters']
         for metric in metrics:
-          labeldict = metric["static_label"]
-          counterFamilyObj.add_counter(family_name, metric['name'], labeldict)
+          print("\n\n METRIC LOOP \n\n")
+          static_labels = metric["static_label"]
+          for static_label in static_labels:
+             onelabeldict = []
+             common_label_list = []
+             print("\n** static_label = {}, common_label_list = {} ".format(static_label, common_label_list))
+             for tempk in static_label.keys():
+                static_label_dict = [{tempk: static_label[tempk]}]
+
+             if metric.get("common_label"):
+               print("**? common_label_list = {}".format(common_label_list))
+               print("static_labels {}".format(static_labels))
+               print("metric {}".format(metric))
+               import copy
+               common_label_list = copy.deepcopy(metric["common_label"])
+               print("**x common_label_list = {}".format(common_label_list))
+
+             print("**common_label_list = {}".format(common_label_list))
+             print("**specific label = {}".format(static_label))
+             counterFamilyObj.add_counter(family_name, metric['name'], common_label_list, static_label_dict)
 
 def add_gauge_classes(fh):
     fh.write("\n\n")
@@ -254,19 +337,12 @@ def add_gauge_classes(fh):
         gauge_create_labels += "{labelk, labelv}"
         dynamic_function_call_args += "labelk, labelv"
         gauge_create_labels += "}"
-        print("constructor_args = {}".format(constructor_args))
-        print("gauge_create_labels = {}".format(gauge_create_labels))
-        print("dynamic_function_call_args = {}".format(dynamic_function_call_args))
         dyn_fun_signature[labels] = [constructor_args, gauge_create_labels, dynamic_function_call_args]
-        print("************ dyn_fun_signature {}".format(dyn_fun_signature))
 
       for f in dyn_fun_signature.values():
         constructor_args =f[0]
         gauge_create_labels = f[1]
         dynamic_function_call_args = f[2]
-        print("constructor_args = {}".format(constructor_args))
-        print("gauge_create_labels = {}".format(gauge_create_labels))
-        print("dynamic_function_call_args = {}".format(dynamic_function_call_args))
         fh.write("\t\t" + gauge.family + "_DynamicMetricObject(Family<Gauge> &" + gauge.promfamily + "," + constructor_args +"):\n")
         fh.write("\t\t DynamicMetricObject(),\n")
         fh.write("\t\t gauge(" + gauge.promfamily + ".Add(" + gauge_create_labels + "))\n") 
@@ -290,7 +366,6 @@ def add_gauge_classes(fh):
 
       for f in dyn_fun_signature.values():
         constructor_args,gauge_create_labels,dynamic_function_call_args = f
-        print("constructor_args = {}, gauge_create_labels = {}, dynamic_function_call_args = {}".format(constructor_args,gauge_create_labels,dynamic_function_call_args))
         fh.write("\n\t" + gauge.family+"_"+"DynamicMetricObject* add_dynamic(" + constructor_args + ") {\n")
         fh.write("\t\treturn new "+ gauge.family+"_"+"DynamicMetricObject("+ gauge.promfamily + "," + dynamic_function_call_args + ");\n ")
         fh.write("\t}\n")
@@ -325,9 +400,6 @@ def add_counter_classes(fh):
         constructor_args = f[0]
         counter_create_labels = f[1]
         dynamic_function_call_args = f[2]
-        print("constructor_args = {}".format(constructor_args))
-        print("gauge_create_labels = {}".format(counter_create_labels))
-        print("dynamic_function_call_args = {}".format(dynamic_function_call_args))
         fh.write("\t\t" + counter.family + "_DynamicMetricObject(Family<Counter> &" + counter.promfamily + "," + constructor_args +"):\n")
         fh.write("\t\t DynamicMetricObject(),\n")
         fh.write("\t\t counter(" + counter.promfamily + ".Add(" + counter_create_labels + "))\n") 
@@ -609,11 +681,15 @@ def add_test_main_function(fh):
     fh.write("\tstd::thread prom(" + module_name + "SetupPrometheusThread);\n")
     fh.write("\tprom.detach();\n")
     fh.write("\twhile(1) {\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_ACTIVE);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_IDLE);\n") 
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_ACTIVE);\n") 
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_IDLE);\n") 
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE, {{\"enb\",\"1.1.1.2\"}});\n")
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE);\n")
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE);\n") 
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE, {{\"failure_reason\", \"CSRsp_fail\"}});\n")
     fh.write("\tsleep(1);\n")
     fh.write("\t}\n")
     fh.write("}\n")
