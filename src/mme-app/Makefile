@@ -45,7 +45,7 @@ LIBS :=	-lpthread \
         -lgpr \
         -lprotobuf \
         -lprometheus-cpp-pull -lprometheus-cpp-core -lz \
-	-lsecutil
+	-lsecutil \
 	-lepc \
         -lcares \
         -lrt
