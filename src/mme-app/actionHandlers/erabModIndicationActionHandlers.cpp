@@ -76,7 +76,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_ERAB_MODIFICATION);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_ERAB_MODIFICATION_INDICATION);
         MmeIpcInterface &mmeIpcIf =
                 static_cast<MmeIpcInterface&>(compDb.getComponent(
                         MmeIpcInterfaceCompId));

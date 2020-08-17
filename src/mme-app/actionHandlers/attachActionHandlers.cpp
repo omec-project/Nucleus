@@ -40,6 +40,7 @@
 #include "mme_app.h"
 #include "gtpCauseTypes.h"
 #include "mmeStatsPromClient.h"
+#include <sstream> 
 
 using namespace SM;
 using namespace mme;
@@ -924,6 +925,9 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
     if(csr_info.status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
 		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info.status);
+        std::ostringstream reason;
+        reason<<"CSRsp_reject_cause_"<<csr_info.status;
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE, {{"failure_reason", reason.str()}});
        	return ActStatus::ABORT;
     }
 
@@ -1329,7 +1333,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_ACTIVE);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_ACTIVE);
 
 	return ActStatus::PROCEED;
 }
