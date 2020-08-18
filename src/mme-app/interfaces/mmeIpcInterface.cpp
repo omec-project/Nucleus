@@ -126,7 +126,7 @@ bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddre
 	        len + sizeof(cmn::ipc::IpcMsgHeader));
 	MsgBuffer *msgBuf = eMsg->getMsgBuffer();
 	msgBuf->writeUint32(msgHeader.destAddr.u32);
-        msgBuf->writeUint32(msgHeader.srcAddr.u32);
+    msgBuf->writeUint32(msgHeader.srcAddr.u32);
 	msgBuf->writeBytes((uint8_t*)buf, len);
 
 	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d\n", msgBuf->getLength());

@@ -148,15 +148,19 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	ddn_ack.msg_type = ddn_acknowledgement;
 	ddn_ack.seq_no= srPrcdCtxt_p->getDdnSeqNo();
 	memcpy(&(ddn_ack.s11_sgw_c_fteid), 	
-               &(sess_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct Fteid));
+                &(sess_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct Fteid));
 	ddn_ack.cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
 	
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = ddn_ack.msg_type;
+    memcpy(&top_msg.ddn_ack_msg, &ddn_ack, sizeof(ddn_ack)); 
+
     statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::ddn_acknowledgement);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &ddn_ack, sizeof(ddn_ack), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 	
 	log_msg(LOG_DEBUG, "Leaving send_ddn_ack_to_sgw \n");
 
@@ -338,11 +342,15 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
                 cmn::ipc::IpcAddress destAddr;
                 destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+                gtp_outgoing_msgs_t top_msg;
+                top_msg.msg_type = mb_msg.msg_type;
+                memcpy(&top_msg.mbr_req_msg, &mb_msg, sizeof(mb_msg)); 
+
                 statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::modify_bearer_request);
                 MmeIpcInterface &mmeIpcIf =
                         static_cast<MmeIpcInterface&>(compDb.getComponent(
                                 MmeIpcInterfaceCompId));
-                mmeIpcIf.dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
+                mmeIpcIf.dispatchIpcMsg((char*) &top_msg, sizeof(top_msg), destAddr);
 
                 ProcedureStats::num_of_mb_req_to_sgw_sent++;
             }

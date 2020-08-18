@@ -878,14 +878,18 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = cs_msg.msg_type;
+    memcpy(&top_msg.csr_req_msg, &cs_msg, sizeof(cs_msg)); 
+
     statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::create_session_request);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 
 	ProcedureStats::num_of_cs_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw \n");
 
-    	return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
@@ -1196,9 +1200,13 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
+    gtp_outgoing_msgs_t top_msg;
+    top_msg.msg_type = mb_msg.msg_type;
+    memcpy(&top_msg.mbr_req_msg, &mb_msg, sizeof(mb_msg)); 
+
     statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::modify_bearer_request);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &top_msg, sizeof(top_msg), destAddr);
 		
 	ProcedureStats::num_of_mb_req_to_sgw_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw \n");

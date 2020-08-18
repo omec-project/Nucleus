@@ -55,8 +55,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
         return;
     }
 
-    const gtp_incoming_msg_data_t *msgData_p =
-            (gtp_incoming_msg_data_t*) (msgBuf->getDataPointer());
+    const gtp_incoming_msg_data_t *msgData_p = (gtp_incoming_msg_data_t*) (msgBuf->getDataPointer());
 
     statistics::Instance()->Increment_s11_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
@@ -82,7 +81,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 			break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled Gtp Message %d \n", msgData_p->msg_type);
+			log_msg(LOG_INFO, "Unhandled Gtp Message %d  and message length = %d \n", msgData_p->msg_type, msgBuf->getLength());
 			delete eMsg;
 	}
 

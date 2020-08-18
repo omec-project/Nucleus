@@ -23,7 +23,7 @@ extern "C" {
 
 	const uint32_t MsgBuffer_readUint32(MsgBuffer* msgBuf_p, Uint32 data);
 
-	bool MsgBuffer_writeUint32(MsgBuffer* msgBuf_p, Uint32 data, bool append);
+ 	bool MsgBuffer_writeUint32(MsgBuffer* msgBuf_p, Uint32 data, bool append);
 
 	void MsgBuffer_rewind(MsgBuffer* msgBuf_p);
 
