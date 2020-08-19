@@ -98,6 +98,7 @@ typedef enum msg_type_t {
     ics_req_paging,
     tau_request,
     tau_response,
+    tau_reject,
     emm_info_request,
     s1_reset,
     handover_required,
