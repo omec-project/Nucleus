@@ -11,7 +11,7 @@
 #include <log.h>
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -55,22 +55,25 @@ void S6MsgHandler::handleS6Message_v(IpcEventMessage* eMsg)
     	}
 
 	const s6_incoming_msg_data_t* msgData_p = (s6_incoming_msg_data_t*)(msgBuf->getDataPointer());
-    statistics::Instance()->Increment_s6_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::auth_info_answer:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_AUTHENTICATION_INFORMATION_ANSWER);
 			handleAuthInfoAnswer_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::update_loc_answer:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_UPDATE_LOCATION_ANSWER);
 			handleUpdateLocationAnswer_v(eMsg,  msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::purge_answser:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_PURGE_ANSWER);
 			handlePurgeAnswer_v(eMsg,  msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::cancel_location_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_CANCEL_LOCATION_REQUEST);
 			handleCancelLocationRequest_v(eMsg);
 			break;
 
