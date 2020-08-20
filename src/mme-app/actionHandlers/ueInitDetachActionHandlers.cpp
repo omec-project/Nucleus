@@ -175,7 +175,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_detach_accept: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
-    mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_UE_SUB_STATE_ACTIVE);
+    mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();
@@ -208,7 +208,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
 	
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c );
-  	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_RESULT_SUCCESS);
+  	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
 
 	MmContext* mmCtxt = ue_ctxt->getMmContext();
 	mmCtxt->setMmState( EpsDetached );

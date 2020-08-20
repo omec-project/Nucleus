@@ -185,7 +185,7 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
 		mmCtxt->setMmState( EpsDetached );
 		mmCtxt->setEcmState( ecmIdle_c );
 		ueCtxt->setS1apEnbUeId(0);
-		mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_RESULT_SUCCESS);
+		mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
 		MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
 	}
 

@@ -463,7 +463,7 @@ ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_complete++;
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_RESULT_SUCCESS);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_SUCCESS);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
 
     return ActStatus::PROCEED;
@@ -594,7 +594,7 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::abort_handover(ControlBlock &cb)
 {
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_RESULT_FAILURE);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_FAILURE);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
     return ActStatus::PROCEED;
 }

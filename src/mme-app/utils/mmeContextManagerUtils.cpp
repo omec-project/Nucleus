@@ -384,7 +384,7 @@ S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::Contro
             SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
     if (prcdCtxt_p != NULL)
     {
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDIVER_PROC);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
         prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
         prcdCtxt_p->setHoType(intraMmeS1Ho_c);

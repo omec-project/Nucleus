@@ -2,6 +2,8 @@
 #Get port number  as argument 
 #IP address looks optional 
 import json
+import sys
+import copy
 
 gauges_family_object_list = [] #type class Gauge
 counter_family_object_list = [] #tupe class Counter
@@ -10,56 +12,41 @@ module_name = "mmeStats"
 
 #define class 
 class Gauge:
-    def __init__(self, name, common_labels, specific_label):
+    def __init__(self, name, i_labels):
         self.familyname = name
-        print("common_labels = {} and specific_label = {} ".format(common_labels, specific_label))
+        print("Gauge labels = {} ".format(i_labels))
         #generate enum name 
         e_name = name
-        for l in common_labels:
+        for l in i_labels:
            print("l = {}".format(l)) 
            for k in l.keys():
               v = l[k]
-              e_name = e_name + "_" + k + "_" + v
-        for l in specific_label:
-           print("l = {}".format(l)) 
-           for k in l.keys():
-              v = l[k]
-              e_name = e_name + "_" + k + "_" + v
+              e_name = e_name + "_" + v
         self.enum_name = e_name.upper()
         print("enum name {}".format(self.enum_name))
 
         labels = "{"
-        for l in common_labels:
+        for l in i_labels:
             if labels != "{":
               labels = labels + ","
             for k in l.keys():
                v = l[k]
                labels = labels + "{\"" + k + "\",\"" + v + "\"}"
-        for l in specific_label:
-           if labels != "{":
-             labels = labels + ","
-           for k in l:
-              v = l[k]
-              labels = labels + "{\"" + k + "\",\"" + v + "\"}"
         labels = labels + "}" 
         self.gauge_labels = labels
         print("Gauge labels = {}".format(self.gauge_labels))
             
-        labelk = ""
-        labelv = ""
-        labeldict = common_labels
-        for l in specific_label:
+        gauge_name = "current_"
+        labeldict = i_labels
+        for l in i_labels:
            for k in l.keys():
               v = l[k]
-              labeldict.append({k:v})
-              labelk = k
-              labelv = v
+              gauge_name +=  "_" + v
 
-        self.labeldict = labeldict
+        self.gauge_name = gauge_name
+
+        self.labeldict = i_labels
         print("Gauge labeldict = {}".format(labeldict))
- 
-        self.gauge_name = "current_" + labelk + "_" + labelv
-
         print("\n\tGauge \n\t\tFamily {} \n\t\tgauge name - {} \n\t\tlabels {}\n".format(self.familyname, self.gauge_name, self.gauge_labels))
 
 class GaugeFamily:
@@ -89,40 +76,30 @@ class GaugeFamily:
         self.gaugeMetricList = []
         print("Gaugefamily :  \n\tFamily - {} \n\t\tFamilyName - {} \n\t\tFamilyHelp {} \n\t\tFamilyLabels {} \n\t\tClassname {} \n\t\tPromFamily = {}****** \n".format(self.family, self.familyname, self.familyhelp, self.family_labels, self.classname, self.promfamily))
 
-    def add_gauge(self, family, common_label, specific_label): 
-        g = Gauge(family, common_label, specific_label)
+    def add_gauge(self, family, labels): 
+        g = Gauge(family, labels)
         self.gaugeMetricList.append(g)
 
 class Counter:
-    def __init__(self, family, metric_name, common_labels, specific_label):
+    def __init__(self, family, metric_name, i_labels):
+        print("Counter i_labels = {}".format(i_labels))
+        print("Counter __init__ family {}".format(family))
+        print("Counter __init__ metric {}".format(metric_name))
+
         self.family = family
         self.metric_name = metric_name 
         #self.labeldict = labeldict
-        for l in specific_label:
-           for v in l.values():
-              self.counter_name = metric_name + "_" + v
-
         e_name = family
-
-        print("Counter common_labels = {}".format(common_labels))
-        print("Counter specific_label = {}".format(specific_label))
-        for l in common_labels:
+        for l in i_labels:
            for v in l.values():
               e_name = e_name + "_" + v
-        for l in specific_label:
-           for v in l.values():
-              e_name = e_name + "_" + v
+        self.counter_name = e_name.lower()
         self.enum_name = e_name.upper()
         print("enum name {}".format(self.enum_name))
+        print("counter name = {}".format(self.counter_name))
 
         labels = "{"
-        for l in common_labels:
-           if labels != "{":
-             labels = labels + ","
-           for k in l.keys():
-              v = l[k]
-              labels = labels + "{\"" + k + "\",\"" + v + "\"}"
-        for l in specific_label:
+        for l in i_labels:
            if labels != "{":
              labels = labels + ","
            for k in l.keys():
@@ -131,14 +108,8 @@ class Counter:
         labels = labels + "}" 
         self.counter_labels = labels
 
-        labeldict = common_labels
-        for l in specific_label:
-           for k in l.keys():
-              v = l[k]
-              labeldict.append({k:v})
-
-        self.labeldict = labeldict
-        print("final labeldict = {}".format(labeldict))
+        self.labeldict = copy.deepcopy(i_labels)
+        print("final labeldict = {}".format(self.labeldict))
         print("\n\tCounter \n\t\tFamily {} \n\t\tCounterName {} \n\t\tlabels {}\n".format(self.family, self.counter_name, self.counter_labels))
 
 class CounterFamily:
@@ -163,8 +134,8 @@ class CounterFamily:
         print("\n**** CounterFamily :  \n\tFamily {} \n\tFamilyname {} \n\tFamilyhelpStr {} \n\tFamilylabels {} \n\tClassname - {} \n\tPromFamily {}******\n".format(self.family, self.familyname, self.familyhelp, self.family_labels, self.classname, self.promfamily))
         self.counterMetricList = []
 
-    def add_counter(self, family, metric_name, common_labels, specific_label): 
-        c = Counter(family, metric_name, common_labels, specific_label)
+    def add_counter(self, family, metric_name, labels): 
+        c = Counter(family, metric_name, labels)
         self.counterMetricList.append(c)
 
 def add_copyright(fh):
@@ -220,13 +191,14 @@ def add_counter_enum(fh):
    
 def add_dynamic_node_hash_functions(fh):
     fh.write("struct Node \n"
-    "{\n"
-    "    mmeStatsCounter id;\n"
+    "{\n")
+    fh.write("   " + module_name + "Counter id;\n"
     "	std::string label_k;\n"
     "	std::string label_v;\n"
-    "\n"
-    "	Node(mmeStatsCounter id, std::string label_k, std::string label_v)\n"
-    "	{\n"
+    "\n")
+
+    fh.write("	Node(" + module_name  + "Counter id, std::string label_k, std::string label_v)\n")
+    fh.write("	{\n"
     "		this->id = id;\n"
     "		this->label_k = label_k;\n"
     "		this->label_v = label_v;\n"
@@ -257,7 +229,14 @@ def add_footer_macro(fh):
     fh.write(h)
 
 def parse_json_file():
-  with open('mmeStats.json') as f:
+  print("sys.argv {}".format(sys.argv))
+  file = None
+  if(len(sys.argv) == 2):
+    file_name = sys.argv[1]
+  global module_name
+  temp = file_name.split(".")
+  module_name = temp[0] 
+  with open(file_name) as f:
       data = json.load(f)
   families = data.keys()
   for key in families:
@@ -274,42 +253,71 @@ def parse_json_file():
         gauges_family_object_list.append(gaugeFamilyObj)
         metrics = family['gauges']
         for metric in metrics:
-          labeldict = metric["static_label"]
-          for onelabel in labeldict:
-             onelabeldict = []
-             for tempk in onelabel.keys():
-                onelabeldict = [{tempk: onelabel[tempk]}]
-             common_label_list = []
-             if metric.get("common_label"):
-               common_label_list = metric["common_label"]
-               print("common_label_list = {}".format(common_label_list))
-             print("specific label = {}".format(onelabeldict))
-             gaugeFamilyObj.add_gauge(family_name, common_label_list, onelabeldict)
+          label_0_dict = metric["label_0"]
+          for zero_label in label_0_dict:
+             final_label_dict = []
+             zero_label_dict = []
+             for temp_zero in zero_label.keys():
+                zero_label_dict = [{temp_zero: zero_label[temp_zero]}]
+                final_label_dict = copy.deepcopy(zero_label_dict)
+                if(metric.get("label_1")):
+                  label_1_dict = metric["label_1"]
+                  for one_label in label_1_dict:
+                     one_label_dict = copy.deepcopy(zero_label_dict)
+                     for temp_one in one_label.keys():
+                        one_label_dict.append({temp_one: one_label[temp_one]})
+                        final_label_dict = copy.deepcopy(one_label_dict)
+                        if(metric.get("label_2")):
+                          label_2_dict = metric["label_2"]
+                          for two_label in label_2_dict:
+                             two_label_dict = copy.deepcopy(one_label_dict)
+                             for temp_two in two_label.keys():
+                                two_label_dict.append({temp_two: two_label[temp_two]})
+                                final_label_dict = copy.deepcopy(two_label_dict)
+                                print("labels = {}".format(final_label_dict))
+                                gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+                        else:
+                          print("labels = {}".format(final_label_dict))
+                          gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+                else:
+                  print("labels = {}".format(final_label_dict))
+                  gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+
       else:
         counterFamilyObj = CounterFamily(family_name, nameStr, helpStr, flabel_dict) 
         counter_family_object_list.append(counterFamilyObj)
         metrics = family['counters']
         for metric in metrics:
-          print("\n\n METRIC LOOP \n\n")
-          static_labels = metric["static_label"]
-          for static_label in static_labels:
-             onelabeldict = []
-             common_label_list = []
-             print("\n** static_label = {}, common_label_list = {} ".format(static_label, common_label_list))
-             for tempk in static_label.keys():
-                static_label_dict = [{tempk: static_label[tempk]}]
+          label_0_dict = metric["label_0"]
+          for zero_label in label_0_dict:
+             final_label_dict = []
+             zero_label_dict = []
+             for temp_zero in zero_label.keys():
+                zero_label_dict = [{temp_zero: zero_label[temp_zero]}]
+                final_label_dict = copy.deepcopy(zero_label_dict)
+                if(metric.get("label_1")):
+                  label_1_dict = metric["label_1"]
+                  for one_label in label_1_dict:
+                     one_label_dict = copy.deepcopy(zero_label_dict)
+                     for temp_one in one_label.keys():
+                        one_label_dict.append({temp_one: one_label[temp_one]})
+                        final_label_dict = copy.deepcopy(one_label_dict)
+                        if(metric.get("label_2")):
+                          label_2_dict = metric["label_2"]
+                          for two_label in label_2_dict:
+                             two_label_dict = copy.deepcopy(one_label_dict)
+                             for temp_two in two_label.keys():
+                                two_label_dict.append({temp_two: two_label[temp_two]})
+                                final_label_dict = copy.deepcopy(two_label_dict)
+                                print("labels = {}".format(final_label_dict))
+                                counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
+                        else:
+                          print("labels = {}".format(final_label_dict))
+                          counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
+                else:
+                  print("labels = {}".format(final_label_dict))
+                  counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
 
-             if metric.get("common_label"):
-               print("**? common_label_list = {}".format(common_label_list))
-               print("static_labels {}".format(static_labels))
-               print("metric {}".format(metric))
-               import copy
-               common_label_list = copy.deepcopy(metric["common_label"])
-               print("**x common_label_list = {}".format(common_label_list))
-
-             print("**common_label_list = {}".format(common_label_list))
-             print("**specific label = {}".format(static_label))
-             counterFamilyObj.add_counter(family_name, metric['name'], common_label_list, static_label_dict)
 
 def add_gauge_classes(fh):
     fh.write("\n\n")
@@ -482,7 +490,7 @@ def add_prom_client_setup_function(fh):
     fh.write("{\n")
     fh.write("    registry = std::make_shared<Registry>();\n")
     fh.write("    /* Create single instance */ \n")
-    fh.write("    mmeStats::Instance(); \n")
+    fh.write("    " + module_name + "::Instance(); \n")
     fh.write("    Exposer exposer{\"0.0.0.0:3081\", 1};\n")
     fh.write("    std::string metrics(\"/metrics\");\n")
     fh.write("    exposer.RegisterCollectable(registry, metrics);\n")
@@ -675,21 +683,21 @@ def add_decrement_api(fh):
     fh.write("\n\n")
  
 def add_test_main_function(fh):
-    fh.write("#ifdef MME_TEST_PROMETHEUS \n")
+    fh.write("#ifdef TEST_PROMETHEUS \n")
     fh.write("#include <unistd.h>\n")
     fh.write("int main() {\n")
     fh.write("\tstd::thread prom(" + module_name + "SetupPrometheusThread);\n")
     fh.write("\tprom.detach();\n")
     fh.write("\twhile(1) {\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_ACTIVE);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_IDLE);\n") 
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);\n") 
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_IDLE_SUBSCRIBERS);\n") 
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE, {{\"enb\",\"1.1.1.2\"}});\n")
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE);\n")
     fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE, {{\"failure_reason\", \"CSRsp_fail\"}});\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);\n")
+    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{\"failure_reason\", \"CSRsp_fail\"}});\n")
     fh.write("\tsleep(1);\n")
     fh.write("\t}\n")
     fh.write("}\n")

@@ -19,8 +19,10 @@ extern std::shared_ptr<Registry> registry;
 void mmeStatsSetupPrometheusThread(void);
 
 enum class mmeStatsCounter {
-	MME_NUM_UE_SUB_STATE_ACTIVE,
-	MME_NUM_UE_SUB_STATE_IDLE,
+	MME_NUM_ACTIVE_SUBSCRIBERS,
+	MME_NUM_IDLE_SUBSCRIBERS,
+	MME_NUM_PDNS,
+	MME_NUM_BEARERS,
 	MME_MSG_RX_NAS_ATTACH_REQUEST,
 	MME_MSG_RX_NAS_IDENTITY_RESPONSE,
 	MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE,
@@ -80,33 +82,33 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_S6A_PURGE_REQUEST,
 	MME_PROCEDURES_ATTACH_PROC_IMSI,
 	MME_PROCEDURES_ATTACH_PROC_GUTI,
-	MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE,
+	MME_PROCEDURES_ATTACH_PROC_SUCCESS,
+	MME_PROCEDURES_ATTACH_PROC_FAILURE,
 	MME_PROCEDURES_DETACH_PROC_NETWORK_INIT,
 	MME_PROCEDURES_DETACH_PROC_UE_INIT,
-	MME_PROCEDURES_DETACH_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_DETACH_PROC_RESULT_FAILURE,
-	MME_PROCEDURES_S1_RELEASE,
-	MME_PROCEDURES_S1_RELEASE_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_S1_RELEASE_PROC_RESULT_FAILURE,
+	MME_PROCEDURES_DETACH_PROC_SUCCESS,
+	MME_PROCEDURES_DETACH_PROC_FAILURE,
+	MME_PROCEDURES_S1_RELEASE_PROC,
+	MME_PROCEDURES_S1_RELEASE_PROC_SUCCESS,
+	MME_PROCEDURES_S1_RELEASE_PROC_FAILURE,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_DDN_INIT,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_UE_INIT,
-	MME_PROCEDURES_SERVICE_REQUEST_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_SERVICE_REQUEST_PROC_RESULT_FAILURE,
+	MME_PROCEDURES_SERVICE_REQUEST_PROC_SUCCESS,
+	MME_PROCEDURES_SERVICE_REQUEST_PROC_FAILURE,
 	MME_PROCEDURES_TAU_PROC,
-	MME_PROCEDURES_TAU_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_TAU_PROC_RESULT_FAILURE,
-	MME_PROCEDURES_S1_ENB_HANDIVER_PROC,
-	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_RESULT_FAILURE,
+	MME_PROCEDURES_TAU_PROC_SUCCESS,
+	MME_PROCEDURES_TAU_PROC_FAILURE,
+	MME_PROCEDURES_S1_ENB_HANDOVER_PROC,
+	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_SUCCESS,
+	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_FAILURE,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC,
-	MME_PROCEDURES_ERAB_MOD_IND_PROC_RESULT_SUCCESS,
-	MME_PROCEDURES_ERAB_MOD_IND_PROC_RESULT_FAILURE
+	MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS,
+	MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE
 };
 
 struct Node 
 {
-    mmeStatsCounter id;
+   mmeStatsCounter id;
 	std::string label_k;
 	std::string label_v;
 
@@ -141,28 +143,39 @@ class DynamicMetricObject {
 };
 
 
-class mme_num_ue_DynamicMetricObject : public DynamicMetricObject {
+class mme_num_DynamicMetricObject : public DynamicMetricObject {
 	public:
-		mme_num_ue_DynamicMetricObject(Family<Gauge> &mme_num_ue_family,std::string labelk0, std::string labelv0,std::string labelk, std::string labelv):
+		mme_num_DynamicMetricObject(Family<Gauge> &mme_num_family,std::string labelk0, std::string labelv0,std::string labelk1, std::string labelv1,std::string labelk, std::string labelv):
 		 DynamicMetricObject(),
-		 gauge(mme_num_ue_family.Add({{labelk0, labelv0},{labelk, labelv}}))
+		 gauge(mme_num_family.Add({{labelk0, labelv0},{labelk1, labelv1},{labelk, labelv}}))
 		{
 		}
-		~mme_num_ue_DynamicMetricObject()
+		mme_num_DynamicMetricObject(Family<Gauge> &mme_num_family,std::string labelk0, std::string labelv0,std::string labelk, std::string labelv):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{labelk0, labelv0},{labelk, labelv}}))
+		{
+		}
+		~mme_num_DynamicMetricObject()
 		{
 		}
 		Gauge &gauge;
 };
-class mme_num_ue_gauges {
+class mme_num_gauges {
 	public:
-	mme_num_ue_gauges();
-	~mme_num_ue_gauges();
-	Family<Gauge> &mme_num_ue_family;
-	Gauge &current_sub_state_Active;
-	Gauge &current_sub_state_Idle;
+	mme_num_gauges();
+	~mme_num_gauges();
+	Family<Gauge> &mme_num_family;
+	Gauge &current__Active_subscribers;
+	Gauge &current__Idle_subscribers;
+	Gauge &current__pdns;
+	Gauge &current__bearers;
 
-	mme_num_ue_DynamicMetricObject* add_dynamic(std::string labelk0, std::string labelv0,std::string labelk, std::string labelv) {
-		return new mme_num_ue_DynamicMetricObject(mme_num_ue_family,labelk0, labelv0,labelk, labelv);
+	mme_num_DynamicMetricObject* add_dynamic(std::string labelk0, std::string labelv0,std::string labelk1, std::string labelv1,std::string labelk, std::string labelv) {
+		return new mme_num_DynamicMetricObject(mme_num_family,labelk0, labelv0,labelk1, labelv1,labelk, labelv);
+ 	}
+
+	mme_num_DynamicMetricObject* add_dynamic(std::string labelk0, std::string labelv0,std::string labelk, std::string labelv) {
+		return new mme_num_DynamicMetricObject(mme_num_family,labelk0, labelv0,labelk, labelv);
  	}
 };
 
@@ -186,35 +199,35 @@ class mme_msg_rx_counters {
 	mme_msg_rx_counters();
 	~mme_msg_rx_counters();
 	Family<Counter> &mme_msg_rx_family;
-	Counter &attach_request_attach_request;
-	Counter &nas_identity_response_identity_response;
-	Counter &nas_authentication_response_authentication_response;
-	Counter &nas_security_mode_response_security_mode_response;
-	Counter &nas_esm_response_esm_response;
-	Counter &s1ap_init_context_response_init_context_response;
-	Counter &nas_attach_complete_attach_complete;
-	Counter &nas_detach_request_detach_request;
-	Counter &s1ap_release_request_release_request;
-	Counter &s1ap_release_complete_release_complete;
-	Counter &s1ap_detach_accept_detach_accept;
-	Counter &s1ap_service_request_service_request;
-	Counter &s1ap_tau_request_tau_request;
-	Counter &s1ap_handover_request_ack_handover_request_ack;
-	Counter &s1ap_handover_notify_handover_notify;
-	Counter &s1ap_handover_required_handover_required;
-	Counter &s1ap_enb_status_transfer_enb_status_transfer;
-	Counter &s1ap_handover_cancel_handover_cancel;
-	Counter &s1ap_handover_failure_handover_failure;
-	Counter &s1ap_erab_modification_indication_erab_modification_indication;
-	Counter &s6a_authentication_information_answer_authentication_information_answer;
-	Counter &s6a_update_location_answer_update_location_answer;
-	Counter &s6a_purge_answer_purge_answer;
-	Counter &s6a_cancel_location_request_cancel_location_request;
-	Counter &s11_create_session_response_create_session_response;
-	Counter &s11_modify_bearer_response_modify_bearer_response;
-	Counter &s11_delete_session_response_delete_session_response;
-	Counter &s11_release_bearer_response_release_bearer_response;
-	Counter &s11_downlink_notification_indication_downlink_notification_indication;
+	Counter &mme_msg_rx_nas_attach_request;
+	Counter &mme_msg_rx_nas_identity_response;
+	Counter &mme_msg_rx_nas_authentication_response;
+	Counter &mme_msg_rx_nas_security_mode_response;
+	Counter &mme_msg_rx_nas_esm_response;
+	Counter &mme_msg_rx_s1ap_init_context_response;
+	Counter &mme_msg_rx_nas_attach_complete;
+	Counter &mme_msg_rx_nas_detach_request;
+	Counter &mme_msg_rx_s1ap_release_request;
+	Counter &mme_msg_rx_s1ap_release_complete;
+	Counter &mme_msg_rx_s1ap_detach_accept;
+	Counter &mme_msg_rx_s1ap_service_request;
+	Counter &mme_msg_rx_s1ap_tau_request;
+	Counter &mme_msg_rx_s1ap_handover_request_ack;
+	Counter &mme_msg_rx_s1ap_handover_notify;
+	Counter &mme_msg_rx_s1ap_handover_required;
+	Counter &mme_msg_rx_s1ap_enb_status_transfer;
+	Counter &mme_msg_rx_s1ap_handover_cancel;
+	Counter &mme_msg_rx_s1ap_handover_failure;
+	Counter &mme_msg_rx_s1ap_erab_modification_indication;
+	Counter &mme_msg_rx_s6a_authentication_information_answer;
+	Counter &mme_msg_rx_s6a_update_location_answer;
+	Counter &mme_msg_rx_s6a_purge_answer;
+	Counter &mme_msg_rx_s6a_cancel_location_request;
+	Counter &mme_msg_rx_s11_create_session_response;
+	Counter &mme_msg_rx_s11_modify_bearer_response;
+	Counter &mme_msg_rx_s11_delete_session_response;
+	Counter &mme_msg_rx_s11_release_bearer_response;
+	Counter &mme_msg_rx_s11_downlink_notification_indication;
 
 	mme_msg_rx_DynamicMetricObject* add_dynamic(std::string labelk0,std::string labelv0,std::string labelk1,std::string labelv1,std::string labelk, std::string labelv) {
 		return new mme_msg_rx_DynamicMetricObject(mme_msg_rx_family,labelk0,labelv0,labelk1,labelv1,labelk, labelv);
@@ -240,34 +253,34 @@ class mme_msg_tx_counters {
 	mme_msg_tx_counters();
 	~mme_msg_tx_counters();
 	Family<Counter> &mme_msg_tx_family;
-	Counter &nas_identity_request_identity_request;
-	Counter &nas_authentication_request_authentication_request;
-	Counter &nas_security_mode_command_security_mode_command;
-	Counter &nas_esm_information_request_esm_information_request;
-	Counter &nas_initial_context_request_initial_context_request;
-	Counter &nas_emm_information_req_emm_information_req;
-	Counter &nas_attach_reject_attach_reject;
-	Counter &nas_service_reject_service_reject;
-	Counter &nas_tau_response_tau_response;
-	Counter &s1ap_erab_modification_erab_modification_indication;
-	Counter &nas_network_initiated_detach_network_initiated_detach;
-	Counter &s1ap_s1_release_command_s1_release_command;
-	Counter &s1ap_handover_request_handover_request;
-	Counter &s1ap_handover_command_handover_command;
-	Counter &s1ap_mme_status_transfer_mme_status_transfer;
-	Counter &s1ap_handover_preparation_failure_handover_preparation_failure;
-	Counter &s1ap_handover_cancel_ack_handover_cancel_ack;
-	Counter &s1ap_paging_request_paging_request;
-	Counter &s1ap_ics_request_paging_ics_request_paging;
-	Counter &s1ap_detach_accept_detach_accept;
-	Counter &s11_create_session_request_create_session_request;
-	Counter &s11_modify_bearer_request_modify_bearer_request;
-	Counter &s11_delete_session_request_delete_session_request;
-	Counter &s11_downlink_data_notification_ack_downlink_data_notification_ack;
-	Counter &s11_release_bearer_request_release_bearer_request;
-	Counter &s6a_authentication_info_request_authentication_info_request;
-	Counter &s6a_update_location_request_update_location_request;
-	Counter &s6a_purge_request_purge_request;
+	Counter &mme_msg_tx_nas_identity_request;
+	Counter &mme_msg_tx_nas_authentication_request;
+	Counter &mme_msg_tx_nas_security_mode_command;
+	Counter &mme_msg_tx_nas_esm_information_request;
+	Counter &mme_msg_tx_nas_initial_context_request;
+	Counter &mme_msg_tx_nas_emm_information_req;
+	Counter &mme_msg_tx_nas_attach_reject;
+	Counter &mme_msg_tx_nas_service_reject;
+	Counter &mme_msg_tx_nas_tau_response;
+	Counter &mme_msg_tx_s1ap_erab_modification_indication;
+	Counter &mme_msg_tx_nas_network_initiated_detach;
+	Counter &mme_msg_tx_s1ap_s1_release_command;
+	Counter &mme_msg_tx_s1ap_handover_request;
+	Counter &mme_msg_tx_s1ap_handover_command;
+	Counter &mme_msg_tx_s1ap_mme_status_transfer;
+	Counter &mme_msg_tx_s1ap_handover_preparation_failure;
+	Counter &mme_msg_tx_s1ap_handover_cancel_ack;
+	Counter &mme_msg_tx_s1ap_paging_request;
+	Counter &mme_msg_tx_s1ap_ics_request_paging;
+	Counter &mme_msg_tx_s1ap_detach_accept;
+	Counter &mme_msg_tx_s11_create_session_request;
+	Counter &mme_msg_tx_s11_modify_bearer_request;
+	Counter &mme_msg_tx_s11_delete_session_request;
+	Counter &mme_msg_tx_s11_downlink_data_notification_ack;
+	Counter &mme_msg_tx_s11_release_bearer_request;
+	Counter &mme_msg_tx_s6a_authentication_info_request;
+	Counter &mme_msg_tx_s6a_update_location_request;
+	Counter &mme_msg_tx_s6a_purge_request;
 
 	mme_msg_tx_DynamicMetricObject* add_dynamic(std::string labelk0,std::string labelv0,std::string labelk1,std::string labelv1,std::string labelk, std::string labelv) {
 		return new mme_msg_tx_DynamicMetricObject(mme_msg_tx_family,labelk0,labelv0,labelk1,labelv1,labelk, labelv);
@@ -298,30 +311,30 @@ class mme_procedures_counters {
 	mme_procedures_counters();
 	~mme_procedures_counters();
 	Family<Counter> &mme_procedures_family;
-	Counter &attach_ue_proc_imsi;
-	Counter &attach_ue_proc_guti;
-	Counter &attach_ue_proc_result_success;
-	Counter &attach_ue_proc_result_failure;
-	Counter &detach_ue_proc_network_init;
-	Counter &detach_ue_proc_ue_init;
-	Counter &detach_ue_proc_result_success;
-	Counter &detach_ue_proc_result_failure;
-	Counter &s1_release_proc_s1_release;
-	Counter &s1_release_proc_result_success;
-	Counter &s1_release_proc_result_failure;
-	Counter &service_request_proc_ddn_init;
-	Counter &service_request_proc_ue_init;
-	Counter &service_request_proc_result_success;
-	Counter &service_request_proc_result_failure;
-	Counter &tau_proc_tau_proc;
-	Counter &tau_proc_result_success;
-	Counter &tau_proc_result_failure;
-	Counter &s1_enb_handover_proc_s1_enb_handiver_proc;
-	Counter &s1_enb_handover_proc_result_success;
-	Counter &s1_enb_handover_proc_result_failure;
-	Counter &erab_mod_ind_proc_erab_mod_ind_proc;
-	Counter &erab_mod_ind_proc_result_success;
-	Counter &erab_mod_ind_proc_result_failure;
+	Counter &mme_procedures_attach_proc_imsi;
+	Counter &mme_procedures_attach_proc_guti;
+	Counter &mme_procedures_attach_proc_success;
+	Counter &mme_procedures_attach_proc_failure;
+	Counter &mme_procedures_detach_proc_network_init;
+	Counter &mme_procedures_detach_proc_ue_init;
+	Counter &mme_procedures_detach_proc_success;
+	Counter &mme_procedures_detach_proc_failure;
+	Counter &mme_procedures_s1_release_proc;
+	Counter &mme_procedures_s1_release_proc_success;
+	Counter &mme_procedures_s1_release_proc_failure;
+	Counter &mme_procedures_service_request_proc_ddn_init;
+	Counter &mme_procedures_service_request_proc_ue_init;
+	Counter &mme_procedures_service_request_proc_success;
+	Counter &mme_procedures_service_request_proc_failure;
+	Counter &mme_procedures_tau_proc;
+	Counter &mme_procedures_tau_proc_success;
+	Counter &mme_procedures_tau_proc_failure;
+	Counter &mme_procedures_s1_enb_handover_proc;
+	Counter &mme_procedures_s1_enb_handover_proc_success;
+	Counter &mme_procedures_s1_enb_handover_proc_failure;
+	Counter &mme_procedures_erab_mod_ind_proc;
+	Counter &mme_procedures_erab_mod_ind_proc_success;
+	Counter &mme_procedures_erab_mod_ind_proc_failure;
 
 	mme_procedures_DynamicMetricObject* add_dynamic(std::string labelk0,std::string labelv0,std::string labelk1,std::string labelv1,std::string labelk, std::string labelv) {
 		return new mme_procedures_DynamicMetricObject(mme_procedures_family,labelk0,labelv0,labelk1,labelv1,labelk, labelv);
@@ -341,7 +354,7 @@ class mmeStats {
 		void increment(mmeStatsCounter name, std::map<std::string, std::string> labels={}); 
 		void decrement(mmeStatsCounter name, std::map<std::string, std::string> labels={}); 
 	 public:
-		mme_num_ue_gauges *mme_num_ue_m;
+		mme_num_gauges *mme_num_m;
 		mme_msg_rx_counters *mme_msg_rx_m;
 		mme_msg_tx_counters *mme_msg_tx_m;
 		mme_procedures_counters *mme_procedures_m;

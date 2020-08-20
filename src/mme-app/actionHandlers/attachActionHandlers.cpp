@@ -927,7 +927,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info.status);
         std::ostringstream reason;
         reason<<"CSRsp_reject_cause_"<<csr_info.status;
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE, {{"failure_reason", reason.str()}});
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{"failure_reason", reason.str()}});
        	return ActStatus::ABORT;
     }
 
@@ -1326,7 +1326,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	mmCtxt->setMmState(EpsAttached);
 	
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_SUCCESS);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
 
 	ProcedureStats::num_of_attach_done++;
@@ -1334,7 +1334,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	log_msg(LOG_DEBUG,"Leaving attach done\n");
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_UE_SUB_STATE_ACTIVE);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 
 	return ActStatus::PROCEED;
 }
@@ -1398,7 +1398,7 @@ ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
         errorCause = procCtxt->getMmeErrorCause();
     }
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_RESULT_FAILURE);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);
 
     if (errorCause == abortDueToAttachCollision_c)
     {
