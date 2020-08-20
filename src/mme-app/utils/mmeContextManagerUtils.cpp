@@ -16,6 +16,7 @@
 #include <utils/mmeContextManagerUtils.h>
 #include <mmeStates/intraS1HoStart.h>
 #include <utils/mmeTimerUtils.h>
+#include "mmeStatsPromClient.h"
 
 using namespace mme;
 
@@ -33,10 +34,12 @@ MmeDetachProcedureCtxt* MmeContextManagerUtils::allocateDetachProcedureCtxt(SM::
 
         if (detachType == ueInitDetach_c)
         {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_UE_INIT);
             prcdCtxt_p->setNextState(DetachStart::Instance());
         }
         else
         {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_NETWORK_INIT);
             prcdCtxt_p->setNextState(NiDetachStart::Instance());
         }
 
@@ -60,10 +63,12 @@ MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb
 
         if (pagingTrigger == ddnInit_c)
         {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_DDN_INIT);
             prcdCtxt_p->setNextState(PagingStart::Instance());
         }
         else
         {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_UE_INIT);
             prcdCtxt_p->setNextState(ServiceRequestStart::Instance());
         }
 
@@ -82,6 +87,7 @@ MmeContextManagerUtils::allocateTauProcedureCtxt(SM::ControlBlock& cb_r)
             SubsDataGroupManager::Instance()->getMmeTauProcedureCtxt();
     if (prcdCtxt_p != NULL)
     {
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_TAU_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::tau_c);
         prcdCtxt_p->setNextState(TauStart::Instance());
 
@@ -100,6 +106,7 @@ MmeContextManagerUtils::allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r)
             SubsDataGroupManager::Instance()->getMmeErabModIndProcedureCtxt();
     if (prcdCtxt_p != NULL)
     {
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::erabModInd_c);
         prcdCtxt_p->setNextState(ErabModIndStart::Instance());
 
@@ -377,6 +384,7 @@ S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::Contro
             SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
     if (prcdCtxt_p != NULL)
     {
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
         prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
         prcdCtxt_p->setHoType(intraMmeS1Ho_c);
