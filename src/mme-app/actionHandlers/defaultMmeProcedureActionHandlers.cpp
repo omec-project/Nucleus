@@ -566,8 +566,8 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
     {
         struct commonRej_info tauRej =
         {
-                tau_response,
-		msgData_p->ue_idx,
+                tau_reject,
+		tauReq.ue_m_tmsi,
                 msgData_p->s1ap_enb_ue_id,
                 tauReq.enb_fd,
                 emmCause
