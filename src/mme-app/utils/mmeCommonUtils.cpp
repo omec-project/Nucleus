@@ -269,20 +269,17 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		case tau_request:
 		{
-			const struct tauReq_Q_msg &tau_Req = (msgData_p->msg_data.tauReq_Q_msg_m);
-			int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tau_Req.ue_m_tmsi);
-			if (cbIndex > 0)
+			if(msgData_p->ue_idx > 0)
+				cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
+			
+			if (cb == NULL)
 			{
-				cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
-			}
-			else
-			{
-				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
-                                              " Allocate a temporary control block\n", tau_Req.ue_m_tmsi);
+                            log_msg(LOG_INFO, "Failed to find control block using index %d."
+                                              " Allocate a temporary control block\n", msgData_p->ue_idx);
 
-                            	// Respond  with TAU Reject from default TAU event handler
-                            	cb = SubsDataGroupManager::Instance()->allocateCB();
-                            	cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+                            // Respond  with TAU Reject from default TAU event handler
+			    cb = SubsDataGroupManager::Instance()->allocateCB();
+			    cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;

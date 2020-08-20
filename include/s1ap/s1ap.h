@@ -115,10 +115,6 @@ int s1ap_mme_encode_service_rej(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);
 
-int s1ap_mme_encode_tau_rej(
-        struct s1ap_common_req_Q_msg *s1apPDU,
-        uint8_t **buffer, uint32_t *length);
-
 int s1ap_mme_encode_s1_setup_failure(
         struct s1ap_common_req_Q_msg *s1apPDU,
         uint8_t **buffer, uint32_t *length);

@@ -569,39 +569,10 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
         }
 
         case NAS_TAU_REQUEST:
-	{
+		{
             log_msg(LOG_INFO, "NAS_TAU_REQUEST recvd\n");
-	    nas->elements_len = 1;
-            nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
-
-            /*EPS mobility identity*/
-            uint8_t msg_len = msg[1];
-            unsigned char eps_identity = msg[2] & 0x07;
-            log_msg(LOG_INFO, "NAS TAU Request Rcvd :  %d %d %d %d, eps id %d\n", msg[0],msg[1],msg[2],msg[4],eps_identity);
-            if(eps_identity == 0x06)
-            {
-                log_msg(LOG_INFO, "Mobile identity GUTI Rcvd \n");
-                // Mobile Identity contains GUTI
-                // MCC+MNC offset = 3
-                // MME Group Id   = 2
-                // MME Code       = 1
-                // MTMSI offset from start of this AVP = 3 + 2 + 1
-                nas->elements[0].msgType = NAS_IE_TYPE_EPS_MOBILE_ID_IMSI;
-                memcpy(&nas->elements[0].pduElement.mi_guti.plmn_id.idx, &msg[3], 3);
-                nas->elements[0].pduElement.mi_guti.mme_grp_id = ntohs(*(short int *)(&msg[6]));
-                nas->elements[0].pduElement.mi_guti.mme_code = msg[8];
-                nas->elements[0].pduElement.mi_guti.m_TMSI = ntohl(*((unsigned int *)(&msg[9])));
-                log_msg(LOG_INFO, "NAS TAU Request Rcvd ID: GUTI. PLMN id %d %d %d \n", nas->elements[0].pduElement.mi_guti.plmn_id.idx[0],
-                                nas->elements[0].pduElement.mi_guti.plmn_id.idx[1],
-                                nas->elements[0].pduElement.mi_guti.plmn_id.idx[2] );
-                log_msg(LOG_INFO, "NAS TAU Request Rcvd ID: GUTI. mme group id = %d, MME code %d  mtmsi = %d\n",
-                                nas->elements[0].pduElement.mi_guti.mme_grp_id,
-                                nas->elements[0].pduElement.mi_guti.mme_code,
-                                nas->elements[0].pduElement.mi_guti.m_TMSI);
-                nas->flags |= NAS_MSG_UE_IE_GUTI;
-            }
             break;
-	}
+		}
 
         case NAS_AUTH_FAILURE:
         {
@@ -1072,7 +1043,6 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 		{
 			log_msg(LOG_INFO, "Copy Required details of message TAU REQUEST \n");
 			s1Msg->msg_type = msg_type_t::tau_request;
-			s1Msg->msg_data.tauReq_Q_msg_m.ue_m_tmsi = nas->elements[0].pduElement.mi_guti.m_TMSI;
 			s1Msg->msg_data.tauReq_Q_msg_m.enb_fd = s1Msg->msg_data.rawMsg.enodeb_fd;
 	        s1Msg->msg_data.tauReq_Q_msg_m.s1ap_enb_ue_id = s1Msg->msg_data.rawMsg.s1ap_enb_ue_id;
 			//ue_idx no need to copy 

@@ -53,7 +53,7 @@ namespace SM
 		    if (nextStatep != NULL)
 		    {
 		        cb.setNextState(nextStatep);
-		        nextStatep->OnEntry(cb);
+		        statep->OnEntry(cb);
 		    }
 		}
 

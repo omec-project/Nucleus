@@ -98,7 +98,6 @@ typedef enum msg_type_t {
     ics_req_paging,
     tau_request,
     tau_response,
-    tau_reject,
     emm_info_request,
     s1_reset,
     handover_required,
@@ -218,7 +217,6 @@ struct handover_cancel_Q_msg {
 };
 
 struct tauReq_Q_msg {
-    int ue_m_tmsi;
     int seq_num;
     int enb_fd;
 	int s1ap_enb_ue_id;
