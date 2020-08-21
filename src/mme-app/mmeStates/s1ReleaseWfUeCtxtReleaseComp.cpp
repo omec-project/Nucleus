@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(s1_release_wf_ue_ctxt_release_comp)
+S1ReleaseWfUeCtxtReleaseComp::S1ReleaseWfUeCtxtReleaseComp():State(s1_release_wf_ue_ctxt_release_comp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -60,5 +60,10 @@ void S1ReleaseWfUeCtxtReleaseComp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_ue_ctxt_rel_comp);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(UE_CTXT_REL_COMP_FROM_ENB, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

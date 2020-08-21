@@ -1084,7 +1084,8 @@ namespace mme
 	* Constructor
 	******************************************************************************/
 	MmeS1RelProcedureCtxt::MmeS1RelProcedureCtxt():           
-            s1ReleaseTrigger_m(noTrigger_c)
+            s1ReleaseTrigger_m(noTrigger_c),
+            s1apEnbUeId_m(0)
 	{	
 	}
 	
@@ -1109,6 +1110,23 @@ namespace mme
         S1ReleaseTrigger MmeS1RelProcedureCtxt::getS1ReleaseTrigger() const
         {
                 return s1ReleaseTrigger_m;
+        }
+
+	
+	/******************************************************************************
+	* sets s1apEnbUeId
+	******************************************************************************/
+	void MmeS1RelProcedureCtxt::setS1apEnbUeId( uint32_t s1apEnbUeId_i )
+	{
+		s1apEnbUeId_m = s1apEnbUeId_i;
+	}
+	
+	/******************************************************************************
+	* returns s1apEnbUeId
+	******************************************************************************/	
+        uint32_t MmeS1RelProcedureCtxt::getS1apEnbUeId() const
+        {
+                return s1apEnbUeId_m;
         }
 
 	
