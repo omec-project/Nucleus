@@ -250,12 +250,12 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
                 return E_FAIL;
             }
 
-            setValuesForEnbCtx(cbIndex, &enbStruct);
+            setValuesForEnbCtx(cbIndex, &enbStruct, false);
         }
         else
         {
             log_msg(LOG_DEBUG, "ENB Ctx found for enb id %d. Update values.\n",enbStruct.enbId_m);
-            cbIndex = setValuesForEnbCtx(cbIndex, &enbStruct);
+            cbIndex = setValuesForEnbCtx(cbIndex, &enbStruct, true);
             if(INVALID_CB_INDEX == cbIndex)
             {
                 log_msg(LOG_ERROR,"Set values in Enb Ctx failed.\n");

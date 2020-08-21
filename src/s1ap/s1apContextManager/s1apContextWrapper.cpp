@@ -87,7 +87,7 @@ uint32_t getEnbFdWithCbIndex_cpp(uint32_t cbIndex)
 
 }
 
-uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx)
+uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update)
 {
     SM::ControlBlock *cb = NULL;
     if (cbIndex > 0)
@@ -102,8 +102,12 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx)
         EnbContext* enbCbCtx = static_cast <EnbContext *>(cb->getPermDataBlock());
         if(enbCbCtx != NULL)
         {
-            if(enbCbCtx->getTai().tac == enbCtx->tai_m.tac)
+            if(update && (enbCbCtx->getTai().tac != enbCtx->tai_m.tac))
             {
+                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d.\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac);
+                return INVALID_CB_INDEX;
+            }
+            else {
                 mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
                                                         enbCbCtx->getEnbId());
                 mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
@@ -116,11 +120,6 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx)
                                               enbCtx->enbId_m, cbIndex);
                 mme::S1apDataGroupManager::Instance()->addenbFdkey(
                                               enbCtx->enbFd_m, cbIndex);
-            }
-            else
-            {
-                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d.\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac);
-                return INVALID_CB_INDEX;
             }
         }
         else
