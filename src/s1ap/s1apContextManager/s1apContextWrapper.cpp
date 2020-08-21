@@ -102,17 +102,26 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx)
         EnbContext* enbCbCtx = static_cast <EnbContext *>(cb->getPermDataBlock());
         if(enbCbCtx != NULL)
         {
-            mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
-                                                    enbCbCtx->getEnbId());
-            mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
-                                                    enbCbCtx->getEnbFd());
-            enbCbCtx->setEnbFd(enbCtx->enbFd_m);
-            enbCbCtx->setEnbId(enbCtx->enbId_m);
-            enbCbCtx->setS1apEnbUeId(enbCtx->s1apEnbUeId_m);
-            mme::S1apDataGroupManager::Instance()->addenbIdkey(
-                                          enbCtx->enbId_m, cbIndex);
-            mme::S1apDataGroupManager::Instance()->addenbFdkey(
-                                          enbCtx->enbFd_m, cbIndex);
+            if(enbCbCtx->getTai().tac == enbCtx->tai_m.tac)
+            {
+                mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
+                                                        enbCbCtx->getEnbId());
+                mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
+                                                        enbCbCtx->getEnbFd());
+                enbCbCtx->setEnbFd(enbCtx->enbFd_m);
+                enbCbCtx->setEnbId(enbCtx->enbId_m);
+                enbCbCtx->setS1apEnbUeId(enbCtx->s1apEnbUeId_m);
+                enbCbCtx->setTai(enbCtx->tai_m);
+                mme::S1apDataGroupManager::Instance()->addenbIdkey(
+                                              enbCtx->enbId_m, cbIndex);
+                mme::S1apDataGroupManager::Instance()->addenbFdkey(
+                                              enbCtx->enbFd_m, cbIndex);
+            }
+            else
+            {
+                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d.\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac);
+                return INVALID_CB_INDEX;
+            }
         }
         else
         {
