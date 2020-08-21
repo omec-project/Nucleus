@@ -43,7 +43,7 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "contextManager/dataBlocks.h"
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -125,6 +125,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_IMSI);
 	prcdCtxt_p->setCtxtType( ProcedureType::attach_c );
 	prcdCtxt_p->setNextState(AttachStart::Instance());
 
@@ -320,7 +321,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
         
-        statistics::Instance()->Increment_s11_msg_tx_stats(msg_type_t::ddn_acknowledgement);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_ACK);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));        
         mmeIpcIf.dispatchIpcMsg((char *) &ddnAck, sizeof(ddnAck), destAddr);
     }
@@ -408,7 +409,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
-    statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::service_reject);
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_SERVICE_REJECT);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &serviceRej, sizeof(struct commonRej_info), destAddr);
     }
@@ -565,8 +566,8 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
     {
         struct commonRej_info tauRej =
         {
-                tau_response,
-		msgData_p->ue_idx,
+                tau_reject,
+		tauReq.ue_m_tmsi,
                 msgData_p->s1ap_enb_ue_id,
                 tauReq.enb_fd,
                 emmCause
@@ -575,7 +576,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
         
-        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::tau_response);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_TAU_RESPONSE);
         MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
         mmeIpcIf.dispatchIpcMsg((char *) &tauRej, sizeof(tauRej), destAddr);
     }
