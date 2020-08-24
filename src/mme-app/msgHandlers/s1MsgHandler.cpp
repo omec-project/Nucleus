@@ -13,7 +13,7 @@
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
 #include "mmeNasUtils.h"
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace SM;
 using namespace mme;
@@ -82,86 +82,105 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	}
 
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
-    statistics::Instance()->Increment_s1ap_msg_rx_stats(msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ATTACH_REQUEST);
 			handleInitUeAttachRequestMsg_v(eMsg);
 			break;
 
 		case msg_type_t::id_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_IDENTITY_RESPONSE);
 			handleIdentityResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::auth_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE);
 			handleAuthResponseMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::sec_mode_complete:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE);
 			handleSecurityModeResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::esm_info_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ESM_RESPONSE);
 			handleEsmInfoResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::init_ctxt_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_INIT_CONTEXT_RESPONSE);
 			handleInitCtxtResponse_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::attach_complete:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ATTACH_COMPLETE);
 			handleAttachComplete_v(eMsg, msgData_p->ue_idx);
 			break;
                 
 		case msg_type_t::detach_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DETACH_REQUEST);
 			handleDetachRequest_v(eMsg, msgData_p->ue_idx);
 			break;
 					
 		case msg_type_t::s1_release_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_RELEASE_REQUEST);
 			handleS1ReleaseRequestMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 			
 		case msg_type_t::s1_release_complete:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_RELEASE_COMPLETE);
 			handleS1ReleaseComplete_v(eMsg, msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::detach_accept_from_ue:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_DETACH_ACCEPT);
 			handleDetachAcceptFromUE_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case  msg_type_t::service_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_SERVICE_REQUEST);
 		    handleServiceRequest_v(eMsg, msgData_p->ue_idx);
 		    break;
 					
 		case msg_type_t::tau_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_TAU_REQUEST);
 			handleTauRequestMsg_v(eMsg, msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::handover_request_acknowledge:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_REQUEST_ACK);
 		    handleHandoverRequestAckMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_notify:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_NOTIFY);
 		    handleHandoverNotifyMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_required:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_REQUIRED);
 		    handleHandoverRequiredMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 		
 		case msg_type_t::enb_status_transfer:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ENB_STATUS_TRANSFER);
 			handleEnbStatusTransferMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_cancel:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_CANCEL);
 			handleHandoverCancelMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_failure:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_FAILURE);
 			handleHandoverFailureMsg_v(eMsg, msgData_p->ue_idx);
 		    break;
             
 		case msg_type_t::erab_mod_indication:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_MODIFICATION_INDICATION);
 			handleErabModificationIndicationMsg_v(eMsg, msgData_p->ue_idx);		
 			break;
 

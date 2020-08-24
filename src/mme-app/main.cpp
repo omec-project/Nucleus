@@ -25,7 +25,7 @@
 #include "monitorSubscriber.h"
 #include "timeoutManager.h"
 #include <utils/mmeTimerUtils.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace std;
 using namespace mme;
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 
 	srand(time(0));
 
-    std::thread prom(promThreadSetup);
+    std::thread prom(mmeStatsSetupPrometheusThread);
     prom.detach();
 
     auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
