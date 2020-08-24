@@ -439,6 +439,7 @@ MmeContextManagerUtils::allocateBearerContext(SM::ControlBlock &cb_r,
         if (bearerCtxt_p != NULL)
         {
             bearerCtxt_p->setBearerId(id + BEARER_ID_OFFSET); // Bearer id start 5
+            id--;
             SET_BIT(bitmap, id);
             uectxt.setBearerIdBitMap(bitmap);
             sessionCtxt.addBearerContext(bearerCtxt_p);
@@ -492,7 +493,7 @@ void MmeContextManagerUtils::deallocateBearerContext(SM::ControlBlock &cb_r,
             uint8_t bearerId = bearerCtxt_p->getBearerId();
             if (bearerId >= 5 && bearerId <= 15)
             {
-                uint8_t id = bearerId - BEARER_ID_OFFSET;
+                uint8_t id = bearerId - BEARER_ID_OFFSET - 1;
                 CLEAR_BIT(bitmap, id);
                 ueCtxt_p->setBearerIdBitMap(bitmap);
             }
