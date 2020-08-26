@@ -133,7 +133,6 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, tmpStr,
 						sizeof(protocolIe_Id));
 
-	struct Buffer g_nas_buffer = {0};
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
