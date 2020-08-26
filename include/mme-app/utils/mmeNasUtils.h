@@ -30,5 +30,7 @@ namespace mme
 			static void get_negotiated_qos_value(struct esm_qos *qos);
 			static void calculate_ext_apn_ambr(const uint64_t &ambr_Mbps, uint8_t &unit, uint16_t& conv_ambr);
 			static void select_sec_alg(mme::UEContext *ue_ctxt);
+			static void decode_attach_req(unsigned char *msg,  int& nas_msg_len, struct nasPDU *nas);
+			static void decode_tau_req(unsigned char *msg,  int& nas_msg_len, struct nasPDU *nas);
 	};
 #endif

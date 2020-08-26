@@ -442,6 +442,16 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
 
     const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
 
+    if(tauReq.ue_net_capab.len > 0)
+    {
+	ue_ctxt->setUeNetCapab(Ue_net_capab(tauReq.ue_net_capab));
+    }
+    if(tauReq.ue_add_sec_cap_present)
+    {
+	ue_ctxt->setUeAddSecCapabPres(tauReq.ue_add_sec_cap_present);
+	ue_ctxt->setUeAddSecCapab(tauReq.ue_add_sec_capab);
+    }
+
     //TAI and CGI obtained from s1ap ies.
     //Convert the plmn in s1ap format to nas format
     //before storing in ue context/sending in tai list of tau response.

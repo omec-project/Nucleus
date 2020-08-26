@@ -343,7 +343,6 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
 	
     ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
-    log_msg(LOG_DEBUG, "Selected APN %s \n", ula_msg.selected_apn.val);
 
     for (int i = 0; i < ula_msg.supp_features_list.count; i++)
     {
@@ -363,8 +362,11 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
 	ambr.max_requested_bw_ul = ula_msg.max_requested_bw_ul;
-	ambr.ext_max_requested_bw_dl = ula_msg.extended_max_requested_bw_dl;
-	ambr.ext_max_requested_bw_ul = ula_msg.extended_max_requested_bw_ul;
+	if(ula_msg.extended_max_requested_bw_dl > 0 || ula_msg.extended_max_requested_bw_ul > 0)
+	{
+	    ambr.ext_max_requested_bw_dl = ula_msg.extended_max_requested_bw_dl;
+	    ambr.ext_max_requested_bw_ul = ula_msg.extended_max_requested_bw_ul;
+	}
 
 	ue_ctxt->setAmbr(Ambr(ambr));
 	
@@ -1111,7 +1113,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 			icr_msg.ho_restrict_list_presence = true;
 			memcpy(&(icr_msg.ho_restrict_list.serving_plmn),
-					&(ue_ctxt->getTai().tai_m.plmn_id), sizeof(struct PLMN));
+					&(ue_ctxt->getTai().tai_m.plmn_id), 3);
 
 			// send HO Restriction list with NR Restriction in EPS as Secondary RAT
 			icr_msg.ho_restrict_list.nr_restricted_in_eps =
