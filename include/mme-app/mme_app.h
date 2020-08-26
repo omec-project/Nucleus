@@ -57,6 +57,7 @@ typedef struct mme_config
 	uint16_t num_plmns;
 	struct PLMN plmns[MAX_PLMN];
 	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
+    uint16_t prom_port;
 } mme_config_t;
 
 class apn_config
