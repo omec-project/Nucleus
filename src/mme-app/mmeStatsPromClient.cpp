@@ -144,7 +144,7 @@ mme_msg_tx_counters::~mme_msg_tx_counters()
 
 
 mme_procedures_counters::mme_procedures_counters():
-mme_procedures_family(BuildCounter().Name("number_of_procedures").Help("Number of procedures executed/started by mme ").Labels({{"mme-app","procedure"}}).Register(*registry)),
+mme_procedures_family(BuildCounter().Name("number_of_procedures").Help("Number of procedures executed/started by mme ").Labels({{"mme_app","procedure"}}).Register(*registry)),
 mme_procedures_attach_proc_imsi(mme_procedures_family.Add({{"procedure","ATTACH_PROC"},{"attach_type","imsi"}})),
 mme_procedures_attach_proc_guti(mme_procedures_family.Add({{"procedure","ATTACH_PROC"},{"attach_type","guti"}})),
 mme_procedures_attach_proc_success(mme_procedures_family.Add({{"procedure","ATTACH_PROC"},{"proc_result","success"}})),
