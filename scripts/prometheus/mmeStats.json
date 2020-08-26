@@ -825,7 +825,7 @@
         "help": "Number of procedures executed/started by mme ",
         "type": "Counter",
         "family_labels": [
-                {"mme-app": "procedure"}
+                {"mme_app": "procedure"}
         ],
         "counters":[
         { 
