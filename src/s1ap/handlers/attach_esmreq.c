@@ -26,7 +26,6 @@
 /*Making global just to avoid stack passing*/
 static Buffer g_esm_buffer = {0};
 static Buffer g_esm_value_buffer = {0};
-static Buffer g_esm_nas_buffer = {0};
 
 
 /****Global and externs end***/

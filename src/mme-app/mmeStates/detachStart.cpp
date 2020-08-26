@@ -64,4 +64,9 @@ void DetachStart::initialize()
                 actionTable.setNextState(DetachWfPurgeRespDelSessionResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_REQ_FROM_UE, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
 }

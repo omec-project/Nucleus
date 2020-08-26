@@ -70,4 +70,9 @@ void DetachWfPurgeRespDelSessionResp::initialize()
                 actionTable.setNextState(DetachWfDelSessionResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(PURGE_RESP_FROM_HSS, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
 }

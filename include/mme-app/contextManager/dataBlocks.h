@@ -1058,11 +1058,26 @@ namespace mme
 			****************************************/
 			S1ReleaseTrigger getS1ReleaseTrigger()const;			
 			
+			/****************************************
+			* setS1apEnbUeId
+			*    set s1apEnbUeId to MmeS1RelProcedureCtxt
+			****************************************/
+			void setS1apEnbUeId(uint32_t s1apEnbUeId_i);
+			
+			/****************************************
+			* getS1apEnbUeId
+			*    get s1apEnbUeId from MmeS1RelProcedureCtxt
+			****************************************/
+			uint32_t getS1apEnbUeId()const;			
+			
 		
 		private:
 		
 			// DataName
 			S1ReleaseTrigger s1ReleaseTrigger_m;
+			
+			// DataName
+			uint32_t s1apEnbUeId_m;
 			
 	};
 	 

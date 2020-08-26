@@ -25,9 +25,9 @@ extern "C"
         return getEnbFdWithCbIndex_cpp(cbIndex);
     }
 
-    uint32_t setValuesForEnbCtx(uint32_t cbIndex, EnbStruct* enbCtx)
+    uint32_t setValuesForEnbCtx(uint32_t cbIndex, EnbStruct* enbCtx, bool update)
     {
-        return setValuesForEnbCtx_cpp(cbIndex, enbCtx);
+        return setValuesForEnbCtx_cpp(cbIndex, enbCtx, update);
     }
 
 }
