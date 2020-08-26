@@ -12,6 +12,8 @@
     uint32_t findControlBlockWithEnbFd_cpp(uint32_t enbFd);
     uint32_t getEnbFdWithCbIndex_cpp(uint32_t cbIndex);
     uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, 
+                                struct EnbStruct* enbCtx, bool update);
+    uint32_t updateValuesForEnbCtx_cpp(uint32_t cbIndex, 
                                 struct EnbStruct* enbCtx);
 
 #endif

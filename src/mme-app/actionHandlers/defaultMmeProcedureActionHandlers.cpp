@@ -469,6 +469,21 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 {	
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        return ActStatus::HALT;
+    }
+
+    s1_incoming_msg_data_t *msgData_p =
+            static_cast<s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        return ActStatus::HALT;
+    }
+
 	MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
@@ -476,6 +491,7 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 		return ActStatus::HALT;
 	}
 	
+    prcdCtxt_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
 	prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
 	cb.setCurrentTempDataBlock(prcdCtxt_p);
@@ -566,8 +582,8 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
     {
         struct commonRej_info tauRej =
         {
-                tau_response,
-		msgData_p->ue_idx,
+                tau_reject,
+		tauReq.ue_m_tmsi,
                 msgData_p->s1ap_enb_ue_id,
                 tauReq.enb_fd,
                 emmCause

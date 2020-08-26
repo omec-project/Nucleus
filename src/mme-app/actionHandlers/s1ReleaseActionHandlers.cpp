@@ -56,7 +56,7 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 	if (sessionCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, " send_rel_ab_req_to_sgw: session ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
@@ -65,6 +65,19 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, " send_rel_ab_req_to_sgw: bearer ctxt is NULL \n");
 		return ActStatus::HALT;
 	}
+
+    MmeS1RelProcedureCtxt *procCtxt = dynamic_cast<MmeS1RelProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "S1 Release Proc Ctxt is Null. Abort.\n");
+		return ActStatus::ABORT;
+    }
+
+    if(ue_ctxt->getS1apEnbUeId() != procCtxt->getS1apEnbUeId())
+    {
+        log_msg(LOG_DEBUG, "S1 Release req with wrong enb_s1ap_ue_id.\n");
+		return ActStatus::ABORT;
+    }
 
 	struct RB_Q_msg rb_msg;
 	rb_msg.msg_type = release_bearer_request;
@@ -192,12 +205,12 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_FAILURE);
     if (errorCause == abortDueToAttachCollision_c)
     {
-        MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
     }
 

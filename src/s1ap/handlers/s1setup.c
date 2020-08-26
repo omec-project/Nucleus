@@ -238,7 +238,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 
     if(match_found)
     {
-        log_msg(LOG_DEBUG, "PLMN Match found. Create CB and add Enb Info");
+        log_msg(LOG_DEBUG, "PLMN Match found. Create CB and add Enb Info.\n");
         cbIndex = findControlBlockWithEnbId(enbStruct.enbId_m);
         if(INVALID_CB_INDEX == cbIndex)
         {
@@ -250,12 +250,22 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
                 return E_FAIL;
             }
 
-            setValuesForEnbCtx(cbIndex, &enbStruct);
+            setValuesForEnbCtx(cbIndex, &enbStruct, false);
         }
         else
         {
             log_msg(LOG_DEBUG, "ENB Ctx found for enb id %d. Update values.\n",enbStruct.enbId_m);
-            setValuesForEnbCtx(cbIndex, &enbStruct);
+            cbIndex = setValuesForEnbCtx(cbIndex, &enbStruct, true);
+            if(INVALID_CB_INDEX == cbIndex)
+            {
+                log_msg(LOG_ERROR,"Set values in Enb Ctx failed.\n");
+                struct s1ap_common_req_Q_msg s1ap_setup_failure = {0};
+                s1ap_setup_failure.IE_type = S1AP_SETUP_FAILURE;
+                s1ap_setup_failure.enb_fd = enb_fd;
+                s1ap_setup_failure.cause.present = s1apCause_PR_misc;
+                s1ap_setup_failure.cause.choice.misc = s1apCauseMisc_unknown_PLMN;
+                return s1_setup_failure(&s1ap_setup_failure);
+            }
         }
     }
     else

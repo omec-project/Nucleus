@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(s1_release_wf_release_access_bearer_resp)
+S1ReleaseWfReleaseAccessBearerResp::S1ReleaseWfReleaseAccessBearerResp():State(s1_release_wf_release_access_bearer_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -71,5 +71,10 @@ void S1ReleaseWfReleaseAccessBearerResp::initialize()
                 actionTable.addAction(&ActionHandlers::abort_s1_release);
                 actionTable.addAction(&ActionHandlers::default_attach_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ATTACH_REQ_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

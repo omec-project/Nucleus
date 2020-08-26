@@ -534,4 +534,3 @@ ActStatus ActionHandlers::service_request_complete(ControlBlock& cb)
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, serviceRequest_c);
     return ActStatus::PROCEED;
 }
-
