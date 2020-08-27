@@ -56,6 +56,10 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
     if (ueCtxt_p == NULL)
     {
          log_msg(LOG_DEBUG, "send_identity_request_to_ue: ue context is NULL \n");
+
+         // This is an abnormal situation. At this point UEContext cannot be null.
+         // If we are here, delete everything including the control block.
+         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
          return ActStatus::HALT;
     }
 
@@ -83,6 +87,8 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	if (ueCtxt_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_identity_request_to_ue: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -125,6 +131,8 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	if (ueCtxt_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_identity_response: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -132,25 +140,29 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	if (msgBuf == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_identity_response: msgBuf is NULL \n");
-		return ActStatus::HALT;
+
+		// Software error. Abort the procedure.
+		return ActStatus::ABORT;
 	}
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	if (s1_msg_data == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_identity_response: s1MsgData is NULL \n");
-		return ActStatus::HALT;
+
+		return ActStatus::ABORT;
 	}
 
 	const struct identityResp_Q_msg &id_resp = s1_msg_data->msg_data.identityResp_Q_msg_m;
 	if(SUCCESS != id_resp.status)
-    	{
+	{
 		log_msg(LOG_DEBUG, "process_identity_response: ID Response Failure NULL \n");
-		return ActStatus::HALT;
+
+		return ActStatus::ABORT;
 	}
 
 	uint8_t imsi[BINARY_IMSI_LEN] = {0};
-    	memcpy( imsi, id_resp.IMSI, BINARY_IMSI_LEN );
+	memcpy( imsi, id_resp.IMSI, BINARY_IMSI_LEN );
 
 	// Only upper nibble of first octect in imsi need to be considered
 	// Changing the lower nibble to 0x0f for handling
@@ -162,8 +174,7 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	ueCtxt_p->setImsi(IMSIInfo);
 
 	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
-
-    	ProcedureStats::num_of_id_resp_received ++;
+	ProcedureStats::num_of_id_resp_received ++;
 	
 	return ActStatus::PROCEED;
 }
@@ -173,10 +184,12 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 {  
 	log_msg(LOG_DEBUG, "Inside send_air_to_hss \n");
 	
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_air_to_hss: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -184,7 +197,11 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_air_to_hss: procedure context is NULL \n");
-		return ActStatus::HALT;
+
+		// Abnormal situation. Procedure context cannot be null at this point.
+		// Abort, so that UE context gets cleaned up and
+		// Attach Reject can be sent to UE.
+		return ActStatus::ABORT;
 	}
 
 	s6a_Q_msg s6a_req; 
@@ -222,10 +239,12 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 {  
 	log_msg(LOG_DEBUG, "Inside send_ulr_to_hss \n");
 	
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_ulr_to_hss: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -257,10 +276,12 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_aia \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_aia: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -268,13 +289,16 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
         	log_msg(LOG_DEBUG, "handle_aia: procedure context is NULL \n");
-        	return ActStatus::HALT;
-        }
+
+        	return ActStatus::ABORT;
+	}
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+	{
+		return ActStatus::ABORT;
+	}
 
 	const s6_incoming_msg_data_t* msgData_p = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
 
@@ -298,24 +322,30 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_ula \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	if( sessionCtxt == NULL )
-    	{
-		log_msg(LOG_ERROR, "Failed to retrieve Session Context for UE IDX %d\n", cb.getCBIndex());
-        	return ActStatus::HALT;
-    	}
+    SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
+    if (sessionCtxt == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve Session Context for UE IDX %d\n",
+                cb.getCBIndex());
+
+        return ActStatus::ABORT;
+    }
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+	{
+		return ActStatus::ABORT;
+	}
 
 	const s6_incoming_msg_data_t* s6_msg_data = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct ula_Q_msg &ula_msg = s6_msg_data->msg_data.ula_Q_msg_m;
@@ -328,8 +358,8 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setSubscriptionStatus(ula_msg.subscription_status);
 	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
-  ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
-  log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
+	ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
+	log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
 
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
@@ -356,6 +386,8 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "auth_req_to_ue: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -403,10 +435,12 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside auth_response_validate \n");
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(cb.getCBIndex());
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "auth_response_validate: ue context or procedure ctxt is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -414,13 +448,13 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "auth_response_validate: procedure context is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 		
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());	
 	const struct authresp_Q_msg &auth_resp = s1_msg_data->msg_data.authresp_Q_msg_m;
@@ -460,7 +494,7 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
             log_msg(LOG_ERROR, "Invalid Auth response Comparing received result "
                     "from UE (%lu) with xres (%lu). Length %d", 
                     res, xres, auth_resp.res.len);
-            return ActStatus::HALT;
+            return ActStatus::ABORT;
         }
 
         ProcedureStats::num_of_processed_auth_response ++;
@@ -477,25 +511,29 @@ ActStatus ActionHandlers::send_auth_reject(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside send_auth_reject \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_auth_reject: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
 	ProcedureStats::num_of_auth_reject_sent ++;
-	return ActStatus::HALT;
+	return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside sec_mode_cmd_to_ue \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "sec_mode_cmd_to_ue: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -592,10 +630,12 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_sec_mode_resp \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_sec_mode_resp: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -603,13 +643,13 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
         if (procedure_p == NULL)
         {
                 log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
-                return ActStatus::HALT;
+                return ActStatus::ABORT;
         }
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const secmode_resp_Q_msg &secmode_resp = s1_msg_data->msg_data.secmode_resp_Q_msg_m;
@@ -640,6 +680,8 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -647,21 +689,21 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "check_esm_info_req_required: procedure context is NULL \n");
-		return ActStatus::HALT;		
+		return ActStatus::ABORT;
 	}
 	SessionContext* sessionCtxt = SubsDataGroupManager::Instance()->getSessionContext();
 	if( sessionCtxt == NULL )
 	{
 	    log_msg(LOG_ERROR, "Failed to allocate Session Context for UE IDX %d\n", cb.getCBIndex());
 
-	    return ActStatus::HALT;
+	    return ActStatus::ABORT;
 	}
 	BearerContext* bearerCtxt_p = SubsDataGroupManager::Instance()->getBearerContext();
 	if( bearerCtxt_p == NULL )
 	{
 	    log_msg(LOG_ERROR, "Failed to allocate Bearer context for UE IDx %d\n", cb.getCBIndex());
 
-	    return ActStatus::HALT;
+	    return ActStatus::ABORT;
 	}
 
 	bearerCtxt_p->setBearerId(5);
@@ -685,11 +727,13 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 {
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_esm_info_req_to_ue: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -734,10 +778,12 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 {
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -745,13 +791,13 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
     	if (procedure_p == NULL)
     	{
         	log_msg(LOG_DEBUG, "process_esm_info_resp: procedure context is NULL \n");
-        	return ActStatus::HALT;
+        	return ActStatus::ABORT;
     	}
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
@@ -771,12 +817,13 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside cs_req_to_sgw \n");
 
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	if (ue_ctxt == NULL  || procCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_ula: UE context or Procedure Context is NULL \n");
 
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -785,7 +832,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Session Context for UE IDX %d\n", cb.getCBIndex());
 
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	BearerContext* bearerCtxt_p = sessionCtxt->getBearerContext();
@@ -793,7 +840,7 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Bearer context for UE IDx %d\n", cb.getCBIndex());
 
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	struct CS_Q_msg cs_msg;
@@ -897,6 +944,8 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_cs_resp: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 	
@@ -904,20 +953,20 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
 	if (sessionCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "handle_cs_resp: session ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 
 	const gtp_incoming_msg_data_t* gtp_msg_data= static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct csr_Q_msg& csr_info = gtp_msg_data->msg_data.csr_Q_msg_m;
@@ -936,7 +985,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	{
 		log_msg(LOG_ERROR, "Failed to retrive Bearer context for UE IDx %d\n", cb.getCBIndex());
 
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
@@ -964,6 +1013,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL )
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: ue context is NULL \n");
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -971,7 +1021,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	if (procedure_p == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: procedure context is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	if (procedure_p->getAttachType() == imsiAttach_c ||
@@ -981,7 +1031,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		if (mTmsi == 0)
 		{
 			log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: Failed to allocate mTmsi \n");
-			return ActStatus::HALT;
+			return ActStatus::ABORT;
 		}
 
 		ue_ctxt->setMTmsi(mTmsi);
@@ -994,7 +1044,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	if (sessionCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: session ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	/* 33.401 7.2.6.2	Establishment of keys for cryptographically protected 
@@ -1024,7 +1074,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	{
 		log_msg(LOG_ERROR, "Failed to retrive Bearer context for UE IDx %d\n", cb.getCBIndex());
 
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	icr_msg.bearer_id = bearerCtxt->getBearerId();
@@ -1118,6 +1168,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL || procCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_init_ctxt_resp: ue context or procedure ctxt is NULL \n");
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -1125,13 +1176,13 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	if (sessionCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_init_ctxt_resp: session ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
 	if (msgBuf == NULL)
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 
 	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
 	const struct initctx_resp_Q_msg &ics_res =s1_msg_data->msg_data.initctx_resp_Q_msg_m;
@@ -1146,7 +1197,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	if (bearerCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "process_init_ctxt_resp: bearer ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
@@ -1165,6 +1216,8 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_mb_req_to_sgw: ue context or procedure ctxt is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -1172,7 +1225,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	if (sessionCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_mb_req_to_sgw: session ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 	
 	struct MB_Q_msg mb_msg;
@@ -1184,7 +1237,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	if (bearerCtxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "send_mb_req_to_sgw: bearer ctxt is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	mb_msg.bearer_id = bearerCtxt->getBearerId();
@@ -1219,6 +1272,8 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_ERROR, "attach_done: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -1246,14 +1301,16 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     if (ue_ctxt == NULL)
     {
         log_msg(LOG_DEBUG, "check_and_send_emm_info: ue context is NULL \n");
-        return ActStatus::HALT;
+
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        return ActStatus::PROCEED;
     }
     
     MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt == NULL)
     {
 	    log_msg(LOG_DEBUG, "check_and_send_emm_info: Procedure context is NULL\n");
-	    return ActStatus::HALT;
+	    return ActStatus::ABORT;
     }
 
     if (MmeCommonUtils::isEmmInfoRequired(cb, *ue_ctxt, *procCtxt))
@@ -1314,6 +1371,8 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_ERROR, "attach_done: ue context is NULL \n");
+
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -1321,7 +1380,7 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 	if (mmCtxt == NULL)
 	{
 		log_msg(LOG_ERROR, "attach_done: MMcontext is NULL \n");
-		return ActStatus::HALT;
+		return ActStatus::ABORT;
 	}
 
 	mmCtxt->setMmState(EpsAttached);
@@ -1345,23 +1404,26 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         if (ueCtxt_p == NULL)
         {
                 log_msg(LOG_ERROR, " send_attach_reject: UE context is NULL %d\n",cb.getCBIndex());
+
+                MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
                 return ActStatus::HALT;
         }
 
         MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
-        if (procCtxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "send_attach_reject: Procedure context is NULL\n");
-                return ActStatus::HALT;
-        }
         
         struct commonRej_info attach_rej;
-
         attach_rej.msg_type = attach_reject;
         attach_rej.ue_idx = ueCtxt_p->getContextID();
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
         attach_rej.enb_fd = ueCtxt_p->getEnbFd();
-        attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+        if (procCtxt != NULL)
+        {
+            attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+        }
+        else
+        {
+            attach_rej.cause = emmCause_network_failure;
+        }
 		struct Buffer nasBuffer;
 		struct nasPDU nas = {0};
 		const uint8_t num_nas_elements = 1;
