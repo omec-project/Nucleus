@@ -160,6 +160,7 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
     doc.ParseStream(is);
     fclose(fp);
 
+    config->prom_port = 3081;
     if(!doc.IsObject()) {
         std::cout << "Error parsing the json config file" << std::endl;
         return;
@@ -170,6 +171,10 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
         if(mmeSection.HasMember("name"))
         {
             strcpy(config->mme_name, mmeSection["name"].GetString());
+        }
+        if(mmeSection.HasMember("prom_port"))
+        {
+            config->prom_port = mmeSection["prom_port"].GetInt();
         }
         if(mmeSection.HasMember("group_id"))
         {

@@ -1,4 +1,10 @@
-#Pending Points
+#
+# Copyright 2020-present Open Networking Foundation
+#
+# SPDX-License-Identifier: LicenseRef-ONF-Member-Only-1.0
+#
+
+#TODO Points
 #Get port number  as argument 
 #IP address looks optional 
 import json
@@ -168,7 +174,7 @@ def add_namespace_variables(fh):
 def add_setup_function(fh):
     fh.write("\n") 
     fname = module_name + "SetupPrometheusThread"
-    declaration = "void " + fname + "(void);"
+    declaration = "void " + fname + "(uint16_t port);"
     fh.write(declaration)
     fh.write("\n") 
 
@@ -327,42 +333,126 @@ def add_gauge_classes(fh):
 
     for gauge in gauges_family_object_list:
       fh.write("\n\n")
-      fh.write("class " + gauge.family + "_DynamicMetricObject : public DynamicMetricObject" + " {\n")
+      #1 dynamic label 
+      fh.write("class " + gauge.family + "_DynamicMetricObject1 : public DynamicMetricObject" + " {\n")
       fh.write("\tpublic:\n")
-      dyn_fun_signature = {}
+
+      dyn1_fun_signature = {}
       for metric in gauge.gaugeMetricList:
         labels = len(metric.labeldict)
-        if(dyn_fun_signature.get(labels)):
+        if(dyn1_fun_signature.get(labels)):
           continue
         constructor_args=""
         gauge_create_labels = "{"
         dynamic_function_call_args=""
         for index in range(labels):
-          constructor_args += "std::string labelk"+ str(index) + ", std::string labelv"+ str(index) + ","
-          gauge_create_labels += "{" + "labelk"+ str(index) +", labelv" + str(index) + "}"+","
-          dynamic_function_call_args += "labelk" + str(index)+", labelv"+str(index) + "," 
-        constructor_args += "std::string labelk, std::string labelv"
-        gauge_create_labels += "{labelk, labelv}"
-        dynamic_function_call_args += "labelk, labelv"
+          constructor_args += "std::string label_k"+ str(index) + ", std::string label_v"+ str(index) + ","
+          gauge_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+", label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0"
+        gauge_create_labels += "{dlabel_k0, dlabel_v0}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0"
         gauge_create_labels += "}"
-        dyn_fun_signature[labels] = [constructor_args, gauge_create_labels, dynamic_function_call_args]
+        dyn1_fun_signature[labels] = [constructor_args, gauge_create_labels, dynamic_function_call_args]
 
-      for f in dyn_fun_signature.values():
+      for f in dyn1_fun_signature.values():
         constructor_args =f[0]
         gauge_create_labels = f[1]
         dynamic_function_call_args = f[2]
-        fh.write("\t\t" + gauge.family + "_DynamicMetricObject(Family<Gauge> &" + gauge.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t" + gauge.family + "_DynamicMetricObject1(Family<Gauge> &" + gauge.promfamily + "," + constructor_args +"):\n")
         fh.write("\t\t DynamicMetricObject(),\n")
         fh.write("\t\t gauge(" + gauge.promfamily + ".Add(" + gauge_create_labels + "))\n") 
         fh.write("\t\t{\n")
         fh.write("\t\t}\n")
 
-      fh.write("\t\t~" + gauge.family + "_DynamicMetricObject" + "()\n")
+ 
+      fh.write("\t\t~" + gauge.family + "_DynamicMetricObject1" + "()\n")
       fh.write("\t\t{\n")
       fh.write("\t\t}\n")
       fh.write("\t\tGauge &gauge;\n")
       fh.write("};\n")
+      #end of 1 dynamic arg 
 
+      #2 dynamic label 
+      fh.write("\n\n")
+      fh.write("\n\n")
+      fh.write("class " + gauge.family + "_DynamicMetricObject2 : public DynamicMetricObject" + " {\n")
+      fh.write("\tpublic:\n")
+
+      dyn2_fun_signature = {}
+      for metric in gauge.gaugeMetricList:
+        labels = len(metric.labeldict)
+        if(dyn2_fun_signature.get(labels)):
+          continue
+        constructor_args=""
+        gauge_create_labels = "{"
+        dynamic_function_call_args=""
+        for index in range(labels):
+          constructor_args += "std::string label_k"+ str(index) + ", std::string label_v"+ str(index) + ","
+          gauge_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+", label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1"
+        gauge_create_labels += "{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1"
+        gauge_create_labels += "}"
+        dyn2_fun_signature[labels] = [constructor_args, gauge_create_labels, dynamic_function_call_args]
+
+      for f in dyn2_fun_signature.values():
+        constructor_args = f[0]
+        gauge_create_labels = f[1]
+        dynamic_function_call_args = f[2]
+        fh.write("\t\t" + gauge.family + "_DynamicMetricObject2(Family<Gauge> &" + gauge.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t DynamicMetricObject(),\n")
+        fh.write("\t\t gauge(" + gauge.promfamily + ".Add(" + gauge_create_labels + "))\n") 
+        fh.write("\t\t{\n")
+        fh.write("\t\t}\n")
+
+      fh.write("\t\t~" + gauge.family + "_DynamicMetricObject2" + "()\n")
+      fh.write("\t\t{\n")
+      fh.write("\t\t}\n")
+      fh.write("\t\tGauge &gauge;\n")
+      fh.write("};\n")
+      #end of 2 dynamic arg 
+      #3 dynamic label 
+
+      fh.write("\n\n")
+      fh.write("class " + gauge.family + "_DynamicMetricObject3 : public DynamicMetricObject" + " {\n")
+      fh.write("\tpublic:\n")
+      fh.write("\n\n")
+      dyn3_fun_signature = {}
+      for metric in gauge.gaugeMetricList:
+        labels = len(metric.labeldict)
+        if(dyn3_fun_signature.get(labels)):
+          continue
+        constructor_args=""
+        gauge_create_labels = "{"
+        dynamic_function_call_args=""
+        for index in range(labels):
+          constructor_args += "std::string label_k"+ str(index) + ", std::string label_v"+ str(index) + ","
+          gauge_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+", label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2"
+        gauge_create_labels += "{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}, {dlabel_k2, dlabel_v2}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2"
+        gauge_create_labels += "}"
+        dyn3_fun_signature[labels] = [constructor_args, gauge_create_labels, dynamic_function_call_args]
+
+      for f in dyn3_fun_signature.values():
+        constructor_args = f[0]
+        gauge_create_labels = f[1]
+        dynamic_function_call_args = f[2]
+        fh.write("\t\t" + gauge.family + "_DynamicMetricObject3(Family<Gauge> &" + gauge.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t DynamicMetricObject(),\n")
+        fh.write("\t\t gauge(" + gauge.promfamily + ".Add(" + gauge_create_labels + "))\n") 
+        fh.write("\t\t{\n")
+        fh.write("\t\t}\n")
+
+      fh.write("\t\t~" + gauge.family + "_DynamicMetricObject3" + "()\n")
+      fh.write("\t\t{\n")
+      fh.write("\t\t}\n")
+      fh.write("\t\tGauge &gauge;\n")
+      fh.write("};\n")
+      #end of 3 dynamic arg 
 
       fh.write("class " + gauge.classname + " {\n")
       fh.write("\tpublic:\n")
@@ -372,53 +462,154 @@ def add_gauge_classes(fh):
       for metric in gauge.gaugeMetricList:
         fh.write("\tGauge &" + metric.gauge_name + ";\n")
 
-      for f in dyn_fun_signature.values():
+      for f in dyn1_fun_signature.values():
         constructor_args,gauge_create_labels,dynamic_function_call_args = f
-        fh.write("\n\t" + gauge.family+"_"+"DynamicMetricObject* add_dynamic(" + constructor_args + ") {\n")
-        fh.write("\t\treturn new "+ gauge.family+"_"+"DynamicMetricObject("+ gauge.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\n\t" + gauge.family+"_DynamicMetricObject1* add_dynamic1(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ gauge.family+"_"+"DynamicMetricObject1("+ gauge.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\t}\n")
+
+
+      for f in dyn2_fun_signature.values():
+        constructor_args,gauge_create_labels,dynamic_function_call_args = f
+        fh.write("\n\t" + gauge.family+"_DynamicMetricObject2* add_dynamic2(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ gauge.family+"_"+"DynamicMetricObject2("+ gauge.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\t}\n")
+
+
+      for f in dyn3_fun_signature.values():
+        constructor_args,gauge_create_labels,dynamic_function_call_args = f
+        fh.write("\n\t" + gauge.family+"_DynamicMetricObject3* add_dynamic3(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ gauge.family+"_"+"DynamicMetricObject3("+ gauge.promfamily + "," + dynamic_function_call_args + ");\n ")
         fh.write("\t}\n")
 
       fh.write("};\n\n\n")
 
+
 def add_counter_classes(fh):
     for counter in counter_family_object_list:
       fh.write("\n\n")
-      fh.write("class " + counter.family + "_DynamicMetricObject : public DynamicMetricObject" + " {\n")
+      #start single dynamic label 1
+      fh.write("class " + counter.family + "_DynamicMetricObject1 : public DynamicMetricObject" + " {\n")
       fh.write("\tpublic:\n")
-      dyn_fun_signature = {}
+
+      dyn1_fun_signature = {}
       for metric in counter.counterMetricList:
         labels = len(metric.labeldict)
-        if(dyn_fun_signature.get(labels)):
+        if(dyn1_fun_signature.get(labels)):
           continue
         constructor_args=""
         counter_create_labels = "{"
         dynamic_function_call_args=""
         for index in range(labels):
-          constructor_args += "std::string labelk"+ str(index) + ",std::string labelv"+ str(index) + ","
-          counter_create_labels += "{" + "labelk"+ str(index) +", labelv" + str(index) + "}"+","
-          dynamic_function_call_args += "labelk" + str(index)+",labelv"+str(index) + "," 
-        constructor_args += "std::string labelk, std::string labelv"
-        counter_create_labels += "{labelk, labelv}"
-        dynamic_function_call_args += "labelk, labelv"
+          constructor_args += "std::string label_k"+ str(index) + ",std::string label_v"+ str(index) + ","
+          counter_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+",label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0"
+        counter_create_labels += "{dlabel_k0, dlabel_v0}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0"
         counter_create_labels += "}"
-        dyn_fun_signature[labels] = [constructor_args, counter_create_labels, dynamic_function_call_args]
+        dyn1_fun_signature[labels] = [constructor_args, counter_create_labels, dynamic_function_call_args]
 
 
-      for f in dyn_fun_signature.values():
+      for f in dyn1_fun_signature.values():
         constructor_args = f[0]
         counter_create_labels = f[1]
         dynamic_function_call_args = f[2]
-        fh.write("\t\t" + counter.family + "_DynamicMetricObject(Family<Counter> &" + counter.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t" + counter.family + "_DynamicMetricObject1(Family<Counter> &" + counter.promfamily + "," + constructor_args +"):\n")
         fh.write("\t\t DynamicMetricObject(),\n")
         fh.write("\t\t counter(" + counter.promfamily + ".Add(" + counter_create_labels + "))\n") 
         fh.write("\t\t{\n")
         fh.write("\t\t}\n")
 
-      fh.write("\t\t~" + counter.family + "_DynamicMetricObject" + "()\n")
+      fh.write("\t\t~" + counter.family + "_DynamicMetricObject1" + "()\n")
       fh.write("\t\t{\n")
       fh.write("\t\t}\n")
       fh.write("\t\tCounter &counter;\n")
       fh.write("};\n")
+      #end single dynamic label 1
+
+      #start single dynamic label 2
+      fh.write("\n\n")
+      fh.write("class " + counter.family + "_DynamicMetricObject2 : public DynamicMetricObject" + " {\n")
+      fh.write("\tpublic:\n")
+
+      dyn2_fun_signature = {}
+      for metric in counter.counterMetricList:
+        labels = len(metric.labeldict)
+        if(dyn2_fun_signature.get(labels)):
+          continue
+        constructor_args=""
+        counter_create_labels = "{"
+        dynamic_function_call_args=""
+        for index in range(labels):
+          constructor_args += "std::string label_k"+ str(index) + ",std::string label_v"+ str(index) + ","
+          counter_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+",label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1"
+        counter_create_labels += "{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1"
+        counter_create_labels += "}"
+        dyn2_fun_signature[labels] = [constructor_args, counter_create_labels, dynamic_function_call_args]
+
+
+      for f in dyn2_fun_signature.values():
+        constructor_args = f[0]
+        counter_create_labels = f[1]
+        dynamic_function_call_args = f[2]
+        fh.write("\t\t" + counter.family + "_DynamicMetricObject2(Family<Counter> &" + counter.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t DynamicMetricObject(),\n")
+        fh.write("\t\t counter(" + counter.promfamily + ".Add(" + counter_create_labels + "))\n") 
+        fh.write("\t\t{\n")
+        fh.write("\t\t}\n")
+
+      fh.write("\t\t~" + counter.family + "_DynamicMetricObject2" + "()\n")
+      fh.write("\t\t{\n")
+      fh.write("\t\t}\n")
+      fh.write("\t\tCounter &counter;\n")
+      fh.write("};\n")
+      #end single dynamic label 2
+
+      #start single dynamic label 3
+      fh.write("\n\n")
+      fh.write("class " + counter.family + "_DynamicMetricObject3 : public DynamicMetricObject" + " {\n")
+      fh.write("\tpublic:\n")
+
+      dyn3_fun_signature = {}
+      for metric in counter.counterMetricList:
+        labels = len(metric.labeldict)
+        if(dyn3_fun_signature.get(labels)):
+          continue
+        constructor_args=""
+        counter_create_labels = "{"
+        dynamic_function_call_args=""
+        for index in range(labels):
+          constructor_args += "std::string label_k"+ str(index) + ",std::string label_v"+ str(index) + ","
+          counter_create_labels += "{" + "label_k"+ str(index) +", label_v" + str(index) + "}"+","
+          dynamic_function_call_args += "label_k" + str(index)+",label_v"+str(index) + "," 
+        constructor_args += "std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2"
+        counter_create_labels += "{dlabel_k0, dlabel_v0},{dlabel_k1, dlabel_v1},{dlabel_k2, dlabel_v2}"
+        dynamic_function_call_args += "dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1,dlabel_k2, dlabel_v2"
+        counter_create_labels += "}"
+        dyn3_fun_signature[labels] = [constructor_args, counter_create_labels, dynamic_function_call_args]
+
+
+      for f in dyn3_fun_signature.values():
+        constructor_args = f[0]
+        counter_create_labels = f[1]
+        dynamic_function_call_args = f[2]
+        fh.write("\t\t" + counter.family + "_DynamicMetricObject3(Family<Counter> &" + counter.promfamily + "," + constructor_args +"):\n")
+        fh.write("\t\t DynamicMetricObject(),\n")
+        fh.write("\t\t counter(" + counter.promfamily + ".Add(" + counter_create_labels + "))\n") 
+        fh.write("\t\t{\n")
+        fh.write("\t\t}\n")
+
+      fh.write("\t\t~" + counter.family + "_DynamicMetricObject3" + "()\n")
+      fh.write("\t\t{\n")
+      fh.write("\t\t}\n")
+      fh.write("\t\tCounter &counter;\n")
+      fh.write("};\n")
+      #end single dynamic label 3
+
 
 
       fh.write("class " + counter.classname + " {\n")
@@ -429,12 +620,25 @@ def add_counter_classes(fh):
       for metric in counter.counterMetricList:
         fh.write("\tCounter &" + metric.counter_name + ";\n")
 
-
-      for f in dyn_fun_signature.values():
+      for f in dyn1_fun_signature.values():
         constructor_args,counter_create_labels,dynamic_function_call_args = f
-        fh.write("\n\t" + counter.family+"_"+"DynamicMetricObject* add_dynamic(" + constructor_args + ") {\n")
-        fh.write("\t\treturn new "+ counter.family+"_"+"DynamicMetricObject("+ counter.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\n\t" + counter.family+"_DynamicMetricObject1* add_dynamic1(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ counter.family+"_"+"DynamicMetricObject1("+ counter.promfamily + "," + dynamic_function_call_args + ");\n ")
         fh.write("\t}\n")
+
+      for f in dyn2_fun_signature.values():
+        constructor_args,counter_create_labels,dynamic_function_call_args = f
+        fh.write("\n\t" + counter.family+"_DynamicMetricObject2* add_dynamic2(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ counter.family+"_"+"DynamicMetricObject2("+ counter.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\t}\n")
+
+      for f in dyn3_fun_signature.values():
+        constructor_args,counter_create_labels,dynamic_function_call_args = f
+        fh.write("\n\t" + counter.family+"_DynamicMetricObject3* add_dynamic3(" + constructor_args + ") {\n")
+        fh.write("\t\treturn new "+ counter.family+"_"+"DynamicMetricObject3("+ counter.promfamily + "," + dynamic_function_call_args + ");\n ")
+        fh.write("\t}\n")
+
+
 
       fh.write("};\n")
       fh.write("\n")
@@ -478,6 +682,7 @@ def add_stl_header(fh):
     fh.write("#include <map>\n")
     fh.write("#include <memory>\n")
     fh.write("#include <thread>\n")
+    fh.write("#include <sstream>\n")
     fh.write("#include \"" + module_name + "PromClient.h\"\n") 
     fh.write("\n") 
     fh.write("using namespace prometheus;\n")
@@ -486,12 +691,14 @@ def add_stl_header(fh):
 
 def add_prom_client_setup_function(fh):
     fname = module_name + "SetupPrometheusThread"
-    fh.write("void " + fname + "(void)\n")
+    fh.write("void " + fname + "(uint16_t port)\n")
     fh.write("{\n")
+    fh.write("    std::stringstream ss;\n");
+    fh.write("    ss << \"0.0.0.0\"<<\":\"<<port;\n");
     fh.write("    registry = std::make_shared<Registry>();\n")
     fh.write("    /* Create single instance */ \n")
     fh.write("    " + module_name + "::Instance(); \n")
-    fh.write("    Exposer exposer{\"0.0.0.0:3081\", 1};\n")
+    fh.write("    Exposer exposer{ss.str(), 1};\n")
     fh.write("    std::string metrics(\"/metrics\");\n")
     fh.write("    exposer.RegisterCollectable(registry, metrics);\n")
     fh.write("    while(1)\n")
@@ -585,15 +792,47 @@ def add_increment_api(fh):
         fh.write("\tcase "+module_name+"Counter::" + metric.enum_name + ":\n")
         fh.write("\t{\n")
         fh.write("\t\t" + gauge.moduleStatsMember + "->" + metric.gauge_name + ".Increment();\n")
-        fh.write("\t\tfor(auto it = labels.begin(); it != labels.end(); it++) {\n")
-        fh.write("\t\tstd::cout<<\"label - (\"<<it->first<<\",\"<<it->second<<\")\"<<std::endl;\n")
+        fh.write("\t\tif(labels.size() == 0) {\n")
+        fh.write("\t\tbreak;\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\tif(labels.size() == 1) {\n")
+        fh.write("\t\tauto it = labels. begin();\n")
         fh.write("\t\tstruct Node s1 = {name, it->first, it->second};\n")
         fh.write("\t\tauto it1 = metrics_map.find(s1);\n")
         fh.write("\t\tif(it1 != metrics_map.end()) {\n")
-        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject *obj = static_cast<"+gauge.family+"_DynamicMetricObject *>(it1->second);\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject1 *obj = static_cast<"+gauge.family+"_DynamicMetricObject1 *>(it1->second);\n")
         fh.write("\t\t    obj->gauge.Increment();\n")
         fh.write("\t\t} else {\n")
-        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject *obj = " + gauge.moduleStatsMember + "->add_dynamic(" + labels + ",it->first, it->second);\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject1 *obj = " + gauge.moduleStatsMember + "->add_dynamic1(" + labels + ",it->first, it->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->gauge.Increment();\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\t} else if (labels.size() == 2) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject2 *obj = static_cast<"+gauge.family+"_DynamicMetricObject2 *>(itf->second);\n")
+        fh.write("\t\t    obj->gauge.Increment();\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject2 *obj = " + gauge.moduleStatsMember + "->add_dynamic2(" + labels + ",it1->first, it1->second, it2->first, it2->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->gauge.Increment();\n")
+        fh.write("\t\t} \n")
+        fh.write("\t\t} else if (labels.size() == 3) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject3 *obj = static_cast<"+gauge.family+"_DynamicMetricObject3 *>(itf->second);\n")
+        fh.write("\t\t    obj->gauge.Increment();\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject3 *obj = " + gauge.moduleStatsMember + "->add_dynamic3(" + labels + ",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);\n")
         fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
         fh.write("\t\t    metrics_map.insert(p1);\n")
         fh.write("\t\t    obj->gauge.Increment();\n")
@@ -617,15 +856,47 @@ def add_increment_api(fh):
         fh.write("\tcase "+module_name+"Counter::" + metric.enum_name + ":\n")
         fh.write("\t{\n")
         fh.write("\t\t" + counter.moduleStatsMember+ "->" + metric.counter_name + ".Increment();\n")
-        fh.write("\t\tfor(auto it = labels.begin(); it != labels.end(); it++) {\n")
-        fh.write("\t\tstd::cout<<\"label - (\"<<it->first<<\",\"<<it->second<<\")\"<<std::endl;\n")
+        fh.write("\t\tif(labels.size() == 0) {\n")
+        fh.write("\t\tbreak;\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\tif(labels.size() == 1) {\n")
+        fh.write("\t\tauto it = labels. begin();\n")
         fh.write("\t\tstruct Node s1 = {name, it->first, it->second};\n")
         fh.write("\t\tauto it1 = metrics_map.find(s1);\n")
         fh.write("\t\tif(it1 != metrics_map.end()) {\n")
-        fh.write("\t\t    "+ counter.family+ "_DynamicMetricObject *obj = static_cast<" + counter.family+ "_DynamicMetricObject *>(it1->second);\n")
+        fh.write("\t\t    "+ counter.family+ "_DynamicMetricObject1 *obj = static_cast<" + counter.family+ "_DynamicMetricObject1 *>(it1->second);\n")
         fh.write("\t\t    obj->counter.Increment();\n")
         fh.write("\t\t} else {\n")
-        fh.write("\t\t    "+counter.family + "_DynamicMetricObject *obj = " + counter.moduleStatsMember + "->add_dynamic(" + labels + ",it->first, it->second);\n")
+        fh.write("\t\t    "+counter.family + "_DynamicMetricObject1 *obj = " + counter.moduleStatsMember + "->add_dynamic1(" + labels + ",it->first, it->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->counter.Increment();\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\t} else if (labels.size() == 2) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+counter.family +"_DynamicMetricObject2 *obj = static_cast<"+counter.family+"_DynamicMetricObject2 *>(itf->second);\n")
+        fh.write("\t\t    obj->counter.Increment();\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+counter.family+"_DynamicMetricObject2 *obj = " + counter.moduleStatsMember + "->add_dynamic2(" + labels + ",it1->first, it1->second, it2->first, it2->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->counter.Increment();\n")
+        fh.write("\t\t} \n")
+        fh.write("\t\t} else if (labels.size() == 3) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+counter.family +"_DynamicMetricObject3 *obj = static_cast<"+counter.family+"_DynamicMetricObject3 *>(itf->second);\n")
+        fh.write("\t\t    obj->counter.Increment();\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+counter.family+"_DynamicMetricObject3 *obj = " + counter.moduleStatsMember + "->add_dynamic3(" + labels + ",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);\n")
         fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
         fh.write("\t\t    metrics_map.insert(p1);\n")
         fh.write("\t\t    obj->counter.Increment();\n")
@@ -659,17 +930,34 @@ def add_decrement_api(fh):
         fh.write("\tcase "+module_name+"Counter::" + metric.enum_name + ":\n")
         fh.write("\t{\n")
         fh.write("\t\t" + gauge.moduleStatsMember + "->" + metric.gauge_name + ".Decrement();\n")
-        fh.write("\t\tfor(auto it = labels.begin(); it != labels.end(); it++) {\n")
-        fh.write("\t\tstd::cout<<\"label - (\"<<it->first<<\",\"<<it->second<<\")\"<<std::endl;\n")
+        fh.write("\t\tif(labels.size() == 0) {\n")
+        fh.write("\t\tbreak;\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\tif(labels.size() == 1) {\n")
+        fh.write("\t\tauto it = labels. begin();\n")
         fh.write("\t\tstruct Node s1 = {name, it->first, it->second};\n")
         fh.write("\t\tauto it1 = metrics_map.find(s1);\n")
         fh.write("\t\tif(it1 != metrics_map.end()) {\n")
-        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject *obj = static_cast<"+gauge.family+"_DynamicMetricObject *>(it1->second);\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject1 *obj = static_cast<"+gauge.family+"_DynamicMetricObject1 *>(it1->second);\n")
         fh.write("\t\t    obj->gauge.Decrement();\n")
-        fh.write("\t\t} else {\n")
-        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject *obj = " + gauge.moduleStatsMember + "->add_dynamic(" + labels + ",it->first, it->second);\n")
-        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
-        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\t} else if (labels.size() == 2) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it1->second+it2->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject2 *obj = static_cast<"+gauge.family+"_DynamicMetricObject2 *>(itf->second);\n")
+        fh.write("\t\t    obj->gauge.Decrement();\n")
+        fh.write("\t\t} \n")
+        fh.write("\t\t} else if (labels.size() == 3) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject3 *obj = static_cast<"+gauge.family+"_DynamicMetricObject3 *>(itf->second);\n")
         fh.write("\t\t    obj->gauge.Decrement();\n")
         fh.write("\t\t}\n")
         fh.write("\t\t}\n")
@@ -686,18 +974,11 @@ def add_test_main_function(fh):
     fh.write("#ifdef TEST_PROMETHEUS \n")
     fh.write("#include <unistd.h>\n")
     fh.write("int main() {\n")
-    fh.write("\tstd::thread prom(" + module_name + "SetupPrometheusThread);\n")
+    fh.write("\tstd::thread prom(" + module_name + "SetupPrometheusThread, 3081);\n")
     fh.write("\tprom.detach();\n")
+    fh.write("\tsleep(1);\n")
     fh.write("\twhile(1) {\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_IDLE_SUBSCRIBERS);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE, {{\"enb\",\"1.1.1.2\"}});\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE);\n") 
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);\n")
-    fh.write("\tmmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{\"failure_reason\", \"CSRsp_fail\"}});\n")
+    fh.write("\tspgwStats::Instance()->increment(spgwStatsCounter::NUM_UE_SPGW_ACTIVE_SUBSCRIBERS, {{\"mme_addr\",\"1.1.1.1\"},{\"spgwu_addr\", \"1.1.1.2\"}});\n") 
     fh.write("\tsleep(1);\n")
     fh.write("\t}\n")
     fh.write("}\n")
@@ -717,7 +998,40 @@ def create_cpp_file():
     add_decrement_api(cpp_file)
     add_test_main_function(cpp_file)    
 
+def add_c_counter_enum(fh):
+    fh.write("\n") 
+    fh.write("enum " + module_name + "Enum {\n")
+    enum_class = []
+    for gauge in gauges_family_object_list:
+      for metric in gauge.gaugeMetricList:
+        enum_class.append(metric.enum_name)
+    for counter in counter_family_object_list:
+      for metric in counter.counterMetricList:
+        enum_class.append(metric.enum_name)
+    x = len(enum_class)
+    for i in range(x-1):
+        fh.write("\t" + enum_class[i].upper() + ",\n")
+    fh.write("\t" + enum_class[x-1].upper() + "\n")
+    fh.write("};\n") 
+    fh.write("\n") 
+ 
+def create_c_enum_file():
+    fname = module_name + "PromEnum.h"
+    header_file = open(fname, 'w')
+    add_copyright(header_file)
+    h = "#ifndef _INCLUDE_"+module_name+"_ENUM_H__\n"
+    header_file.write(h)
+    h = "#define _INCLUDE_"+module_name+"_ENUM_H__\n"
+    header_file.write(h)
+    add_c_counter_enum(header_file)
+    header_file.write("\n") 
+    h = "#endif /* _INCLUDE_"+module_name+"_ENUM_H__ */\n"
+    header_file.write(h)
+
+
+
 parse_json_file()
 create_header_file()
 create_cpp_file()
+create_c_enum_file()
 
