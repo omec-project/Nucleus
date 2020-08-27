@@ -94,9 +94,6 @@ int main(int argc, char *argv[])
 
 	srand(time(0));
 
-    std::thread prom(mmeStatsSetupPrometheusThread);
-    prom.detach();
-
     auto cb = std::bind(&MmeTimerUtils::onTimeout, _1);
     timeoutMgr_g = new TimeoutManager(cb);
 
@@ -110,6 +107,9 @@ int main(int argc, char *argv[])
 
     mme_tables = new mmeConfig();
     mmeConfig::mme_parse_config_new(mme_cfg);
+
+    std::thread prom(mmeStatsSetupPrometheusThread, mme_cfg->prom_port);
+    prom.detach();
 
     /* Lets apply logging setting */
     set_logging_level(mme_cfg->logging);
