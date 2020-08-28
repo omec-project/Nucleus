@@ -37,7 +37,7 @@
 			* find[% Child.Name %]
 			*    find [% Child.Name %]
 			****************************************/
-			[% Child.Type %]::iterator find[% Child.Name %]([% ARG(Param, "set")%])
+			[% Child.Type %]::iterator find[% Child.Name %]([% ARG(Param, "set")%]);
 			[%- END %]
 			
 			/****************************************

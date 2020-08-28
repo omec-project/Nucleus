@@ -329,7 +329,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
     if(sessionCtxtContainer.size() < 1)
     {
-	log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho:Session context list\n");
+	log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho:Session context list empty\n");
 	return ActStatus::HALT;
     }
 
