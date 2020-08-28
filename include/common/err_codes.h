@@ -39,4 +39,17 @@ enum ERROR_CODES{
 	S6A_FD_DICTSRCH_FAILED,
 };
 
+#define VERIFY(cond, result, msg, ...) \
+    if (!(cond)) { \
+        log_msg(LOG_ERROR, msg, ## __VA_ARGS__); \
+        result; \
+    }
+
+#define VERIFY_UE(cb, ue, msg, ...) \
+    if (!(ue)) { \
+        log_msg(LOG_ERROR, msg, ## __VA_ARGS__); \
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex()); \
+        return ActStatus::HALT; \
+    }
+
 #endif /* ERROR_CODES_H__*/
