@@ -30,7 +30,7 @@
 #include <tipcTypes.h>
 #include <utils/mmeCauseUtils.h>
 #include <utils/mmeContextManagerUtils.h>
-#include "promClient.h"
+#include "mmeStatsPromClient.h"
 
 using namespace mme;
 using namespace SM;
@@ -76,7 +76,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-        statistics::Instance()->Increment_s1ap_msg_tx_stats(msg_type_t::erab_mod_confirmation);
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_ERAB_MODIFICATION_INDICATION);
         MmeIpcInterface &mmeIpcIf =
                 static_cast<MmeIpcInterface&>(compDb.getComponent(
                         MmeIpcInterfaceCompId));
@@ -102,6 +102,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
 ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 {
     log_msg(LOG_DEBUG, "Inside erab_mod_ind_complete\n");
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
     return ActStatus::PROCEED;
 
@@ -145,6 +146,7 @@ ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
 
     ActStatus actStatus = ActStatus::PROCEED;
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE);
     MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
 
     // Start MME_INIT Detach procedure

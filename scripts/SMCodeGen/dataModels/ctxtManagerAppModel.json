@@ -290,6 +290,10 @@
 								"Name": "s1ReleaseTrigger",
 								"Type": "enum S1ReleaseTrigger",
 								"DefaultVal": "noTrigger_c"
+							},
+							{
+								"Name": "s1apEnbUeId",
+								"Type": "uint32_t"
 							}
 						]
 					},

@@ -63,4 +63,14 @@ void S1ReleaseStart::initialize()
                 actionTable.setNextState(S1ReleaseWfReleaseAccessBearerResp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(S1_REL_REQ_FROM_UE, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_s1_release);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
 }

@@ -46,6 +46,11 @@ s1_ctx_release_request_handler(InitiatingMessage_t *msg)
                 {
 	                release_request.ue_idx = s1_ctx_rel_req_ies.data[i].val.mme_ue_s1ap_id;
                 }break;
+            case S1AP_IE_ENB_UE_ID:
+                {
+	                release_request.s1ap_enb_ue_id 
+                        = s1_ctx_rel_req_ies.data[i].val.enb_ue_s1ap_id;
+                }break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d\n",s1_ctx_rel_req_ies.data[i].IE_type);
         }

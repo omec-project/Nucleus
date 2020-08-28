@@ -60,9 +60,13 @@ void PagingWfServiceReq::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_service_request);
-                actionTable.addAction(&ActionHandlers::send_ddn_ack_to_sgw);
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
                 actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(SERVICE_REQUEST_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }
