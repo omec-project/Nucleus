@@ -270,6 +270,9 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     
         if (procedure_p->getCtxtType() != defaultMmeProcedure_c)
         {
+            // stop state guard timer if any running
+            MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
+
             rc = deleteProcedureCtxt(procedure_p);
         }
 
