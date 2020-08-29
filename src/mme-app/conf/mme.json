@@ -5,6 +5,7 @@
 		"s1ap_addr": "192.168.1.52",
 		"egtp_addr": "192.168.1.52",
 		"sctp_port": 36412,
+        "prom_port": 3081,
 		"name": "vmmestandalone",
 		"egtp_default_hostname": "sutlej.ccin.ccpu.com",
 		"group_id": 1,
