@@ -889,7 +889,6 @@ int s1ap_mme_encode_s1_setup_response(
     MME_Group_ID_t group_id;
     memset(&group_id, 0, sizeof(MME_Group_ID_t));
 
-    log_msg(LOG_DEBUG, "group id %d\n", s1apPDU->mme_group_id);
     group_id.size = 2;
     group_id.buf = calloc(2, sizeof(uint8_t));
     group_id.size = copyU16(group_id.buf, s1apPDU->mme_group_id);
@@ -907,7 +906,6 @@ int s1ap_mme_encode_s1_setup_response(
     ASN_SEQUENCE_ADD(&gummei_item.servedMMECs.list, &mmecode);
     ASN_SEQUENCE_ADD(&val[0].value.choice.ServedGUMMEIs.list, &gummei_item);
 
-    log_msg(LOG_INFO,"Add values to list.\n");
     ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[2]);
     ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[1]);
@@ -918,7 +916,6 @@ int s1ap_mme_encode_s1_setup_response(
         return -1;
     }
 
-    log_msg(LOG_INFO,"free sucessful outcome  msg");
     free(pdu.choice.successfulOutcome);
 
     *length = enc_ret;
