@@ -36,6 +36,11 @@
 								"Name": "tai",
 								"Type": "TAI",
 								"Key": "No"
+							},
+							{
+								"Name": "enbname",
+								"Type": "char",
+								"Cardinality": "256"
 							}
 						]
 					}

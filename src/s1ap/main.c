@@ -35,6 +35,8 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
+#include "s1apContextManager/s1apContextWrapper_c.h"
+#include "s1_common_types.h"
 
 s1ap_instance_t *s1ap_inst;
 
@@ -64,7 +66,7 @@ extern int pid;
 extern void
 handle_mmeapp_message(void * data);
 
-#define MAX_ENB     10
+#define MAX_ENB     32
 #define BUFFER_LEN  4096
 #define AES_128_KEY_SIZE 16
 
@@ -360,8 +362,6 @@ accept_sctp(void *data)
 	unsigned char buffer[BUFFER_LEN] = {0};
 
 	while(1) {
-		log_msg(LOG_INFO, "WHILE LOOP\n");
-
 		fd_set readfds;
 		memset (buffer, 0, BUFFER_LEN);
 		valread  = 0;
@@ -401,8 +401,6 @@ accept_sctp(void *data)
 				if( enb_socket[i] == 0 ) {
 
 					enb_socket[i] = new_socket;
-					log_msg(LOG_INFO, "Adding to list of sockets at %d value %d\n" , i, new_socket);
-
 					break;
 				}
 			}
@@ -415,7 +413,9 @@ accept_sctp(void *data)
 			if (FD_ISSET(sd, &readfds)) {
 				if ((valread = recv_sctp_msg(sd, buffer, SCTP_BUF_SIZE)) <= 0) {
 
-					log_msg(LOG_INFO, "Host Disconnected\n");
+                    struct EnbStruct temp = {0};
+                    getControlBlockDetailsEnbFd(sd, &temp);
+					log_msg(LOG_ERROR, "eNB %s - Tac %d - disconnected \n",temp.eNbName, temp.tai_m.tac);
 					close(sd);
 					enb_socket[i] = 0;
                     /* MME-app should get notificaiton that peer is down ? 
@@ -429,9 +429,6 @@ accept_sctp(void *data)
 					memcpy(tmpBuf, &sd, sizeof(sd));
 					memcpy(tmpBuf + sizeof(int), &valread, sizeof(int));
 					memcpy(tmpBuf + (2*sizeof(int)), buffer, valread);
-					//tmpBuf[len] = '\0';
-					log_msg(LOG_INFO, "SCTP Received msg len : %d on fd %d\n",
-							valread, sd);
 					insert_job(g_tpool, handle_s1ap_message, tmpBuf);
 
 				}
@@ -453,7 +450,6 @@ void * tipc_msg_handler()
 		{
 			unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * bytesRead);
 			memcpy(tmpBuf, buffer, bytesRead);
-			log_msg(LOG_INFO, "S1AP message received from mme-app. Received Message size %d \n",bytesRead);
 			insert_job(g_tpool_tipc_reader, handle_mmeapp_message, tmpBuf);
 		}
 	}
