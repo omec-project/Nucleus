@@ -30,4 +30,9 @@ extern "C"
         return setValuesForEnbCtx_cpp(cbIndex, enbCtx, update);
     }
 
+    bool getControlBlockDetailsEnbFd(uint32_t enbFd, EnbStruct *enb)
+    {
+        return getControlBlockDetailsEnbFd_cpp(enbFd, enb);
+    }
+
 }

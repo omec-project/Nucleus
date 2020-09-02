@@ -29,8 +29,11 @@ namespace mme
             enbId_m(0),
             s1apEnbUeId_m(0),
             contextID_m(0),
-            tai_m()
-	{	
+            tai_m(),
+            enbnameLen_m(0)
+	{
+		memset(enbname_m,0,sizeof(enbname_m));
+	
 	}
 	
 	/******************************************************************************
@@ -124,5 +127,30 @@ namespace mme
                 return tai_m;
         }
 
+	
+	/******************************************************************************
+	* sets enbname
+	******************************************************************************/
+	void EnbContext::setEnbname( const char* enbname_i,uint16_t len )
+	{
+		enbnameLen_m=len;
+		memcpy(enbname_m, enbname_i, (enbnameLen_m * sizeof(char)));
+	}
+	
+	/******************************************************************************
+	* returns enbname
+	******************************************************************************/	
+        const char* EnbContext::getEnbname() const
+        {
+                return enbname_m;
+        }
+
+	/******************************************************************************
+	* returns enbnameLen
+	******************************************************************************/	
+	uint16_t EnbContext::getEnbnameLen() const
+	{
+		return enbnameLen_m;
+	}
 	
 } // mme
