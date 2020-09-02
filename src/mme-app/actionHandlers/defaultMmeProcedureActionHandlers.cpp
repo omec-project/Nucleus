@@ -67,6 +67,9 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	if (msgBuf == NULL)
 	{
 		log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+
+		// Invalid message. Cannot proceed further.
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -75,6 +78,9 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	if (msgData_p == NULL)
 	{
 		log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+
+        // Invalid message. Cannot proceed further.
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -86,6 +92,8 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	if (attachType == maxAttachType_c)
 	{
 		log_msg(LOG_ERROR, "Failed to identify attach type \n");
+
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -96,6 +104,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		{
 			log_msg(LOG_ERROR, "Failed to allocate UE context \n");
 
+	        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			return ActStatus::HALT;
 		}
 
@@ -104,7 +113,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		{
 			log_msg(LOG_ERROR, "Failed to allocate MM Context \n");
 
-			SubsDataGroupManager::Instance()->deleteUEContext( ueCtxt_p );
+			MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			return ActStatus::HALT;
 		}
 
@@ -122,6 +131,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	{
 		log_msg(LOG_ERROR, "Failed to allocate Procedure Context \n");
 
+		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -149,6 +159,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setEsmInfoTxRequired(ue_info.esm_info_tx_required);
 	prcdCtxt_p->setAttachType(attachType);
 
+	ActStatus status = ActStatus::PROCEED;
 	switch(attachType)
 	{
 		case imsiAttach_c:
@@ -191,12 +202,15 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		default:
 		{
 			log_msg(LOG_ERROR, "Unhandled attach type %s", attachType);
+
+			MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+			status = ActStatus::HALT;
 		}
 	}
 
 	ProcedureStats::num_of_attach_req_received ++;
 	
-	return ActStatus::PROCEED;
+	return status;
 }
 
 /***************************************

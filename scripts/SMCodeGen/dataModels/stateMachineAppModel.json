@@ -87,6 +87,15 @@
                                     "VALIDATE_IMSI_IN_UE_CONTEXT"
                                 ],
                                 "NextState":"attach_wf_imsi_validate_action"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -106,6 +115,15 @@
                                     "SEND_IDENTITY_REQUEST_TO_UE"
                                 ],
                                 "NextState":"attach_wf_identity_response"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -119,6 +137,13 @@
                                     "AUTH_REQ_TO_UE"
                                 ],
                                 "NextState":"attach_wf_auth_resp"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
                             },
                             {
                                 "Name":"ABORT_EVENT",
@@ -141,6 +166,22 @@
                                     "SEND_AIR_TO_HSS"
                                 ],
                                 "NextState":"attach_wf_aia"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -192,7 +233,18 @@
                             {
                                 "Name":"AUTH_RESP_FAILURE",
                                 "Actions":[
-                                    "SEND_AUTH_REJECT"
+                                    "SEND_AUTH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -243,6 +295,15 @@
                                     "SEND_ULR_TO_HSS"
                                 ],
                                 "NextState":"attach_wf_ula"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -285,7 +346,23 @@
                                     "CS_REQ_TO_SGW"
                                 ],
                                 "NextState":"attach_wf_cs_resp"
-                            }
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
+                             }
                         ]
                     },
                     {

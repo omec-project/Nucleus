@@ -166,7 +166,6 @@ send_tipc_message(int sd, uint32_t destAddr, void * buf, int len)
     	log_msg(LOG_ERROR, "FAILED TO SENT TIPC MESSAGE %s\n", strerror(errno));
     } else {
     	rc = 1;
-    	log_msg(LOG_INFO, "TIPC Message sent successfully to %d\n", destAddr);
     }
 
     return rc;

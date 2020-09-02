@@ -270,6 +270,9 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     
         if (procedure_p->getCtxtType() != defaultMmeProcedure_c)
         {
+            // stop state guard timer if any running
+            MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
+
             rc = deleteProcedureCtxt(procedure_p);
         }
 
@@ -350,7 +353,7 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex, bool deleteContro
     UEContext* ueCtxt_p = static_cast<UEContext *>(cb_p->getPermDataBlock());
     if (ueCtxt_p == NULL)
     {
-        log_msg(LOG_DEBUG, "Failed to retrieve UEContext from control block %u", cbIndex);
+        log_msg(LOG_DEBUG, "Unable to retrieve UEContext from control block %u", cbIndex);
     }
     else
     {

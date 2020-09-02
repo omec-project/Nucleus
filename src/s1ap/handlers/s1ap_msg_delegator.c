@@ -40,7 +40,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
         ProtocolIE_Container_129P32_t* protocolIes = &msg->value.choice.InitialUEMessage.protocolIEs;
         proto_ies->no_of_IEs = protocolIes->list.count;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", proto_ies->no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), proto_ies->no_of_IEs);
         if(proto_ies->data == NULL) {
             log_msg(LOG_ERROR,"Calloc failed for protocol IE.");
@@ -84,7 +83,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU;
-                        log_msg(LOG_DEBUG, "NAS AVP size %d \n",s1apNASPDU_p->size);
 						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
 						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
 					} break;
@@ -219,8 +217,6 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
 
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Send s1ap message to mme-app. Msg size %d \n", S1_READ_MSG_BUF_SIZE);
-
 	free(proto_ies.data);
 	//TODO: free IEs
 	return SUCCESS;
@@ -256,7 +252,6 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
 
-	log_msg(LOG_INFO, "Send s1ap message to mme-app. Msg size %d \n", S1_READ_MSG_BUF_SIZE);
 
 	//TODO: free IEs
 	free(proto_ies.data);
@@ -266,7 +261,6 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 void
 handle_s1ap_message(void *msg)
 {
-    log_msg(LOG_INFO, "Inside handle_s1ap_message.\n");
     /*convert message from network to host*/
 
     /*Call handler for the procedure code. TBD: Tasks pool for handlers*/
@@ -274,10 +268,8 @@ handle_s1ap_message(void *msg)
     int enb_fd = 0;
     int msg_size = 0;
     memcpy(&enb_fd, msg, sizeof(int));
-    log_msg(LOG_INFO, "eNB FD %d\n", enb_fd);
 
     memcpy(&msg_size, msg + sizeof(int), sizeof(int));
-    log_msg(LOG_INFO, "Msg size %d\n", msg_size);
 
     char *message = ((char *) msg) + 2*sizeof(int);
     S1AP_PDU_t                              pdu = {(S1AP_PDU_PR_NOTHING)};
@@ -287,11 +279,12 @@ handle_s1ap_message(void *msg)
     dec_ret = aper_decode (NULL, &asn_DEF_S1AP_PDU, (void **)&pdu_p, message, msg_size, 0, 0);
 
     if (dec_ret.code != RC_OK) {
-        log_msg(LOG_ERROR, "ASN Decode PDU Failed\n");
+        log_msg(LOG_ERROR, "handle s1ap message ASN Decode PDU Failed\n");
         free(msg);
         return;
     }
 
+    log_msg(LOG_INFO, "handle s1ap message enb_fd = %d msg size = %d .\n",enb_fd, msg_size);
     switch (pdu_p->present) {
         case S1AP_PDU_PR_initiatingMessage:
             s1ap_mme_decode_initiating (pdu_p->choice.initiatingMessage, enb_fd);
@@ -313,8 +306,7 @@ handle_s1ap_message(void *msg)
 int
 s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 {
-    log_msg(LOG_DEBUG,"successful outcome decode :");
-    log_msg(LOG_INFO, "proc code %d\n", msg->procedureCode);
+  log_msg(LOG_DEBUG,"successful outcome decode :proc code %d\n", msg->procedureCode);
   switch (msg->procedureCode) {
 
 	case S1AP_INITIAL_CTX_RESP_CODE:
@@ -341,8 +333,7 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 int
 s1ap_mme_decode_unsuccessfull_outcome (UnsuccessfulOutcome_t *msg)
 {
-    log_msg(LOG_DEBUG,"unsuccessful outcome decode : TBD");
-    log_msg(LOG_INFO, "proc code %d\n", msg->procedureCode);
+    log_msg(LOG_DEBUG,"unsuccessful outcome decode : proc code %d\n", msg->procedureCode);
     switch (msg->procedureCode) {
 
       case S1AP_HANDOVER_RESOURCE_ALLOCATION_CODE:
@@ -359,9 +350,8 @@ s1ap_mme_decode_unsuccessfull_outcome (UnsuccessfulOutcome_t *msg)
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd) 
 {
-  log_msg(LOG_INFO, "proc code %d\n", initiating_p->procedureCode);
+  log_msg(LOG_INFO, "s1ap_mme_decode_initiating proc code %d\n", initiating_p->procedureCode);
   switch (initiating_p->procedureCode) {
-
 	case S1AP_SETUP_REQUEST_CODE:
 		s1_setup_handler(initiating_p, enb_fd);
 		break;
@@ -404,7 +394,6 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 		break;
 	}
 	
-  //free(msg);
 	return 0;
 }
 
@@ -420,7 +409,6 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if(proto_ies->data == NULL)
         {
@@ -480,7 +468,6 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU; 
-                        log_msg(LOG_DEBUG, "NAS AVP size %d and index = %d \n",s1apNASPDU_p->size, i);
 						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
 						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
 
@@ -549,7 +536,6 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if(proto_ies->data == NULL)
         {
@@ -688,7 +674,6 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if(proto_ies->data == NULL)
         {
@@ -758,7 +743,6 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if(proto_ies->data == NULL)
         {
@@ -883,7 +867,6 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1089,7 +1072,6 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1291,7 +1273,6 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1421,7 +1402,6 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1583,7 +1563,6 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1676,7 +1655,6 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         if (proto_ies->data == NULL)
         {
@@ -1791,7 +1769,6 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
         
         for (int i = 0; i < protocolIes->list.count; i++)
