@@ -10,8 +10,6 @@ FROM $BASE_OS AS builder
 WORKDIR /openmme
 COPY install_builddeps.sh .
 RUN ./install_builddeps.sh
-COPY install_prometheus.sh .
-RUN ./install_prometheus.sh
 #COPY . ./
 COPY Makefile Makefile.common ./
 COPY include/cmn ./include/cmn
