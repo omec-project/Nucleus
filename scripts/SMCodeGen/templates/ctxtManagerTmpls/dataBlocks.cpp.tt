@@ -53,86 +53,11 @@ namespace mme
 	}	
 	[%- FOREACH Data = DataBlock.Data %]
 	
-	/******************************************************************************
-	* sets [% Data.Name %]
-	******************************************************************************/
-	void [% dataBlockClassName %]::set[% String.new(Data.Name).capital.text() %]( [% ARG(Data,"set") %] )
-	{
-	[%-IF Data.Cardinality=='' %]
-		[% Data.Name %]_m = [% Data.Name %]_i;
-	[%-ELSE%]
-		[% Data.Name %]Len_m=len;
-		memcpy([% Data.Name %]_m, [% Data.Name %]_i, ([% Data.Name %]Len_m * sizeof([% Data.Type %])));
-	[%- END %]
-	}
-	
-	/******************************************************************************
-	* returns [% Data.Name %]
-	******************************************************************************/	
-	[%- getterTypeStr = ARG(Data,"get") %] [%- functionModifier = " const" %]
-        [%- IF !getterTypeStr.grep('const').size && getterTypeStr.grep('&').size == 1 %][%- functionModifier = "" %][%- END %]
-        [% getterTypeStr %] [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]()[% functionModifier %]
-        {
-                return [% Data.Name %]_m;
-        }
-	[%-UNLESS Data.Properties =='' %]
-	[%- FOREACH Property = Data.Properties %]
-	[%-IF Property.metrics == "counter" %]
-    
-	/******************************************************************************
-	* increment [% Data.Name %]
-	******************************************************************************/	
-	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
-	{
-		[% Data.Name %]_m = [% Data.Name %]_m + 1;
-	}
-    	[%-ELSIF Property.metrics == "gauge" %]
-    
-	/******************************************************************************
-	* increment [% Data.Name %]
-	******************************************************************************/	
-	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
-	{
-		[% Data.Name %]_m = [% Data.Name %]_m + 1;
-	}
-
-	/******************************************************************************
-	* decrement [% Data.Name %]
-	******************************************************************************/	
-	void [% dataBlockClassName %]::decrement[% String.new(Data.Name).capital.text() %]()
-	{
-		[% Data.Name %]_m = [% Data.Name %]_m - 1;
-	}
-	[%- END %]   
-	[%- END %][%- END %]
-
-	[%-UNLESS Data.Cardinality=='' %]
-	/******************************************************************************
-	* returns [% Data.Name %]Len
-	******************************************************************************/	
-	uint16_t [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]Len() const
-	{
-		return [% Data.Name %]Len_m;
-	}
-	[%- END %]
+[% INCLUDE templates/ctxtManagerTmpls/getterSetterAPICpp.tt %]
 	[%- END %]
 	
-	[%- FOREACH Child = DataBlock.Children %]
-	/******************************************************************************
-	* sets [% Child %]
-	******************************************************************************/
-	void [% dataBlockClassName %]::set[% Child %]( [% Child %]* [% Child %]p )
-	{
-		[% Child %]_mp = [% Child %]p;
-	}
-	
-	/******************************************************************************
-	* returns [% Child %]
-	******************************************************************************/
-	[% Child %]* [% dataBlockClassName %]::get[% Child %]()
-	{
-		return [% Child %]_mp;
-	}
+	[%- FOREACH Item = DataBlock.Children %]
+[%- INCLUDE templates/ctxtManagerTmpls/childAPICpp.tt %]
 [%- END %]
 [%- END %]
 [%- END %]

@@ -314,6 +314,11 @@ void Fteid::operator = ( const Fteid& fteid_i )
 	memcpy( &fteid_m, &(fteid_i.fteid_m), sizeof( fteid_i.fteid_m ));
 }
 
+bool Fteid::operator==(const Fteid& fteid_i) const
+{
+    return (memcmp(&fteid_m, &(fteid_i.fteid_m), sizeof( fteid_i.fteid_m )) == 0);
+}
+
 /*******************************************************
 *Paa
 ********************************************************/
@@ -360,6 +365,10 @@ void Apn_name::operator = ( const Apn_name& apn_name_i )
 	memcpy( &apnname_m, &(apn_name_i.apnname_m), sizeof( apn_name_i.apnname_m ));
 }
 
+bool Apn_name::operator==(const Apn_name& apn_name_i) const
+{
+    return (memcmp(&apnname_m, &(apn_name_i.apnname_m), sizeof( apn_name_i.apnname_m )) == 0);
+}
 
 /*******************************************************
 *Auts

@@ -24,14 +24,16 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
 		S1HandoverProcedureContext& procCtxt,
 		struct handover_request_Q_msg& hoReq)
 {
-    SessionContext *sessionCtxt = ueCtxt.getSessionContext();
-    if (sessionCtxt == NULL)
+    auto& sessionCtxtContainer = ueCtxt.getSessionContextContainer();
+    if(sessionCtxtContainer.size() < 1)
     {
         log_msg(LOG_DEBUG,
-                " send_ho_request_to_target_enb: session ctxt is NULL \n");
-        return;
+		" send_ho_request_to_target_enb:Session context list is empty\n");
+	return;
     }
-    BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
+
+    SessionContext* sessionCtxt = sessionCtxtContainer.front();
+    BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
     if (bearerCtxt == NULL)
     {
         log_msg(LOG_ERROR, "Failed to retrieve Bearer context for UE IDx %d\n",

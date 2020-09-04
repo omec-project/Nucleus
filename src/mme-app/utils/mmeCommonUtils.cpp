@@ -5,6 +5,7 @@
  */
 
 #include <utils/mmeCommonUtils.h>
+#include <cmath>
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>

@@ -10,8 +10,27 @@
 						"BlockType": "Permanent",
 						"Parent": "None",
 						"Children": [
-							"MmContext",
-							"SessionContext"
+							{
+								"Name": "MmContext"
+							},
+							{
+								"Name":"SessionContext",
+								"Type": "std::list<SessionContext*>",
+								"Cardinality": "15",
+								"Properties":
+								{
+									"FindBy":[
+										{
+											"Name": "accessPtName",
+											"Type": "Apn_name"
+										},
+										{
+											"Name": "linkedBearerId",
+											"Type": "uint8_t"
+										}
+									]
+								}
+							}
 						],
 						"PoolSize": "8000",
 						"Cardinality": "1",
@@ -77,7 +96,7 @@
 							{
 								"Name": "ueSecInfo",
 								"Type": "Secinfo",
-								"Properties" : [ {"accessor":"mutable"}]
+								"Properties" : {"accessor":"mutable"}
 							},
 							{
 								"Name": "ambr",
@@ -109,12 +128,16 @@
 								"Type": "bool"
 							},
 							{
-                                                                "Name": "hssFeatList2",
-                                                                "Type": "supported_features"
-                                                        },
+                                				"Name": "hssFeatList2",
+                                				"Type": "supported_features"
+                            				},
 							{
 								"Name": "dcnrCapable",
 								"Type": "bool"
+							},
+							{
+								"Name": "bearerIdBitMap",
+								"Type": "uint16_t" 
 							}
 						]
 					},
@@ -143,13 +166,34 @@
 						"BlockType": "Permanent",
 						"Parent": "UEContext",
 						"Children": [
-							"BearerContext"
+							{
+								"Name": "BearerContext",
+								"Type": "std::list<BearerContext*>",
+								"Cardinality": "15",
+								"Properties":
+								{
+									"FindBy":[
+										{
+											"Name": "bearerId",
+											"Type": "uint8_t"
+										},
+										{
+											"Name": "s1uSgwUserFteid",
+											"Type": "Fteid"
+										}
+									]
+								}
+							}
 						],
 						"PoolSize": "8000",
 						"Cardinality": "3",
 						"Data": [
 							{
 								"Name": "sessionId",
+								"Type": "uint8_t"
+							},
+							{
+								"Name": "linkedBearerId",
 								"Type": "uint8_t"
 							},
 							{

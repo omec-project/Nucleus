@@ -214,6 +214,7 @@ class Fteid
 		Fteid( const fteid& fteid_i );
 		~Fteid();
 		void operator = ( const Fteid& fteid_i );
+		bool operator == (const Fteid& fteid_i) const;
 	public:
 		fteid fteid_m;
 };
@@ -236,6 +237,7 @@ class Apn_name
 		Apn_name( const apn_name& apn_name_i );
 		~Apn_name();
 		void operator = ( const Apn_name& apn_name_i );
+		bool operator== (const Apn_name& apn_name_i) const;
 	public:
 		apn_name apnname_m;
 };

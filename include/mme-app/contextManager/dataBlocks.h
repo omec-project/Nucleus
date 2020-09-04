@@ -15,6 +15,8 @@
  ***************************************/
 #include "permDataBlock.h"
 #include "tempDataBlock.h"
+#include <algorithm>
+#include <list>
 #include <structs.h>
 #include <utils/mmeCauseTypes.h>
 #include <utils/mmeProcedureTypes.h>
@@ -340,6 +342,18 @@ namespace mme
 			bool getDcnrCapable()const;			
 			
 			/****************************************
+			* setBearerIdBitMap
+			*    set bearerIdBitMap to UEContext
+			****************************************/
+			void setBearerIdBitMap(uint16_t bearerIdBitMap_i);
+			
+			/****************************************
+			* getBearerIdBitMap
+			*    get bearerIdBitMap from UEContext
+			****************************************/
+			uint16_t getBearerIdBitMap()const;			
+			
+			/****************************************
 			* setMmContext
 			*    set MmContext to UEContext
 			****************************************/
@@ -350,19 +364,37 @@ namespace mme
 			*    get MmContext to UEContext
 			****************************************/
 			MmContext* getMmContext();
+
+			/****************************************
+			* addSessionContext
+			*    add SessionContext to UEContext
+			****************************************/
+			bool addSessionContext(SessionContext* SessionContext_i);
 			
 			/****************************************
-			* setSessionContext
-			*    set SessionContext to UEContext
+			* removeSessionContext
+			*    remove SessionContext from UEContext
 			****************************************/
-			void setSessionContext( SessionContext* SessionContextp ) ;
+			void removeSessionContext(SessionContext* SessionContext_i);
 			
 			/****************************************
-			* getSessionContext
-			*    get SessionContext to UEContext
+			* findSessionContextByAccessPtName
+			*    find SessionContext ByAccessPtName
 			****************************************/
-			SessionContext* getSessionContext();
+			SessionContext* findSessionContextByAccessPtName(const Apn_name& accessPtName_i);
 			
+			/****************************************
+			* findSessionContextByLinkedBearerId
+			*    find SessionContext ByLinkedBearerId
+			****************************************/
+			SessionContext* findSessionContextByLinkedBearerId(uint8_t linkedBearerId_i);
+			
+			/****************************************
+			* getSessionContextContainer
+			*    get SessionContextContainer to UEContext
+			****************************************/
+			std::list<SessionContext*>& getSessionContextContainer();
+
 		
 		private:
 		
@@ -438,11 +470,14 @@ namespace mme
 			// DataName
 			bool dcnrCapable_m;
 			
+			// DataName
+			uint16_t bearerIdBitMap_m;
+			
 			// MmContext
 			MmContext* MmContext_mp;
 			
 			// SessionContext
-			SessionContext* SessionContext_mp;
+			std::list<SessionContext*> SessionContext_m;
 			
 	};
 	 
@@ -524,6 +559,18 @@ namespace mme
 			*    get sessionId from SessionContext
 			****************************************/
 			uint8_t getSessionId()const;			
+			
+			/****************************************
+			* setLinkedBearerId
+			*    set linkedBearerId to SessionContext
+			****************************************/
+			void setLinkedBearerId(uint8_t linkedBearerId_i);
+			
+			/****************************************
+			* getLinkedBearerId
+			*    get linkedBearerId from SessionContext
+			****************************************/
+			uint8_t getLinkedBearerId()const;			
 			
 			/****************************************
 			* setS11SgwCtrlFteid
@@ -610,22 +657,43 @@ namespace mme
 			const Ambr& getApnAmbr()const;			
 			
 			/****************************************
-			* setBearerContext
-			*    set BearerContext to SessionContext
+			* addBearerContext
+			*    add BearerContext to SessionContext
 			****************************************/
-			void setBearerContext( BearerContext* BearerContextp ) ;
+			bool addBearerContext(BearerContext* BearerContext_i);
 			
 			/****************************************
-			* getBearerContext
-			*    get BearerContext to SessionContext
+			* removeBearerContext
+			*    remove BearerContext from SessionContext
 			****************************************/
-			BearerContext* getBearerContext();
+			void removeBearerContext(BearerContext* BearerContext_i);
 			
+			/****************************************
+			* findBearerContextByBearerId
+			*    find BearerContext ByBearerId
+			****************************************/
+			BearerContext* findBearerContextByBearerId(uint8_t bearerId_i);
+			
+			/****************************************
+			* findBearerContextByS1uSgwUserFteid
+			*    find BearerContext ByS1uSgwUserFteid
+			****************************************/
+			BearerContext* findBearerContextByS1uSgwUserFteid(const Fteid& s1uSgwUserFteid_i);
+			
+			/****************************************
+			* getBearerContextContainer
+			*    get BearerContextContainer to SessionContext
+			****************************************/
+			std::list<BearerContext*>& getBearerContextContainer();
+
 		
 		private:
 		
 			// DataName
 			uint8_t sessionId_m;
+			
+			// DataName
+			uint8_t linkedBearerId_m;
 			
 			// DataName
 			Fteid s11SgwCtrlFteid_m;
@@ -649,7 +717,7 @@ namespace mme
 			Ambr apnAmbr_m;
 			
 			// BearerContext
-			BearerContext* BearerContext_mp;
+			std::list<BearerContext*> BearerContext_m;
 			
 	};
 	 

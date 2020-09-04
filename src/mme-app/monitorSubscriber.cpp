@@ -27,7 +27,6 @@ extern "C"
 #include <unix_conn.h>
 }
 
-
 using namespace mme;
 
 /**
@@ -54,9 +53,10 @@ void MonitorSubscriber::handle_monitor_imsi_req(struct monitor_imsi_req *mir, in
                 {
                     if (mmCtxt_p->getMmState() == EpsAttached)
                     {
-                        SessionContext* sessCtxt_p = ueCtxt_p->getSessionContext();
-                        if (sessCtxt_p != NULL)
-                        {
+                    	auto& sessionCtxtContainer = ueCtxt_p->getSessionContextContainer();
+                    	if(sessionCtxtContainer.size() > 0)
+                    	{
+                    	    SessionContext* sessCtxt_p = sessionCtxtContainer.front();
                             mia.result = 1;
                             mia.ue_state = mmCtxt_p->getEcmState();
                             mia.bearer_id = 5;

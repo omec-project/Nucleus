@@ -282,9 +282,10 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ueCtxt != NULL)
     {
-        SessionContext *sess_p = ueCtxt->getSessionContext();
-        if (sess_p != NULL)
-        {
+	auto& sessionCtxtContainer = ueCtxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() > 0)
+	{
+    	    SessionContext* sess_p = sessionCtxtContainer.front();
 	    /*We will fetch the s11_sgw_cp_teid from the session context if it's available*/
             sgw_cp_teid = sess_p->getS11SgwCtrlFteid().fteid_m.header.teid_gre;
 
