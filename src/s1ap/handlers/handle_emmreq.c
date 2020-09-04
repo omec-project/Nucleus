@@ -149,9 +149,8 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 		    g_ueEmmInfoMsg->enb_s1ap_ue_id, g_ueEmmInfoMsg->mme_s1ap_ue_id);
 
     log_msg(LOG_INFO, "EMM info request : Buffer size %d g_ueEmmInfoMsg = %p \n", g_buffer.pos,g_ueEmmInfoMsg);
-    int res = send_sctp_msg(g_ueEmmInfoMsg->enb_fd, g_buffer.buf, g_buffer.pos, 1);
-    
-    log_msg(LOG_INFO, "EMM Info Message sent to UE %d\n", res);
+
+    send_sctp_msg(g_ueEmmInfoMsg->enb_fd, g_buffer.buf, g_buffer.pos, 1);
     
     return SUCCESS;
 }

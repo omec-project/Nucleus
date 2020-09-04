@@ -6,9 +6,10 @@
 
 #ifndef INCLUDE_MME_APP_UTILS_MMEPROCEDURETYPES_H_
 #define INCLUDE_MME_APP_UTILS_MMEPROCEDURETYPES_H_
-
+#include <list>
 namespace mme
 {
+
  enum AttachType
  {
 	 invalidAttachType_c,

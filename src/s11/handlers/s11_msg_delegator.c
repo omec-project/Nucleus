@@ -106,8 +106,6 @@ parse_gtpv2c_IEs(char *msg, int len, struct s11_proto_IE *proto_ies)
 		log_msg(LOG_INFO, "No IEs recvd in message\n");
 		return SUCCESS;
 	}
-	log_msg(LOG_INFO, "No of IEs - %d\n", proto_ies->no_of_ies);
-
 	/*allocated IEs for message*/
 	proto_ies->s11_ies = (struct s11_IE*)calloc(sizeof(struct s11_IE),
 				proto_ies->no_of_ies);

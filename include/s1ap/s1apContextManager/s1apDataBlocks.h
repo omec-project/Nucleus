@@ -97,6 +97,24 @@ namespace mme
 			****************************************/
 			const TAI& getTai()const;			
 			
+			/****************************************
+			* setEnbname
+			*    set enbname to EnbContext
+			****************************************/
+			void setEnbname(const char* enbname_i,uint16_t len);
+			
+			/****************************************
+			* getEnbname
+			*    get enbname from EnbContext
+			****************************************/
+			const char* getEnbname()const;
+
+			/****************************************
+			* getEnbnameLen
+			*    get enbnameLen from EnbContext
+			****************************************/
+			uint16_t getEnbnameLen()const;				
+			
 		
 		private:
 		
@@ -114,6 +132,11 @@ namespace mme
 			
 			// DataName
 			TAI tai_m;
+			
+			// DataName
+			uint16_t enbnameLen_m;
+			char enbname_m[256];
+			
 			
 	};
 	
