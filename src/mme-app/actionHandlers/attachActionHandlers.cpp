@@ -260,8 +260,11 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
-    SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
-    VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "SessionContainer is empty \n");
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
@@ -558,16 +561,10 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	VERIFY(procedure_p, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
-	SessionContext* sessionCtxt = SubsDataGroupManager::Instance()->getSessionContext();
+	SessionContext* sessionCtxt = MmeContextManagerUtils::allocateSessionContext(cb, *ue_ctxt);
 	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 
-	BearerContext* bearerCtxt_p = SubsDataGroupManager::Instance()->getBearerContext();
-	VERIFY(bearerCtxt_p, return ActStatus::ABORT, "Bearer context is NULL \n");
-
-	bearerCtxt_p->setBearerId(5);
 	sessionCtxt->setPti(procedure_p->getPti());
-	sessionCtxt->setBearerContext( bearerCtxt_p );
-	ue_ctxt->setSessionContext(sessionCtxt);
 	
 	if (procedure_p->getEsmInfoTxRequired() == false)
 	{
@@ -588,7 +585,14 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
-	SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
+	{
+		log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n", cb.getCBIndex());
+		return ActStatus::HALT;
+	}
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	esm_req_Q_msg esmreq;
 	esmreq.msg_type = esm_info_request;
 	esmreq.ue_idx = ue_ctxt->getContextID();
@@ -662,10 +666,13 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
-   	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-   	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "Sessions Container is empty\n");
 
-	BearerContext* bearerCtxt_p = sessionCtxt->getBearerContext();
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
+
+	BearerContext* bearerCtxt_p = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt_p, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	struct CS_Q_msg cs_msg;
@@ -771,8 +778,11 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	VERIFY(procedure_p, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	VERIFY(procedure_p, return ActStatus::ABORT, "Session Context is NULL \n");
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "Sessions Container is empty\n");
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
@@ -789,7 +799,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
        	return ActStatus::ABORT;
     }
 
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
@@ -835,7 +845,10 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		SubsDataGroupManager::Instance()->addmTmsikey(mTmsi, ue_ctxt->getContextID());
 	}
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "Sessions Container is empty\n");
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 
 	/* 33.401 7.2.6.2	Establishment of keys for cryptographically protected 
@@ -860,8 +873,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 
 	icr_msg.exg_max_dl_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_dl;
 	icr_msg.exg_max_ul_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_ul;
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
-	VERIFY(procedure_p, return ActStatus::ABORT, "Bearer Context is NULL \n");
+
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	icr_msg.bearer_id = bearerCtxt->getBearerId();
 
@@ -954,8 +968,11 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	VERIFY(sessionCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "Sessions Container is empty\n");
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 	
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
@@ -969,8 +986,8 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	S1uEnbUserFteid.header.teid_gre = ics_res.gtp_teid;
 	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.transp_layer_addr;
 	
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
-	VERIFY(bearerCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
 
@@ -987,16 +1004,20 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
-	SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-	VERIFY(sessionCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	VERIFY(sessionCtxtContainer.size() > 0, return ActStatus::ABORT, "Sessions Container is empty\n");
+
+	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 	
 	struct MB_Q_msg mb_msg;
 	mb_msg.msg_type = modify_bearer_request;
 	mb_msg.ue_idx = ue_ctxt->getContextID();
 	
 	memset(mb_msg.indication, 0, S11_MB_INDICATION_FLAG_SIZE); /*TODO : future*/
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
-	VERIFY(bearerCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	mb_msg.bearer_id = bearerCtxt->getBearerId();
 

@@ -50,7 +50,6 @@ namespace mme
 
 		static bool isEmmInfoRequired(SM::ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt);
 
-
 	private:
 		MmeCommonUtils();
 		~MmeCommonUtils();

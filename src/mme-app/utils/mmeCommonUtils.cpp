@@ -5,6 +5,7 @@
  */
 
 #include <utils/mmeCommonUtils.h>
+#include <cmath>
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
 #include <contextManager/subsDataGroupManager.h>
@@ -349,6 +350,3 @@ bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeP
 	}
 	return rc;
 }
-
-
-
