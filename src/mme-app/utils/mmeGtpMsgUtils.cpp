@@ -24,7 +24,7 @@ void MmeGtpMsgUtils::populateModifyBearerRequestHo(SM::ControlBlock& cb,
 	mbMsg.ue_idx = ueCtxt.getContextID();
     memset(mbMsg.indication, 0, S11_MB_INDICATION_FLAG_SIZE);
 
-    BearerContext *bearerCtxt = sessionCtxt.getBearerContext();
+    BearerContext *bearerCtxt = sessionCtxt.findBearerContextByBearerId(sessionCtxt.getLinkedBearerId());
     if (bearerCtxt == NULL)
     {
         log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho: bearer ctxt is NULL \n");

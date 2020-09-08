@@ -128,7 +128,6 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 		{
 			S1SetupRequestIEs_t *ie_p;
 			ie_p = protocolIes->list.array[i];
-			log_msg(LOG_INFO, "s1setup %d \n", ie_p->id);
 			switch(ie_p->id)
 			{
 				case ProtocolIE_ID_id_Global_ENB_ID:
@@ -165,6 +164,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 				{
 					ENBname_t *eNbName = &ie_p->value.choice.ENBname;
 					log_msg(LOG_DEBUG, "S1 Setup Message with eNB name %s \n", eNbName->buf);
+                    strcpy(enbStruct.eNbName, eNbName->buf);
 					break;
 				}
 				

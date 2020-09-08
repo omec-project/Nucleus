@@ -137,12 +137,14 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
 	    return ActStatus::HALT;
 	}
 
-    	SessionContext* sess_p = ue_ctxt->getSessionContext();
-    	if (sess_p == NULL)
-    	{
-            log_msg(LOG_DEBUG, "send_ddn_ack_to_sgw: sessionContext is NULL \n");
-            return ActStatus::HALT;
-        }
+	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+	if(sessionCtxtContainer.size() < 1)
+	{
+	    log_msg(LOG_DEBUG, "send_ddn_ack_to_sgw:Session context list is empty\n");
+	    return ActStatus::HALT;
+	}
+
+	SessionContext* sess_p = sessionCtxtContainer.front();
 
 	DDN_ACK_Q_msg ddn_ack;
 	ddn_ack.msg_type = ddn_acknowledgement;
@@ -180,12 +182,14 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
                 return ActStatus::HALT;
         }
 
-        SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-        if (sessionCtxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue_svc_req : session ctxt is NULL \n");
-                return ActStatus::HALT;
-        }
+    	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    	if(sessionCtxtContainer.size() < 1)
+    	{
+    		log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue_svc_req : Session context list is empty\n");
+    		return ActStatus::HALT;
+    	}
+
+    	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 
         unsigned int nas_count = 0;
         E_UTRAN_sec_vector* secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
@@ -202,7 +206,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
 
         icr_msg.ueag_max_ul_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_dl;
         icr_msg.ueag_max_dl_bitrate = (ue_ctxt->getAmbr().ambr_m).max_requested_bw_ul;
-        BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+        BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
         icr_msg.bearer_id = bearerCtxt->getBearerId();
 
         
@@ -240,12 +244,14 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
                 return ActStatus::HALT;
         }
 
-        SessionContext* sessionCtxt = ue_ctxt->getSessionContext();
-        if (sessionCtxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "process_init_ctxt_resp_svc_req: session ctxt is NULL \n");
-                return ActStatus::HALT;
-        }
+    	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    	if(sessionCtxtContainer.size() < 1)
+    	{
+    		log_msg(LOG_DEBUG, "process_init_ctxt_resp_svc_req:Session context list is empty\n");
+    		return ActStatus::HALT;
+    	}
+
+    	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 
         MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
@@ -261,7 +267,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
         S1uEnbUserFteid.header.teid_gre = ics_res.gtp_teid;
         S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.transp_layer_addr;
 	
-	BearerContext* bearerCtxt = sessionCtxt->getBearerContext();
+	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	if (bearerCtxt)
 		bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
 
@@ -295,11 +301,12 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
 
     if (procCtxt != NULL)
     {
-        SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
-        if (sessionCtxt != NULL)
-        {
+    	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    	if(sessionCtxtContainer.size() > 0)
+    	{
+    		SessionContext* sessionCtxt = sessionCtxtContainer.front();
             //TODO: Support dedicated bearers
-            BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
+            BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
             if (bearerCtxt != NULL)  // if bearers > 0
             {
                 struct MB_Q_msg mb_msg;
@@ -417,11 +424,12 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
         }
         else
         {
-            SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
-            if (sessionCtxt != NULL)
-            {
+        	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+        	if(sessionCtxtContainer.size() > 0)
+        	{
+        		SessionContext* sessionCtxt = sessionCtxtContainer.front();
                 //TODO: Support dedicated bearers
-                BearerContext *bearerCtxt = sessionCtxt->getBearerContext();
+                BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
                 if (bearerCtxt != NULL)
                 {
                     if (procCtxt->getCtxtType() == erabModInd_c)

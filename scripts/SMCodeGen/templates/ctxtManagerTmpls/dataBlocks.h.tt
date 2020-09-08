@@ -18,10 +18,13 @@
  ***************************************/
 #include "permDataBlock.h"
 #include "tempDataBlock.h"
-
-[%- FOREACH header IN includeList.split(',') -%]
+[%- FOREACH DataGroup = DataStore.DataGroups %]
+[%- INCLUDES(DataGroup) %]
+[%- END %]
+[%- FOREACH header IN includeList.split(',') %]
 #include <[% header %]>
-[% END %]
+[%- END %]
+
 namespace mme
 {
 	[%- FOREACH DataGroup = DataStore.DataGroups %]
@@ -53,66 +56,12 @@ namespace mme
 			~[% dataBlockClassName %]();
 			[%- FOREACH Data = DataBlock.Data %]
 			
-			/****************************************
-			* set[% String.new(Data.Name).capital.text() %]
-			*    set [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void set[% String.new(Data.Name).capital.text() %]([% ARG(Data,"set") %]);
-			
-			/****************************************
-			* get[% String.new(Data.Name).capital.text() %]
-			*    get [% Data.Name %] from [% dataBlockClassName %]
-			****************************************/
-			[%- getterTypeStr = ARG(Data,"get") %] [%- functionModifier = "const;" %]
-			[%- IF !getterTypeStr.grep('const').size && getterTypeStr.grep('&').size == 1 %][%- functionModifier = ";" %][%- END %]
-			[% getterTypeStr %] get[% String.new(Data.Name).capital.text() %]()[% functionModifier %]
-			[%- UNLESS Data.Properties =='' %]
-          		[%- FOREACH Property = Data.Properties %]
-          		[%-IF Property.metrics == "counter" %]
-		
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-          		[%-ELSIF Property.metrics == "gauge" %]
-            
-			/****************************************
-			* increment[% String.new(Data.Name).capital.text() %]
-			*    increment [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void increment[% String.new(Data.Name).capital.text() %]();
-            
-			/****************************************
-			* decrement[% String.new(Data.Name).capital.text() %]
-			*    decrement [% Data.Name %] to [% dataBlockClassName %]
-			****************************************/
-			void decrement[% String.new(Data.Name).capital.text() %]();
-         	 	[%- END -%]
-          		[%- END %][%- END %]
-			[%-UNLESS Data.Cardinality=='' %]
-
-			/****************************************
-			* get[% String.new(Data.Name).capital.text() %]Len
-			*    get [% Data.Name %]Len from [% dataBlockClassName %]
-			****************************************/
-			uint16_t get[% String.new(Data.Name).capital.text() %]Len()const;	
-			[%- END %]			
+[% INCLUDE templates/ctxtManagerTmpls/getterSetterAPIHeader.tt %]
 			[%- END %]
 			
 			[%- FOREACH Child = DataBlock.Children %]
-			/****************************************
-			* set[% Child %]
-			*    set [% Child %] to [% dataBlockClassName %]
-			****************************************/
-			void set[% Child %]( [% Child %]* [% Child %]p ) ;
-			
-			/****************************************
-			* get[% Child %]
-			*    get [% Child %] to [% dataBlockClassName %]
-			****************************************/
-			[% Child %]* get[% Child %]();
-			[% END %]
+[%- INCLUDE templates/ctxtManagerTmpls/childAPIHeader.tt %]
+			[%- END %]
 		
 		private:
 		
@@ -131,8 +80,15 @@ namespace mme
 			[% END %]
 			[% END %]
 			[%- FOREACH Child = DataBlock.Children %]
-			// [% Child %]
-			[% Child %]* [% Child %]_mp;
+			// [% Child.Name %]
+			[%- IF Child.Type != '' %]
+			[%- IF Child.Type.search('std\:\:array') %]
+			uint16_t [% Child.Name %]Count_m;
+			[%- END %]
+			[% Child.Type %] [% Child.Name %]_m;
+			[%-ELSE%]
+			[% Child.Name %]* [% Child.Name %]_mp;
+			[%- END %]
 			[% END %]
 	};
 	[% END %]

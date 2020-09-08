@@ -326,13 +326,14 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
         log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL \n");
         return ActStatus::HALT;
     }
-    SessionContext *sessionCtxt = ue_ctxt->getSessionContext();
-    if (sessionCtxt == NULL)
+    auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    if(sessionCtxtContainer.size() < 1)
     {
-        log_msg(LOG_DEBUG,
-                "send_mb_req_to_sgw_for_ho: session ctxt is NULL \n");
-        return ActStatus::HALT;
+	log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho:Session context list empty\n");
+	return ActStatus::HALT;
     }
+
+    SessionContext* sessionCtxt = sessionCtxtContainer.front();
 
     struct MB_Q_msg mb_msg;
     memset(&mb_msg, 0, sizeof(struct MB_Q_msg));

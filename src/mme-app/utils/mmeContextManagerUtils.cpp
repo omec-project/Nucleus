@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <cmath>
 #include <controlBlock.h>
 #include <contextManager/subsDataGroupManager.h>
 #include <log.h>
@@ -15,8 +16,14 @@
 #include <mmeStates/erabModIndStart.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <mmeStates/intraS1HoStart.h>
+#include <utils/mmeCommonUtils.h>
 #include <utils/mmeTimerUtils.h>
 #include "mmeStatsPromClient.h"
+
+#define BEARER_ID_OFFSET    4
+#define FIRST_SET_BIT(bits)    log2(bits & -bits) + 1
+#define CLEAR_BIT(bits,pos)      bits &= ~(1 << pos)
+#define SET_BIT(bits,pos)        bits |= (1 << pos)
 
 using namespace mme;
 
@@ -110,6 +117,24 @@ MmeContextManagerUtils::allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r)
         prcdCtxt_p->setCtxtType(ProcedureType::erabModInd_c);
         prcdCtxt_p->setNextState(ErabModIndStart::Instance());
 
+        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateHoProcedureCtxt: Entry");
+
+    S1HandoverProcedureContext *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
+    if (prcdCtxt_p != NULL)
+    {
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
+        prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
+        prcdCtxt_p->setHoType(intraMmeS1Ho_c);
         cb_r.setCurrentTempDataBlock(prcdCtxt_p);
     }
 
@@ -270,6 +295,9 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     
         if (procedure_p->getCtxtType() != defaultMmeProcedure_c)
         {
+            // stop state guard timer if any running
+            MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
+
             rc = deleteProcedureCtxt(procedure_p);
         }
 
@@ -303,35 +331,32 @@ MmeProcedureCtxt* MmeContextManagerUtils::findProcedureCtxt(SM::ControlBlock& cb
     return mmeProcCtxt_p;
 }
 
-void MmeContextManagerUtils::deleteSessionContext(SM::ControlBlock& cb_r)
+void MmeContextManagerUtils::deleteAllSessionContext(SM::ControlBlock& cb_r)
 {
-    UEContext* ueCtxt_p = static_cast<UEContext *>(cb_r.getPermDataBlock());
+    UEContext *ueCtxt_p = static_cast<UEContext*>(cb_r.getPermDataBlock());
     if (ueCtxt_p == NULL)
     {
-        log_msg(LOG_DEBUG, "Failed to retrieve UEContext from control block %u", cb_r.getCBIndex());
+        log_msg(LOG_DEBUG, "Failed to retrieve UEContext from control block %u",
+                cb_r.getCBIndex());
         return;
     }
 
-    SessionContext* sessCtxt_p = ueCtxt_p->getSessionContext();
-    if (sessCtxt_p == NULL)
+    auto &sessionCtxtContainer = ueCtxt_p->getSessionContextContainer();
+    if (sessionCtxtContainer.size() < 1)
     {
-        log_msg(LOG_DEBUG, "Failed to retrieve SessionContext from UEContext %u", cb_r.getCBIndex());
+        log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n",
+                cb_r.getCBIndex());
         return;
     }
 
-    BearerContext* bearerCtxt_p = sessCtxt_p->getBearerContext();
-    if(bearerCtxt_p != NULL)
+    auto it = sessionCtxtContainer.begin();
+    SessionContext *session_p = NULL;
+    while (it != sessionCtxtContainer.end())
     {
-        log_msg(LOG_INFO, "Deallocating bearer context for UE block %u", cb_r.getCBIndex());
-
-        SubsDataGroupManager::Instance()->deleteBearerContext(bearerCtxt_p);
-        sessCtxt_p->setBearerContext(NULL);
+        session_p = *it;
+        it++;
+        deallocateSessionContext(cb_r, session_p, ueCtxt_p);
     }
-
-    log_msg(LOG_INFO, "Deallocating session context for UE block %u", cb_r.getCBIndex());
-
-    SubsDataGroupManager::Instance()->deleteSessionContext(sessCtxt_p);
-    ueCtxt_p->setSessionContext(NULL);
 }
 
 void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag)
@@ -345,12 +370,12 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex, bool deleteContro
 
     deallocateAllProcedureCtxts(*cb_p);
 
-    deleteSessionContext(*cb_p);
+    deleteAllSessionContext(*cb_p);
 
     UEContext* ueCtxt_p = static_cast<UEContext *>(cb_p->getPermDataBlock());
     if (ueCtxt_p == NULL)
     {
-        log_msg(LOG_DEBUG, "Failed to retrieve UEContext from control block %u", cbIndex);
+        log_msg(LOG_DEBUG, "Unable to retrieve UEContext from control block %u", cbIndex);
     }
     else
     {
@@ -376,21 +401,107 @@ void MmeContextManagerUtils::deleteUEContext(uint32_t cbIndex, bool deleteContro
         SubsDataGroupManager::Instance()->deAllocateCB(cb_p->getCBIndex());
 }
 
-S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::ControlBlock& cb_r)
+SessionContext*
+MmeContextManagerUtils::allocateSessionContext(SM::ControlBlock &cb_r,
+        UEContext &ueCtxt)
 {
-    log_msg(LOG_DEBUG, "allocateHoProcedureCtxt: Entry");
-
-    S1HandoverProcedureContext *prcdCtxt_p =
-            SubsDataGroupManager::Instance()->getS1HandoverProcedureContext();
-    if (prcdCtxt_p != NULL)
+    SessionContext *sessionCtxt_p =
+            SubsDataGroupManager::Instance()->getSessionContext();
+    if (sessionCtxt_p != NULL)
     {
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC);
-        prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
-        prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
-        prcdCtxt_p->setHoType(intraMmeS1Ho_c);
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        BearerContext *bearerCtxt_p =
+                MmeContextManagerUtils::allocateBearerContext(cb_r, ueCtxt,
+                        *sessionCtxt_p);
+        if (bearerCtxt_p == NULL)
+        {
+            log_msg(LOG_DEBUG, "Failed to allocate bearer context");
+
+            SubsDataGroupManager::Instance()->deleteSessionContext(
+                    sessionCtxt_p);
+
+            return NULL;
+        }
+        sessionCtxt_p->setLinkedBearerId(bearerCtxt_p->getBearerId());
+        ueCtxt.addSessionContext(sessionCtxt_p);
+    }
+    return sessionCtxt_p;
+}
+
+BearerContext*
+MmeContextManagerUtils::allocateBearerContext(SM::ControlBlock &cb_r,
+        UEContext &uectxt, SessionContext &sessionCtxt)
+{
+    BearerContext *bearerCtxt_p = NULL;
+    uint16_t bitmap = uectxt.getBearerIdBitMap();
+
+    // 0x7FF : All bearers ids are allocated.
+    uint8_t id = (bitmap == 0x7FF) ? 0 : (FIRST_SET_BIT(~bitmap));
+    if (id > 0 && id <= 11)
+    {
+        bearerCtxt_p = SubsDataGroupManager::Instance()->getBearerContext();
+        if (bearerCtxt_p != NULL)
+        {
+            bearerCtxt_p->setBearerId(id + BEARER_ID_OFFSET); // Bearer id start 5
+            id--;
+            SET_BIT(bitmap, id);
+            uectxt.setBearerIdBitMap(bitmap);
+            sessionCtxt.addBearerContext(bearerCtxt_p);
+        }
     }
 
-    return prcdCtxt_p;
+    return bearerCtxt_p;
+}
+
+void MmeContextManagerUtils::deallocateSessionContext(SM::ControlBlock &cb_r,
+        SessionContext *sessionCtxt_p, UEContext* ueContext_p)
+{
+    if (sessionCtxt_p != NULL)
+    {
+        if (ueContext_p != NULL)
+            ueContext_p ->removeSessionContext(sessionCtxt_p);
+
+        auto &bearerCtxtContainer = sessionCtxt_p->getBearerContextContainer();
+        if (bearerCtxtContainer.size() < 1)
+        {
+            log_msg(LOG_ERROR, "Bearer context list is empty for UE IDX %d\n",
+                    cb_r.getCBIndex());
+            return;
+        }
+        auto it = bearerCtxtContainer.begin();
+        BearerContext *bearer_p = NULL;
+        while (it != bearerCtxtContainer.end())
+        {
+            bearer_p = *it;
+            it++;
+            deallocateBearerContext(cb_r, bearer_p, sessionCtxt_p, ueContext_p);
+        }
+
+        SubsDataGroupManager::Instance()->deleteSessionContext(sessionCtxt_p);
+    }
+}
+
+void MmeContextManagerUtils::deallocateBearerContext(SM::ControlBlock &cb_r,
+        BearerContext *bearerCtxt_p, SessionContext *sessionCtxt_p, UEContext *ueCtxt_p)
+{
+    if (bearerCtxt_p != NULL)
+    {
+        // Remove from bearer context container
+        if (sessionCtxt_p != NULL)
+            sessionCtxt_p->removeBearerContext(bearerCtxt_p);
+
+        // clear the id in the bitmap
+        if (ueCtxt_p != NULL)
+        {
+            uint16_t bitmap = ueCtxt_p->getBearerIdBitMap();
+            uint8_t bearerId = bearerCtxt_p->getBearerId();
+            if (bearerId >= 5 && bearerId <= 15)
+            {
+                uint8_t id = bearerId - BEARER_ID_OFFSET - 1;
+                CLEAR_BIT(bitmap, id);
+                ueCtxt_p->setBearerIdBitMap(bitmap);
+            }
+        }
+        SubsDataGroupManager::Instance()->deleteBearerContext(bearerCtxt_p);
+    }
 }
 

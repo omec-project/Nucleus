@@ -16,6 +16,8 @@ extern "C" {
                                 struct EnbStruct* enbCtx,
                                 bool update);
 
+    bool getControlBlockDetailsEnbFd(uint32_t sd, struct EnbStruct *temp);
+
 #ifdef __cplusplus
 }
 #endif

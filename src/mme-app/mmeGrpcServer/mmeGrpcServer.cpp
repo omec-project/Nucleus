@@ -93,9 +93,10 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
 
 			reply->set_ue_state(UEStates[uestate]);
 
-			SessionContext* sessioncontext_p = uecontext_p->getSessionContext();
-			if (sessioncontext_p != NULL)
+			auto& sessionCtxtContainer = uecontext_p->getSessionContextContainer();
+			if(sessionCtxtContainer.size()>0)
 			{
+				SessionContext* sessioncontext_p = sessionCtxtContainer.front();
 				UeContextRespBuf_SessionContextRespBuf* session_ctxt = reply->add_sessioncontext();
 				if (session_ctxt)
 				{
@@ -135,7 +136,7 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
 					ss << "IP " << ipStr << " TEID " << s5s8PgwCTeid.header.teid_gre;
 					session_ctxt->set_s5_pgw_gtpc_teid(ss.str());
 					
-					BearerContext* bearerCtxt = sessioncontext_p->getBearerContext();
+					BearerContext* bearerCtxt = sessioncontext_p->findBearerContextByBearerId(sessioncontext_p->getLinkedBearerId());
 					// S1U ENB TEID
 					const fteid& s1uEnbTeid = bearerCtxt->getS1uEnbUserFteid().fteid_m;
 

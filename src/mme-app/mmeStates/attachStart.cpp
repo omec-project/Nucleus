@@ -63,4 +63,11 @@ void AttachStart::initialize()
                 actionTable.setNextState(AttachWfImsiValidateAction::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(VALIDATE_IMSI, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
+        }
 }

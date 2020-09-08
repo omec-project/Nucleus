@@ -1,0 +1,26 @@
+    [%- IF Item.Cardinality != '' %][%- T = Item.Type.match('^std\:\:(list|vector|array)\<((\w+\:{0,2}\w+)((\*|\&))?)(\,\d+)?\>$') -%]
+        [%- IF T.4  =='*'%][% access_op = '->' %][%ELSE %][% access_op = '.' %][% END -%]
+	    [%- IF T.0 =='list' %]
+[% INCLUDE templates/ctxtManagerTmpls/listAPI.tt %]
+	    [%- ELSIF T.0 =='vector'%]
+[% INCLUDE templates/ctxtManagerTmpls/vectorAPI.tt %]
+	    [%- ELSIF T.0 == 'array'%]
+[% INCLUDE templates/ctxtManagerTmpls/arrayAPI.tt %]	
+	    [%-END%]
+	[%-ELSE%]
+	/******************************************************************************
+	* sets [% Item.Name %]
+	******************************************************************************/
+	void [% dataBlockClassName %]::set[% Item.Name %]( [% Item.Name %]* [% Item.Name %]p )
+	{
+		[% Item.Name %]_mp = [% Item.Name %]p;
+	}
+	
+	/******************************************************************************
+	* returns [% Item.Name %]
+	******************************************************************************/
+	[% Item.Name %]* [% dataBlockClassName %]::get[% Item.Name %]()
+	{
+		return [% Item.Name %]_mp;
+	}
+    [%- END %]
