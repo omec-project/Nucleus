@@ -318,6 +318,16 @@ typedef struct s1apCause {
     } choice;
 } s1apCause_t;
 
+typedef struct erab_failed_to_setup_item {
+    uint8_t e_RAB_ID;
+    s1apCause_t cause;
+} erab_failed_to_setup_item;
+
+typedef struct erab_failed_to_setup_list {
+    uint8_t count;
+    erab_failed_to_setup_item erab_fail_item[MAX_ERAB_SIZE];
+} erab_failed_to_setup_list;
+
 /*36.413: 9.2.1.3a*/
 enum ie_RRC_est_cause {
 	EMERGENCY,
@@ -418,6 +428,8 @@ typedef struct proto_IE_data {
         struct eRAB_elements 	erab;
         ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
         ERABSetup E_RABToBeSetupItemCtxtSUReq;
+	struct ERABSetupList eRABSetupList;
+	erab_failed_to_setup_list erab_fail_list;
         erab_to_be_modified_list erab_to_be_mod_list;
         ue_sec_capabilities ue_sec_capab;
         uint8_t sec_key[SECURITY_KEY_SIZE];

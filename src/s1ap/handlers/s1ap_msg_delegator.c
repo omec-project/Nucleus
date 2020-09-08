@@ -320,6 +320,10 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 	case S1AP_HANDOVER_RESOURCE_ALLOCATION_CODE:
 		s1_handover_ack_handler(msg);
 		break;
+
+	case S1AP_ERAB_SETUP_CODE:
+		erab_setup_response_handler(msg);
+		break;
 		
 	default:
 		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
@@ -1925,3 +1929,255 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
     }
     return 0;
 }
+
+int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present
+            == SuccessfulOutcome__value_PR_E_RABSetupResponse)
+    {
+        ProtocolIE_Container_129P13_t *protocolIes =
+                &msg->value.choice.E_RABSetupResponse.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            E_RABSetupResponseIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+            case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
+            {
+                ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                if (E_RABSetupResponseIEs__value_PR_ENB_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                }
+
+		if (s1apENBUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                    memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                            s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+            {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (E_RABSetupResponseIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present)
+                {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p != NULL)
+                {
+                    proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                    memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                            s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    return -1;
+                }
+            } break;
+            case ProtocolIE_ID_id_E_RABSetupListBearerSURes:
+            {
+                E_RABSetupListBearerSURes_t *e_RABSetupList_p = NULL;
+                if (E_RABSetupResponseIEs__value_PR_E_RABSetupListBearerSURes
+                        == ie_p->value.present)
+                {
+                    e_RABSetupList_p = &ie_p->value.choice.E_RABSetupListBearerSURes;
+                }
+
+		if (e_RABSetupList_p != NULL)
+		{
+                    proto_ies->data[i].IE_type = S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES;
+                    proto_ies->data[i].val.eRABSetupList.count =
+                            e_RABSetupList_p->list.count;
+
+                    for (int j = 0; j < e_RABSetupList_p->list.count; j++)
+                    {
+                        E_RABSetupItemBearerSUResIEs_t *ie_p;
+                        ie_p = (E_RABSetupItemBearerSUResIEs_t*) e_RABSetupList_p->list.array[j];
+                        switch (ie_p->id)
+                        {
+                            case ProtocolIE_ID_id_E_RABSetupItemBearerSURes:
+			    {
+                        	E_RABSetupItemBearerSURes_t *eRabSetupItem_p = NULL;
+                        	if (E_RABSetupItemBearerSUResIEs__value_PR_E_RABSetupItemBearerSURes
+                                	== ie_p->value.present)
+                        	{
+                            	    eRabSetupItem_p =
+                                        &ie_p->value.choice.E_RABSetupItemBearerSURes;
+                        	}
+
+                        	if (eRabSetupItem_p != NULL)
+				{
+                      		    proto_ies->data[i].val.eRABSetupList.eRABSetup[j].e_RAB_ID =
+                                        (uint8_t) eRabSetupItem_p->e_RAB_ID;
+
+				    if (eRabSetupItem_p->gTP_TEID.buf != NULL)
+				    {
+                        		memcpy(
+                                	&(proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid),
+                               		eRabSetupItem_p->gTP_TEID.buf, eRabSetupItem_p->gTP_TEID.size);
+
+                        		proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid =
+                                	    ntohl(
+                                            proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABSetupItemBearerSURes->gTP_TEID failed\n");
+                                        return -1;
+                                    }
+
+                        	    if (eRabSetupItem_p->transportLayerAddress.buf != NULL)
+				    {
+					memcpy(
+                                	&(proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress),
+                                	eRabSetupItem_p->transportLayerAddress.buf,
+                                	eRabSetupItem_p->transportLayerAddress.size);
+
+                        		proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress =
+                                	    ntohl(
+                                       	    proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress);
+				    }
+				    else
+				    {
+                                        log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABSetupItemBearerSURes->transportLayerAddress failed\n");
+                                        return -1;
+                                    }
+				}
+				else
+                                {
+                                    log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABSetupItemBearerSURes failed\n");
+                                    return -1;
+                                }
+                    	    }break;
+                    	    default:
+                    	    {
+                                log_msg(LOG_WARNING, "Unhandled List item %d",
+                                                  ie_p->id);
+                            }
+                        }
+		    }
+                }
+		else
+                {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE E_RABSetupItemBearerSURes failed\n");
+                    return -1;
+                }
+            } break;
+	    case ProtocolIE_ID_id_E_RABFailedToSetupListBearerSURes:
+	    {
+		E_RABList_t *e_RABFailedToSetupList_p = NULL;
+		if (E_RABSetupResponseIEs__value_PR_E_RABList
+                        == ie_p->value.present)
+		{
+        	    e_RABFailedToSetupList_p = &ie_p->value.choice.E_RABList;
+    		}
+
+    		if (e_RABFailedToSetupList_p != NULL)
+    		{
+        	    proto_ies->data[i].IE_type = S1AP_IE_E_RAB_FAILED_TO_SETUP_LIST_BEARER_SU_RES;
+		    proto_ies->data[i].val.erab_fail_list.count = e_RABFailedToSetupList_p->list.count;
+
+		    for (int j = 0; j < e_RABFailedToSetupList_p->list.count; j++)
+        	    {
+            		E_RABItemIEs_t *ie_p;
+            		ie_p = (E_RABItemIEs_t*) e_RABFailedToSetupList_p->list.array[j];
+            		switch (ie_p->id)
+            		{
+                	    case ProtocolIE_ID_id_E_RABItem:
+                	    {
+                    		E_RABItem_t *eRabFailedToSetupItem_p = NULL;
+                    		if (E_RABItemIEs__value_PR_E_RABItem == ie_p->value.present)
+                    		{
+                        	    eRabFailedToSetupItem_p = &ie_p->value.choice.E_RABItem;
+                    		}
+                    
+                    		if (eRabFailedToSetupItem_p != NULL)
+                    		{
+                        	    proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].e_RAB_ID =
+                                        (uint8_t) eRabFailedToSetupItem_p->e_RAB_ID;
+                                        
+                        	    Cause_t *s1apCause_p = &eRabFailedToSetupItem_p->cause;
+				    if(s1apCause_p != NULL)
+                        	    {
+                            		proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].cause.present =
+                                        	s1apCause_p->present;
+                            		switch (s1apCause_p->present)
+                            		{
+                                	    case Cause_PR_radioNetwork:
+                                	    {
+                                    		log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
+                                            	s1apCause_p->choice.radioNetwork);
+                                    		proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].
+                                        	cause.choice.radioNetwork =
+                                            		s1apCause_p->choice.radioNetwork;
+                                	    }break;
+                                	    default:
+                                    		log_msg(LOG_WARNING, "Unknown cause %d\n", 
+                                            			s1apCause_p->present);
+                            		}
+                        	    }
+                        	    else
+                        	    {
+                            		log_msg(LOG_ERROR, 
+                                    		"Decoding of IE E_RABFailedToSetupItemBearerSURes->Cause failed\n");
+                            		return -1;
+                        	    }
+                    		}    
+                    		else
+                    		{
+                        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupItemBearerSURes failed\n");
+                        	    return -1;
+                    		}
+                	    } break;
+                	    default:
+                	    {
+                    		log_msg(LOG_WARNING, "Unhandled List item %d \n", ie_p->id);
+                	    }
+            		}
+        	    }
+    		}
+    		else
+    		{
+        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupListBearerSURes failed\n");
+        	    return -1;
+    		}
+	    } break;  
+	    default:
+            {
+                proto_ies->data[i].IE_type = ie_p->id;
+		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+            }
+
+            }
+        }
+    }
+    return 0;
+}
+

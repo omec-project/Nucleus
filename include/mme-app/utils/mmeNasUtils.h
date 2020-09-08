@@ -29,5 +29,10 @@ namespace mme
 			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, Secinfo& secContext);
 			static void get_negotiated_qos_value(struct esm_qos *qos);
 			static void select_sec_alg(mme::UEContext *ue_ctxt);
+			static void cal_nas_bit_rate(uint64_t bit_rate_kbps, uint8_t* out);
+			static void encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos);
+			static void decode_act_ded_br_ctxt_acpt(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas);
+			static void decode_act_ded_br_ctxt_rjct(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas);
+			static uint8_t encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasPDU *nas);
 	};
 #endif

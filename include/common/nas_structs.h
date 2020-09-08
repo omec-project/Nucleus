@@ -45,7 +45,7 @@ struct esm_sec_info {
 /* sec. 10.5.6.3 of 3GPP TS 24.008 has following statement:
  * The protocol configuration options is a type 4 information element with a minimum length of 3 octets and a maximum length of 253 octets.
  */
-#define MAX_PCO_OPTION_SIZE 255
+#define MAX_PCO_OPTION_SIZE 260
 struct pco 
 {
     unsigned char pco_length;
@@ -264,20 +264,101 @@ typedef struct tai_list {
 	struct TAI partial_list[EMM_MAX_TAI_LIST];
 } tai_list;
 
+/* 24.301 - 9.9.4.3.1 */
+typedef struct eps_qos_bitmap {
+	uint8_t qci;
+        uint8_t mbr_ul;
+        uint8_t mbr_dl;
+        uint8_t gbr_ul;
+        uint8_t gbr_dl;
+        uint8_t mbr_ul_ext;
+        uint8_t mbr_dl_ext;
+        uint8_t gbr_ul_ext;
+        uint8_t gbr_dl_ext;
+        uint8_t mbr_ul_ext_2;
+        uint8_t mbr_dl_ext_2;
+        uint8_t gbr_ul_ext_2;
+        uint8_t gbr_dl_ext_2;
+} eps_qos_bitmap;
+
+typedef struct eps_qos_t {
+        uint8_t len;
+	eps_qos_bitmap val;
+} eps_qos_t;
+
+#define TFT_MAX_SIZE 256
+
+typedef struct bearer_tft{
+    uint16_t len;
+    uint8_t data[TFT_MAX_SIZE];
+} bearer_tft;
+
+typedef enum esm_cause_t {
+    NOT_SET = 0,
+    OPERATOR_DETERMINED_BARRING = 4,
+    INSUFFICIENT_RESOURCES = 26,
+    MISSING_OR_UNKNOWN_APN = 27,
+    UNKNOWN_PDN_TYPE = 28,
+    USER_AUTHENTICATION_FAILED = 29,
+    REQUEST_REJECTED_BY_SGW_OR_PGW = 30,
+    REQUEST_REJECTED_UNSPECIFIED = 31,
+    SERVICE_OPTION_NOT_SUPPORTED = 32,
+    REQUESTED_SERVICE_OPTION_NOT_SUBSCRIBED = 33,
+    SERVICE_OPTION_TEMPORARILY_OUT_OF_ORDER = 34,
+    PTI_ALREADY_IN_USE = 35,
+    REGULAR_DEACTIVATION = 36,
+    EPS_QOS_NOT_ACCEPTED = 37,
+    NETWORK_FAILURE = 38,
+    REACTIVATION_REQUESTED = 39,
+    SEMANTIC_ERROR_IN_THE_TFT_OPERATION = 41,
+    SYNTACTICAL_ERROR_IN_THE_TFT_OPERATION = 42,
+    INVALID_EPS_BEARER_IDENTITY = 43,
+    SEMANTIC_ERROR_IN_PACKET_FILTERS = 44,
+    SYNTACTICAL_ERROR_IN_PACKET_FILTERS = 45,
+    UNUSED = 46,
+    PTI_MISMATCH = 47,
+    LAST_PDN_CONNECTION_DISALLOWED = 49,
+    PDN_TYPE_IPV4_ONLY_ALLOWED = 50,
+    PDN_TYPE_IPV6_ONLY_ALLOWED = 51,
+    SINGLE_ADDRESS_BEARERS_ONLY_ALLOWED = 52,
+    ESM_INFORMATION_NOT_RECEIVED = 53,
+    PDN_CONNECTION_DOES_NOT_EXIST = 54,
+    MULTIPLE_PDN_CONNECTIONS_FOR_A_GIVEN_APN_NOT_ALLOWED = 55,
+    COLLISION_WITH_NETWORK_INITIATED_REQUEST = 56,
+    PDN_TYPE_IPV4V6_ONLY_ALLOWED = 57,
+    PDN_TYPE_NON_IP_ONLY_ALLOWED = 58,
+    UNSUPPORTED_QCI_VALUE = 59,
+    BEARER_HANDLING_NOT_SUPPORTED = 60,
+    MAXIMUM_NUMBER_OF_EPS_BEARERS_REACHED = 65,
+    REQUESTED_APN_NOT_SUPPORTED_IN_GIVEN_RAT_AND_PLMN_COMBINATION = 66,
+    INVALID_PTI_VALUE = 81,
+    SEMANTICALLY_INCORRECT_MESSAGE = 95,
+    INVALID_MANDATORY_INFORMATION = 96,
+    MESSAGE_TYPE_NON_EXISTENT_OR_NOT_IMPLEMENTED = 97,
+    MESSAGE_TYPE_NOT_COMPATIBLE_WITH_THE_PROTOCOL_STATE = 98,
+    INFORMATION_ELELMENT_NON_EXISTENT_OR_NOT_IMPLEMENTED = 99,
+    CONDITIONAL_IE_ERROR = 100,
+    MESSAGE_NOT_COMPATIBLE_WITH_THE_PROTOCOL_STATE = 101,
+    PROTOCOL_ERROR_UNSPECIFIED = 111,
+    APN_RESTRICTION_VALUE_INCOMPATIBLE_WITH_ACTIVE_EPS_BEARER_CONTEXT = 112,
+    MULTIPLE_ACCESSES_TO_A_PDN_CONNECTION_NOT_ALLOWED = 113,
+} esm_cause_t;
 
 typedef struct esm_msg_container {
 	uint8_t eps_bearer_id :4;
 	uint8_t proto_discriminator :4;
 	uint8_t procedure_trans_identity;
 	uint8_t session_management_msgs;
-	uint8_t eps_qos;  /* TODO: Revisit 24.301 - 9.9.4.3.1 */
+	eps_qos_t eps_qos;  /* TODO: Revisit 24.301 - 9.9.4.3.1 */
 	struct apn_name apn;
 	struct apn_name selected_apn;
 	pdn_address pdn_addr;
 	linked_transcation_id linked_ti;
 	esm_qos negotiated_qos;
 	ESM_APN_AMBR apn_ambr;
-    struct pco pco_opt;
+	struct pco pco_opt;
+	bearer_tft tft;
+	esm_cause_t esm_cause;
 } esm_msg_container;
 
 

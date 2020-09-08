@@ -90,6 +90,13 @@ struct ARP {
         uint8_t spare :2;
 };
 
+typedef struct bearer_qos {
+	uint8_t qci;
+	uint64_t mbr_ul;
+	uint64_t mbr_dl;
+	uint64_t gbr_ul;
+	uint64_t gbr_dl;
+} bearer_qos_t;
 
 struct s11_IE_header {
 	unsigned char ie_type;

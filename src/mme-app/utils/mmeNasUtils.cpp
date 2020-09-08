@@ -263,6 +263,98 @@ void MmeNasUtils::select_sec_alg(UEContext *ue_ctxt)
 
 }
 
+void MmeNasUtils::decode_act_ded_br_ctxt_acpt(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas)
+{
+	uint8_t elem_id = msg[0];
+        uint8_t index = 0;
+        uint8_t datalen = 0;
+        unsigned char *msg_end = msg + (nas_msg_len - ESM_HEADER_LEN);
+	
+	nas->elements_len = 1;
+        nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
+
+        bool status = true;
+        while (status && (msg < msg_end))
+	{
+            elem_id = msg[0];
+	    switch (elem_id)
+            {
+		case NAS_IE_TYPE_PCO:
+        	{
+            		nas->elements[index].msgType = NAS_IE_TYPE_PCO;
+	   	 	msg++; //Skipping Element ID
+            		memcpy(&nas->elements[index].pduElement.pco_opt.pco_length, msg, 1);
+            		msg++;
+            		memcpy(&nas->elements[index].pduElement.pco_opt.pco_options[0], msg,
+                                nas->elements[index].pduElement.pco_opt.pco_length);
+			msg += nas->elements[index].pduElement.pco_opt.pco_length;
+			index++;
+			break;
+        	}
+		case NAS_IE_TYPE_NBIFOM_CONTAINER:
+		case NAS_IE_TYPE_EXT_PCO:
+		{
+			msg++; //skipping Element ID
+            		datalen = msg[0];
+            		msg++;
+            		msg += datalen;
+            		break;
+		}
+		default:
+        	{
+            		log_msg(LOG_WARNING, "NAS ACT_DED_BR_CTXT_ACPT - Unhandled IE %x\n", elem_id);
+
+            		// set status to false to break out of while
+            		status = false;
+            		break;
+        	}
+	    }
+	}
+}
+
+void MmeNasUtils::decode_act_ded_br_ctxt_rjct(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas)
+{
+    uint8_t elem_id = msg[0];
+    uint8_t index = 0;
+    uint8_t datalen = 0;
+    unsigned char *msg_end = msg + (nas_msg_len - ESM_HEADER_LEN);
+
+    nas->elements_len = 1;
+    nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
+    nas->elements[index].msgType = NAS_IE_TYPE_ESM_CAUSE;
+    memcpy(&nas->elements[index].pduElement.esm_msg.esm_cause, msg, 1);
+    msg++;
+    index++;
+#if 0
+    bool status = true;
+    while (status && (msg < msg_end))
+    {
+        elem_id = msg[0];
+        switch (elem_id)
+        {
+            case NAS_IE_TYPE_PCO:
+            case NAS_IE_TYPE_NBIFOM_CONTAINER:
+            case NAS_IE_TYPE_EXT_PCO:
+            {
+                msg++; //skipping Element ID
+                datalen = msg[0];
+                msg++;
+                msg += datalen;
+                break;
+            }
+            default:
+            {
+                log_msg(LOG_WARNING, "NAS ACT_DED_BR_CTXT_RJCT - Unhandled IE %x\n", elem_id);
+
+                // set status to false to break out of while
+                status = false;
+                break;
+            }
+        }
+    }
+#endif
+}
+
 int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
    	unsigned short msg_len = nas_msg_len;
@@ -490,10 +582,11 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 memcpy(&nas_header_long, msg, sizeof(nas_header_long)); /*copy only till msg type*/
                 msg += 3;
 
-                nas->header.security_header_type = nas_header_long.security_header_type;
-                nas->header.proto_discriminator = nas_header_long.proto_discriminator;
-                nas->header.procedure_trans_identity = nas_header_long.procedure_trans_identity;
-                nas->header.message_type = nas_header_long.message_type;
+		nas->header.eps_bearer_identity = nas_header_long.security_header_type;
+		nas->header.proto_discriminator = nas_header_long.proto_discriminator;
+		nas->header.procedure_trans_identity = nas_header_long.procedure_trans_identity;
+		nas->header.message_type = nas_header_long.message_type;
+
         } else {
                 log_msg(LOG_INFO, "NAS PDU is EMM\n");
                 memcpy(&nas_header_short, msg, sizeof(nas_header_short)); /*copy only till msg type*/
@@ -880,6 +973,18 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             log_msg(LOG_INFO, "NAS_DETACH_ACCEPT recvd\n");
             break;
         }
+	case NAS_ACT_DED_BEARER_CTXT_ACPT:
+	{
+	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_ACPT recvd\n");
+	    MmeNasUtils::decode_act_ded_br_ctxt_acpt(msg, nas_msg_len, nas);
+	    break;
+	}
+	case NAS_ACT_DED_BEARER_CTXT_RJCT:
+	{
+	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_RJCT received\n");
+	    MmeNasUtils::decode_act_ded_br_ctxt_rjct(msg, nas_msg_len, nas);
+	    break;
+	}
         default:
 		{
             log_msg(LOG_ERROR, "Unknown NAS Message type- 0x%x\n", nas->header.message_type);
@@ -1098,6 +1203,61 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 
 	    	break;
 		}
+					
+		case NAS_ACT_DED_BEARER_CTXT_ACPT:
+		{
+	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_ACPT\n");
+		    int nas_index = 0;
+		    s1Msg->msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_accept;
+
+		    while (nas_index < nas->elements_len)
+            	    {
+                	log_msg(LOG_INFO, "nasIndex %d, msgType %d\n", nas_index, nas->elements[nas_index].msgType);
+			switch (nas->elements[nas_index].msgType)
+                	{
+			    case NAS_IE_TYPE_PCO:
+			    {
+				if(nas->elements[nas_index].pduElement.pco_opt.pco_length > 0)
+                    		{
+                        		memcpy(&(s1Msg->msg_data.dedBearerContextAccept_Q_msg_m.pco_opt),
+                                		&(nas->elements[nas_index].pduElement.pco_opt), sizeof(struct pco));
+                    		}	
+				break;
+			    }
+			    default:
+                    	    {
+                        	log_msg(LOG_INFO, "nas element %d not handled\n", nas->elements[nas_index].msgType );
+                    	    }
+			}
+			nas_index++;
+		    }
+		    break;
+		}
+		case NAS_ACT_DED_BEARER_CTXT_RJCT:
+		{
+	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_RJCT\n");
+		    int nas_index = 0;
+	    	    s1Msg->msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_reject;
+		    while (nas_index < nas->elements_len)
+                    {
+                        log_msg(LOG_INFO, "nasIndex %d, msgType %d\n", nas_index, nas->elements[nas_index].msgType);
+                        switch (nas->elements[nas_index].msgType)
+                        {
+			    case NAS_IE_TYPE_ESM_CAUSE:
+			    {
+	    	    		s1Msg->msg_data.dedBearerContextReject_Q_msg_m.esm_cause = 
+					nas->elements[nas_index].pduElement.esm_msg.esm_cause;
+	    	    		break;
+			    }
+			    default:
+                            {
+                                log_msg(LOG_INFO, "nas element %d not handled\n", nas->elements[nas_index].msgType );
+                            }
+                        }
+                        nas_index++;
+                    }
+                    break;
+                }
 		default:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message ATTACH REQUEST\n");
@@ -1210,6 +1370,165 @@ encode_network_name_ie(char* network_name, char* enc_str)
   return SUCCESS;
 }
 
+/* MBR and GBR UL/DL upto 10 Gbps can be encoded in eps_qos IE
+ * Refer Spec 24.301 v 15.6.0 sec:9.9.4.3 */
+void MmeNasUtils::cal_nas_bit_rate(uint64_t bit_rate_kbps, uint8_t* out)
+{
+    uint8_t bit_rate = 0;
+    uint8_t bit_rate_ext = 0;
+    uint8_t bit_rate_ext_2 = 0;
+
+    if(bit_rate_kbps < 1)
+    {
+	bit_rate = 0xff;
+    }
+
+    if (bit_rate_kbps > 65200)
+    {
+        bit_rate_ext_2 = 0b11111110;
+
+        bit_rate_kbps %= 256;
+    }
+    else if (bit_rate_kbps >= 256 && bit_rate_kbps <= 65200)
+    {
+        bit_rate_ext_2 = bit_rate_kbps / 256;
+
+        bit_rate_kbps %= 256;
+    }
+
+    if (bit_rate_kbps >= 1 && bit_rate_kbps <= 63)
+    {
+        bit_rate = bit_rate_kbps;
+    }
+    else if (bit_rate_kbps >= 64 && bit_rate_kbps <= 568)
+    {
+        bit_rate = ((bit_rate_kbps - 64) / 8) + 0b01000000;
+    }
+    /* Set to 568 Kbps */
+    else if (bit_rate_kbps > 568 && bit_rate_kbps < 576)
+    {
+        bit_rate = 0b01111111;
+    }
+    else if (bit_rate_kbps >= 576 && bit_rate_kbps <= 8640)
+    {
+        bit_rate = ((bit_rate_kbps - 576) / 64) + 0b10000000;
+    }
+    /* Set to 8640 Kbps */
+    else if (bit_rate_kbps > 8640 && bit_rate_kbps < 8700)
+    {
+        bit_rate = 0b11111110;
+    }
+    else if (bit_rate_kbps >= 8700 && bit_rate_kbps <= 16000)
+    {
+        bit_rate = 0b11111110;
+        bit_rate_ext = ((bit_rate_kbps - 8600) / 100);
+    }
+    /* Set to 16000 Kbps */
+    else if (bit_rate_kbps > 16000 && bit_rate_kbps < (17*1024))
+    {
+        bit_rate = 0b11111110;
+        bit_rate_ext = 0b01001010;
+    }
+    else if (bit_rate_kbps >= (17*1024) && bit_rate_kbps <= (128*1024))
+    {
+        bit_rate = 0b11111110;
+        bit_rate_ext = ((bit_rate_kbps - (16*1024)) / (1*1024)) + 0b01001010;
+    }
+    /* Set to 128 Mbps */
+    else if (bit_rate_kbps > (128*1024) && bit_rate_kbps < (130*1024))
+    {
+        bit_rate = 0b11111110;
+        bit_rate_ext = 0b10111010;
+    }
+    else if (bit_rate_kbps >= (130*1024) && bit_rate_kbps <= (256*1024))
+    {
+        bit_rate = 0b11111110;
+        bit_rate_ext = ((bit_rate_kbps - (128*1024)) / (2*1024)) + 0b10111010;
+    }
+
+    if(bit_rate != 0)
+	    out[0] = bit_rate;
+    if(bit_rate_ext != 0)
+	    out[1] = bit_rate_ext;
+    if(bit_rate_ext_2 != 0)
+	    out[2] = bit_rate_ext_2;
+}
+
+void MmeNasUtils::encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
+{
+    uint8_t br_arr[3] = {0};
+
+    /*encode eps qos qci*/
+    eps_qos.val.qci = bearerQos.qci;
+    eps_qos.len = 1;
+    
+    if(bearerQos.mbr_ul > 0)
+    {
+	MmeNasUtils::cal_nas_bit_rate(bearerQos.mbr_ul, br_arr);
+	eps_qos.val.mbr_ul = br_arr[0];
+	eps_qos.val.mbr_ul_ext = br_arr[1];
+	eps_qos.val.mbr_ul_ext_2 = br_arr[2];
+	eps_qos.len += 4;
+	memset(br_arr, 0, 3);
+    }
+
+    if(bearerQos.mbr_dl > 0)
+    {
+	MmeNasUtils::cal_nas_bit_rate(bearerQos.mbr_dl, br_arr);
+	eps_qos.val.mbr_dl = br_arr[0];
+        eps_qos.val.mbr_dl_ext = br_arr[1];
+        eps_qos.val.mbr_dl_ext_2 = br_arr[2];
+	eps_qos.len += 4;
+	memset(br_arr, 0, 3);
+    }
+
+    if(bearerQos.gbr_ul > 0)
+    {
+	MmeNasUtils::cal_nas_bit_rate(bearerQos.gbr_ul, br_arr);
+	eps_qos.val.gbr_ul = br_arr[0];
+        eps_qos.val.gbr_ul_ext = br_arr[1];
+        eps_qos.val.gbr_ul_ext_2 = br_arr[2];
+	eps_qos.len += 4;
+	memset(br_arr, 0, 3);
+    }
+
+    if(bearerQos.gbr_dl > 0)
+    {
+	MmeNasUtils::cal_nas_bit_rate(bearerQos.gbr_dl, br_arr);
+	eps_qos.val.gbr_dl = br_arr[0];
+        eps_qos.val.gbr_dl_ext = br_arr[1];
+        eps_qos.val.gbr_dl_ext_2 = br_arr[2];
+	eps_qos.len += 4;
+	memset(br_arr, 0, 3);
+    }
+
+}
+
+uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasPDU *nas)
+{
+    nasBuffer->pos = 0;
+    uint8_t value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+    uint8_t spare_half_oct = 0;
+    uint8_t mac_data_pos = 0;
+    buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
+    mac_data_pos = nasBuffer->pos;
+    buffer_copy(nasBuffer, &nas->header.seq_no, sizeof(nas->header.seq_no));
+    value = (nas->elements[0].pduElement.esm_msg.eps_bearer_id << 4) |
+	        (nas->elements[0].pduElement.esm_msg.proto_discriminator);
+    buffer_copy(nasBuffer, &value, sizeof(value));
+    buffer_copy(nasBuffer, & nas->header.procedure_trans_identity, sizeof(uint8_t));
+    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.session_management_msgs, sizeof(uint8_t));
+    value = (spare_half_oct << 4) | nas->header.eps_bearer_identity;
+    buffer_copy(nasBuffer, &value, sizeof(value));
+    
+    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.eps_qos.len, sizeof(uint8_t));
+    buffer_copy(nasBuffer, (uint8_t*)(&nas->elements[0].pduElement.esm_msg.eps_qos.val),
+                           nas->elements[0].pduElement.esm_msg.eps_qos.len * sizeof(uint8_t));
+    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.tft.len, sizeof(uint8_t));
+    buffer_copy(nasBuffer, nas->elements[0].pduElement.esm_msg.tft.data,
+                                        nas->elements[0].pduElement.esm_msg.tft.len);
+    return mac_data_pos;
+}
 
 /* Encode NAS mesage */
 
@@ -1346,7 +1665,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			/* eps qos */
 			uint8_t datalen = 1;
 			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
-			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.eps_qos), sizeof(datalen));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.eps_qos.val.qci), sizeof(datalen));
 
 			/* apn */
 			// There is one category of UE, they do not send not apn to MME.
@@ -1631,7 +1950,24 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 							nasBuffer->pos - mac_data_pos,
 							&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 			break;
-		} 
+		}
+		case ActivateDedicatedBearerContextRequest:
+		{
+			log_msg(LOG_DEBUG, "Encoding Activate Dedicated Bearer Context Req NAS message in mme-app\n");
+			uint8_t mac_data_pos = MmeNasUtils::encode_act_ded_br_req(nasBuffer, nas);
+
+			/* Calculate mac */
+                        uint8_t direction = 1;
+                        uint8_t bearer = 0;
+                        unsigned char int_key[NAS_INT_KEY_SIZE];
+                        secContext.getIntKey(&int_key[0]);
+            		nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+                        calculate_mac(int_key, nas->dl_count, direction,
+                                                        bearer, &nasBuffer->buf[mac_data_pos],
+                                                        nasBuffer->pos - mac_data_pos,
+                                                        &nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
+			break;
+		}	
 
 		default:
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");

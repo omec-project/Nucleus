@@ -914,7 +914,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.proto_discriminator = EPSSessionManagementMessage;
 	nas.elements[3].pduElement.esm_msg.procedure_trans_identity = sessionCtxt->getPti();
 	nas.elements[3].pduElement.esm_msg.session_management_msgs = ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
-	nas.elements[3].pduElement.esm_msg.eps_qos = 9;
+	nas.elements[3].pduElement.esm_msg.eps_qos.val.qci = 9;
 	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
 	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
     log_msg(LOG_DEBUG, "ESM apn length = %d \n",nas.elements[3].pduElement.esm_msg.apn.len);

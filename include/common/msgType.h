@@ -114,6 +114,11 @@ typedef enum msg_type_t {
     handover_cancel_ack,
     erab_mod_indication,
     erab_mod_confirmation,
+    erab_setup_request,
+    erab_setup_response,
+    activate_dedicated_eps_bearer_ctxt_request,
+    activate_dedicated_eps_bearer_ctxt_accept,
+    activate_dedicated_eps_bearer_ctxt_reject,
     raw_nas_msg,
     max_msg_type
 } msg_type_t;
@@ -254,6 +259,25 @@ struct s1apMsg_plus_raw_nas {
 	struct STMSI s_tmsi;
 }__attribute__ ((packed));
 
+struct erabSuResp_Q_msg {
+    int s1ap_enb_ue_id;
+    int s1ap_mme_ue_id;
+    struct ERABSetupList eRABSetupList;
+    erab_failed_to_setup_list erab_fail_list;
+}__attribute__ ((packed));
+
+struct dedicatedBearerContextAccept_Q_msg {
+    uint8_t eps_bearer_id;
+    uint8_t pti;
+    struct pco pco_opt;
+}__attribute__ ((packed));
+
+struct dedicatedBearerContextReject_Q_msg {
+    uint8_t eps_bearer_id;
+    uint8_t pti;
+    uint8_t esm_cause;
+}__attribute__ ((packed));
+
 union s1_incoming_msgs {
 	struct s1apMsg_plus_raw_nas	  rawMsg; 
     struct ue_attach_info ue_attach_info_m;
@@ -273,6 +297,9 @@ union s1_incoming_msgs {
     struct handover_failure_Q_msg handover_failure_Q_msg_m;
     struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
 	struct erab_mod_ind_Q_msg erab_mod_ind_Q_msg_m;
+	struct erabSuResp_Q_msg erabSuResp_Q_msg_m;
+	struct dedicatedBearerContextAccept_Q_msg dedBearerContextAccept_Q_msg_m;
+	struct dedicatedBearerContextReject_Q_msg dedBearerContextReject_Q_msg_m;
 }__attribute__ ((packed));
 typedef union s1_incoming_msgs s1_incoming_msgs_t;
 
@@ -507,6 +534,18 @@ struct handover_cancel_ack_Q_msg {
 	int s1ap_enb_ue_id;
 };
 #define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
+
+struct erabsu_ctx_req_Q_msg {
+    msg_type_t msg_type;
+    uint32_t mme_ue_s1ap_id;
+    uint32_t enb_s1ap_ue_id;
+    ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
+    struct ERABSetupList erab_setup_list;
+    uint32_t enb_context_id;
+    Buffer nas_buf[MAX_ERAB_SIZE];
+};
+
+#define S1AP_ERABSUREQ_BUF_SIZE sizeof(struct erabsu_ctx_req_Q_msg)
 
 /*************************
  * Outgoing GTP Messages

@@ -57,6 +57,10 @@ extern "C"{
 #define NAS_DETACH_REQUEST 0x45
 #define NAS_DETACH_ACCEPT 0x46
 #define NAS_SERVICE_REQUEST 0x4D
+#define NAS_ACT_DED_BEARER_CTXT_ACPT 0xc6
+#define NAS_ACT_DED_BEARER_CTXT_RJCT 0xc7
+
+#define ESM_HEADER_LEN 9
 
 enum eps_nas_mesage_type {
 	AttachAccept = 0x42,
@@ -64,12 +68,13 @@ enum eps_nas_mesage_type {
 	DetachAccept = 0x46,
 	DetachRequest = 0x45,
 	TauAccept    = 0x49,
-    TauReject    = 0x4b,
+    	TauReject    = 0x4b,
 	ServiceReject = 0x4e,
 	AuthenticationRequest = 0x52,
-    IdentityRequest       = 0x55,
+    	IdentityRequest       = 0x55,
 	SecurityModeCommand = 0x5d,
-    EMMInformation = 0x61,
+    	EMMInformation = 0x61,
+	ActivateDedicatedBearerContextRequest = 0xc5,
 	ESMInformationRequest = 0xd9,
 };
 
@@ -90,15 +95,18 @@ typedef enum
     NAS_IE_TYPE_LAI=0x13,
     NAS_IE_TYPE_PTMSI_SIGNATURE=0x19,
     NAS_IE_TYPE_MS_CLASSMARK_3=0x20,
+    NAS_IE_TYPE_PCO=0x27,
     NAS_IE_TYPE_APN=0x28,
     NAS_IE_TYPE_AUTH_FAIL_PARAM=0x30,
     NAS_IE_TYPE_MS_NETWORK_CAPABILITY=0x31,
+    NAS_IE_TYPE_NBIFOM_CONTAINER = 0x33,
     NAS_IE_TYPE_DRX_PARAM=0x5C,
     NAS_IE_TYPE_TAI=0x52,
+    NAS_IE_TYPE_ESM_CAUSE = 0x58,
     NAS_IE_TYPE_EMM_CAUSE = 0x53,
     NAS_IE_TYPE_VOICE_DOMAIN_PREF_UE_USAGE_SETTING=0x5D,
+    NAS_IE_TYPE_EXT_PCO = 0x7B,
     NAS_IE_TYPE_TX_FLAG=0xAA,
-    NAS_IE_TYPE_PCO=0xAB,
     NAS_IE_TYPE_PTI=0xAC,
 }nas_ie_type;
 
