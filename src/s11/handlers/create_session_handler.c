@@ -203,6 +203,11 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	msgData.maximumApnRestrictionIePresent = true;
 	msgData.maximumApnRestriction.restrictionValue = 0;
+	
+	if( g_csReqInfo->dcnr_flag ) {
+	    msgData.upFunctionSelectionIndicationFlagsIePresent = true;
+	    msgData.upFunctionSelectionIndicationFlags.dcnr = true;
+	}
 
 	/* Bearer Context */
 	msgData.bearerContextsToBeCreatedCount = 1;

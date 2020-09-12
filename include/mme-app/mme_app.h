@@ -26,6 +26,11 @@ extern "C"{
  * MME main application configuration parameters structures.
  * All fields in this will be filled in from input json file.
  */
+
+typedef struct mme_feature_list {
+	bool dcnr_support;
+} mme_feature_list;
+
 /*
        security:
         integrity_order : [ EIA1, EIA2, EIA0 ]
@@ -57,7 +62,8 @@ typedef struct mme_config
 	uint16_t num_plmns;
 	struct PLMN plmns[MAX_PLMN];
 	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
-    uint16_t prom_port;
+	mme_feature_list feature_list; 
+    	uint16_t prom_port;
 } mme_config_t;
 
 class apn_config

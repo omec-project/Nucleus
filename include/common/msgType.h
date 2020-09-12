@@ -129,7 +129,9 @@ struct ue_attach_info {
     struct TAI tai;
     struct CGI utran_cgi;
     struct MS_net_capab ms_net_capab;
-    struct UE_net_capab ue_net_capab;
+    UE_net_capab ue_net_capab;
+    bool ue_add_sec_cap_present;
+    ue_add_sec_capabilities ue_add_sec_capab;
     enum ie_RRC_est_cause rrc_cause;
     int enb_fd;
     char esm_info_tx_required;
@@ -221,7 +223,10 @@ struct tauReq_Q_msg {
     int ue_m_tmsi;
     int seq_num;
     int enb_fd;
-	int s1ap_enb_ue_id;
+    int s1ap_enb_ue_id;
+    UE_net_capab ue_net_capab;
+    bool ue_add_sec_cap_present;
+    ue_add_sec_capabilities ue_add_sec_capab;
     struct TAI tai;
     struct CGI eUtran_cgi;
 }__attribute__ ((packed));
@@ -330,11 +335,14 @@ struct init_ctx_req_Q_msg {
 	int ue_idx;
 	int enb_s1ap_ue_id;
 	int enb_fd;
-	unsigned long exg_max_ul_bitrate;
-	unsigned long exg_max_dl_bitrate;
+	uint64_t exg_max_ul_bitrate;
+	uint64_t exg_max_dl_bitrate;
+	extended_ue_ambr ext_ue_ambr;
 	unsigned char sec_key[32];
 	struct fteid gtp_teid;
 	unsigned char bearer_id;
+	bool ho_restrict_list_presence;
+	ho_restriction_list ho_restrict_list;
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
 };
@@ -519,13 +527,14 @@ struct CS_Q_msg {
 	struct TAI tai;
 	struct CGI utran_cgi;
 	unsigned char MSISDN[MSISDN_STR_LEN];
-	unsigned int max_requested_bw_dl;
-	unsigned int max_requested_bw_ul;
+	uint32_t max_requested_bw_dl;
+	uint32_t max_requested_bw_ul;
 	unsigned int  paa_v4_addr;
 	uint16_t pco_length;
 	unsigned char pco_options[MAX_PCO_OPTION_SIZE];
-    uint32_t sgw_ip;
-    uint32_t pgw_ip;
+	bool dcnr_flag;
+    	uint32_t sgw_ip;
+    	uint32_t pgw_ip;
 };
 #define S11_CSREQ_STAGE5_BUF_SIZE sizeof(struct CS_Q_msg)
 
@@ -593,6 +602,8 @@ struct csr_Q_msg {
     struct PAA pdn_addr;
     uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+    uint32_t apn_ambr_ul;
+    uint32_t apn_ambr_dl;
 };
 
 struct MB_resp_Q_msg {
@@ -671,10 +682,10 @@ struct ula_Q_msg {
     int net_access_mode;
     unsigned int RAU_TAU_timer;
     int res;
-    unsigned int max_requested_bw_dl;
-    unsigned int max_requested_bw_ul;
-    unsigned int extended_max_requested_bw_dl;
-    unsigned int extended_max_requested_bw_ul;
+    uint32_t max_requested_bw_dl;
+    uint32_t max_requested_bw_ul;
+    uint32_t extended_max_requested_bw_dl;
+    uint32_t extended_max_requested_bw_ul;
     unsigned int apn_config_profile_ctx_id;
     int all_APN_cfg_included_ind;
     char MSISDN[MSISDN_STR_LEN];

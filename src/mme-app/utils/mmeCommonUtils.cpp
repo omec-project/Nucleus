@@ -350,3 +350,25 @@ bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeP
 	}
 	return rc;
 }
+
+bool MmeCommonUtils::isUeNRCapable(UEContext &ueCtxt)
+{
+    bool rc;
+
+    if (!ueCtxt.getUeNetCapab().ue_net_capab_m.u.bits.dcnr)
+        rc = false;
+    else if (!mme_cfg->feature_list.dcnr_support)
+        rc = false;
+    else if (!(ueCtxt.getHssFeatList2().feature_list & nrAsSecRatBitMask_c))
+        rc = false;
+    else if (ueCtxt.getAccessRestrictionData()
+            & nrAsSecRatInEutranNotAllowedBitMask_c)
+        rc = false;
+    else
+        rc = true;
+
+    return rc;
+}
+
+
+

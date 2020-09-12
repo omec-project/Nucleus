@@ -120,11 +120,11 @@ parse_ula_subscription_data(struct avp *avp_ptr, struct ula_Q_msg *ula)
 					ula->max_requested_bw_dl = ambr_element->avp_value->u32;
 				}
 
-				if(EXT_MAX_REQ_BW_UL_AVP_CODE == ambr_element->avp_code) {
+				if(g_fd_dict_data.extended_max_req_bandwidth_UL.avp_code == ambr_element->avp_code) {
                                         ula->extended_max_requested_bw_ul = ambr_element->avp_value->u32;
                                 }
 
-				if(EXT_MAX_REQ_BW_DL_AVP_CODE == ambr_element->avp_code) {
+				if(g_fd_dict_data.extended_max_req_bandwidth_DL.avp_code == ambr_element->avp_code) {
                                         ula->extended_max_requested_bw_dl = ambr_element->avp_value->u32;
                                 }
 

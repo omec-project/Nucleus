@@ -147,7 +147,7 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
-						sizeof(g_value_buffer.pos));
+						sizeof(uint8_t));
 
 	buffer_copy(&g_buffer, &g_value_buffer,
 						g_value_buffer.pos);
