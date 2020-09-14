@@ -419,7 +419,7 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
         {
             log_msg(LOG_INFO, "process_mb_resp_svc_req: MB Response Failure\n");
 
-            procCtxt->setMmeErrorCause(s11MBRespFailure_c);
+            procCtxt->setMmeErrorCause(S11_MODIFY_BEARER_RESP_FAILURE);
             actStatus = ActStatus::ABORT;
         }
         else

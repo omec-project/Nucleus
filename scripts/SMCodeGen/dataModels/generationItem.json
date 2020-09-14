@@ -113,7 +113,7 @@
 					"appModelKeyword": "DataStore",
 					"appModelValueDepth": 1,
 					"templateFile": "templates/ctxtManagerTmpls/dataBlocks.h.tt",
-					"includes" : "structs.h,utils/mmeCauseTypes.h,utils/mmeProcedureTypes.h,utils/mmeTimerTypes.h",
+					"includes" : "err_codes.h,structs.h,utils/mmeProcedureTypes.h,utils/mmeTimerTypes.h",
 					"outputPath": "../../include/mme-app/contextManager",
 					"outputFile": "dataBlocks",
 					"outputFileKey": "",

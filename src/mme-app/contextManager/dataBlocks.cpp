@@ -960,7 +960,7 @@ namespace mme
 	******************************************************************************/
 	MmeProcedureCtxt::MmeProcedureCtxt():           
             ctxtType_m(invalidProcedureType_c),
-            mmeErrorCause_m(noError_c),
+            mmeErrorCause_m(SUCCESS),
             s1apCause_m(),
             stateGuardTimerCtxt_m(NULL),
             authRespStatus_m(0),
@@ -995,7 +995,7 @@ namespace mme
 	/******************************************************************************
 	* sets mmeErrorCause
 	******************************************************************************/
-	void MmeProcedureCtxt::setMmeErrorCause( MmeErrorCause mmeErrorCause_i )
+	void MmeProcedureCtxt::setMmeErrorCause( ERROR_CODES mmeErrorCause_i )
 	{
 		mmeErrorCause_m = mmeErrorCause_i;
 	}
@@ -1003,7 +1003,7 @@ namespace mme
 	/******************************************************************************
 	* returns mmeErrorCause
 	******************************************************************************/	
-        MmeErrorCause MmeProcedureCtxt::getMmeErrorCause() const
+        ERROR_CODES MmeProcedureCtxt::getMmeErrorCause() const
         {
                 return mmeErrorCause_m;
         }
