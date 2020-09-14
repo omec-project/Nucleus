@@ -35,8 +35,10 @@ struct secinfo {
 };
 
 struct AMBR {
-    unsigned int max_requested_bw_dl;
-    unsigned int max_requested_bw_ul;
+    uint32_t max_requested_bw_dl;  // bps
+    uint32_t max_requested_bw_ul;  // bps
+    uint32_t ext_max_requested_bw_dl;  // kbps
+    uint32_t ext_max_requested_bw_ul;  // kbps
 };
 
 class Tai

@@ -25,6 +25,9 @@
 			"plmn1": "mcc=315,mnc=010",
 			"plmn2": "mcc=208,mnc=01"
         },
+        "feature_list": {
+            "dcnr_support": "enabled"
+        }
         "apnlist": {
             "__comment__": " apn name to ip addresss/service name mapping.",
             "internet": "spgwc-headless",
