@@ -207,6 +207,19 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 
 	s6a_req.ue_idx = ue_ctxt->getContextID();
 	s6a_req.msg_type = update_loc_request;
+    
+	// Check and populate feature lists belonging to id 2
+	uint32_t featList = 0;
+        
+	if (mme_cfg->feature_list.dcnr_support)
+        featList |= nrAsSecRatBitMask_c;
+	
+	if (featList != 0)
+	{
+	    s6a_req.supp_features_list.supp_features[s6a_req.supp_features_list.count].feature_list_id = 2;
+	    s6a_req.supp_features_list.supp_features[s6a_req.supp_features_list.count].feature_list =  featList;
+	    s6a_req.supp_features_list.count++;
+	}
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
@@ -281,12 +294,31 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
 	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
 	ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
-	log_msg(LOG_DEBUG, "Selected APN %s \n",ula_msg.selected_apn.val);
 
+    for (int i = 0; i < ula_msg.supp_features_list.count; i++)
+    {
+        if (ula_msg.supp_features_list.supp_features[i].feature_list_id == 2)
+        {
+            ue_ctxt->setHssFeatList2(
+                    ula_msg.supp_features_list.supp_features[i]);
+            break;
+        }
+    }
+        
+	ue_ctxt->setDcnrCapable(MmeCommonUtils::isUeNRCapable(*ue_ctxt));
+	
+	// UE-AMBR received from HSS. Treated as APN-AMBR as well.
+	// Bitrate values beyond 4.2 Gbps will be set in extended AMBR fields.
+	// Extended AMBR fields can store bit rate values upto 4.2 Tbps.
 	struct AMBR ambr;
 	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
 	ambr.max_requested_bw_ul = ula_msg.max_requested_bw_ul;
-	
+	if(ula_msg.extended_max_requested_bw_dl > 0 || ula_msg.extended_max_requested_bw_ul > 0)
+	{
+	    ambr.ext_max_requested_bw_dl = ula_msg.extended_max_requested_bw_dl;
+	    ambr.ext_max_requested_bw_ul = ula_msg.extended_max_requested_bw_ul;
+	}
+
 	ue_ctxt->setAmbr(Ambr(ambr));
 	
 	struct PAA pdn_addr;
@@ -455,14 +487,20 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	nas.header.security_encryption_algo = ue_ctxt->getUeSecInfo().getSelectSecAlg();
 	nas.header.security_integrity_algo = ue_ctxt->getUeSecInfo().getSelectIntAlg();
 	nas.header.nas_security_param = AUTHREQ_NAS_SECURITY_PARAM;
-	const uint8_t num_nas_elements = SEC_MODE_NO_OF_NAS_IES;
+        uint8_t num_nas_elements = SEC_MODE_NO_OF_NAS_IES;
+	/* UE additional security capability is replayed in sec_mode_command when MME supports the handling of the same
+         * Spec 24.301 v 15.6.0  sec:8.2.20.6*/
+	if(mme_cfg->feature_list.dcnr_support && ue_ctxt->getUeAddSecCapabPres())
+    	{
+            num_nas_elements += 1;
+    	}
 	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
 	nas.elements_len = num_nas_elements;
 	nas.elements->pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
 	if(ue_ctxt->getUeNetCapab().ue_net_capab_m.len >= 4)
 	{
         /*Copy first 4 bytes of security algo info*/
-	    memcpy(nas.elements->pduElement.ue_network.capab, ue_ctxt->getUeNetCapab().ue_net_capab_m.capab, 4);
+	    memcpy(nas.elements->pduElement.ue_network.u.octets, ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets, 4);
 	   
         if(ue_ctxt->getMsNetCapab().ms_net_capab_m.pres == true)
 	    {
@@ -478,7 +516,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 		    val = ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[0]&0x80;
             val |= ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[1]&0x7E;
             val >>= 1;
-	        nas.elements->pduElement.ue_network.capab[4] = val;
+	        nas.elements->pduElement.ue_network.u.octets[4] = val;
 	    }
 	    else
 	    {
@@ -493,11 +531,19 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	    /*Copy as much info of UE network capability 
 	    * as received.
 	    */
-            memcpy(nas.elements->pduElement.ue_network.capab,
-				   	ue_ctxt->getUeNetCapab().ue_net_capab_m.capab,
+            memcpy(nas.elements->pduElement.ue_network.u.octets,
+				   	ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets,
 					ue_ctxt->getUeNetCapab().ue_net_capab_m.len);
 	}
 
+	if (mme_cfg->feature_list.dcnr_support && ue_ctxt->getUeAddSecCapabPres())
+    {
+        nas.opt_ies_flags.ue_add_sec_cap_presence = true;
+        memcpy(&(nas.elements->pduElement.ue_add_sec_capab),
+                &(ue_ctxt->getUeAddSecCapab()),
+                sizeof(ue_add_sec_capabilities));
+    }
+    
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&sec_mode_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	sec_mode_msg.nasMsgSize = nasBuffer.pos;
@@ -741,11 +787,24 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	if(procCtxt->getPcoOptionsLen() > 0){
 		memcpy(&(cs_msg.pco_options[0]), procCtxt->getPcoOptions(),cs_msg.pco_length);
 	}
+
 	const AMBR& ambr = ue_ctxt->getAmbr().ambr_m;
 
-	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl;
-	cs_msg.max_requested_bw_ul = ambr.max_requested_bw_ul;
+	// Currently we are treating UE-AMBR as APN-AMBR.
+	// Is this correct?
+	sessionCtxt->setApnAmbr(Ambr(ambr));
+
+	// AMBR in UEContext/SessionContext is value received from HSS and is in bps.
+	// SGW expects it in Kbps
+	cs_msg.max_requested_bw_dl = ambr.max_requested_bw_dl/1000;
+	cs_msg.max_requested_bw_ul = ambr.max_requested_bw_ul/1000;
 	
+	// If the AMBR received from HSS is beyond 4.2 Gbps, set the AMBR from the extended AMBR fields.
+	if (ambr.ext_max_requested_bw_dl > 0)
+	    cs_msg.max_requested_bw_dl = ambr.ext_max_requested_bw_dl; // already in kbps
+	if (ambr.ext_max_requested_bw_ul > 0)
+	    cs_msg.max_requested_bw_ul = ambr.ext_max_requested_bw_ul; // already in kbps
+
 	const PAA& pdn_addr = ue_ctxt->getPdnAddr().paa_m;
 	
 	cs_msg.paa_v4_addr = pdn_addr.ip_type.ipv4.s_addr; /* host order */
@@ -754,6 +813,9 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	
 	const DigitRegister15& ueMSISDN = ue_ctxt->getMsisdn();
 	ueMSISDN.convertToBcdArray(cs_msg.MSISDN);
+	
+	if(ue_ctxt->getDcnrCapable())
+	   cs_msg.dcnr_flag = true;
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
@@ -801,6 +863,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
+
 
 	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
 	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info.pco_options,csr_info.pco_length);
@@ -866,6 +929,9 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	memcpy(secInfo.next_hop_nh , secInfo.kenb_key, KENB_SIZE);
 	
 	init_ctx_req_Q_msg icr_msg;
+	memset(&icr_msg, 0, sizeof(init_ctx_req_Q_msg));
+
+	bool eps_nw_feature_supp_presence = false;
 	icr_msg.msg_type = init_ctxt_request;
 	icr_msg.ue_idx = ue_ctxt->getContextID();
 	icr_msg.enb_fd = ue_ctxt->getEnbFd();
@@ -882,6 +948,63 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	memcpy(&(icr_msg.gtp_teid), &(bearerCtxt->getS1uSgwUserFteid().fteid_m), sizeof(struct fteid));
 	memcpy(&(icr_msg.sec_key), &((ue_ctxt->getUeSecInfo().secinfo_m).kenb_key),
 			KENB_SIZE);	
+
+	bool nsa_enabled = false;
+    
+	// If UE supports DCNR
+	if (ue_ctxt->getUeNetCapab().ue_net_capab_m.u.bits.dcnr)
+	{
+		// But the network does not allow DCNR for the UE
+		if (ue_ctxt->getDcnrCapable() == false)
+		{
+			eps_nw_feature_supp_presence = true;
+
+			icr_msg.ho_restrict_list_presence = true;
+			memcpy(&(icr_msg.ho_restrict_list.serving_plmn),
+					&(ue_ctxt->getTai().tai_m.plmn_id), 3);
+
+			// send HO Restriction list with NR Restriction in EPS as Secondary RAT
+			icr_msg.ho_restrict_list.nr_restricted_in_eps =
+					nRrestrictedinEPSasSecondaryRAT;
+		}
+		else
+		{
+		    // Ext-APN-AMBR fields in the UE context stores the value received from HSS and
+		    // can hold bitrate values beyond 4.2 Gbps.
+		    // In the S1 layer, bit rate values till 10Gbps can be sent in UE-AMBR IE.
+		    // and a bitrate beyond 10Gbps needs to use Ext-UE-AMBR IE.
+		    nsa_enabled = true;
+		    uint64_t ueAmbrExt = 0;
+		    if (ue_ctxt->getAmbr().ambr_m.ext_max_requested_bw_dl > 0)
+		    {
+		        ueAmbrExt = ((uint64_t)ue_ctxt->getAmbr().ambr_m.ext_max_requested_bw_dl) * 1000;
+		        if (ueAmbrExt > UEAMBR_MAX)
+		        {
+		            icr_msg.ext_ue_ambr.ext_ue_ambr_DL = ueAmbrExt;
+		            icr_msg.exg_max_dl_bitrate = UEAMBR_MAX;
+		        }
+		        else
+		        {
+		            icr_msg.exg_max_dl_bitrate = ueAmbrExt;
+		        }
+		    }
+
+		    if (ue_ctxt->getAmbr().ambr_m.ext_max_requested_bw_ul > 0)
+		    {
+		        ueAmbrExt = ((uint64_t)ue_ctxt->getAmbr().ambr_m.ext_max_requested_bw_ul) * 1000;
+		        if (ueAmbrExt > UEAMBR_MAX)
+		        {
+		            icr_msg.ext_ue_ambr.ext_ue_ambr_UL = ueAmbrExt;
+		            icr_msg.exg_max_ul_bitrate = UEAMBR_MAX;
+		        }
+		        else
+		        {
+		            icr_msg.exg_max_ul_bitrate = ueAmbrExt;
+		        }
+		    }
+		}
+	}
+    
 	struct Buffer nasBuffer;
 	struct nasPDU nas = {0};
     nasBuffer.pos = 0; 
@@ -899,7 +1022,10 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.header.procedure_trans_identity = 1;
 
 	nas.elements_len = ICS_REQ_NO_OF_NAS_IES;
-	nas.elements = (nas_pdu_elements *) calloc(ICS_REQ_NO_OF_NAS_IES,sizeof(nas_pdu_elements));
+	if (eps_nw_feature_supp_presence)
+	    nas.elements_len ++;
+
+	nas.elements = (nas_pdu_elements *) calloc(nas.elements_len,sizeof(nas_pdu_elements));
 	nas.elements[0].pduElement.attach_res = 2; /* EPS Only */
 	nas.elements[1].pduElement.t3412 = 224; 
 	nas.elements[2].pduElement.tailist.type = 1;
@@ -929,16 +1055,65 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.linked_ti.val = 0;
 	MmeNasUtils::get_negotiated_qos_value(&nas.elements[3].pduElement.esm_msg.negotiated_qos);
 
+    const Ambr& apnAmbr = sessionCtxt->getApnAmbr();
+
+    // NAS Ext-APN-AMBR IE is included when the APN AMBR to be sent
+    // exceeds 65.2 Gbps.
+    if (nsa_enabled && (apnAmbr.ambr_m.ext_max_requested_bw_dl >= NAS_EXT_APN_AMBR_MIN
+            || apnAmbr.ambr_m.ext_max_requested_bw_ul >= NAS_EXT_APN_AMBR_MIN))
+    {
+        uint8_t unit = 0;
+        uint16_t convExtApnAmbr = 0;
+
+        nas.elements[3].pduElement.esm_msg.extd_apn_ambr.length = 6;
+
+        if (apnAmbr.ambr_m.ext_max_requested_bw_dl > NAS_EXT_APN_AMBR_MIN)
+        {
+            MmeNasUtils::calculate_ext_apn_ambr(
+                    (apnAmbr.ambr_m.ext_max_requested_bw_dl / 1000 ), unit, 
+                    convExtApnAmbr);
+            convExtApnAmbr = htons(convExtApnAmbr);
+
+            nas.elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr[0] =
+                    unit;
+            memcpy(
+                    &nas.elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr[1],
+                    &convExtApnAmbr, sizeof(convExtApnAmbr));
+        }
+        if (apnAmbr.ambr_m.ext_max_requested_bw_ul > NAS_EXT_APN_AMBR_MIN)
+        {
+            MmeNasUtils::calculate_ext_apn_ambr(
+                    (apnAmbr.ambr_m.ext_max_requested_bw_ul / 1000), unit,
+                    convExtApnAmbr);
+            convExtApnAmbr = htons(convExtApnAmbr);
+
+            nas.elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr[3] =
+                    unit;
+            memcpy(
+                    &nas.elements[3].pduElement.esm_msg.extd_apn_ambr.ext_apn_ambr[4],
+                    &convExtApnAmbr, sizeof(convExtApnAmbr));
+        }
+    }
+
     /* Send the allocated GUTI to UE  */
 	nas.elements[4].pduElement.mi_guti.odd_even_indication = 0;
 	nas.elements[4].pduElement.mi_guti.id_type = 6;
 
 	memcpy(&(nas.elements[4].pduElement.mi_guti.plmn_id),
-			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - sizeof(struct PLMN)); dont use size..it has extra fields 
+			&(ue_ctxt->getTai().tai_m.plmn_id), 3); // ajaymerge - sizeof(struct PLMN)); dont use size..it has extra fields
 	nas.elements[4].pduElement.mi_guti.mme_grp_id = htons(mme_cfg->mme_group_id);
 	nas.elements[4].pduElement.mi_guti.mme_code = mme_cfg->mme_code;
-	nas.elements[4].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+    nas.elements[4].pduElement.mi_guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
+    // NAS Optional IEs starts from index 5
+    uint8_t index = 5;
+    if (eps_nw_feature_supp_presence)
+    {
+        nas.opt_ies_flags.eps_nw_feature_supp_presence = true;
+        // add EPS Nwk Feature Support with restrict dcnr flag set
+        nas.elements[index++].pduElement.eps_nw_feature_supp.restrictDcnr = 1;
+    }
+        
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&icr_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	icr_msg.nasMsgSize = nasBuffer.pos;
