@@ -12,8 +12,10 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <nas_structs.h>
 
 #define S11_MSGBUF_SIZE 2048
+#define DED_BEARER_COUNT 1
 
 #pragma pack(1)
 typedef struct gtpv2c_header {
@@ -76,13 +78,6 @@ struct gtp_cause {
 	unsigned char data;
 };
 
-struct bearer_ctx {
-	unsigned char eps_bearer_id;
-	struct gtp_cause cause;
-	struct fteid s1u_sgw_teid;
-	struct fteid s5s8_pgw_u_teid;
-};
-
 struct ARP {
         uint8_t prioLevel :4;
         uint8_t preEmptionCapab :1;
@@ -90,6 +85,30 @@ struct ARP {
         uint8_t spare :2;
 };
 
+typedef struct bearer_qos {
+	struct ARP arp;
+	uint8_t qci;
+	uint64_t mbr_ul;
+	uint64_t mbr_dl;
+	uint64_t gbr_ul;
+	uint64_t gbr_dl;
+} bearer_qos_t;
+
+typedef struct bearer_ctxt {
+        unsigned char eps_bearer_id;
+        struct gtp_cause cause;
+        struct fteid s1u_sgw_teid;
+        struct fteid s5s8_pgw_u_teid;
+        struct fteid s1u_enb_fteid;
+	bearer_qos_t bearer_qos;
+	struct pco pco;
+	bearer_tft tft;
+} bearer_ctxt_t;
+
+typedef struct bearerCtxList {
+    uint8_t bearers_count;
+    bearer_ctxt_t bearerCtxt[DED_BEARER_COUNT];
+} bearerCtxList_t;
 
 struct s11_IE_header {
 	unsigned char ie_type;
@@ -103,7 +122,7 @@ union s11_IE_data {
 	struct fteid s11_sgw_fteid;
 	struct fteid s5s8_pgw_c_fteid;
 	struct PAA pdn_addr;
-	struct bearer_ctx bearer;
+	bearer_ctxt_t bearer;
 	unsigned char eps_bearer_id;
 	struct ARP arp;
 };

@@ -24,6 +24,10 @@
 #define GTP_MODIFY_BEARER_RSP                                35
 #define GTP_DELETE_SESSION_REQ                               36
 #define GTP_DELETE_SESSION_RSP                               37
+#define GTP_CREATE_BEARER_REQ                                95
+#define GTP_CREATE_BEARER_RSP                                96
+#define GTP_DELETE_BEARER_REQ                                99
+#define GTP_DELETE_BEARER_RESP                              100
 #define GTP_RABR_REQ                                        170
 #define GTP_RABR_RSP                                        171
 #define GTP_DOWNLINK_DATA_NOTIFICATION_ACK 					177

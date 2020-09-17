@@ -411,6 +411,13 @@ typedef struct tai_list {
 	struct TAI partial_list[EMM_MAX_TAI_LIST];
 } tai_list;
 
+#define TFT_MAX_SIZE 256
+
+typedef struct bearer_tft{
+    uint16_t len;
+    uint8_t data[TFT_MAX_SIZE];
+} bearer_tft;
+
 typedef struct extended_apn_ambr {
     uint8_t length;
     uint8_t ext_apn_ambr[6];
@@ -430,6 +437,7 @@ typedef struct esm_msg_container {
 	ESM_APN_AMBR apn_ambr;
     	extended_apn_ambr extd_apn_ambr;
     struct pco pco_opt;
+    bearer_tft tft;
 } esm_msg_container;
 
 #define NAS_RAND_SIZE 16

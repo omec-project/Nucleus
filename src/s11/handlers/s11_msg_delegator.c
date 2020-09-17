@@ -58,7 +58,7 @@ network_cp_fteid(struct fteid *teid, char *data)
 }
 
 int
-parse_bearer_ctx(struct bearer_ctx *bearer, char* data, short len)
+parse_bearer_ctx(bearer_ctxt_t *bearer, char* data, short len)
 {
 	char no_of_ies = 4;
 	//TODO: count no of IEs
@@ -191,8 +191,16 @@ handle_s11_message(void *message)
 		break;
 	
 	case S11_GTP_DOWNLINK_DATA_NOTIFICATION:
-                s11_DDN_handler(msgBuf_p, &msgHeader, sgw_ip);
-                break;
+		s11_DDN_handler(msgBuf_p, &msgHeader, sgw_ip);
+		break;
+	
+	case S11_GTP_CREATE_BEARER_REQ:
+        	s11_CB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
+        	break;
+				
+    	case S11_GTP_DELETE_BEARER_REQ:
+        	s11_DB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
+        	break;
 
 	}
 

@@ -15,7 +15,6 @@ extern "C"{
 #include "err_codes.h"
 #include "s6_common_types.h"
 #include "s11_structs.h"
-//#include "structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
 
@@ -114,6 +113,10 @@ typedef enum msg_type_t {
     handover_cancel_ack,
     erab_mod_indication,
     erab_mod_confirmation,
+    create_bearer_request,
+    create_bearer_response,
+    delete_bearer_request,
+    delete_bearer_response,
     raw_nas_msg,
     max_msg_type
 } msg_type_t;
@@ -590,6 +593,28 @@ struct DDN_FAIL_Q_msg{
 	uint8_t cause;
 };
 #define S11_DDN_FAIL_BUF_SIZE sizeof(struct DDN_FAIL_Q_msg)
+
+struct CB_RESP_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    int s11_sgw_cp_teid;
+    uint8_t cause;
+    bearerCtxList_t bearerCtxList;
+    struct pco pco;
+ };
+ #define S11_CBRESP_BUF_SIZE sizeof(struct CB_RESP_Q_msg)
+ 
+struct DB_RESP_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    int s11_sgw_cp_teid;
+    uint8_t cause;
+    uint8_t linked_bearer_id;
+    bearerCtxList_t bearerCtxList;
+    struct pco pco;
+ };
+#define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
+ 
 /*************************
  * Incoming GTP Messages
  *************************/
@@ -624,11 +649,28 @@ struct ddn_Q_msg {
     uint32_t sgw_ip;
 };
 
+struct cb_req_Q_msg {
+    uint8_t linked_eps_bearer_id;
+    struct pco pco;
+    bearerCtxList_t bearerCtxList;
+};
+
+
+struct db_req_Q_msg {
+    uint8_t cause;
+    uint8_t linked_bearer_id;
+    uint8_t eps_bearer_ids[DED_BEARER_COUNT];
+    struct pco pco;
+    bearerCtxList_t bearerCtxList;
+};
+
 typedef union gtp_incoming_msgs_t {
     struct csr_Q_msg csr_Q_msg_m;
     struct MB_resp_Q_msg MB_resp_Q_msg_m;
     struct RB_resp_Q_msg RB_resp_Q_msg_m;
-    struct ddn_Q_msg ddn_Q_msg_m;    
+    struct ddn_Q_msg ddn_Q_msg_m;
+    struct cb_req_Q_msg cb_req_Q_m;
+    struct db_req_Q_msg db_req_Q_m;
 }gtp_incoming_msgs_t;
 
 typedef struct gtp_incoming_msg_data_t {
