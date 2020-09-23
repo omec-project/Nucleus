@@ -411,8 +411,9 @@ typedef struct tai_list {
 	struct TAI partial_list[EMM_MAX_TAI_LIST];
 } tai_list;
 
-/* 24.301 - 9.9.4.3.1 */
-typedef struct eps_qos_bitmap {
+/* 24.301 v15.6.0 - 9.9.4.3.1 */
+typedef struct eps_qos_t {
+        uint8_t len;
 	uint8_t qci;
         uint8_t mbr_ul;
         uint8_t mbr_dl;
@@ -426,11 +427,6 @@ typedef struct eps_qos_bitmap {
         uint8_t mbr_dl_ext_2;
         uint8_t gbr_ul_ext_2;
         uint8_t gbr_dl_ext_2;
-} eps_qos_bitmap;
-
-typedef struct eps_qos_t {
-        uint8_t len;
-	eps_qos_bitmap val;
 } eps_qos_t;
 
 #define TFT_MAX_SIZE 256
@@ -440,6 +436,7 @@ typedef struct bearer_tft{
     uint8_t data[TFT_MAX_SIZE];
 } bearer_tft;
 
+/* 24.301 v15.6.0 - 9.9.4.4 */
 typedef enum esm_cause_t {
     NOT_SET = 0,
     OPERATOR_DETERMINED_BARRING = 4,

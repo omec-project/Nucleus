@@ -1682,17 +1682,17 @@ void MmeNasUtils::cal_nas_bit_rate(uint64_t bit_rate_kbps, uint8_t* out)
 	bit_rate = 0xff;
     }
 
-    if (bit_rate_kbps > 65200)
+    if (bit_rate_kbps > (65200*1024))
     {
         bit_rate_ext_2 = 0b11111110;
 
-        bit_rate_kbps %= 256;
+        bit_rate_kbps %= (256*1024);
     }
-    else if (bit_rate_kbps >= 256 && bit_rate_kbps <= 65200)
+    else if (bit_rate_kbps >= (256*1024) && bit_rate_kbps <= (65200*1024))
     {
-        bit_rate_ext_2 = bit_rate_kbps / 256;
+        bit_rate_ext_2 = bit_rate_kbps / (256*1024);
 
-        bit_rate_kbps %= 256;
+        bit_rate_kbps %= (256*1024);
     }
 
     if (bit_rate_kbps >= 1 && bit_rate_kbps <= 63)
@@ -1758,49 +1758,51 @@ void MmeNasUtils::encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
     uint8_t br_arr[3] = {0};
 
     /*encode eps qos qci*/
-    eps_qos.val.qci = bearerQos.qci;
+    eps_qos.qci = bearerQos.qci;
     eps_qos.len = 1;
     
     if(bearerQos.mbr_ul > 0)
     {
 	MmeNasUtils::cal_nas_bit_rate(bearerQos.mbr_ul, br_arr);
-	eps_qos.val.mbr_ul = br_arr[0];
-	eps_qos.val.mbr_ul_ext = br_arr[1];
-	eps_qos.val.mbr_ul_ext_2 = br_arr[2];
-	eps_qos.len += 4;
+	eps_qos.mbr_ul = br_arr[0];
+	eps_qos.mbr_ul_ext = br_arr[1];
+	eps_qos.mbr_ul_ext_2 = br_arr[2];
 	memset(br_arr, 0, 3);
     }
 
     if(bearerQos.mbr_dl > 0)
     {
 	MmeNasUtils::cal_nas_bit_rate(bearerQos.mbr_dl, br_arr);
-	eps_qos.val.mbr_dl = br_arr[0];
-        eps_qos.val.mbr_dl_ext = br_arr[1];
-        eps_qos.val.mbr_dl_ext_2 = br_arr[2];
-	eps_qos.len += 4;
+	eps_qos.mbr_dl = br_arr[0];
+        eps_qos.mbr_dl_ext = br_arr[1];
+        eps_qos.mbr_dl_ext_2 = br_arr[2];
 	memset(br_arr, 0, 3);
     }
 
     if(bearerQos.gbr_ul > 0)
     {
 	MmeNasUtils::cal_nas_bit_rate(bearerQos.gbr_ul, br_arr);
-	eps_qos.val.gbr_ul = br_arr[0];
-        eps_qos.val.gbr_ul_ext = br_arr[1];
-        eps_qos.val.gbr_ul_ext_2 = br_arr[2];
-	eps_qos.len += 4;
+	eps_qos.gbr_ul = br_arr[0];
+        eps_qos.gbr_ul_ext = br_arr[1];
+        eps_qos.gbr_ul_ext_2 = br_arr[2];
 	memset(br_arr, 0, 3);
     }
 
     if(bearerQos.gbr_dl > 0)
     {
 	MmeNasUtils::cal_nas_bit_rate(bearerQos.gbr_dl, br_arr);
-	eps_qos.val.gbr_dl = br_arr[0];
-        eps_qos.val.gbr_dl_ext = br_arr[1];
-        eps_qos.val.gbr_dl_ext_2 = br_arr[2];
-	eps_qos.len += 4;
+	eps_qos.gbr_dl = br_arr[0];
+        eps_qos.gbr_dl_ext = br_arr[1];
+        eps_qos.gbr_dl_ext_2 = br_arr[2];
 	memset(br_arr, 0, 3);
     }
 
+    if(eps_qos.val.mbr_ul)
+            eps_qos.len += 4;
+    if(eps_qos.val.mbr_ul_ext)
+            eps_qos.len += 4;
+    if(eps_qos.val.mbr_ul_ext_2)
+            eps_qos.len += 4;
 }
 
 uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasPDU *nas)
@@ -1820,9 +1822,8 @@ uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasP
     value = (spare_half_oct << 4) | nas->header.eps_bearer_identity;
     buffer_copy(nasBuffer, &value, sizeof(value));
     
-    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.eps_qos.len, sizeof(uint8_t));
-    buffer_copy(nasBuffer, (uint8_t*)(&nas->elements[0].pduElement.esm_msg.eps_qos.val),
-                           nas->elements[0].pduElement.esm_msg.eps_qos.len * sizeof(uint8_t));
+    buffer_copy(nasBuffer, (uint8_t*) (&nas->elements[0].pduElement.esm_msg.eps_qos), 
+		    (nas->elements[0].pduElement.esm_msg.eps_qos.len + 1) * sizeof(uint8_t));
     buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.tft.len, sizeof(uint8_t));
     buffer_copy(nasBuffer, nas->elements[0].pduElement.esm_msg.tft.data,
                                         nas->elements[0].pduElement.esm_msg.tft.len);
@@ -1975,7 +1976,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			/* eps qos */
 			uint8_t datalen = 1;
 			buffer_copy(nasBuffer, &datalen, sizeof(datalen));
-			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.eps_qos.val.qci), sizeof(datalen));
+			buffer_copy(nasBuffer, &(nas->elements[3].pduElement.esm_msg.eps_qos.qci), sizeof(datalen));
 
 			/* apn */
 			// There is one category of UE, they do not send not apn to MME.

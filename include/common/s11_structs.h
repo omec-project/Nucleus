@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #define S11_MSGBUF_SIZE 2048
+#define DED_BEARER_COUNT 1
 
 #pragma pack(1)
 typedef struct gtpv2c_header {

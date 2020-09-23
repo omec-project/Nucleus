@@ -267,7 +267,7 @@ struct s1apMsg_plus_raw_nas {
 struct erabSuResp_Q_msg {
     int s1ap_enb_ue_id;
     int s1ap_mme_ue_id;
-    struct ERABSetupList eRABSetupList;
+    erab_setup_list erab_su_list;
     erab_failed_to_setup_list erab_fail_list;
 }__attribute__ ((packed));
 
@@ -499,7 +499,7 @@ struct handover_request_Q_msg {
 	s1apCause_t cause;
 	struct src_target_transparent_container src_to_target_transparent_container;
 	ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
-	struct ERABSetupList eRABSetupList;
+	erab_setup_list erab_su_list;
 	struct security_context security_context;
 	struct gummei gummei;
 };
@@ -548,9 +548,9 @@ struct erabsu_ctx_req_Q_msg {
     uint32_t mme_ue_s1ap_id;
     uint32_t enb_s1ap_ue_id;
     ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
-    struct ERABSetupList erab_setup_list;
+    erab_setup_list erab_su_list;
     uint32_t enb_context_id;
-    Buffer nas_buf[MAX_ERAB_SIZE];
+    Buffer nas_buf[DED_BEARER_COUNT];
 };
 
 #define S1AP_ERABSUREQ_BUF_SIZE sizeof(struct erabsu_ctx_req_Q_msg)

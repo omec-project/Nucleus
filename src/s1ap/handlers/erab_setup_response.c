@@ -22,15 +22,15 @@ void dump_erab_su_resp(struct erabSuResp_Q_msg *msg)
 {
    log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->s1ap_mme_ue_id);
    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->s1ap_enb_ue_id);
-   log_msg(LOG_INFO, "eRABSetupList_count %d\n", msg->eRABSetupList.count);
-   for(int i = 0; i < msg->eRABSetupList.count; i++)
+   log_msg(LOG_INFO, "eRABSetupList_count %d\n", msg->erab_su_list.count);
+   for(int i = 0; i < msg->erab_su_list.count; i++)
    {
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].erab_id: %d\n", i, msg->eRABSetupList.
-		       eRABSetup[i].e_RAB_ID);
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %x\n", i, msg->eRABSetupList.
-                       eRABSetup[i].transportLayerAddress);
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].gtp_teid: %d\n", i, msg->eRABSetupList.
-                       eRABSetup[i].gtp_teid);
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].erab_id: %d\n", i, msg->erab_su_list.
+		       erab_su_item[i].e_RAB_ID);
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %x\n", i, msg->erab_su_list.
+                       erab_su_item[i].transportLayerAddress);
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].gtp_teid: %d\n", i, msg->erab_su_list.
+                       erab_su_item[i].gtp_teid);
    }
    for(int i = 0; i < msg->erab_fail_list.count; i++)
    {
@@ -83,14 +83,14 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
                 log_msg(LOG_INFO,
                     "ERAB Setup Response S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES \
 		             received with the count : %d\n", 
-                     erab_su_resp_ies.data[i].val.eRABSetupList.count);
+                     erab_su_resp_ies.data[i].val.erab_su_list.count);
 
-                erab_su_resp.msg_data.erabSuResp_Q_msg_m.eRABSetupList.count =
-                    erab_su_resp_ies.data[i].val.eRABSetupList.count;
+                erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_su_list.count =
+                    erab_su_resp_ies.data[i].val.erab_su_list.count;
                 memcpy(
-                    &erab_su_resp.msg_data.erabSuResp_Q_msg_m.eRABSetupList.eRABSetup,
-                    &erab_su_resp_ies.data[i].val.eRABSetupList.eRABSetup,
-                    sizeof(erab_su_resp_ies.data[i].val.eRABSetupList.eRABSetup));
+                    &erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_su_list.erab_su_item,
+                    &erab_su_resp_ies.data[i].val.erab_su_list.erab_su_item,
+                    sizeof(erab_su_resp_ies.data[i].val.erab_su_list.erab_su_item));
             }
             break;
             case S1AP_IE_E_RAB_FAILED_TO_SETUP_LIST_BEARER_SU_RES:

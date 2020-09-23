@@ -49,7 +49,7 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	ieCnt++;
 
 	/* E-RABToBeSetupItemCtxtSUReq start */
-	ERABSetup *e_rab = &(value->data[ieCnt].val.E_RABToBeSetupItemCtxtSUReq);
+	erab_setup_item *e_rab = &(value->data[ieCnt].val.erab_to_be_setup_item_ctxt_su_req);
 	/* TODO: Remove hardcoded values. */
 	e_rab->e_RAB_ID = 1;
 	e_rab->e_RAB_QoS_Params.qci = 9;
@@ -309,7 +309,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	buffer_copy(&g_s1ap_buffer, &g_ext_buffer.buf, g_ext_buffer.pos);
 
 	/* id-E-RABToBeSetupListCtxtSUReq */
-	ERABSetup *erab = &(s1apPDU.value.data[3].val.E_RABToBeSetupItemCtxtSUReq);
+	erab_setup_item *erab = &(s1apPDU.value.data[3].val.erab_to_be_setup_item_ctxt_su_req);
 	protocolIe_Id = id_ERABToBeSetupListCtxtSUReq;
 	copyU16(tmpStr, protocolIe_Id);
 	buffer_copy(&g_s1ap_buffer, tmpStr, sizeof(protocolIe_Id));
@@ -510,7 +510,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     /* this is my final s1ap buffer */
 	buffer_copy(&g_ics_buffer, &g_s1ap_buffer.buf[0], g_s1ap_buffer.pos);
 
-	free(s1apPDU.value.data[3].val.E_RABToBeSetupItemCtxtSUReq.nas.elements);
+	free(s1apPDU.value.data[3].val.erab_to_be_setup_item_ctxt_su_req.nas.elements);
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_icsReqInfo->enb_fd, g_ics_buffer.buf, g_ics_buffer.pos, 1);

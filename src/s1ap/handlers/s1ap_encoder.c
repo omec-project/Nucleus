@@ -1014,11 +1014,11 @@ int s1ap_mme_encode_handover_request(
     erab_to_be_setup->transportLayerAddress.size = 4;
     erab_to_be_setup->transportLayerAddress.buf = calloc(4, sizeof(uint8_t));
     uint32_t transport_layer_address =
-            htonl(s1apPDU->eRABSetupList.eRABSetup[0].transportLayerAddress);
+            htonl(s1apPDU->erab_su_list.erab_su_item[0].transportLayerAddress);
     memcpy(erab_to_be_setup->transportLayerAddress.buf,
             &transport_layer_address, sizeof(uint32_t));
 
-    uint32_t s1uSgwTeid = s1apPDU->eRABSetupList.eRABSetup[0].gtp_teid;
+    uint32_t s1uSgwTeid = s1apPDU->erab_su_list.erab_su_item[0].gtp_teid;
     erab_to_be_setup->gTP_TEID.size = 4;
     erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
     erab_to_be_setup->gTP_TEID.buf[0] = s1uSgwTeid >> 24;
@@ -1623,7 +1623,7 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
     val[3].value.present =
             E_RABSetupRequestIEs__value_PR_E_RABToBeSetupListBearerSUReq;
 
-    for (int i = 0; i < s1apPDU->erab_setup_list.count; i++)
+    for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
     {
 	E_RABToBeSetupItemBearerSUReqIEs_t *erab_to_be_setup_item = 
 		calloc(1, sizeof(E_RABToBeSetupItemBearerSUReqIEs_t));
@@ -1638,25 +1638,25 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
                 E_RABToBeSetupItemBearerSUReqIEs__value_PR_E_RABToBeSetupItemBearerSUReq;
 
         erab_to_be_setup->e_RAB_ID =
-                s1apPDU->erab_setup_list.eRABSetup[i].e_RAB_ID;
+                s1apPDU->erab_su_list.erab_su_item[i].e_RAB_ID;
 
         erab_to_be_setup->e_RABlevelQoSParameters.allocationRetentionPriority.priorityLevel =
-                s1apPDU->erab_setup_list.eRABSetup[i].e_RAB_QoS_Params.arPrio.prioLevel;
+                s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.prioLevel;
 
         erab_to_be_setup->e_RABlevelQoSParameters.allocationRetentionPriority.pre_emptionCapability =
-                s1apPDU->erab_setup_list.eRABSetup[i].e_RAB_QoS_Params.arPrio.preEmptionCapab;
+                s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionCapab;
 
         erab_to_be_setup->e_RABlevelQoSParameters.allocationRetentionPriority.pre_emptionVulnerability =
-                s1apPDU->erab_setup_list.eRABSetup[i].e_RAB_QoS_Params.arPrio.preEmptionVulnebility;
+                s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionVulnebility;
 
         erab_to_be_setup->e_RABlevelQoSParameters.qCI =
-                s1apPDU->erab_setup_list.eRABSetup[i].e_RAB_QoS_Params.qci;
+                s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci;
 
-	uint32_t transport_layer_address = htonl(s1apPDU->erab_setup_list.eRABSetup[i].transportLayerAddress);
+	uint32_t transport_layer_address = htonl(s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
 	erab_to_be_setup->transportLayerAddress.size = 4;
 	erab_to_be_setup->transportLayerAddress.buf = (uint8_t*)&transport_layer_address;
 
-	uint32_t s1uSgwTeid = htonl(s1apPDU->erab_setup_list.eRABSetup[i].gtp_teid);
+	uint32_t s1uSgwTeid = htonl(s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
     	erab_to_be_setup->gTP_TEID.size = 4;
     	erab_to_be_setup->gTP_TEID.buf = (uint8_t*)&s1uSgwTeid;
 

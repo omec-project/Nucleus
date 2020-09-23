@@ -2009,7 +2009,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
 		if (e_RABSetupList_p != NULL)
 		{
                     proto_ies->data[i].IE_type = S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES;
-                    proto_ies->data[i].val.eRABSetupList.count =
+                    proto_ies->data[i].val.erab_su_list.count =
                             e_RABSetupList_p->list.count;
 
                     for (int j = 0; j < e_RABSetupList_p->list.count; j++)
@@ -2030,18 +2030,18 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
 
                         	if (eRabSetupItem_p != NULL)
 				{
-                      		    proto_ies->data[i].val.eRABSetupList.eRABSetup[j].e_RAB_ID =
+                      		    proto_ies->data[i].val.erab_su_list.erab_su_item[j].e_RAB_ID =
                                         (uint8_t) eRabSetupItem_p->e_RAB_ID;
 
 				    if (eRabSetupItem_p->gTP_TEID.buf != NULL)
 				    {
                         		memcpy(
-                                	&(proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid),
+                                	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid),
                                		eRabSetupItem_p->gTP_TEID.buf, eRabSetupItem_p->gTP_TEID.size);
 
-                        		proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid =
+                        		proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid =
                                 	    ntohl(
-                                            proto_ies->data[i].val.eRABSetupList.eRABSetup[j].gtp_teid);
+                                            proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid);
 				    }
 				    else
 				    {
@@ -2053,13 +2053,13 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                         	    if (eRabSetupItem_p->transportLayerAddress.buf != NULL)
 				    {
 					memcpy(
-                                	&(proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress),
+                                	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress),
                                 	eRabSetupItem_p->transportLayerAddress.buf,
                                 	eRabSetupItem_p->transportLayerAddress.size);
 
-                        		proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress =
+                        		proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress =
                                 	    ntohl(
-                                       	    proto_ies->data[i].val.eRABSetupList.eRABSetup[j].transportLayerAddress);
+                                       	    proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress);
 				    }
 				    else
 				    {
