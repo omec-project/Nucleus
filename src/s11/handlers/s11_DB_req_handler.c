@@ -29,10 +29,10 @@ int
 s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 
-	struct gtp_incoming_msg_data_t dbr_info;
+	struct db_req_Q_msg dbr_info;
 
-	dbr_info.ue_idx = hdr->teid;
-	dbr_info.msg_type = delete_bearer_request;
+	dbr_info.header.ue_idx = hdr->teid;
+	dbr_info.header.msg_type = delete_bearer_request;
 
 	DeleteBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteBearerRequestMsgData));
@@ -48,7 +48,7 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 
 	if (msgData.linkedEpsBearerIdIePresent)
 	{
-	    dbr_info.msg_data.db_req_Q_m.linked_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
+	    dbr_info.linked_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
 	}
         else if (msgData.epsBearerIdsCount > 0)
 	{
@@ -56,21 +56,21 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 	    msgData.epsBearerIdsCount = 1;
 	    for(int i=0; i < msgData.epsBearerIdsCount; i++)
 	    {
-	    	dbr_info.msg_data.db_req_Q_m.bearerCtxList.bearerCtxt[i].eps_bearer_id =
+	    	dbr_info.bearerCtxList.bearerCtxt[i].eps_bearer_id =
 	    			    				msgData.epsBearerIds[i].epsBearerId;
 	    }
 	}
 
 	if(msgData.causeIePresent)
 	{
-	    dbr_info.msg_data.db_req_Q_m.cause = msgData.cause.causeValue;
+	    dbr_info.cause = msgData.cause.causeValue;
 	}
 
-	dbr_info.msg_data.db_req_Q_m.pco.pco_length = 0;
+	dbr_info.pco.pco_length = 0;
         if(msgData.protocolConfigurationOptionsIePresent)
         {
-            dbr_info.msg_data.db_req_Q_m.pco.pco_length = msgData.protocolConfigurationOptions.pcoValue.count;
-            memcpy(dbr_info.msg_data.db_req_Q_m.pco.pco_options, &msgData.protocolConfigurationOptions.pcoValue.values[0],
+            dbr_info.pco.pco_length = msgData.protocolConfigurationOptions.pcoValue.count;
+            memcpy(dbr_info.pco.pco_options, &msgData.protocolConfigurationOptions.pcoValue.values[0],
                             msgData.protocolConfigurationOptions.pcoValue.count);
         }
 
@@ -78,22 +78,22 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 	{
 		/*Hard-coding the bearer count as 1, since we support only one bearer Ctxt in the Q msg struct currently.
            	  Count value can be replaced with "msgData.failedBearerContextsCount" while supporting multiple bearers */	
-		dbr_info.msg_data.db_req_Q_m.bearerCtxList.bearers_count = 1;
-		for(int i=0; i < dbr_info.msg_data.db_req_Q_m.bearerCtxList.bearers_count; i++)
+		dbr_info.bearerCtxList.bearers_count = 1;
+		for(int i=0; i < dbr_info.bearerCtxList.bearers_count; i++)
 		{
-			dbr_info.msg_data.db_req_Q_m.bearerCtxList.bearerCtxt[i].eps_bearer_id =
+			dbr_info.bearerCtxList.bearerCtxt[i].eps_bearer_id =
 					msgData.failedBearerContexts[i].epsBearerId.epsBearerId;
-			dbr_info.msg_data.db_req_Q_m.bearerCtxList.bearerCtxt[i].cause.data =
+			dbr_info.bearerCtxList.bearerCtxt[i].cause.data =
 					msgData.failedBearerContexts[i].cause.causeValue;
 		}
 	}
 
 
-	dbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	dbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	dbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	dbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CB request msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dbr_info, GTP_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dbr_info, sizeof(struct db_req_Q_msg));
 	log_msg(LOG_INFO, "Send DB req to mme-app.\n");
 	
 	return SUCCESS;

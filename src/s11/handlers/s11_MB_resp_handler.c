@@ -32,7 +32,7 @@ int
 s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 	
-	struct gtp_incoming_msg_data_t mbr_info;
+	struct MB_resp_Q_msg mbr_info;
 
 	/*****Message structure***
 	*/
@@ -43,17 +43,17 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	/*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
 	if(hdr->teid)
     {
-        mbr_info.ue_idx = hdr->teid;
+        mbr_info.header.ue_idx = hdr->teid;
     }
     else
     {
         log_msg(LOG_WARNING, "Unknown Teid in MBR.\n");
-        mbr_info.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
+        mbr_info.header.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
     }
 
     delete_gtp_transaction(hdr->sequenceNumber);
 
-	mbr_info.msg_type = modify_bearer_response;
+	mbr_info.header.msg_type = modify_bearer_response;
 
 	ModifyBearerResponseMsgData msgData;
 	memset(&msgData, 0, sizeof(ModifyBearerResponseMsgData));
@@ -65,12 +65,12 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 				"Failed to decode MB_resp Msg %d\n", hdr->teid);
 		return E_PARSING_FAILED;
 	}
-	mbr_info.msg_data.MB_resp_Q_msg_m.cause = msgData.cause.causeValue;
+	mbr_info.cause = msgData.cause.causeValue;
 
-	mbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	mbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	mbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	mbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, GTP_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, sizeof(struct MB_resp_Q_msg));
 	log_msg(LOG_INFO, "Send MB resp to mme-app stage8.\n");
 
 	return SUCCESS;

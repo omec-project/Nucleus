@@ -51,10 +51,10 @@ int
 s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 
-	struct gtp_incoming_msg_data_t cbr_info;
+	struct cb_req_Q_msg cbr_info;
 
-	cbr_info.ue_idx = hdr->teid;
-	cbr_info.msg_type = create_bearer_request;
+	cbr_info.header.ue_idx = hdr->teid;
+	cbr_info.header.msg_type = create_bearer_request;
 
 	CreateBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(CreateBearerRequestMsgData));
@@ -68,48 +68,48 @@ s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 			return E_PARSING_FAILED;
 	}
 
-	cbr_info.msg_data.cb_req_Q_m.linked_eps_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
+	cbr_info.linked_eps_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
 
-	cbr_info.msg_data.cb_req_Q_m.pco.pco_length = 0;
+	cbr_info.pco.pco_length = 0;
 	if(msgData.protocolConfigurationOptionsIePresent)
 	{
-	    cbr_info.msg_data.cb_req_Q_m.pco.pco_length = msgData.protocolConfigurationOptions.pcoValue.count;
-	    memcpy(cbr_info.msg_data.cb_req_Q_m.pco.pco_options, &msgData.protocolConfigurationOptions.pcoValue.values[0],
+	    cbr_info.pco.pco_length = msgData.protocolConfigurationOptions.pcoValue.count;
+	    memcpy(cbr_info.pco.pco_options, &msgData.protocolConfigurationOptions.pcoValue.values[0],
 			    msgData.protocolConfigurationOptions.pcoValue.count);
 	}
 
 	/*Hard-coding the bearer count as 1, since we support only one bearer Ctxt in the Q msg struct currently.
 	  Count value can be replaced with "msgData.bearerContextsCount" while supporting multiple bearers */
-	cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearers_count = 1;
+	cbr_info.bearerCtxList.bearers_count = 1;
 	
-	for(int i =0; i < cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearers_count; i++)
+	for(int i =0; i < cbr_info.bearerCtxList.bearers_count; i++)
 	{
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].eps_bearer_id =
+		cbr_info.bearerCtxList.bearerCtxt[i].eps_bearer_id =
 			    msgData.bearerContexts[i].epsBearerId.epsBearerId;
 
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.iface_type =
+		cbr_info.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.iface_type =
 			    msgData.bearerContexts[i].s1USgwFTeid.interfaceType;
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.teid_gre =
+		cbr_info.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.teid_gre =
 			    msgData.bearerContexts[i].s1USgwFTeid.teidGreKey;
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.v4 =
+		cbr_info.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.header.v4 =
 			    msgData.bearerContexts[i].s1USgwFTeid.ipv4present;
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.ip.ipv4.s_addr =
+		cbr_info.bearerCtxList.bearerCtxt[i].s1u_sgw_teid.ip.ipv4.s_addr =
 			    msgData.bearerContexts[i].s1USgwFTeid.ipV4Address.ipValue;
 
-		cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].tft.len =
+		cbr_info.bearerCtxList.bearerCtxt[i].tft.len =
 			    msgData.bearerContexts[i].tft.tft.count;
-		memcpy(cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].tft.data,
+		memcpy(cbr_info.bearerCtxList.bearerCtxt[i].tft.data,
 				    msgData.bearerContexts[i].tft.tft.values, msgData.bearerContexts[i].tft.tft.count);
 
 		build_bearer_qos(&msgData.bearerContexts[i].bearerLevelQos,
-				    &cbr_info.msg_data.cb_req_Q_m.bearerCtxList.bearerCtxt[i].bearer_qos);
+				    &cbr_info.bearerCtxList.bearerCtxt[i].bearer_qos);
 	}
 
-	cbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	cbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	cbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	cbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CB request msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&cbr_info, GTP_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&cbr_info, sizeof(struct cb_req_Q_msg));
 	log_msg(LOG_INFO, "Send CB req to mme-app.\n");
 	
 	return SUCCESS;

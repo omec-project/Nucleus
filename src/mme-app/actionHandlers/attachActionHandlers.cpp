@@ -847,16 +847,16 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
+	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
+	VERIFY(msgBuf->getLength() >= sizeof(struct csr_Q_msg), return ActStatus::ABORT, "Invalid message length \n");
 
-	const gtp_incoming_msg_data_t* gtp_msg_data= static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	const struct csr_Q_msg& csr_info = gtp_msg_data->msg_data.csr_Q_msg_m;
+	const struct csr_Q_msg* csr_info= static_cast<const struct csr_Q_msg*>(msgBuf->getDataPointer());
 
-    if(csr_info.status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    if(csr_info->status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
-		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info.status);
+		log_msg(LOG_DEBUG, "CSRsp rejected by SGW with cause %d \n",csr_info->status);
         std::ostringstream reason;
-        reason<<"CSRsp_reject_cause_"<<csr_info.status;
+        reason<<"CSRsp_reject_cause_"<<csr_info->status;
         mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{"failure_reason", reason.str()}});
        	return ActStatus::ABORT;
     }
@@ -865,16 +865,16 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 
-	procedure_p->setPcoOptions(csr_info.pco_options,csr_info.pco_length);
-	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info.pco_options,csr_info.pco_length);
+	procedure_p->setPcoOptions(csr_info->pco_options,csr_info->pco_length);
+	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info->pco_options,csr_info->pco_length);
 	
-	sessionCtxt->setS11SgwCtrlFteid(Fteid(csr_info.s11_sgw_fteid));
-	sessionCtxt->setS5S8PgwCtrlFteid(Fteid(csr_info.s5s8_pgwc_fteid));
+	sessionCtxt->setS11SgwCtrlFteid(Fteid(csr_info->s11_sgw_fteid));
+	sessionCtxt->setS5S8PgwCtrlFteid(Fteid(csr_info->s5s8_pgwc_fteid));
 
-	bearerCtxt->setS1uSgwUserFteid(Fteid(csr_info.s1u_sgw_fteid));
-	bearerCtxt->setS5S8PgwUserFteid(Fteid(csr_info.s5s8_pgwu_fteid));
+	bearerCtxt->setS1uSgwUserFteid(Fteid(csr_info->s1u_sgw_fteid));
+	bearerCtxt->setS5S8PgwUserFteid(Fteid(csr_info->s5s8_pgwu_fteid));
 
-	sessionCtxt->setPdnAddr(Paa(csr_info.pdn_addr));
+	sessionCtxt->setPdnAddr(Paa(csr_info->pdn_addr));
 		
 	ProcedureStats::num_of_processed_cs_resp ++;
 	log_msg(LOG_DEBUG, "Leaving handle_cs_resp \n");

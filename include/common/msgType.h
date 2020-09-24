@@ -618,7 +618,16 @@ struct DB_RESP_Q_msg {
 /*************************
  * Incoming GTP Messages
  *************************/
+
+typedef struct gtp_incoming_msg_data_t {
+    uint32_t destInstAddr;
+    uint32_t srcInstAddr;
+    msg_type_t msg_type;
+    int ue_idx;
+}gtp_incoming_msg_data_t;
+
 struct csr_Q_msg {
+    gtp_incoming_msg_data_t header;
     int status;
     struct fteid s11_sgw_fteid;
     struct fteid s5s8_pgwc_fteid;
@@ -632,16 +641,19 @@ struct csr_Q_msg {
 };
 
 struct MB_resp_Q_msg {
+    gtp_incoming_msg_data_t header;
     uint8_t cause;
     struct fteid s1u_sgw_fteid;
 };
 
 
 struct RB_resp_Q_msg {
+    gtp_incoming_msg_data_t header;
     struct fteid s1u_sgw_fteid;
 };
 
 struct ddn_Q_msg {
+    gtp_incoming_msg_data_t header;
     struct ARP arp;
     uint8_t cause;
     uint8_t eps_bearer_id;
@@ -650,6 +662,7 @@ struct ddn_Q_msg {
 };
 
 struct cb_req_Q_msg {
+    gtp_incoming_msg_data_t header;
     uint8_t linked_eps_bearer_id;
     struct pco pco;
     bearerCtxList_t bearerCtxList;
@@ -657,29 +670,13 @@ struct cb_req_Q_msg {
 
 
 struct db_req_Q_msg {
+    gtp_incoming_msg_data_t header;
     uint8_t cause;
     uint8_t linked_bearer_id;
     uint8_t eps_bearer_ids[DED_BEARER_COUNT];
     struct pco pco;
     bearerCtxList_t bearerCtxList;
 };
-
-typedef union gtp_incoming_msgs_t {
-    struct csr_Q_msg csr_Q_msg_m;
-    struct MB_resp_Q_msg MB_resp_Q_msg_m;
-    struct RB_resp_Q_msg RB_resp_Q_msg_m;
-    struct ddn_Q_msg ddn_Q_msg_m;
-    struct cb_req_Q_msg cb_req_Q_m;
-    struct db_req_Q_msg db_req_Q_m;
-}gtp_incoming_msgs_t;
-
-typedef struct gtp_incoming_msg_data_t {
-    uint32_t destInstAddr;
-    uint32_t srcInstAddr;
-    msg_type_t msg_type;
-    int ue_idx;
-    gtp_incoming_msgs_t msg_data;
-}gtp_incoming_msg_data_t;
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 

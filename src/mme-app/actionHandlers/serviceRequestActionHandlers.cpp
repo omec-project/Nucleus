@@ -399,14 +399,11 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
+    VERIFY(msgBuf->getLength() >= sizeof(struct MB_resp_Q_msg), return ActStatus::ABORT, "Invalid message length \n");
 
-    if (msgBuf == NULL)
-        return ActStatus::ABORT;
-
-    const gtp_incoming_msg_data_t *gtp_msg_data =
-            static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    const struct MB_resp_Q_msg &mbr_info =
-            gtp_msg_data->msg_data.MB_resp_Q_msg_m;
+    const struct MB_resp_Q_msg *mbr_info =
+    		static_cast<const MB_resp_Q_msg*>(msgBuf->getDataPointer());
 
     ActStatus actStatus = ActStatus::PROCEED;
 
@@ -415,7 +412,7 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
 
     if (procCtxt != NULL)
     {
-        if (mbr_info.cause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+        if (mbr_info->cause != GTPV2C_CAUSE_REQUEST_ACCEPTED)
         {
             log_msg(LOG_INFO, "process_mb_resp_svc_req: MB Response Failure\n");
 
