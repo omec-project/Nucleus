@@ -13,7 +13,7 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.h.tt>
  ***************************************/
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include "dataGroupManager.h"
 
@@ -304,7 +304,7 @@ namespace mme
 			/****************************************
 			* mTmsi Key Map
 			****************************************/
-			std::map<uint32_t,int> mTmsi_cb_id_map;
+			std::unordered_map<uint32_t,int> mTmsi_cb_id_map;
 			
 			/****************************************
 			* mTmsi Key Map
