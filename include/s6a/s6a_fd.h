@@ -41,8 +41,6 @@
 /*SMS-Only-Indication:             1-------*/
 #define ULR_FLAG_SMS_ONLY_IND (1<<7)
 
-#define EXT_MAX_REQ_BW_DL_AVP_CODE 554
-#define EXT_MAX_REQ_BW_UL_AVP_CODE 555
 #define SUPP_FEAT_AVP_CODE 628
 #define FEAT_LIST_ID_AVP_CODE 629
 #define FEAT_LIST_AVP_CODE 630

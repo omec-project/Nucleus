@@ -21,6 +21,8 @@
 #define SEC_DIRECTION_UPLINK   0
 #define SEC_DIRECTION_DOWNLINK 1
 
+#define NAS_EXT_APN_AMBR_MIN 65281000  // 65.2 Gbps
+
 /* ESM messages */
 #define ESM_MSG_ACTV_DEF_BEAR__CTX_REQ 0xc1
 
@@ -213,10 +215,155 @@ typedef struct MS_net_capab {
 	unsigned char capab[6];
 }MS_net_capab;
 
-struct UE_net_capab {
-	unsigned char len;
-	unsigned char capab[6];
-};
+/* UE Network capability */
+/* Refer spec 24.301 v 15.6.0 sec:9.9.3.34*/
+typedef struct ue_net_capab_bitmap {
+    //Octet 3
+    uint8_t eea7:1;
+    uint8_t eea6:1;
+    uint8_t eea5:1;
+    uint8_t eea4:1;
+    uint8_t eea3_128:1;
+    uint8_t eea2_128:1;
+    uint8_t eea1_128:1;
+    uint8_t eea0:1;
+
+    //Octet 4
+    uint8_t eia7:1;
+    uint8_t eia6:1;
+    uint8_t eia5:1;
+    uint8_t eia4:1;
+    uint8_t eia3_128:1;
+    uint8_t eia2_128:1;
+    uint8_t eia1_128:1;
+    uint8_t eia0:1;
+
+    //Octet 5
+    uint8_t uea7:1;
+    uint8_t uea6:1;
+    uint8_t uea5:1;
+    uint8_t uea4:1;
+    uint8_t uea3:1;
+    uint8_t uea2:1;
+    uint8_t uea1:1;
+    uint8_t uea0:1;
+
+    //Octet 6
+    uint8_t uia7:1;
+    uint8_t uia6:1;
+    uint8_t uia5:1;
+    uint8_t uia4:1;
+    uint8_t uia3:1;
+    uint8_t uia2:1;
+    uint8_t uia1:1;
+    uint8_t ucs2:1;
+
+    //Octet 7
+    uint8_t nf:1;
+    uint8_t vcc_1xsr:1;
+    uint8_t lcs:1;
+    uint8_t lpp:1;
+    uint8_t csfb_acc:1;
+    uint8_t ash_h245:1;
+    uint8_t proSe:1;
+    uint8_t proSe_dd:1;
+
+    //Octet 8
+    uint8_t proSe_dc:1;
+    uint8_t proSe_relay:1;
+    uint8_t cp_ciot:1;
+    uint8_t up_ciot:1;
+    uint8_t s1u_data:1;
+    uint8_t er_wo_pdn:1;
+    uint8_t hc_cp_ciot:1;
+    uint8_t epco:1;
+
+    //Octet 9
+    uint8_t multipleDRB:1;
+    uint8_t v2xpc5:1;
+    uint8_t restrictEC:1;
+    uint8_t cpBackOff:1;
+    uint8_t dcnr:1;
+    uint8_t n1Mode:1;
+    uint8_t sgc:1;
+    uint8_t bearers_15:1;
+} ue_net_capab_bitmap;
+
+typedef struct UE_net_capab {
+        uint8_t len;
+        union ue_net_capabilities {
+            ue_net_capab_bitmap bits;
+            uint8_t octets[7];
+        } u;
+} UE_net_capab;
+
+/* UE additional security capability*/
+/* Refer spec 24.301 v 15.6.0 sec:9.9.3.53*/
+typedef struct ue_add_sec_capabilities {
+    //Octet 3
+    uint8_t ea7_5g:1;
+    uint8_t ea6_5g:1;
+    uint8_t ea5_5g:1;
+    uint8_t ea4_5g:1;
+    uint8_t ea3_5g_128:1;
+    uint8_t ea2_5g_128:1;
+    uint8_t ea1_5g_128:1;
+    uint8_t ea0_5g:1;
+
+    //Octet 4
+    uint8_t ea15_5g:1;
+    uint8_t ea14_5g:1;
+    uint8_t ea13_5g:1;
+    uint8_t ea12_5g:1;
+    uint8_t ea11_5g:1;
+    uint8_t ea10_5g:1;
+    uint8_t ea9_5g:1;
+    uint8_t ea8_5g:1;
+
+    //Octet 5
+    uint8_t ia7_5g:1;
+    uint8_t ia6_5g:1;
+    uint8_t ia5_5g:1;
+    uint8_t ia4_5g:1;
+    uint8_t ia3_5g_128:1;
+    uint8_t ia2_5g_128:1;
+    uint8_t ia1_5g_128:1;
+    uint8_t ia0_5g:1;
+
+    //Octet 6
+    uint8_t ia15_5g:1;
+    uint8_t ia14_5g:1;
+    uint8_t ia13_5g:1;
+    uint8_t ia12_5g:1;
+    uint8_t ia11_5g:1;
+    uint8_t ia10_5g:1;
+    uint8_t ia9_5g:1;
+    uint8_t ia8_5g:1;
+
+}ue_add_sec_capabilities;
+
+/*EPS network feature support*/
+/*Refer spec 24.301 v 15.6.0 sec:9.9.3.12A*/
+typedef struct eps_network_feature_support {
+    //Octet 3
+    uint8_t ims_vops:1;
+    uint8_t emc_bs:1;
+    uint8_t epc_lcs:1;
+    uint8_t cs_lcs:2;
+    uint8_t esr_ps:1;
+    uint8_t er_wo_pdn:1;
+    uint8_t cp_ciot:1;
+
+    //Octet 4
+    uint8_t up_ciot:1;
+    uint8_t s1u_data:1;
+    uint8_t hc_cp_ciot:1;
+    uint8_t epco:1;
+    uint8_t restrictEc:1;
+    uint8_t restrictDcnr:1;
+    uint8_t iwkn26:1;
+    uint8_t bearers15:1;
+}eps_network_feature_support;
 
 /*24.008 - 10.5.6.1
 APN name can be in range of min 3 octets to max 102 octets
@@ -264,6 +411,10 @@ typedef struct tai_list {
 	struct TAI partial_list[EMM_MAX_TAI_LIST];
 } tai_list;
 
+typedef struct extended_apn_ambr {
+    uint8_t length;
+    uint8_t ext_apn_ambr[6];
+} extended_apn_ambr;
 
 typedef struct esm_msg_container {
 	uint8_t eps_bearer_id :4;
@@ -277,11 +428,9 @@ typedef struct esm_msg_container {
 	linked_transcation_id linked_ti;
 	esm_qos negotiated_qos;
 	ESM_APN_AMBR apn_ambr;
+    	extended_apn_ambr extd_apn_ambr;
     struct pco pco_opt;
 } esm_msg_container;
-
-
-
 
 #define NAS_RAND_SIZE 16
 #define NAS_AUTN_SIZE 16
@@ -294,7 +443,8 @@ typedef union nas_pdu_elements_union {
 	struct esm_sec_info esm_info;
 	enum drx_params drx;
 	struct MS_net_capab ms_network;
-	struct UE_net_capab ue_network;
+	UE_net_capab ue_network;
+	ue_add_sec_capabilities ue_add_sec_capab;
 	struct XRES   auth_resp; /*Authentication response*/
 	struct AUTS   auth_fail_resp; /*Authentication response*/
 	struct apn_name apn;
@@ -311,12 +461,18 @@ typedef union nas_pdu_elements_union {
 	unsigned char ue_id_type;
 	unsigned char eps_update_result;
 	unsigned char tau_timer;
+	eps_network_feature_support eps_nw_feature_supp;
 }nas_pdu_elements_union;
 
 typedef struct nas_pdu_elements {
    nas_ie_type msgType;
    nas_pdu_elements_union pduElement;
 }nas_pdu_elements;
+
+typedef struct nas_optional_ies_flags {
+    bool ue_add_sec_cap_presence;
+    bool eps_nw_feature_supp_presence;
+}nas_optional_ies_flags;
 
 #define NAS_MSG_UE_IE_GUTI  0x00000001
 #define NAS_MSG_UE_IE_IMSI  0x00000002
@@ -326,8 +482,9 @@ typedef struct nasPDU {
 	nas_pdu_header header;
 	unsigned char elements_len;
 	nas_pdu_elements *elements;
-  unsigned int flags;
+	unsigned int flags;
 	unsigned int dl_count;
+	nas_optional_ies_flags opt_ies_flags;
 } nasPDU;
 
 
