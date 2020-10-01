@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
-
 #include "options.h"
 #include "ipc_api.h"
 #include "main.h"
@@ -281,7 +280,7 @@ int s1ap_mme_encode_attach_rej(
 	int                                     enc_ret = -1;
 	memset ((void *)pdu_p, 0, sizeof (S1AP_PDU_t));
 
-    log_msg(LOG_DEBUG, "Encode Attach Reject");
+    log_msg(LOG_DEBUG, "Encode Attach Reject\n");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
 
@@ -297,13 +296,13 @@ int s1ap_mme_encode_attach_rej(
     val[0].criticality = 0;
     val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
     val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
-    log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
+    log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d\n",s1apPDU->mme_s1ap_ue_id);
 
     val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
     val[1].criticality = 0;
     val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
     val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
-    log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
+    log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d\n",s1apPDU->enb_s1ap_ue_id);
 
     val[2].id = ProtocolIE_ID_id_NAS_PDU;
     val[2].criticality = 0;
@@ -344,7 +343,7 @@ int s1ap_mme_encode_attach_rej(
         return -1;
     }
 
-    log_msg(LOG_INFO,"free allocated msgs");
+    log_msg(LOG_INFO,"free allocated msgs\n");
     if(val[2].value.choice.NAS_PDU.buf)
     {
         free(val[2].value.choice.NAS_PDU.buf);
@@ -370,7 +369,7 @@ int s1ap_mme_encode_ue_context_release_command(
 	memset ((void *)pdu_p, 0, sizeof (S1AP_PDU_t));
 
     pdu.present = S1AP_PDU_PR_initiatingMessage;
-    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
+    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), 1);
     
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_UEContextRelease;
@@ -383,7 +382,7 @@ int s1ap_mme_encode_ue_context_release_command(
     UE_S1AP_IDs_t ue_id_val;
     memset(&ue_id_val, 0, sizeof(UE_S1AP_IDs_t));
      
-    struct UE_S1AP_ID_pair s1apId_pair;
+    struct UE_S1AP_ID_pair s1apId_pair = {0};
     if((s1apPDU->mme_s1ap_ue_id != 0xFFFFFFFF) 
         && (s1apPDU->enb_s1ap_ue_id != 0xFFFFFFFF))
     {
@@ -391,7 +390,7 @@ int s1ap_mme_encode_ue_context_release_command(
         ue_id_val.present = UE_S1AP_IDs_PR_uE_S1AP_ID_pair;
         s1apId_pair.eNB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
         s1apId_pair.mME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
-        ue_id_val.choice.uE_S1AP_ID_pair = calloc(sizeof(struct UE_S1AP_ID_pair), sizeof(uint8_t));
+        ue_id_val.choice.uE_S1AP_ID_pair = calloc(sizeof(struct UE_S1AP_ID_pair), 1);
         if(ue_id_val.choice.uE_S1AP_ID_pair == NULL)
         {
             log_msg(LOG_ERROR,"calloc failed.\n");

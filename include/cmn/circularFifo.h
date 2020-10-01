@@ -1,7 +1,9 @@
 /*
- * Public-Domain
+ * Copyright 2020-present Open Networking Foundation
+ * Copyright (c) 2019, Infosys Ltd.
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
-
 #ifndef INCLUDE_CMN_CIRCULARFIFO_H_
 #define INCLUDE_CMN_CIRCULARFIFO_H_
 
