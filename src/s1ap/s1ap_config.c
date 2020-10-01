@@ -23,7 +23,8 @@ void s1ap_config_change_cbk(char *config_file, uint32_t flags)
 
     char cmd[128];  
     sprintf(cmd, "cp %s %s ",config_file, "/openmme/target/conf/s1ap.json"); 
-    system(cmd);
+    int ret = system(cmd);
+    log_msg(LOG_DEBUG,"command %s return value %d \n", cmd, ret);
 
 
 	s1ap_config_t *current_config = get_s1ap_config();
