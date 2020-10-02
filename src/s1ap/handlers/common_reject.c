@@ -27,7 +27,7 @@
 static int
 process_attach_rej(struct commonRej_info *g_mmeS1apInfo)
 {
-    log_msg(LOG_DEBUG,"Process Attach Reject.");
+    log_msg(LOG_DEBUG,"Process Attach Reject.\n");
 	uint32_t length = 0;
     uint8_t *buffer = NULL;
     struct s1ap_common_req_Q_msg message_p={0};

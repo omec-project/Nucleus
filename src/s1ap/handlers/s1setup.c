@@ -164,7 +164,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 				{
 					ENBname_t *eNbName = &ie_p->value.choice.ENBname;
 					log_msg(LOG_DEBUG, "S1 Setup Message with eNB name %s \n", eNbName->buf);
-                    strcpy(enbStruct.eNbName, eNbName->buf);
+                    strcpy(enbStruct.eNbName, (const char *)eNbName->buf);
 					break;
 				}
 				

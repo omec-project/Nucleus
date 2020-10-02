@@ -118,8 +118,8 @@ detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	log_msg(LOG_INFO, "Received detach accept message  - encoded nas message size %d \n",g_acptReqInfo->nasMsgSize);
 	datalen = g_acptReqInfo->nasMsgSize + 1; 
 	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
-	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+	buffer_copy(&g_acpt_buffer, (void *)&g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
+	buffer_copy(&g_acpt_buffer, (void *)&g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
 	/* Copy length to s1ap length field */
 	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_acpt_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
