@@ -70,7 +70,7 @@ void S1ReleaseStart::initialize()
         }
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::abort_s1_release);
+				actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
 }

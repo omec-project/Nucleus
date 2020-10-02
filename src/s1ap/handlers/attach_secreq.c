@@ -136,7 +136,6 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	buffer_copy(&g_sec_buffer, &g_sec_value_buffer,
 			g_sec_value_buffer.pos);
 
-	free(s1apPDU.value.data[2].val.nas.elements);
 	free(s1apPDU.value.data);
 	//STIMER_GET_CURRENT_TP(g_attach_stats[s1apPDU.value.data[1].enb_ue_s1ap_id].secreq_out);
 
