@@ -102,11 +102,11 @@ u8 mask8bit(int n)
  * Generates 32-bit MAC using UIA2 algorithm as defined in Section 4.
  */
 
-u8* f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length)
+void f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length, u8* out)
 {
 	u32 K[4],IV[4], z[5];
 	u32 i=0,D;
-	static u8 MAC_I[4] = {0,0,0,0}; /* static memory for the result */
+	u8 MAC_I[4] = {0,0,0,0}; /* static memory for the result */
 	u64 EVAL;
 	u64 V;
 	u64 P;
@@ -203,7 +203,8 @@ u8* f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length)
 		MAC_I[i] = ((EVAL >> (8 * (7-i))) ^ (z[4] >> (8 * (3-i)))) & 0xff;
 
 	}
-	return MAC_I;
+    memcpy(out, MAC_I, 4);
+	return;
 
 }
 /* End of f9.c */

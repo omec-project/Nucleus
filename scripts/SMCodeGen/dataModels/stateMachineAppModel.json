@@ -658,7 +658,7 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
-                                    "ABORT_S1_RELEASE"
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -688,6 +688,13 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
                                     "ABORT_S1_RELEASE"
                                 ],
                                 "NextState":"end_state"
@@ -706,6 +713,13 @@
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "ABORT_S1_RELEASE"
                                 ],

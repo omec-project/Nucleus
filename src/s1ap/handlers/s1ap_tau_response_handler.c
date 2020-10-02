@@ -111,10 +111,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	  datalen = g_buffer.pos - s1ap_len_pos - 1;
 	  memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
    	  send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
-      if(s1apPDU.value.data[2].val.nas.elements)
-      {
-          free(s1apPDU.value.data[2].val.nas.elements);
-      }
+
 
       if(s1apPDU.value.data)
       {
