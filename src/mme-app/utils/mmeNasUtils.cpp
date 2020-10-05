@@ -1797,11 +1797,11 @@ void MmeNasUtils::encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
 	memset(br_arr, 0, 3);
     }
 
-    if(eps_qos.val.mbr_ul)
+    if(eps_qos.mbr_ul)
             eps_qos.len += 4;
-    if(eps_qos.val.mbr_ul_ext)
+    if(eps_qos.mbr_ul_ext)
             eps_qos.len += 4;
-    if(eps_qos.val.mbr_ul_ext_2)
+    if(eps_qos.mbr_ul_ext_2)
             eps_qos.len += 4;
 }
 

@@ -510,7 +510,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     /* this is my final s1ap buffer */
 	buffer_copy(&g_ics_buffer, &g_s1ap_buffer.buf[0], g_s1ap_buffer.pos);
 
-	free(s1apPDU.value.data[3].val.erab_to_be_setup_item_ctxt_su_req.nas.elements);
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_icsReqInfo->enb_fd, g_ics_buffer.buf, g_ics_buffer.pos, 1);
