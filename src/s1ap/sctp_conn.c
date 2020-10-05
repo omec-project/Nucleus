@@ -85,8 +85,8 @@ int accept_sctp_socket(int connSock)
 
 int recv_sctp_msg(int connSock, unsigned char *buffer, size_t len)
 {
-    struct sctp_sndrcvinfo sndrcvinfo;
-	int flags;
+    struct sctp_sndrcvinfo sndrcvinfo = {0};
+	int flags=0;
 	return sctp_recvmsg(connSock, buffer, len,
 			(struct sockaddr *) NULL, 0, &sndrcvinfo, &flags);
 }
