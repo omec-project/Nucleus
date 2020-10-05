@@ -118,16 +118,14 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	uint8_t protocolIe_criticality;
 	uint8_t initiating_msg = 0;
 	uint8_t datalen = 0;
-	//uint8_t s1ap_len_pos;
-	//uint8_t erab_len_pos;
-	//uint8_t erab_item_len_pos;
-	//uint8_t nas_len_pos;
 	uint8_t u8value = 0;
 
 	s1apPDU.procedurecode = id_InitialContextSetup;
 	s1apPDU.criticality = CRITICALITY_REJECT;
 
 	get_icsreq_protoie_value(&s1apPDU.value, g_icsReqInfo);
+
+	g_ics_buffer.pos = 0;
 
 	buffer_copy(&g_ics_buffer, &initiating_msg,
 			sizeof(initiating_msg));
@@ -150,6 +148,8 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	u8value = 0;
 	buffer_copy(&g_ics_buffer, &u8value, sizeof(u8value));
 #endif
+
+	g_s1ap_buffer.pos = 0;
 
 	/* TODO remove hardcoded values */
 	uint8_t chProtoIENo[3] = {0,0,6};
@@ -189,124 +189,158 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	buffer_copy(&g_s1ap_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	//Extended UE-AMBR is included when data rate should be above 10 Gbps
-	Buffer g_ext_buffer =
-	{ 0 };
+	uint8_t maximum_bit_rate_dl = 0;
+	uint8_t maximum_bit_rate_ul = 0;
 
-	/*
-	 *  0.......         Extension of UEAggregateMaximumBitrate = 0 :Absent
-	 *  .0......         iE-Extensions = 0 :Absent
-	 *                   uEaggregateMaximumBitRateDL(BitRate):
-	 *  ..100...         BitRate Value Range = 4 (offset from 1) :0 to 1099511627775
-	 *  .....000         Padding = 000b
-	 */
-	uint8_t maximum_bit_rate_dl = 0x20;
-	if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN
-			|| g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
+	if(g_icsReqInfo->exg_max_dl_bitrate <= UINT32_MAX &&
+			g_icsReqInfo->exg_max_ul_bitrate <= UINT32_MAX)
 	{
+		datalen = 10;
+
+		maximum_bit_rate_dl = 0x18;
+		maximum_bit_rate_ul = 0x60;
+
+		buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
+
+		buffer_copy(&g_s1ap_buffer, &maximum_bit_rate_dl, sizeof(maximum_bit_rate_dl));
+
+		uint32_t temp_bitrate = htonl(g_icsReqInfo->exg_max_dl_bitrate);
+		memset(tmpStr, 0, sizeof(tmpStr));
+		memcpy(tmpStr, &temp_bitrate, sizeof(temp_bitrate));
+
+		buffer_copy(&g_s1ap_buffer, tmpStr, sizeof(tmpStr));
+
+		temp_bitrate = 0;
+		temp_bitrate = htonl(g_icsReqInfo->exg_max_ul_bitrate);
+		memset(tmpStr, 0, sizeof(tmpStr));
+		memcpy(tmpStr, &temp_bitrate, sizeof(temp_bitrate));
+
+		buffer_copy(&g_s1ap_buffer, &maximum_bit_rate_ul,
+					sizeof(maximum_bit_rate_ul));
+		buffer_copy(&g_s1ap_buffer, tmpStr,
+					sizeof(tmpStr));
+	}
+	else
+	{
+		//Extended UE-AMBR is included when data rate should be above 10 Gbps
+		Buffer g_ext_buffer =
+		{ 0 };
+
 		/*
 		 *  0.......         Extension of UEAggregateMaximumBitrate = 0 :Absent
-		 *  .1......         iE-Extensions = 1 :Present
+		 *  .0......         iE-Extensions = 0 :Absent
 		 *                   uEaggregateMaximumBitRateDL(BitRate):
 		 *  ..100...         BitRate Value Range = 4 (offset from 1) :0 to 1099511627775
 		 *  .....000         Padding = 000b
 		 */
-		maximum_bit_rate_dl = 0x60;
-	}
-	buffer_copy(&g_ext_buffer, &maximum_bit_rate_dl,
-			sizeof(maximum_bit_rate_dl));
+		maximum_bit_rate_dl = 0x20;
+		if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN
+				|| g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
+		{
+			/*
+			 *  0.......         Extension of UEAggregateMaximumBitrate = 0 :Absent
+			 *  .1......         iE-Extensions = 1 :Present
+			 *                   uEaggregateMaximumBitRateDL(BitRate):
+			 *  ..100...         BitRate Value Range = 4 (offset from 1) :0 to 1099511627775
+			 *  .....000         Padding = 000b
+			 */
+			maximum_bit_rate_dl = 0x60;
+		}
+		buffer_copy(&g_ext_buffer, &maximum_bit_rate_dl,
+				sizeof(maximum_bit_rate_dl));
 
-	uint8_t *ue_ambr = NULL;
-	uint64_t temp_bitrate = 0;
+		uint8_t *ue_ambr = NULL;
+		uint64_t temp_bitrate = 0;
 
-	temp_bitrate = htobe64(g_icsReqInfo->exg_max_dl_bitrate);
-	ue_ambr = (uint8_t*) (&temp_bitrate);
-	buffer_copy(&g_ext_buffer, (ue_ambr + 3), 5);
+		temp_bitrate = htobe64(g_icsReqInfo->exg_max_dl_bitrate);
+		ue_ambr = (uint8_t*) (&temp_bitrate);
+		buffer_copy(&g_ext_buffer, (ue_ambr + 3), 5);
 
-	/*
-	 uEaggregateMaximumBitRateUL(BitRate):
-	 * 100.....           BitRate Value Range = 4 :0 to 1099511627775
-	 * ...00000           Padding = 00000b
-	 */
-	uint8_t maximum_bit_rate_ul = 0x80;
-	buffer_copy(&g_ext_buffer, &maximum_bit_rate_ul,
-			sizeof(maximum_bit_rate_ul));
-	temp_bitrate = htobe64(g_icsReqInfo->exg_max_ul_bitrate);
-	ue_ambr = (uint8_t*) (&temp_bitrate);
-	buffer_copy(&g_ext_buffer, (ue_ambr + 3), 5);
-
-	if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN
-			|| g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
-	{
+		/*
+	 	 uEaggregateMaximumBitRateUL(BitRate):
+		 * 100.....           BitRate Value Range = 4 :0 to 1099511627775
+		 * ...00000           Padding = 00000b
+		 */
+		maximum_bit_rate_ul = 0x80;
+		buffer_copy(&g_ext_buffer, &maximum_bit_rate_ul,
+				sizeof(maximum_bit_rate_ul));
+		temp_bitrate = htobe64(g_icsReqInfo->exg_max_ul_bitrate);
+		ue_ambr = (uint8_t*) (&temp_bitrate);
+		buffer_copy(&g_ext_buffer, (ue_ambr + 3), 5);
 
 		if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN
-				&& g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
+				|| g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
 		{
-			// No: of ProtocolExtensionContainer = 1 : 1 + 1 = 2
-			u8value = 0;
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
-			u8value = 1;
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
-		}
-		else
-		{
-			// No: of ProtocolExtensionContainer = 1 : 1 + 0 = 1
-			u8value = 0;
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
-		}
 
-		if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN)
-		{
-			/*Extended UE-AMBR-DL*/
-			// Protocol Id
-			protocolIe_Id = htons(id_extended_uEaggregateMaximumBitRateDL);
-			buffer_copy(&g_ext_buffer, &protocolIe_Id, sizeof(protocolIe_Id));
+			if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN
+					&& g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
+			{
+				// No: of ProtocolExtensionContainer = 1 : 1 + 1 = 2
+				u8value = 0;
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+				u8value = 1;
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+			}
+			else
+			{
+				// No: of ProtocolExtensionContainer = 1 : 1 + 0 = 1
+				u8value = 0;
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+			}
 
-			// Criticality
-			protocolIe_criticality = CRITICALITY_IGNORE;
-			buffer_copy(&g_ext_buffer, &protocolIe_criticality,
+			if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL >= EXT_UEAMBR_MIN)
+			{
+				/*Extended UE-AMBR-DL*/
+				// Protocol Id
+				protocolIe_Id = htons(id_extended_uEaggregateMaximumBitRateDL);
+				buffer_copy(&g_ext_buffer, &protocolIe_Id, sizeof(protocolIe_Id));
+
+				// Criticality
+				protocolIe_criticality = CRITICALITY_IGNORE;
+				buffer_copy(&g_ext_buffer, &protocolIe_criticality,
+						sizeof(protocolIe_criticality));
+
+				datalen = 9;
+				buffer_copy(&g_ext_buffer, &datalen, sizeof(datalen));
+
+				/*
+				 * 0.......            Extension of ExtendedBitRate = 0 :Absent
+				 * .111....            ExtendedBitRate Value Range = 7 :10000000001 to 18446744073709551615
+				 * ....0000            Padding = 0000b
+				 */
+				u8value = 0x70;
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+
+				temp_bitrate = htobe64(
+						g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL - EXT_UEAMBR_MIN); // offset from the min value
+				buffer_copy(&g_ext_buffer, &temp_bitrate, sizeof(temp_bitrate));
+			}
+
+			if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
+			{
+				/*Extended UE-AMBR-UL*/
+				protocolIe_Id = htons(id_extended_uEaggregateMaximumBitRateUL);
+				buffer_copy(&g_ext_buffer, &protocolIe_Id, sizeof(protocolIe_Id));
+				buffer_copy(&g_ext_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-			datalen = 9;
-			buffer_copy(&g_ext_buffer, &datalen, sizeof(datalen));
+				datalen = 9;
+				buffer_copy(&g_ext_buffer, &datalen, sizeof(datalen));
 
-			/*
-			 * 0.......            Extension of ExtendedBitRate = 0 :Absent
-			 * .111....            ExtendedBitRate Value Range = 7 :10000000001 to 18446744073709551615
-			 * ....0000            Padding = 0000b
-			 */
-			u8value = 0x70;
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
+				u8value = 0x70;
+				buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
 
-			temp_bitrate = htobe64(
-					g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_DL - EXT_UEAMBR_MIN); // offset from the min value
-			buffer_copy(&g_ext_buffer, &temp_bitrate, sizeof(temp_bitrate));
+				temp_bitrate = htobe64(
+						g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL - EXT_UEAMBR_MIN); // offset from the min value
+				buffer_copy(&g_ext_buffer, &temp_bitrate, sizeof(temp_bitrate));
+			}
 		}
 
-		if (g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL >= EXT_UEAMBR_MIN)
-		{
-			/*Extended UE-AMBR-UL*/
-			protocolIe_Id = htons(id_extended_uEaggregateMaximumBitRateUL);
-			buffer_copy(&g_ext_buffer, &protocolIe_Id, sizeof(protocolIe_Id));
-			buffer_copy(&g_ext_buffer, &protocolIe_criticality,
-					sizeof(protocolIe_criticality));
-
-			datalen = 9;
-			buffer_copy(&g_ext_buffer, &datalen, sizeof(datalen));
-
-			u8value = 0x70;
-			buffer_copy(&g_ext_buffer, &u8value, sizeof(u8value));
-
-			temp_bitrate = htobe64(
-					g_icsReqInfo->ext_ue_ambr.ext_ue_ambr_UL - EXT_UEAMBR_MIN); // offset from the min value
-			buffer_copy(&g_ext_buffer, &temp_bitrate, sizeof(temp_bitrate));
-		}
+		uint8_t ue_ambr_len = g_ext_buffer.pos;
+		buffer_copy(&g_s1ap_buffer, &ue_ambr_len, sizeof(ue_ambr_len));
+		buffer_copy(&g_s1ap_buffer, &g_ext_buffer.buf, g_ext_buffer.pos);
 	}
-
-	uint8_t ue_ambr_len = g_ext_buffer.pos;
-	buffer_copy(&g_s1ap_buffer, &ue_ambr_len, sizeof(ue_ambr_len));
-	buffer_copy(&g_s1ap_buffer, &g_ext_buffer.buf, g_ext_buffer.pos);
 
 	/* id-E-RABToBeSetupListCtxtSUReq */
 	ERABSetup *erab = &(s1apPDU.value.data[3].val.E_RABToBeSetupItemCtxtSUReq);
@@ -510,7 +544,6 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     /* this is my final s1ap buffer */
 	buffer_copy(&g_ics_buffer, &g_s1ap_buffer.buf[0], g_s1ap_buffer.pos);
 
-	free(s1apPDU.value.data[3].val.E_RABToBeSetupItemCtxtSUReq.nas.elements);
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_icsReqInfo->enb_fd, g_ics_buffer.buf, g_ics_buffer.pos, 1);

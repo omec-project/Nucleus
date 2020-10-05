@@ -109,7 +109,7 @@ uint32_t getEnbFdWithCbIndex_cpp(uint32_t cbIndex)
         }
 
         EnbContext* enbCtxt_p = static_cast <EnbContext *>(cb->getPermDataBlock());
-        log_msg(LOG_DEBUG,"Enb Fd : %d",
+        log_msg(LOG_DEBUG,"Enb Fd : %d\n",
                 enbCtxt_p->getEnbFd());
         return enbCtxt_p->getEnbFd();
     }
