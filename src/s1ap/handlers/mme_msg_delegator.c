@@ -25,7 +25,7 @@
 void
 handle_mmeapp_message(void * data)
 {
-	log_msg(LOG_INFO, "handle mme-app message ");
+	log_msg(LOG_INFO, "handle mme-app message \n");
 	
 	char *msg = ((char *) data) + (sizeof(uint32_t)*2);
 
