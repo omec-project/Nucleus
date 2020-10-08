@@ -606,6 +606,8 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	
 	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
 	VERIFY(procedure_p, return ActStatus::ABORT, "Procedure Context is NULL \n");
+	
+	MmeContextManagerUtils::deleteAllSessionContext(cb);
 
 	SessionContext* sessionCtxt = MmeContextManagerUtils::allocateSessionContext(cb, *ue_ctxt);
 	VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");

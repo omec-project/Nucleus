@@ -651,9 +651,14 @@
                             {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
-                                    "DEL_SESSION_REQ",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_S1_RELEASE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
                                 ],
                                 "NextState":"end_state"
                             }

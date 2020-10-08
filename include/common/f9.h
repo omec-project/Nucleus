@@ -30,7 +30,7 @@ extern "C"{
  */
 
 
-u8* f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length);
+void f9( u8* key, u32 count, u32 fresh, u32 dir, u8 *data, u64 length, u8* mac);
 #ifdef __cplusplus
 }
 #endif
