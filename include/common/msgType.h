@@ -264,6 +264,7 @@ struct s1apMsg_plus_raw_nas {
 	struct STMSI s_tmsi;
 }__attribute__ ((packed));
 
+/* Refer 36.413 - 9.1.3.2 */
 struct erabSuResp_Q_msg {
     int s1ap_enb_ue_id;
     int s1ap_mme_ue_id;
@@ -271,12 +272,14 @@ struct erabSuResp_Q_msg {
     erab_failed_to_setup_list erab_fail_list;
 }__attribute__ ((packed));
 
+/* Refer 24.301 - 8.3.1.1 */
 struct dedicatedBearerContextAccept_Q_msg {
     uint8_t eps_bearer_id;
     uint8_t pti;
     struct pco pco_opt;
 }__attribute__ ((packed));
 
+/* Refer 24.301  - 8.3.2.1 */
 struct dedicatedBearerContextReject_Q_msg {
     uint8_t eps_bearer_id;
     uint8_t pti;
@@ -543,6 +546,7 @@ struct handover_cancel_ack_Q_msg {
 };
 #define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
 
+/* Refer 36.413 - 9.1.3.1 */
 struct erabsu_ctx_req_Q_msg {
     msg_type_t msg_type;
     uint32_t mme_ue_s1ap_id;

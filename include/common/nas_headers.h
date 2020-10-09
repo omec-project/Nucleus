@@ -40,7 +40,7 @@ extern "C"{
 #define S1AP_ERAB_SETUP_CTX_SUR 51
 
 /* should be part of mme app only */
-/*NAS message type codes*/
+/*NAS message type codes - Incoming NAS Messages*/
 #define NAS_ESM_RESP 0xda
 #define NAS_AUTH_RESP 0x53
 #define NAS_AUTH_REJECT 0x54
@@ -57,15 +57,24 @@ extern "C"{
 #define NAS_DETACH_REQUEST 0x45
 #define NAS_DETACH_ACCEPT 0x46
 #define NAS_SERVICE_REQUEST 0x4D
+
+// Refer - 24.301 , Table - 9.8.2
 #define NAS_ACT_DED_BEARER_CTXT_ACPT 0xc6
 #define NAS_ACT_DED_BEARER_CTXT_RJCT 0xc7
 
+/* NAS_ESM_HEADER_LEN (9) =
+ *     Sec_Hdr_Type(1/2) + Proto_Discr_1(1/2) +
+ *     MAC (4) + Seq_no (1) +
+ *     EPS_BEARER_ID(1/2) + Proto_Discr_2(1/2) +
+ *     PTI(1) + NAS_ESM_MSG_TYPE (1) */
 #define ESM_HEADER_LEN 9
 
 #define NAS_EPS_MOBILE_ID_IMSI 0x01
 #define NAS_EPS_MOBILE_ID_IMEI 0x03
 #define NAS_EPS_MOBILE_ID_GUTI 0x06
 
+/* Refer - 24.301 , Table - 9.8.1,9.8.2
+   Enum for outgoing NAS Messages */
 enum eps_nas_mesage_type {
 	AttachAccept = 0x42,
 	AttachReject = 0x44,
