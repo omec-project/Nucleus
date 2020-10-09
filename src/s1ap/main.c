@@ -251,7 +251,7 @@ accept_sctp(void *data)
 
                     struct EnbStruct temp = {0};
                     getControlBlockDetailsEnbFd(sd, &temp);
-					log_msg(LOG_ERROR, "eNB %s - Tac %d - disconnected \n",temp.eNbName, temp.tai_m.tac);
+                    log_msg(LOG_ERROR, "enb fd = %d eNB %s - Tac %d - disconnected \n", sd, temp.eNbName, temp.tai_m.tac);
 					close(sd);
 					enb_socket[i] = 0;
                     /* MME-app should get notificaiton that peer is down ? 

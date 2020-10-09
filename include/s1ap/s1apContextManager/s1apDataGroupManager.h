@@ -65,6 +65,8 @@ namespace mme
 			* delete a enbFd key from enbFd_cb_id_map
 			******************************************/		
 			int deleteenbFdkey( int key );
+			int sizeFdkeyMap();
+			int sizeIdkeyMap();
 			
 			/******************************************
 			* sizeenbFdKeyMap

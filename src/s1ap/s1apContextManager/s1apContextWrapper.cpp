@@ -7,12 +7,16 @@
 
 using namespace mme;
 using namespace SM;
-    
+   
 uint32_t createControlBlock_cpp()
 {
     SM::ControlBlock *cb = NULL;
     EnbContext* enbCtxt_p = NULL;
     cb = mme::S1apDataGroupManager::Instance()->allocateCB();
+    if(cb == NULL) {
+        log_msg(LOG_ERROR, "failed to allocate CB \n");
+        return INVALID_ENTRY;
+    }
     enbCtxt_p = static_cast <EnbContext *>(cb->getPermDataBlock());
     if (enbCtxt_p != NULL)
     {
@@ -71,6 +75,19 @@ bool getControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *enbStruct
         EnbContext* enbCtxt_p = static_cast <EnbContext *>(cb->getPermDataBlock());
         enbStructCtx->tai_m.tac = enbCtxt_p->getTai().tac; 
         strcpy(enbStructCtx->eNbName, enbCtxt_p->getEnbname());
+        int val = mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
+                                                                        enbCtxt_p->getEnbId());
+        log_msg(LOG_DEBUG,"delete enbid2 %d: %d\n", enbCtxt_p->getEnbId(),val);
+        val = mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
+                                                                    enbCtxt_p->getEnbFd());
+        log_msg(LOG_DEBUG,"delete enbfd2 %d: %d\n", enbCtxt_p->getEnbFd(), val);
+        log_msg(LOG_DEBUG,"fd map size after delete2 : %d.\n", 
+                mme::S1apDataGroupManager::Instance()->sizeFdkeyMap());
+        log_msg(LOG_DEBUG,"Id map size after delete2 : %d.\n", 
+                mme::S1apDataGroupManager::Instance()->sizeIdkeyMap());
+        log_msg(LOG_DEBUG,"deallocate cb for index %d\n", cbIndex);
+        mme::S1apDataGroupManager::Instance()->deleteEnbContext(enbCtxt_p);
+        mme::S1apDataGroupManager::Instance()->deAllocateCB(cbIndex);
         return true;
     }
     else
@@ -142,20 +159,32 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
                 return INVALID_CB_INDEX;
             }
             else {
-                mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
+                int val = mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
                                                         enbCbCtx->getEnbId());
-                mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
+                log_msg(LOG_DEBUG,"cbIndex : %d, delete enbid %d: %d\n", cbIndex, enbCbCtx->getEnbId(),val);
+                val = mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
                                                         enbCbCtx->getEnbFd());
+                log_msg(LOG_DEBUG,"cbIndex : %d, delete enbfd %d: %d\n", cbIndex, enbCbCtx->getEnbFd(), val);
+                log_msg(LOG_DEBUG,"fd map size after delete : %d.\n", 
+                        mme::S1apDataGroupManager::Instance()->sizeFdkeyMap());
+                log_msg(LOG_DEBUG,"Id map size after delete : %d.\n", 
+                        mme::S1apDataGroupManager::Instance()->sizeIdkeyMap());
                 enbCbCtx->setEnbFd(enbCtx->enbFd_m);
                 enbCbCtx->setEnbId(enbCtx->enbId_m);
                 enbCbCtx->setS1apEnbUeId(enbCtx->s1apEnbUeId_m);
                 enbCbCtx->setTai(enbCtx->tai_m);
                 enbCbCtx->setEnbname(enbCtx->eNbName, strlen(enbCtx->eNbName));
-                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d name = %s .\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac, enbCtx->eNbName);
-                mme::S1apDataGroupManager::Instance()->addenbIdkey(
+                log_msg(LOG_DEBUG,"Enbs accessing context tacNew : %d, tacOld : %d name = %s .\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac, enbCtx->eNbName);
+                val = mme::S1apDataGroupManager::Instance()->addenbIdkey(
                                               enbCtx->enbId_m, cbIndex);
-                mme::S1apDataGroupManager::Instance()->addenbFdkey(
+                log_msg(LOG_DEBUG,"cbIndex : %d, add enbId %d: %d\n", cbIndex, enbCbCtx->getEnbId(),val);
+                val = mme::S1apDataGroupManager::Instance()->addenbFdkey(
                                               enbCtx->enbFd_m, cbIndex);
+                log_msg(LOG_DEBUG,"cbIndex : %d, add enbFd %d: %d\n", cbIndex, enbCbCtx->getEnbFd(),val);
+                log_msg(LOG_DEBUG,"fd map size after add : %d.\n", 
+                        mme::S1apDataGroupManager::Instance()->sizeFdkeyMap());
+                log_msg(LOG_DEBUG,"Id map size after add : %d.\n", 
+                        mme::S1apDataGroupManager::Instance()->sizeIdkeyMap());
             }
         }
         else
