@@ -276,12 +276,26 @@ class DigitRegister15
 		void operator = ( const DigitRegister15& data_i );
 		bool operator == ( const DigitRegister15& data_i )const;
 		bool operator < ( const DigitRegister15& data_i )const;
+		const uint8_t * getDigitsArray() const;
 
 		friend std::ostream& operator << ( std::ostream& os, const DigitRegister15& data_i );
 	
 	private:
 
 		uint8_t digitsArray[15];
+};
+
+struct DigitRegister15Hash {
+    std::size_t operator()(const DigitRegister15 &data_i ) const
+    {
+	std::size_t hash=0;
+	std::hash< uint8_t> hasher;
+	for (int i = 0;i<15;i++)
+	{
+		hash = hash *31+ hasher(data_i.getDigitsArray()[i]);
+	}
+        return hash;
+    }
 };
 
 #endif

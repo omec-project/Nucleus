@@ -90,7 +90,7 @@ namespace mme
 
 		int rc = 1;
 
-		auto itr = [% Data.Name %]_cb_id_map.insert(std::pair<[% Data.Type %], int>( key, cb_index ));
+		auto itr = [% Data.Name %]_cb_id_map.insert({ key, cb_index });
 		if (itr.second == false)
 		{
 			rc = -1;
@@ -107,6 +107,16 @@ namespace mme
  
 		return [% Data.Name %]_cb_id_map.erase( key );
 	}
+	
+	/******************************************
+	* get size of  [% Data.Name %]_cb_id_map
+	******************************************/
+	int [% DataGroup.DgName %]DataGroupManager::size[% String.new(Data.Name).capital.text() %]KeyMap()
+	{
+		std::lock_guard<std::mutex> lock([% Data.Name %]_cb_id_map_mutex);
+ 
+		return [% Data.Name %]_cb_id_map.size();
+	}	
 	
 	/******************************************
 	* Find cb with given [% Data.Name %] from [% Data.Name %]_cb_id_map

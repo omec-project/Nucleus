@@ -203,7 +203,7 @@ namespace mme
 
 		int rc = 1;
 
-		auto itr = imsi_cb_id_map.insert(std::pair<DigitRegister15, int>( key, cb_index ));
+		auto itr = imsi_cb_id_map.insert({ key, cb_index });
 		if (itr.second == false)
 		{
 			rc = -1;
@@ -220,6 +220,16 @@ namespace mme
  
 		return imsi_cb_id_map.erase( key );
 	}
+	
+	/******************************************
+	* get size of  imsi_cb_id_map
+	******************************************/
+	int SubsDataGroupManager::sizeImsiKeyMap()
+	{
+		std::lock_guard<std::mutex> lock(imsi_cb_id_map_mutex);
+ 
+		return imsi_cb_id_map.size();
+	}	
 	
 	/******************************************
 	* Find cb with given imsi from imsi_cb_id_map
@@ -245,7 +255,7 @@ namespace mme
 
 		int rc = 1;
 
-		auto itr = mTmsi_cb_id_map.insert(std::pair<uint32_t, int>( key, cb_index ));
+		auto itr = mTmsi_cb_id_map.insert({ key, cb_index });
 		if (itr.second == false)
 		{
 			rc = -1;
@@ -262,6 +272,16 @@ namespace mme
  
 		return mTmsi_cb_id_map.erase( key );
 	}
+	
+	/******************************************
+	* get size of  mTmsi_cb_id_map
+	******************************************/
+	int SubsDataGroupManager::sizeMTmsiKeyMap()
+	{
+		std::lock_guard<std::mutex> lock(mTmsi_cb_id_map_mutex);
+ 
+		return mTmsi_cb_id_map.size();
+	}	
 	
 	/******************************************
 	* Find cb with given mTmsi from mTmsi_cb_id_map

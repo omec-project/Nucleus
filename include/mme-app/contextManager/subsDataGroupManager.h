@@ -13,7 +13,7 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.h.tt>
  ***************************************/
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include "dataGroupManager.h"
 
@@ -200,6 +200,12 @@ namespace mme
 			int deleteimsikey( DigitRegister15 key );
 			
 			/******************************************
+			* sizeimsiKeyMap
+			* size of imsi_cb_id_map
+			******************************************/		
+			int sizeImsiKeyMap();
+			
+			/******************************************
 			* findCBWithimsi
 			* Find cb with given imsi from imsi_cb_id_map
 			******************************************/	
@@ -215,6 +221,12 @@ namespace mme
 			* delete a mTmsi key from mTmsi_cb_id_map
 			******************************************/		
 			int deletemTmsikey( uint32_t key );
+			
+			/******************************************
+			* sizemTmsiKeyMap
+			* size of mTmsi_cb_id_map
+			******************************************/		
+			int sizeMTmsiKeyMap();
 			
 			/******************************************
 			* findCBWithmTmsi
@@ -295,7 +307,7 @@ namespace mme
 			/****************************************
 			* imsi Key Map
 			****************************************/
-			std::map<DigitRegister15,int> imsi_cb_id_map;
+			std::unordered_map<DigitRegister15, int , DigitRegister15Hash> imsi_cb_id_map;
 			
 			/****************************************
 			* imsi Key Map
@@ -304,7 +316,7 @@ namespace mme
 			/****************************************
 			* mTmsi Key Map
 			****************************************/
-			std::map<uint32_t,int> mTmsi_cb_id_map;
+			std::unordered_map<uint32_t,int> mTmsi_cb_id_map;
 			
 			/****************************************
 			* mTmsi Key Map
