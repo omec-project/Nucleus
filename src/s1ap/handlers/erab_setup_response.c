@@ -27,8 +27,9 @@ void dump_erab_su_resp(struct erabSuResp_Q_msg *msg)
    {
        log_msg(LOG_INFO,"eRAB_setup_item[%d].erab_id: %d\n", i, msg->erab_su_list.
 		       erab_su_item[i].e_RAB_ID);
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %x\n", i, msg->erab_su_list.
-                       erab_su_item[i].transportLayerAddress);
+       struct in_addr tl_address = 
+       			{msg->erab_su_list.erab_su_item[i].transportLayerAddress};
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %s\n", i, inet_ntoa(tl_address));
        log_msg(LOG_INFO,"eRAB_setup_item[%d].gtp_teid: %d\n", i, msg->erab_su_list.
                        erab_su_item[i].gtp_teid);
    }
@@ -128,8 +129,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
 
     log_msg(LOG_INFO, "ERAB Setup Response sent to mme-app. Bytes sent %d\n", i);
 
-    if (erab_su_resp_ies.data != NULL)
-        free(erab_su_resp_ies.data);
+    free(erab_su_resp_ies.data);
 
     return SUCCESS;
 }

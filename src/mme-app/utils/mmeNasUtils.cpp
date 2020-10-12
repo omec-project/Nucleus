@@ -16,7 +16,6 @@ using namespace SM;
 using namespace mme;
 using namespace cmn;
 
-#define NAS_SERVICE_REQUEST 0x4D
 #define AES_128_KEY_SIZE 16
 static unsigned short get_length(unsigned char **msg) 
 {
@@ -796,7 +795,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 nas->header.seq_no = msg[0] & 0x0F;
                 msg += 1;
                 memcpy(nas->header.short_mac, msg, SHORT_MAC_SIZE);
-                nas->header.message_type = NAS_SERVICE_REQUEST;
+                nas->header.message_type = ServiceRequest;
         }
         else
         {
@@ -824,11 +823,11 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                     nas->header.message_type = nas_header_short.message_type;
                 }
 
-                if((NAS_IDENTITY_RESPONSE == nas->header.message_type)
-                   || (NAS_AUTH_RESP == nas->header.message_type)
-                   || (NAS_AUTH_FAILURE == nas->header.message_type)
-                   || (NAS_TAU_REQUEST == nas->header.message_type)
-                   || (NAS_DETACH_REQUEST == nas->header.message_type))
+                if((IdentityResponse == nas->header.message_type)
+                   || (AuthenticationResponse == nas->header.message_type)
+                   || (AuthenticationFailure == nas->header.message_type)
+                   || (TauRequest == nas->header.message_type)
+                   || (DetachRequest == nas->header.message_type))
                 {
                     log_msg(LOG_DEBUG,"No Need for mac check.\n");
                     skip_mac_check = true;
@@ -839,7 +838,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
         if(!skip_mac_check)
         {
             SM::ControlBlock* controlBlk_p = NULL;
-            if(nas->header.message_type == NAS_SERVICE_REQUEST)
+            if(nas->header.message_type == ServiceRequest)
             {
                 msg_data->ue_idx = 
                         ntohl(msg_data->msg_data.rawMsg.s_tmsi.m_TMSI);
@@ -1015,7 +1014,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
 
     switch(nas->header.message_type) 
     {
-        case NAS_ESM_RESP:
+        case ESMInformationResponse:
 		{
             log_msg(LOG_INFO, "NAS_ESM_RESP recvd\n");
 
@@ -1034,13 +1033,13 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             break;
         }
 
-        case NAS_SEC_MODE_COMPLETE:
+        case SecurityModeComplete:
 		{
             log_msg(LOG_INFO, "NAS_SEC_MODE_COMPLETE recvd\n");
             break;
 		}
 
-        case NAS_AUTH_RESP:
+        case AuthenticationResponse:
 		{
             log_msg(LOG_INFO, "NAS_AUTH_RESP recvd\n");
             nas->elements_len = 1;
@@ -1052,7 +1051,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             break;
 		}
 
-        case NAS_IDENTITY_RESPONSE: 
+        case IdentityResponse:
 		{
             log_msg(LOG_INFO, "NAS_IDENTITY_RESPONSE recvd\n");
             nas->elements_len = 1;
@@ -1063,14 +1062,14 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             break;
         }
 
-        case NAS_TAU_REQUEST:
+        case TauRequest:
 	{
             log_msg(LOG_INFO, "NAS_TAU_REQUEST recvd\n");
 	    MmeNasUtils::decode_tau_req(msg, nas_msg_len, nas);
 	    break;
 	}
 
-        case NAS_AUTH_FAILURE:
+        case AuthenticationFailure:
         {
                 nas->elements_len = 1;
                 nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
@@ -1088,19 +1087,19 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 }
 
         }break;
-        case NAS_ATTACH_REQUEST:
+        case AttachRequest:
 	{
             log_msg(LOG_INFO, "NAS_ATTACH_REQUEST recvd\n");
 	    MmeNasUtils::decode_attach_req(msg, nas_msg_len, nas);
 	    break;
         }
-        case NAS_ATTACH_COMPLETE:
+        case AttachComplete:
 		{
             log_msg(LOG_INFO, "NAS_ATTACH_COMPLETE recvd\n");
             /*Other than error check there seems no information to pass to mme. Marking TODO for protocol study*/
             break;
 		}
-        case NAS_DETACH_REQUEST: 
+        case DetachRequest:
         {
             log_msg(LOG_INFO, "NAS_DETACH_REQUEST recvd\n");
             nas->elements_len = 1;
@@ -1133,18 +1132,18 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
             }
             break;
         }
-        case NAS_DETACH_ACCEPT: 
+        case DetachAccept:
 		{
             log_msg(LOG_INFO, "NAS_DETACH_ACCEPT recvd\n");
             break;
         }
-	case NAS_ACT_DED_BEARER_CTXT_ACPT:
+	case ActivateDedicatedBearerContextAccept:
 	{
 	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_ACPT recvd\n");
 	    MmeNasUtils::decode_act_ded_br_ctxt_acpt(msg, nas_msg_len, nas);
 	    break;
 	}
-	case NAS_ACT_DED_BEARER_CTXT_RJCT:
+	case ActivateDedicatedBearerContextReject:
 	{
 	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_RJCT received\n");
 	    MmeNasUtils::decode_act_ded_br_ctxt_rjct(msg, nas_msg_len, nas);
@@ -1165,7 +1164,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 {
 	switch(nas->header.message_type)
 	{
-		case NAS_ATTACH_REQUEST:
+		case AttachRequest:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message ATTACH REQUEST\n");
     		int nas_index = 0;
@@ -1257,11 +1256,11 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 			
 			break;
 		}
-		case NAS_AUTH_RESP:
+		case AuthenticationResponse:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message AUTH RESPONSE \n");
 			s1Msg->msg_type = msg_type_t::auth_response;
-			if(nas->header.message_type != NAS_AUTH_RESP)
+			if(nas->header.message_type != AuthenticationResponse)
             {
 				s1Msg->msg_data.authresp_Q_msg_m.status = S1AP_AUTH_FAILED;
 			}
@@ -1274,7 +1273,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
                    sizeof(struct XRES));
 	    	break;
 		}
-		case NAS_AUTH_FAILURE:
+		case AuthenticationFailure:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message AUTH FAILURE \n");
 			s1Msg->msg_type = msg_type_t::auth_response;
@@ -1285,11 +1284,11 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
  
 	    	break;
 		}
-		case NAS_SEC_MODE_COMPLETE:
+		case SecurityModeComplete:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message SEC MODE COMPLETE \n");
 			s1Msg->msg_type = msg_type_t::sec_mode_complete;
-            if(nas->header.message_type != NAS_SEC_MODE_COMPLETE)
+            if(nas->header.message_type != SecurityModeComplete)
             {
                 s1Msg->msg_data.secmode_resp_Q_msg_m.status = S1AP_SECMODE_FAILED;//Error in authentication
             }
@@ -1299,11 +1298,11 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
             }
 	    	break;
 		}
-		case NAS_ESM_RESP:
+		case ESMInformationResponse:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message ESM RESPONSE \n");
 			s1Msg->msg_type = msg_type_t::esm_info_response;
-            if(nas->header.message_type != NAS_ESM_RESP)
+            if(nas->header.message_type != ESMInformationResponse)
             {
                 s1Msg->msg_data.esm_resp_Q_msg_m.status = S1AP_SECMODE_FAILED;//Error in authentication
             }
@@ -1315,13 +1314,13 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
             }
 	    	break;
 		}
-		case NAS_ATTACH_COMPLETE:
+		case AttachComplete:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message ATTACH COMPLETE \n");
 			s1Msg->msg_type = msg_type_t::attach_complete;
 	    	break;
 		}
-		case NAS_SERVICE_REQUEST:
+		case ServiceRequest:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message SERVICE REQUEST \n");
 			s1Msg->msg_type = msg_type_t::service_request;
@@ -1331,20 +1330,20 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
             memcpy(&s1Msg->msg_data.service_req_Q_msg_m.mac, nas->header.short_mac, sizeof(uint16_t));
 			break;
 		}
-		case NAS_DETACH_REQUEST:
+		case DetachRequest:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message DETACH REQUEST \n");
 			s1Msg->msg_type = msg_type_t::detach_request;
 		   	s1Msg->msg_data.detachReq_Q_msg_m.ue_m_tmsi = nas->elements[0].pduElement.mi_guti.m_TMSI;
 			break;
 		}
-		case NAS_DETACH_ACCEPT:
+		case DetachAccept:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message DETACH ACCEPT \n");
 			s1Msg->msg_type = msg_type_t::detach_accept_from_ue;
 			break;
 		}
-		case NAS_TAU_REQUEST:
+		case TauRequest:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message TAU REQUEST \n");
             		int nas_index = 0;
@@ -1393,11 +1392,11 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
             		}         
 	    		break;
 		}
-		case NAS_IDENTITY_RESPONSE:
+		case IdentityResponse:
 		{
 			log_msg(LOG_INFO, "Copy Required details of message IDENTITY RESPONSE \n");
 			s1Msg->msg_type = msg_type_t::id_response;
-            if(nas->header.message_type != NAS_IDENTITY_RESPONSE)
+            if(nas->header.message_type != IdentityResponse)
             {
                 s1Msg->msg_data.identityResp_Q_msg_m.status  = S1AP_IDENTITY_FAILED; 
             }
@@ -1413,7 +1412,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 	    	break;
 		}
 					
-		case NAS_ACT_DED_BEARER_CTXT_ACPT:
+		case ActivateDedicatedBearerContextAccept:
 		{
 	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_ACPT\n");
 		    int nas_index = 0;
@@ -1442,7 +1441,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 		    }
 		    break;
 		}
-		case NAS_ACT_DED_BEARER_CTXT_RJCT:
+		case ActivateDedicatedBearerContextReject:
 		{
 	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_RJCT\n");
 		    int nas_index = 0;
