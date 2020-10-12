@@ -250,7 +250,7 @@ accept_sctp(void *data)
 				if ((valread = recv_sctp_msg(sd, buffer, SCTP_BUF_SIZE)) <= 0) {
 
                     struct EnbStruct temp = {0};
-                    getControlBlockDetailsEnbFd(sd, &temp);
+                    clearControlBlockDetailsEnbFd(sd, &temp);
                     log_msg(LOG_ERROR, "enb fd = %d eNB %s - Tac %d - disconnected \n", sd, temp.eNbName, temp.tai_m.tac);
 					close(sd);
 					enb_socket[i] = 0;

@@ -100,16 +100,6 @@ namespace mme
 	}	
 	
 	/******************************************
-	* get size of  enbId_cb_id_map
-	******************************************/
-	int S1apDataGroupManager::sizeEnbIdkeyMap()
-	{
-		std::lock_guard<std::mutex> lock(enbId_cb_id_map_mutex);
- 
-		return enbId_cb_id_map.size();
-	}
-	
-	/******************************************
 	* Find cb with given enbFd from enbFd_cb_id_map
 	* returns -1 if not found, else cb index
 	******************************************/ 
