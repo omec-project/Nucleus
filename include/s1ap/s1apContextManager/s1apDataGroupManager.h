@@ -13,7 +13,7 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.h.tt>
  ***************************************/
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include "dataGroupManager.h"
 #include "s1apContextManager/s1apDataBlocks.h"
@@ -67,6 +67,12 @@ namespace mme
 			int deleteenbFdkey( int key );
 			
 			/******************************************
+			* sizeenbFdKeyMap
+			* size of enbFd_cb_id_map
+			******************************************/		
+			int sizeEnbFdKeyMap();
+			
+			/******************************************
 			* findCBWithenbFd
 			* Find cb with given enbFd from enbFd_cb_id_map
 			******************************************/	
@@ -82,6 +88,12 @@ namespace mme
 			* delete a enbId key from enbId_cb_id_map
 			******************************************/		
 			int deleteenbIdkey( int key );
+			
+			/******************************************
+			* sizeenbIdKeyMap
+			* size of enbId_cb_id_map
+			******************************************/		
+			int sizeEnbIdKeyMap();
 			
 			/******************************************
 			* findCBWithenbId
@@ -107,7 +119,7 @@ namespace mme
 			/****************************************
 			* enbFd Key Map
 			****************************************/
-			std::map<int,int> enbFd_cb_id_map;
+			std::unordered_map<int,int> enbFd_cb_id_map;
 			
 			/****************************************
 			* enbFd Key Map
@@ -116,7 +128,7 @@ namespace mme
 			/****************************************
 			* enbId Key Map
 			****************************************/
-			std::map<int,int> enbId_cb_id_map;
+			std::unordered_map<int,int> enbId_cb_id_map;
 			
 			/****************************************
 			* enbId Key Map

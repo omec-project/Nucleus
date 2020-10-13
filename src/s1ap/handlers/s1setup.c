@@ -177,7 +177,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 						uint16_t tac_i=0;
 						for(int t=0; t< tac->tAC.size; t++) 
 						{
-							tac_i = 10*tac_i + tac->tAC.buf[t]; 
+							tac_i = (tac_i<<8) | tac->tAC.buf[t]; 
 						}
 
 						log_msg(LOG_INFO, "S1setup Supported Tac %d %d size %d ..Final tac %d \n", tac->tAC.buf[0], tac->tAC.buf[1] , tac->tAC.size, tac_i);

@@ -22,7 +22,7 @@
 
 #define THREADPOOL_SIZE 10
 
-#define SCTP_BUF_SIZE 1024
+#define SCTP_BUF_SIZE 4096
 
 /*Timer and stat calculations*/
 struct time_stat {

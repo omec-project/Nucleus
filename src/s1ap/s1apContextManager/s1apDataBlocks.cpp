@@ -150,7 +150,7 @@ namespace mme
 	******************************************************************************/	
 	uint16_t EnbContext::getEnbnameLen() const
 	{
-		return enbnameLen_m;
+    		return enbnameLen_m;
 	}
 	
 } // mme

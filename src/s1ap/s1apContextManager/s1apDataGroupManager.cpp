@@ -71,7 +71,7 @@ namespace mme
 
 		int rc = 1;
 
-		auto itr = enbFd_cb_id_map.insert(std::pair<int, int>( key, cb_index ));
+		auto itr = enbFd_cb_id_map.insert({ key, cb_index });
 		if (itr.second == false)
 		{
 			rc = -1;
@@ -88,6 +88,16 @@ namespace mme
  
 		return enbFd_cb_id_map.erase( key );
 	}
+	
+	/******************************************
+	* get size of  enbFd_cb_id_map
+	******************************************/
+	int S1apDataGroupManager::sizeEnbFdKeyMap()
+	{
+		std::lock_guard<std::mutex> lock(enbFd_cb_id_map_mutex);
+ 
+		return enbFd_cb_id_map.size();
+	}	
 	
 	/******************************************
 	* Find cb with given enbFd from enbFd_cb_id_map
@@ -113,7 +123,7 @@ namespace mme
 
 		int rc = 1;
 
-		auto itr = enbId_cb_id_map.insert(std::pair<int, int>( key, cb_index ));
+		auto itr = enbId_cb_id_map.insert({ key, cb_index });
 		if (itr.second == false)
 		{
 			rc = -1;
@@ -130,6 +140,16 @@ namespace mme
  
 		return enbId_cb_id_map.erase( key );
 	}
+	
+	/******************************************
+	* get size of  enbId_cb_id_map
+	******************************************/
+	int S1apDataGroupManager::sizeEnbIdKeyMap()
+	{
+		std::lock_guard<std::mutex> lock(enbId_cb_id_map_mutex);
+ 
+		return enbId_cb_id_map.size();
+	}	
 	
 	/******************************************
 	* Find cb with given enbId from enbId_cb_id_map
