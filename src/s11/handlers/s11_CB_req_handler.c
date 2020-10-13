@@ -51,10 +51,11 @@ int
 s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 
-	struct cb_req_Q_msg cbr_info;
+	struct cb_req_Q_msg cbr_info = {0};
 
 	cbr_info.header.ue_idx = hdr->teid;
 	cbr_info.header.msg_type = create_bearer_request;
+	cbr_info.seq_no = hdr->sequenceNumber;
 
 	CreateBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(CreateBearerRequestMsgData));
@@ -80,7 +81,8 @@ s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 
 	/*Hard-coding the bearer count as 1, since we support only one bearer Ctxt in the Q msg struct currently.
 	  Count value can be replaced with "msgData.bearerContextsCount" while supporting multiple bearers */
-	cbr_info.bearerCtxList.bearers_count = 1;
+	if(msgData.bearerContextsCount > 0)
+		cbr_info.bearerCtxList.bearers_count = 1;
 	
 	for(int i =0; i < cbr_info.bearerCtxList.bearers_count; i++)
 	{

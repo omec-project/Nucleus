@@ -54,19 +54,16 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 	
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType =  GTP_DELETE_BEARER_RESP;
-	gtpHeader.sequenceNumber = g_s11_sequence;
+	gtpHeader.sequenceNumber = db_resp_msg->seq_no;
 	gtpHeader.teidPresent = true;
-	gtpHeader.teid = db_resp_msg->s11_sgw_cp_teid;
+	gtpHeader.teid = db_resp_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
     create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
-                    db_resp_msg->s11_sgw_cp_teid);
+                    db_resp_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	g_s11_sequence++;
 	DeleteBearerResponseMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteBearerRequestMsgData));
-
-	msgData.linkedEpsBearerIdIePresent = true;
-	msgData.linkedEpsBearerId.epsBearerId = db_resp_msg->linked_bearer_id;
     
 	msgData.cause.causeValue = db_resp_msg->cause;
 
@@ -83,7 +80,8 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 		if(db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length > 0)
 		{
 		    msgData.bearerContexts[i].protocolConfigurationOptionsIePresent = true;
-
+		    msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
+				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length;
 		    memcpy(msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values, 
 				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_options, 
 				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length);
@@ -91,8 +89,6 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 	    }
 	}
 
-	
-    add_gtp_transaction(gtpHeader.sequenceNumber, db_resp_msg->ue_idx);
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dbRespMsgBuf_p, &gtpHeader, &msgData);
 
 	sendto(g_s11_fd,

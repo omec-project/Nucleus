@@ -29,10 +29,11 @@ int
 s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 
-	struct db_req_Q_msg dbr_info;
+	struct db_req_Q_msg dbr_info = {0};
 
 	dbr_info.header.ue_idx = hdr->teid;
 	dbr_info.header.msg_type = delete_bearer_request;
+	dbr_info.seq_no = hdr->sequenceNumber;
 
 	DeleteBearerRequestMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteBearerRequestMsgData));

@@ -597,21 +597,23 @@ struct DDN_FAIL_Q_msg{
 struct CB_RESP_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
-    int s11_sgw_cp_teid;
     uint8_t cause;
+    uint32_t seq_no;
     bearerCtxList_t bearerCtxList;
     struct pco pco;
+    struct fteid s11_sgw_c_fteid;
  };
  #define S11_CBRESP_BUF_SIZE sizeof(struct CB_RESP_Q_msg)
  
 struct DB_RESP_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
-    int s11_sgw_cp_teid;
+    uint32_t seq_no;
     uint8_t cause;
     uint8_t linked_bearer_id;
     bearerCtxList_t bearerCtxList;
     struct pco pco;
+    struct fteid s11_sgw_c_fteid;
  };
 #define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
  
@@ -664,6 +666,7 @@ struct ddn_Q_msg {
 struct cb_req_Q_msg {
     gtp_incoming_msg_data_t header;
     uint8_t linked_eps_bearer_id;
+    uint32_t seq_no;
     struct pco pco;
     bearerCtxList_t bearerCtxList;
 };
@@ -673,6 +676,7 @@ struct db_req_Q_msg {
     gtp_incoming_msg_data_t header;
     uint8_t cause;
     uint8_t linked_bearer_id;
+    uint32_t seq_no;
     uint8_t eps_bearer_ids[DED_BEARER_COUNT];
     struct pco pco;
     bearerCtxList_t bearerCtxList;
