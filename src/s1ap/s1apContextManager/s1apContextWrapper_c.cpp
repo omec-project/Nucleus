@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
 #include "s1apContextManager/s1apContextWrapper_c.h"
 #include "s1apContextManager/s1apContextWrapper.h"
 
@@ -30,9 +36,9 @@ extern "C"
         return setValuesForEnbCtx_cpp(cbIndex, enbCtx, update);
     }
 
-    bool getControlBlockDetailsEnbFd(uint32_t enbFd, EnbStruct *enb)
+    bool clearControlBlockDetailsEnbFd(uint32_t enbFd, EnbStruct *enb)
     {
-        return getControlBlockDetailsEnbFd_cpp(enbFd, enb);
+        return clearControlBlockDetailsEnbFd_cpp(enbFd, enb);
     }
 
 }
