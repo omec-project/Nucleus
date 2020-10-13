@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef __S1apContextWrappers_C_H
 #define __S1apContextWrappers_C_H
 
@@ -16,7 +22,7 @@ extern "C" {
                                 struct EnbStruct* enbCtx,
                                 bool update);
 
-    bool getControlBlockDetailsEnbFd(uint32_t sd, struct EnbStruct *temp);
+    bool clearControlBlockDetailsEnbFd(uint32_t sd, struct EnbStruct *temp);
 
 #ifdef __cplusplus
 }
