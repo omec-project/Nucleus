@@ -17,7 +17,7 @@
  * All edits to be made through template source file
  * <TOP-DIR/scripts/SMCodeGen/templates/ctxtManagerTmpls/subsDataGroupManager.h.tt>
  ***************************************/
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include "dataGroupManager.h"
 
@@ -86,6 +86,12 @@ namespace mme
 			int delete[% Data.Name %]key( [% Data.Type %] key );
 			
 			/******************************************
+			* size[% Data.Name %]KeyMap
+			* size of [% Data.Name %]_cb_id_map
+			******************************************/		
+			int size[% String.new(Data.Name).capital.text() %]KeyMap();
+			
+			/******************************************
 			* findCBWith[% Data.Name %]
 			* Find cb with given [% Data.Name %] from [% Data.Name %]_cb_id_map
 			******************************************/	
@@ -117,7 +123,11 @@ namespace mme
 			/****************************************
 			* [% Data.Name %] Key Map
 			****************************************/
-			std::map<[% Data.Type %],int> [% Data.Name %]_cb_id_map;
+			[%- IF Data.Hash == '' %]
+			std::unordered_map<[% Data.Type %],int> [% Data.Name %]_cb_id_map;
+			[%- ELSE %]
+			std::unordered_map<[% Data.Type %], int , [% Data.Hash %]> [% Data.Name %]_cb_id_map;
+			[%- END %]
 			
 			/****************************************
 			* [% Data.Name %] Key Map

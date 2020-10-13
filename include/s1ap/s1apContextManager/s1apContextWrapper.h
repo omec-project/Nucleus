@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019-present Open Networking Foundation
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
 #ifndef __S1apContextWrappers_H
 #define __S1apContextWrappers_H
 
@@ -16,5 +22,5 @@
     uint32_t updateValuesForEnbCtx_cpp(uint32_t cbIndex, 
                                 struct EnbStruct* enbCtx);
 
-    bool getControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *);
+    bool clearControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *);
 #endif
