@@ -95,11 +95,11 @@ typedef struct bearer_qos {
 } bearer_qos_t;
 
 typedef struct bearer_ctxt {
-        unsigned char eps_bearer_id;
-        struct gtp_cause cause;
-        struct fteid s1u_sgw_teid;
-        struct fteid s5s8_pgw_u_teid;
-        struct fteid s1u_enb_fteid;
+	unsigned char eps_bearer_id;
+	struct gtp_cause cause;
+	struct fteid s1u_sgw_teid;
+	struct fteid s5s8_pgw_u_teid;
+	struct fteid s1u_enb_fteid;
 	bearer_qos_t bearer_qos;
 	struct pco pco;
 	bearer_tft tft;
