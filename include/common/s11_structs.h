@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #define S11_MSGBUF_SIZE 2048
+#define DED_BEARER_COUNT 1
 
 #pragma pack(1)
 typedef struct gtpv2c_header {
@@ -90,6 +91,13 @@ struct ARP {
         uint8_t spare :2;
 };
 
+typedef struct bearer_qos {
+	uint8_t qci;
+	uint64_t mbr_ul;
+	uint64_t mbr_dl;
+	uint64_t gbr_ul;
+	uint64_t gbr_dl;
+} bearer_qos_t;
 
 struct s11_IE_header {
 	unsigned char ie_type;
