@@ -270,8 +270,6 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
     //Subtracting 2 Bytes from the nas_msg_len, since the nas PDU details till Byte 2 (i.e., message_type) are already extracted.
     unsigned char *msg_end = msg + (nas_msg_len - 2);
 
-    log_msg(LOG_INFO, "NAS_ATTACH_REQUEST recvd\n");
-
     unsigned char tmp = msg[0];
     nas->header.security_encryption_algo = (tmp & 0xF0) >> 4;
     nas->header.security_integrity_algo = tmp & 0x0F;

@@ -355,17 +355,22 @@ bool MmeCommonUtils::isUeNRCapable(UEContext &ueCtxt)
 {
     bool rc;
 
-    if (!ueCtxt.getUeNetCapab().ue_net_capab_m.u.bits.dcnr)
+    if (!ueCtxt.getUeNetCapab().ue_net_capab_m.u.bits.dcnr) {
+        log_msg(LOG_DEBUG, "UE does not support dual connectivity\n");
         rc = false;
-    else if (!mme_cfg->feature_list.dcnr_support)
+    } else if (!mme_cfg->feature_list.dcnr_support) {
+        log_msg(LOG_DEBUG,"MME local config does not allow dual connectivity\n");
         rc = false;
-    else if (!(ueCtxt.getHssFeatList2().feature_list & nrAsSecRatBitMask_c))
+    } else if (!(ueCtxt.getHssFeatList2().feature_list & nrAsSecRatBitMask_c)) {
+        log_msg(LOG_DEBUG,"HSS does not support dual connectivity feature\n");
         rc = false;
-    else if (ueCtxt.getAccessRestrictionData()
-            & nrAsSecRatInEutranNotAllowedBitMask_c)
+    } else if (ueCtxt.getAccessRestrictionData() & nrAsSecRatInEutranNotAllowedBitMask_c) {
+        log_msg(LOG_DEBUG,"hss informed about access restriction for this UE\n");
         rc = false;
-    else
+    } else {
+        log_msg(LOG_DEBUG,"All well, this UE can use DCNR\n");
         rc = true;
+    }
 
     return rc;
 }
