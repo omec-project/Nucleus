@@ -39,42 +39,47 @@ extern "C"{
 #define S1AP_IE_RRC_EST_CAUSE  134
 #define S1AP_ERAB_SETUP_CTX_SUR 51
 
-/* should be part of mme app only */
-/*NAS message type codes*/
-#define NAS_ESM_RESP 0xda
-#define NAS_AUTH_RESP 0x53
-#define NAS_AUTH_REJECT 0x54
-#define NAS_AUTH_FAILURE 0x5c
-#define NAS_IDENTITY_REQUEST 0x55
-#define NAS_IDENTITY_RESPONSE 0x56
-#define NAS_SEC_MODE_COMPLETE 0x5e
-#define NAS_SEC_MODE_REJECT  0x5f
-#define NAS_ATTACH_REQUEST 0x41
-#define NAS_ATTACH_COMPLETE 0x43
-#define NAS_ATTACH_REJECT 0x44
-#define NAS_TAU_REQUEST    0x48
-#define NAS_TAU_COMPLETE   0x4a
-#define NAS_DETACH_REQUEST 0x45
-#define NAS_DETACH_ACCEPT 0x46
-#define NAS_SERVICE_REQUEST 0x4D
+/* NAS_ESM_HEADER_LEN (9) =
+ *     Sec_Hdr_Type(1/2) + Proto_Discr_1(1/2) +
+ *     MAC (4) + Seq_no (1) +
+ *     EPS_BEARER_ID(1/2) + Proto_Discr_2(1/2) +
+ *     PTI(1) + NAS_ESM_MSG_TYPE (1) */
+#define ESM_HEADER_LEN 9
 
 #define NAS_EPS_MOBILE_ID_IMSI 0x01
 #define NAS_EPS_MOBILE_ID_IMEI 0x03
 #define NAS_EPS_MOBILE_ID_GUTI 0x06
 
+/* NAS MESSAGE TYPES
+ * Refer - 24.301 , Table - 9.8.1,9.8.2 */
 enum eps_nas_mesage_type {
+	AttachRequest = 0x41,
 	AttachAccept = 0x42,
+	AttachComplete = 0x43,
 	AttachReject = 0x44,
-	DetachAccept = 0x46,
 	DetachRequest = 0x45,
+	DetachAccept = 0x46,
+	TauRequest = 0x48,
 	TauAccept    = 0x49,
-    TauReject    = 0x4b,
+	TauComplete = 0x4a,
+	TauReject    = 0x4b,
+	ServiceRequest = 0x4d,
 	ServiceReject = 0x4e,
 	AuthenticationRequest = 0x52,
-    IdentityRequest       = 0x55,
+	AuthenticationResponse = 0x53,
+	AuthenticationReject = 0x54,
+	IdentityRequest = 0x55,
+	IdentityResponse = 0x56,
+	AuthenticationFailure = 0x5c,
 	SecurityModeCommand = 0x5d,
-    EMMInformation = 0x61,
+	SecurityModeComplete = 0x5e,
+	SecurityModeReject = 0x5f,
+	EMMInformation = 0x61,
+	ActivateDedicatedBearerContextRequest = 0xc5,
+	ActivateDedicatedBearerContextAccept = 0xc6,
+	ActivateDedicatedBearerContextReject = 0xc7,
 	ESMInformationRequest = 0xd9,
+	ESMInformationResponse = 0xda,
 };
 
 /*NAS MSG IE CODES */
@@ -99,15 +104,18 @@ typedef enum
     NAS_IE_TYPE_ADDITIONAL_INFORMATION_REQUESTED = 0x17,
     NAS_IE_TYPE_PTMSI_SIGNATURE=0x19,
     NAS_IE_TYPE_MS_CLASSMARK_3=0x20,
+    NAS_IE_TYPE_PCO=0x27,
     NAS_IE_TYPE_APN=0x28,
     NAS_IE_TYPE_AUTH_FAIL_PARAM=0x30,
     NAS_IE_TYPE_MS_NETWORK_CAPABILITY=0x31,
+    NAS_IE_TYPE_NBIFOM_CONTAINER = 0x33,
     NAS_IE_TYPE_SUPPORTED_CODECS = 0x40,
     NAS_IE_TYPE_ADDITIONAL_GUTI = 0x50,
     NAS_IE_TYPE_TAI=0x52,
     NAS_IE_TYPE_EMM_CAUSE = 0x53,
     NAS_IE_TYPE_NONCEUE = 0x55,
     NAS_IE_TYPE_EPS_BEARER_CONTEXT_STATUS = 0x57,
+    NAS_IE_TYPE_ESM_CAUSE = 0x58,
     NAS_IE_TYPE_UE_NETWORK_CAPABILITY=0x58,
     NAS_IE_TYPE_DRX_PARAM=0x5C,
     NAS_IE_TYPE_VOICE_DOMAIN_PREF_UE_USAGE_SETTING=0x5D,
@@ -118,8 +126,8 @@ typedef enum
     NAS_IE_TYPE_UE_STATUS = 0x6D,
     NAS_IE_TYPE_EXTENDED_DRX_PARAMETERS = 0x6E,
     NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY=0x6F,
+    NAS_IE_TYPE_EXT_PCO = 0x7B,
     NAS_IE_TYPE_TX_FLAG=0xAA,
-    NAS_IE_TYPE_PCO=0xAB,
     NAS_IE_TYPE_PTI=0xAC,
 }nas_ie_type;
 
