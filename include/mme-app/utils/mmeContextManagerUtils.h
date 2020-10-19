@@ -41,7 +41,7 @@ public:
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
 
 	static bool deleteProcedureCtxt(MmeProcedureCtxt* procedure_p);
-	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
+	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, MmeProcedureCtxt* procedure_p);
 	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r);
 
 	static void deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag=true);

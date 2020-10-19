@@ -139,7 +139,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setCtxtType( ProcedureType::attach_c );
 	prcdCtxt_p->setNextState(AttachStart::Instance());
 
-	cb.setCurrentTempDataBlock(prcdCtxt_p);
+	cb.addTempDataBlock(prcdCtxt_p);
 	
 	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ue_info.tai.plmn_id));
 	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ue_info.utran_cgi.plmn_id));
@@ -179,7 +179,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 			SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
 
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
@@ -188,14 +188,14 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 			// copy seq num?
 
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
 		case unknownGutiAttach_c:
 		{
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
@@ -250,7 +250,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
     ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
     
     SM::Event evt(DETACH_REQ_FROM_UE, NULL);
-    cb.addEventToProcQ(evt);
+    cb.qInternalEvent(evt);
     
     ProcedureStats::num_of_detach_req_received ++;
     
@@ -299,7 +299,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
                 svcReqProc_p->setEpsBearerId(ddn_info.eps_bearer_id);
 
                 SM::Event evt(DDN_FROM_SGW, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -387,7 +387,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
                 ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 
                 SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -476,7 +476,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setNasDetachType(reattachNotRequired);
 
 	SM::Event evt(CLR_FROM_HSS, NULL);
-	cb.addEventToProcQ(evt);
+	cb.qInternalEvent(evt);
 	
 	return ActStatus::PROCEED;
 }
@@ -511,12 +511,12 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     prcdCtxt_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 	prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
 	prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
-	cb.setCurrentTempDataBlock(prcdCtxt_p);
+	cb.addTempDataBlock(prcdCtxt_p);
 
 	ProcedureStats::num_of_s1_rel_req_received ++;
 
 	SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
-	cb.addEventToProcQ(evt);
+	cb.qInternalEvent(evt);
 
 	return ActStatus::PROCEED;
 }
@@ -580,7 +580,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
                 tauReqProc_p->setTai(Tai(tauReq.tai));
                 tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
                 SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -674,7 +674,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	ProcedureStats::num_of_ho_required_received++;
 
 	SM::Event evt(INTRA_S1HO_START, NULL);
-	cb.addEventToProcQ(evt);
+	cb.qInternalEvent(evt);
     return ActStatus::PROCEED;
 }
 
@@ -723,7 +723,7 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
                 erabModInd.erab_to_be_mod_list.count);
 
         SM::Event evt(eRAB_MOD_IND_START, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     else
     {

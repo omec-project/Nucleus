@@ -63,6 +63,11 @@ namespace cmn
                 return msgBuffer_p;
             }
 
+            void setMsgBuffer(MsgBuffer* buf_p)
+            {
+            	msgBuffer_p = buf_p;
+            }
+
         private:
             MsgBuffer* msgBuffer_p;
     };
@@ -88,8 +93,15 @@ namespace cmn
         private:
             TimerContext* timerctxt_p;
     };
+
+    // Smart Pointer typedefs
+    using EventMsgUnqPtr = std::unique_ptr<EventMessage>;
+    using IpcEMsgUnqPtr = std::unique_ptr<IpcEventMessage>;
+    using TimeoutEMsgUnqPtr = std::unique_ptr<TimeoutMessage>;
+
+    using EventMsgShPtr = std::shared_ptr<EventMessage>;
+    using IpcEMsgShPtr = std::shared_ptr<IpcEventMessage>;
+    using TimeoutEMsgShPtr = std::shared_ptr<TimeoutMessage>;
 }
-
-
 
 #endif /* INCLUDE_CMN_EVENTMESSAGE_H_ */

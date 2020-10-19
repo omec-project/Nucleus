@@ -40,8 +40,9 @@ namespace mme
 
 	{[%- FOREACH Data = DataBlock.Data -%]
 [%-UNLESS Data.Cardinality=='' %]
+        [%-UNLESS Data.Type.search('std\:\:(list|array|vector)') %]
 		memset([% Data.Name %]_m,0,sizeof([% Data.Name %]_m));
-[%END-%]
+[%END-%][%END-%]
 [%-END%]	
 	}
 	
@@ -51,14 +52,30 @@ namespace mme
 	[% dataBlockClassName %]::~[% dataBlockClassName %]()
 	{
 	}	
-	[%- FOREACH Data = DataBlock.Data %]
+	[%- FOREACH Item = DataBlock.Data %]
+        [%- ptrType = Item.Type.match('^std\:\:shared_ptr\<(\w+\:{0,2}\w+)\>$') -%]
+        [%- listType = Item.Type.match('^std\:\:(list|vector|array)\<((\w+\:{0,2}\w+)((\*|\&))?)(\,\d+)?\>$') -%]
+        [%- IF ptrType %]
+[% INCLUDE templates/ctxtManagerTmpls/sharedPtrAPICpp.tt -%]
+        [%- ELSIF listType %]
+        	[%- IF listType.4  =='*'%][% access_op = '->' %][%ELSE %][% access_op = '.' %][% END -%]
+            		[%- IF listType.0 =='list' %]
+
+[% INCLUDE templates/ctxtManagerTmpls/listAPI.tt %]
+	        	[%- ELSIF listType.0 =='vector'%]
+[% INCLUDE templates/ctxtManagerTmpls/vectorAPI.tt %]
+	        	[%- ELSIF listType.0 == 'array'%]
+[% INCLUDE templates/ctxtManagerTmpls/arrayAPI.tt %]	
+	        	[%-END%]
+        	[%- ELSE %]
 	
-[% INCLUDE templates/ctxtManagerTmpls/getterSetterAPICpp.tt %]
+[%- INCLUDE templates/ctxtManagerTmpls/getterSetterAPICpp.tt %]
+		[%- END %]
 	[%- END %]
 	
 	[%- FOREACH Item = DataBlock.Children %]
 [%- INCLUDE templates/ctxtManagerTmpls/childAPICpp.tt %]
-[%- END %]
+    [%- END %]
 [%- END %]
 [%- END %]
 } // mme

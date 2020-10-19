@@ -9,9 +9,9 @@
 
 #include <ipcChannel.h>
 #include <componentDb.h>
+#include <eventMessage.h>
 
 namespace cmn{
-    class IpcEventMessage;
 namespace utils{
     class MsgBuffer;
 }
@@ -29,7 +29,7 @@ public:
 	cmn::ipc::IpcChannel* sender();
 	cmn::ipc::IpcChannel* reader();
 
-	void handleIpcMsg(cmn::IpcEventMessage* buf);
+	void handleIpcMsg(cmn::IpcEMsgUnqPtr buf);
 
 	bool dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddress& destAddr);
 

@@ -475,7 +475,9 @@ ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
     ProcedureStats::num_of_ho_complete++;
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_SUCCESS);
-    MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
+
+    MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
 
     return ActStatus::PROCEED;
 }
@@ -507,13 +509,13 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
     {
         log_msg(LOG_DEBUG, "TAI is same, TAU not Required\n");
         SM::Event evt(TAU_NOT_REQUIRED, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     else
     {
         log_msg(LOG_DEBUG, "TAI is not same, TAU Required\n");
         SM::Event evt(TAU_REQUIRED, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
 
     return ActStatus::PROCEED;
@@ -606,7 +608,10 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
 ActStatus ActionHandlers::abort_handover(ControlBlock &cb)
 {
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_ENB_HANDOVER_PROC_FAILURE);
-    MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Handover_c);
+
+    MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+
     return ActStatus::PROCEED;
 }
 

@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <timerQueue.h>
+#include <utils/mmeProcedureTypes.h>
 
 namespace mme
 {
@@ -32,7 +33,9 @@ public:
             uint16_t timerId,
             CTime& expiryTime):
         TimerContext(expiryTime, timerType, timerId),
-        ueIndex_m(ueIdx)
+        ueIndex_m(ueIdx),
+        bearerId_m(0),
+        procType_m(invalidProcedureType_c)
     {
     }
 
@@ -45,8 +48,31 @@ public:
         return ueIndex_m;
     }
 
+    void setBearerId(uint8_t bearerId)
+    {
+        bearerId_m = bearerId;
+    }
+
+    uint8_t getBearerId()
+    {
+        return bearerId_m;
+    }
+
+    ProcedureType getProcType()
+    {
+       return procType_m;
+    }
+
+    void setProcType(ProcedureType procType)
+    {
+        procType_m = procType;
+    }
+
 private:
     uint32_t ueIndex_m;
+    uint32_t bearerId_m;
+    ProcedureType procType_m;
+
 };
 }
 

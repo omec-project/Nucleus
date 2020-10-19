@@ -14,6 +14,9 @@
 #include <utils/mmeTimerTypes.h>
 #include <utils/mmeTimerUtils.h>
 
+#include <state.h>
+#include <tempDataBlock.h>
+
 using namespace mme;
 using namespace SM;
 
@@ -48,7 +51,10 @@ ActStatus MmeStatesUtils::on_state_entry(ControlBlock& cb)
                                 currentState_p->getStateId())); // treat state id as timerId
 
                 if (timerCtxt != NULL)
+                {
+                    timerCtxt->setProcType(procedure_p->getCtxtType());
                     procedure_p->setStateGuardTimerCtxt(timerCtxt);
+                }
             }
         }
     }
@@ -84,14 +90,23 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
 {
     EventStatus rc = EventStatus::IGNORE;
 
+    SM::State* currentState = tempDataBlock->getCurrentState();
+    if(currentState->isEventHandled(event.getEventId()) == false)
+    {
+        return EventStatus::FORWARD;
+    }
+
+    MmeProcedureCtxt *smProc_p =
+            static_cast<MmeProcedureCtxt*>(tempDataBlock);
+
     switch (event.getEventId())
     {
     case STATE_GUARD_TIMEOUT:
     {
-        cmn::TimeoutMessage *eMsg =
-                static_cast<cmn::TimeoutMessage*>(event.getEventData());
+        cmn::TimeoutEMsgShPtr eMsg = std::dynamic_pointer_cast<cmn::TimeoutMessage>(
+                event.getEventData());
 
-        if (eMsg != NULL)
+        if (eMsg)
         {
             MmeUeTimerContext *timerCtxt =
                     static_cast<MmeUeTimerContext*>(eMsg->getTimerContext());
@@ -99,20 +114,20 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
             if (timerCtxt != NULL)
             {
                 uint16_t timerId =
-                        tempDataBlock->getCurrentState()->getStateId();
+                        smProc_p->getCurrentState()->getStateId();
 
                 // Check if we are in same state or state has already changed.
                 // This happens when an event for the state was received and before
                 // it got processed, the timeout event was fired by the timer thread.
                 // If so, we need to ignore the guard timer expiry event.
-                if (timerCtxt->getTimerId() == timerId)
+                if (timerCtxt->getTimerId() == timerId &&
+                        smProc_p->getCtxtType() == timerCtxt->getProcType())
                 {
                     rc = EventStatus::CONSUME;
                 }
             }
         }
-    }
-        break;
+    }break;
     default:
     {
         rc = EventStatus::CONSUME;

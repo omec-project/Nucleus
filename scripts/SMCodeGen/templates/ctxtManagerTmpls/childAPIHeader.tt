@@ -1,68 +1,23 @@
-			[%-IF Child.Cardinality != '' %][%- T = Child.Type.match('^std\:\:(list|vector|array)\<((\w+\:{0,2}\w+)((\*|\&))?)(\,\d+)?\>$') -%]
-			[%- Param.Name = Child.Name %][%- Param.Type = T.1 %][%- Param.Properties.accessor = "mutable" %]
-			/****************************************
-			* add[% Child.Name %]
-			*    add [% Child.Name %] to [% dataBlockClassName %]
-			****************************************/
-			bool add[% Child.Name %]([% ARG(Param,"set")%]);
-			
-			/****************************************
-			* remove[% Child.Name %]
-			*    remove [% Child.Name %] from [% dataBlockClassName %]
-			****************************************/
-			void remove[% Child.Name %]([% ARG(Param,"set")%]);
-			[%-IF Child.defined('Properties') == 1 && Child.Properties.defined('FindBy') %]
-			[%-IF primitiveTypes.grep("$T.2").size != 0 || T.3=='*'%]
-			[%- FOREACH id = Child.Properties.FindBy %]
-			
-			/****************************************
-			* find[% Child.Name %]By[% String.new(id.Name).capital.text() %]
-			*    find [% Child.Name %] By[% String.new(id.Name).capital.text() %]
-			****************************************/
-			[% T.1 %] find[% Child.Name %]By[% String.new(id.Name).capital.text() %]([% ARG(id,"set")%]);
-			[%- END %]
-			[%- ELSE %]
-			[%- FOREACH id = Child.Properties.FindBy %]
-			
-			/****************************************
-			* find[% Child.Name %]By[% String.new(id.Name).capital.text() %]
-			*    find [% Child.Name %] By[% String.new(id.Name).capital.text() %]
-			****************************************/
-			bool find[% Child.Name %]By[% String.new(id.Name).capital.text() %]([% ARG(id,"set")%], [% ARG(Param,"set")%] );
-			[%- END %]
-			[%- END %]
-			[%- ELSE %]
-			
-			/****************************************
-			* find[% Child.Name %]
-			*    find [% Child.Name %]
-			****************************************/
-			[% Child.Type %]::iterator find[% Child.Name %]([% ARG(Param, "set")%]);
-			[%- END %]
-			
-			/****************************************
-			* get[% Child.Name %]Container
-			*    get [% Child.Name %]Container to [% dataBlockClassName %]
-			****************************************/
-			[% Child.Type %]& get[% Child.Name %]Container();
-			[%- IF T.0 =='array' %] 
-			
-			/****************************************
-			* get[% Child.Name %]Count
-			*    get [% Child.Name %]Count to [% dataBlockClassName %]
-			****************************************/
-			uint16_t get[% Child.Name %]Count();
-			[%- END %]
+			[%- listType = Item.Type.match('^std\:\:(list|vector|array)\<((\w+\:{0,2}\w+)((\*|\&))?)(\,\d+)?\>$') -%]
+			[%- IF listType %]
+			[%- Param.Name = Item.Name %][%- Param.Type = listType.1 %][%- Param.Properties.accessor = "mutable" %]
+	        	[%- IF listType.0 =='list' %]
+[% INCLUDE templates/ctxtManagerTmpls/listAPIHeader.tt %]
+	        	[%- ELSIF listType.0 =='vector'%]
+[% INCLUDE templates/ctxtManagerTmpls/vectorAPIHeader.tt %]
+	        	[%- ELSIF listType.0 == 'array'%]
+[% INCLUDE templates/ctxtManagerTmpls/arrayAPIHeader.tt %]	
+	        	[%-END%]
 			[%- ELSE %]
 			/****************************************
-			* set[% Child.Name %]
-			*    set [% Child.Name %] to [% dataBlockClassName %]
+			* set[% Item.Name %]
+			*    set [% Item.Name %] to [% dataBlockClassName %]
 			****************************************/
-			void set[% Child.Name %]( [% Child.Name %]* [% Child.Name %]p ) ;
+			void set[% Item.Name %]( [% Item.Name %]* [% Item.Name %]p ) ;
 			
 			/****************************************
-			* get[% Child.Name %]
-			*    get [% Child.Name %] to [% dataBlockClassName %]
+			* get[% Item.Name %]
+			*    get [% Item.Name %] to [% dataBlockClassName %]
 			****************************************/
-			[% Child.Name %]* get[% Child.Name %]();
+			[% Item.Name %]* get[% Item.Name %]();
 			[%- END %]

@@ -8,27 +8,23 @@
 #define INCLUDE_MME_APP_MSGHANDLERS_GTPMSGHANDLER_H_
 
 #include <stdint.h>
-
-namespace cmn
-{
-        class IpcEventMessage;
-}
+#include <eventMessage.h>
 
 class GtpMsgHandler {
 public:
 	static GtpMsgHandler* Instance();
 	~GtpMsgHandler();
 
-	void handleGtpMessage_v(cmn::IpcEventMessage *eMsg);
+	void handleGtpMessage_v(cmn::IpcEMsgUnqPtr eMsg);
 
 private:
 	GtpMsgHandler();
 
-	void handleCreateSessionResponseMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
-	void handleModifyBearerResponseMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
-	void handleDeleteSessionResponseMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
-	void handleReleaseBearerResponseMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
-	void handleDdnMsg_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx);
+	void handleCreateSessionResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleModifyBearerResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleDeleteSessionResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleReleaseBearerResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleDdnMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 };
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_GTPMSGHANDLER_H_ */

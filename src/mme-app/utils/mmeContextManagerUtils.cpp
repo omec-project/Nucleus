@@ -50,7 +50,7 @@ MmeDetachProcedureCtxt* MmeContextManagerUtils::allocateDetachProcedureCtxt(SM::
             prcdCtxt_p->setNextState(NiDetachStart::Instance());
         }
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -79,7 +79,7 @@ MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb
             prcdCtxt_p->setNextState(ServiceRequestStart::Instance());
         }
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
 
     }
     return prcdCtxt_p;
@@ -98,7 +98,7 @@ MmeContextManagerUtils::allocateTauProcedureCtxt(SM::ControlBlock& cb_r)
         prcdCtxt_p->setCtxtType(ProcedureType::tau_c);
         prcdCtxt_p->setNextState(TauStart::Instance());
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -117,7 +117,7 @@ MmeContextManagerUtils::allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r)
         prcdCtxt_p->setCtxtType(ProcedureType::erabModInd_c);
         prcdCtxt_p->setNextState(ErabModIndStart::Instance());
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -135,7 +135,7 @@ S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::Contro
         prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
         prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
         prcdCtxt_p->setHoType(intraMmeS1Ho_c);
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -229,52 +229,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 	return rc;
 }
 
-bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType)
+bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, MmeProcedureCtxt* procedure_p)
 {
-    bool rc = false;
-    
-    MmeProcedureCtxt* procedure_p =
-			static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
-
-    MmeProcedureCtxt* prevProcedure_p = NULL;
-    MmeProcedureCtxt* nextProcedure_p = NULL;
-
-    while (procedure_p != NULL)
+    if (procedure_p == NULL)
     {
-        nextProcedure_p =
-            static_cast<MmeProcedureCtxt*>(procedure_p->getNextTempDataBlock());
-        
-        ProcedureType procedureType = procedure_p->getCtxtType();
-        if (procType == procedureType)
-        {
-            log_msg(LOG_INFO, "Procedure type %d\n", procedureType);
-
-	    // Stop procedure specific timers 
-	    // Stop state guard timer if its running
-    	    MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
-            
-	    rc = deleteProcedureCtxt(procedure_p);
-            
-            if (rc == true)
-            {
-                if (prevProcedure_p != NULL)
-                {
-                    if (nextProcedure_p != NULL)
-                    {
-                        prevProcedure_p->setNextTempDataBlock(nextProcedure_p);
-                    }
-                }
-                else
-                {
-                    cb_r.setTempDataBlock(nextProcedure_p);
-                }
-            }
-            // break out of while loop
-            break;
-        }
-        prevProcedure_p = procedure_p;
-        procedure_p = nextProcedure_p;		
+        return true;
     }
+
+    bool rc = false;
+
+    // Remove the procedure from the temp data block list
+    // maintained by the control block
+    cb_r.removeTempDataBlock(procedure_p);
+
+    // Stop any timers running
+    MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
+
+    // return the procedure context to mem-pool
+    deleteProcedureCtxt(procedure_p);
 
     return rc;
 }
@@ -284,7 +256,7 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     bool rc = false;
 
     MmeProcedureCtxt* procedure_p =
-    		static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
+    		static_cast<MmeProcedureCtxt*>(cb_r.getFirstTempDataBlock());
     
     MmeProcedureCtxt* nextProcedure_p = NULL;
     
@@ -311,7 +283,7 @@ MmeProcedureCtxt* MmeContextManagerUtils::findProcedureCtxt(SM::ControlBlock& cb
     MmeProcedureCtxt* mmeProcCtxt_p = NULL;
 
     MmeProcedureCtxt* currentProcedure_p =
-                static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
+                static_cast<MmeProcedureCtxt*>(cb_r.getFirstTempDataBlock());
 
     MmeProcedureCtxt* nextProcedure_p = NULL;
 

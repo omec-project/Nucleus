@@ -1,7 +1,7 @@
 	/******************************************************************************
 	* add [% Item.Name %]
 	******************************************************************************/
-	[%- Param.Name = Item.Name %][%- Param.Type = T.1 %][%- Param.Properties.accessor = "mutable" %]
+	[%- Param.Name = Item.Name %][%- Param.Type = listType.1 %][%- Param.Properties.accessor = "mutable" %]
 	bool [% dataBlockClassName %]::add[% Item.Name %]([% ARG(Param, "set")%])
 	{
 		if([% Item.Name %]Count_m < [% Item.Name %]_m.size())
@@ -48,13 +48,13 @@
 		return [% Item.Name %]Count_m;
 	}
 	[%-IF Item.defined('Properties') == 1 && Item.Properties.defined('FindBy') %]
-	[%-IF primitiveTypes.grep("$T.2").size != 0 || T.3=='*'%]
+	[%-IF primitiveTypes.grep("$listType.2").size != 0 || listType.3=='*'%]
 	[%- FOREACH id = Item.Properties.FindBy %]
 	
 	/******************************************************************************
 	* find [% Item.Name %] By[% String.new(id.Name).capital.text() %]
 	******************************************************************************/
-	[% T.1 %] [% dataBlockClassName %]::find[% Item.Name %]By[% String.new(id.Name).capital.text() %]( [% ARG(id,"set")%])
+	[% listType.1 %] [% dataBlockClassName %]::find[% Item.Name %]By[% String.new(id.Name).capital.text() %]( [% ARG(id,"set")%])
 	{
 		for( auto &it : [% Item.Name %]_m)
     		{
@@ -63,7 +63,7 @@
             			return it;
         		}
     		}
-    		return [%-IF T.3=='*'-%]NULL[%- ELSE -%]0[%- END -%];
+    		return [%-IF listType.3=='*'-%]NULL[%- ELSE -%]0[%- END -%];
 	}
 	[%- END %]
 	[%- ELSE %]

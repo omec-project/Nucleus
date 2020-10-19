@@ -14,6 +14,7 @@
 #include <eventMessage.h>
 #include "mmeNasUtils.h"
 #include "mmeStatsPromClient.h"
+#include <eventMessage.h>
 
 using namespace SM;
 using namespace mme;
@@ -36,30 +37,27 @@ S1MsgHandler* S1MsgHandler::Instance()
 }
 
 // Starting point 
-void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
+void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 {
 	log_msg(LOG_INFO, "S1 - handleS1Message_v\n");
 
-	if (eMsg == NULL)
+	if (std::move(eMsg).get() == NULL)
 		return;
 
 	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
 	if (msgBuf == NULL)
 	{
 		log_msg(LOG_INFO, "S1 Message Buffer is empty \n");
-
-	    	delete eMsg;
-	    	return;
+		return;
 	}
-    	log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
+
+	log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_data_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
 	            "Received %d but should be %d\n", msgBuf->getLength(),
 	            sizeof (s1_incoming_msg_data_t));
-
-	    	delete eMsg;
-	    	return;
+	    return;
 	}
 
 	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
@@ -86,111 +84,110 @@ void S1MsgHandler::handleS1Message_v(IpcEventMessage* eMsg)
 	{
 		case msg_type_t::attach_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ATTACH_REQUEST);
-			handleInitUeAttachRequestMsg_v(eMsg);
+			handleInitUeAttachRequestMsg_v(std::move(eMsg));
 			break;
 
 		case msg_type_t::id_response:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_IDENTITY_RESPONSE);
-			handleIdentityResponseMsg_v(eMsg, msgData_p->ue_idx);
+			handleIdentityResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::auth_response:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE);
-			handleAuthResponseMsg_v(eMsg, msgData_p->ue_idx);
+			handleAuthResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::sec_mode_complete:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE);
-			handleSecurityModeResponse_v(eMsg, msgData_p->ue_idx);
+			handleSecurityModeResponse_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::esm_info_response:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ESM_RESPONSE);
-			handleEsmInfoResponse_v(eMsg, msgData_p->ue_idx);
+			handleEsmInfoResponse_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::init_ctxt_response:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_INIT_CONTEXT_RESPONSE);
-			handleInitCtxtResponse_v(eMsg, msgData_p->ue_idx);
+			handleInitCtxtResponse_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::attach_complete:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_ATTACH_COMPLETE);
-			handleAttachComplete_v(eMsg, msgData_p->ue_idx);
+			handleAttachComplete_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
                 
 		case msg_type_t::detach_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DETACH_REQUEST);
-			handleDetachRequest_v(eMsg, msgData_p->ue_idx);
+			handleDetachRequest_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 					
 		case msg_type_t::s1_release_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_RELEASE_REQUEST);
-			handleS1ReleaseRequestMsg_v(eMsg, msgData_p->ue_idx);
+			handleS1ReleaseRequestMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 			
 		case msg_type_t::s1_release_complete:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_RELEASE_COMPLETE);
-			handleS1ReleaseComplete_v(eMsg, msgData_p->ue_idx);
+			handleS1ReleaseComplete_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::detach_accept_from_ue:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_DETACH_ACCEPT);
-			handleDetachAcceptFromUE_v(eMsg, msgData_p->ue_idx);
+			handleDetachAcceptFromUE_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case  msg_type_t::service_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_SERVICE_REQUEST);
-		    handleServiceRequest_v(eMsg, msgData_p->ue_idx);
+		    handleServiceRequest_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 					
 		case msg_type_t::tau_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_TAU_REQUEST);
-			handleTauRequestMsg_v(eMsg, msgData_p->ue_idx);
+			handleTauRequestMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::handover_request_acknowledge:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_REQUEST_ACK);
-		    handleHandoverRequestAckMsg_v(eMsg, msgData_p->ue_idx);
+		    handleHandoverRequestAckMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_notify:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_NOTIFY);
-		    handleHandoverNotifyMsg_v(eMsg, msgData_p->ue_idx);
+		    handleHandoverNotifyMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_required:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_REQUIRED);
-		    handleHandoverRequiredMsg_v(eMsg, msgData_p->ue_idx);
+		    handleHandoverRequiredMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 		
 		case msg_type_t::enb_status_transfer:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ENB_STATUS_TRANSFER);
-			handleEnbStatusTransferMsg_v(eMsg, msgData_p->ue_idx);
+			handleEnbStatusTransferMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_cancel:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_CANCEL);
-			handleHandoverCancelMsg_v(eMsg, msgData_p->ue_idx);
+			handleHandoverCancelMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
 
 		case msg_type_t::handover_failure:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_HANDOVER_FAILURE);
-			handleHandoverFailureMsg_v(eMsg, msgData_p->ue_idx);
+			handleHandoverFailureMsg_v(std::move(eMsg), msgData_p->ue_idx);
 		    break;
             
 		case msg_type_t::erab_mod_indication:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_MODIFICATION_INDICATION);
-			handleErabModificationIndicationMsg_v(eMsg, msgData_p->ue_idx);		
+			handleErabModificationIndicationMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		default:
 			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
-			delete eMsg;
 	}
 }
 
-void S1MsgHandler::handleInitUeAttachRequestMsg_v(IpcEventMessage* eMsg)
+void S1MsgHandler::handleInitUeAttachRequestMsg_v(IpcEMsgUnqPtr eMsg)
 {
 	log_msg(LOG_INFO, "S1 - handleInitUeAttachRequestMsg_v\n");
 
@@ -204,11 +201,11 @@ void S1MsgHandler::handleInitUeAttachRequestMsg_v(IpcEventMessage* eMsg)
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(ATTACH_REQ_FROM_UE, eMsg);
+	SM::Event evt(ATTACH_REQ_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleIdentityResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleIdentityResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleIdentityResponseMsg_v\n");
 
@@ -222,11 +219,11 @@ void S1MsgHandler::handleIdentityResponseMsg_v(IpcEventMessage* eMsg, uint32_t u
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(IDENTITY_RESPONSE_FROM_UE, eMsg);
+	SM::Event evt(IDENTITY_RESPONSE_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleAuthResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleAuthResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleAuthResponseMsg_v\n");
 
@@ -241,11 +238,11 @@ void S1MsgHandler::handleAuthResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx
 
     // add event in the controBlk
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(AUTH_RESP_FROM_UE, eMsg);
+	SM::Event evt(AUTH_RESP_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleSecurityModeResponse_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleSecurityModeResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleSecurityModeResponse_v\n");
 
@@ -259,11 +256,11 @@ void S1MsgHandler::handleSecurityModeResponse_v(IpcEventMessage* eMsg, uint32_t 
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(SEC_MODE_RESP_FROM_UE, eMsg);
+	SM::Event evt(SEC_MODE_RESP_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleEsmInfoResponse_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleEsmInfoResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleEsmInfoResponse_v\n");
 
@@ -277,11 +274,11 @@ void S1MsgHandler::handleEsmInfoResponse_v(IpcEventMessage* eMsg, uint32_t ueIdx
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(ESM_INFO_RESP_FROM_UE, eMsg);
+	SM::Event evt(ESM_INFO_RESP_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleInitCtxtResponse_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleInitCtxtResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleInitCtxtResponse_v\n");
 
@@ -295,11 +292,11 @@ void S1MsgHandler::handleInitCtxtResponse_v(IpcEventMessage* eMsg, uint32_t ueId
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(INIT_CTXT_RESP_FROM_UE, eMsg);
+	SM::Event evt(INIT_CTXT_RESP_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleAttachComplete_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleAttachComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleAttachComplete_v\n");
 
@@ -313,11 +310,11 @@ void S1MsgHandler::handleAttachComplete_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 	}
 
 	// Fire attach-start event, insert cb to procedure queue
-	SM::Event evt(ATT_CMP_FROM_UE, eMsg);
+	SM::Event evt(ATT_CMP_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleDetachRequest_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleDetachRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleDetachRequest_v\n");
 
@@ -331,11 +328,11 @@ void S1MsgHandler::handleDetachRequest_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 	}
 
 	// Fire detach request event, insert cb to procedure queue
-	SM::Event evt(DETACH_REQ_FROM_UE, eMsg);
+	SM::Event evt(DETACH_REQ_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleS1ReleaseRequestMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleS1ReleaseRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleS1ReleaseRequestMsg_v\n");
 
@@ -348,11 +345,11 @@ void S1MsgHandler::handleS1ReleaseRequestMsg_v(IpcEventMessage* eMsg, uint32_t u
     	}
 
 	// Fire s1 release event, insert cb to procedure queue
-	SM::Event evt(S1_REL_REQ_FROM_UE, eMsg);
+	SM::Event evt(S1_REL_REQ_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleS1ReleaseComplete_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleS1ReleaseComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleS1ReleaseComplete_v\n");
 
@@ -365,11 +362,11 @@ void S1MsgHandler::handleS1ReleaseComplete_v(IpcEventMessage* eMsg, uint32_t ueI
     	}
 
 	// Fire s1 release complete event, insert cb to procedure queue
-	SM::Event evt(UE_CTXT_REL_COMP_FROM_ENB, eMsg);
+	SM::Event evt(UE_CTXT_REL_COMP_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleDetachAcceptFromUE_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleDetachAcceptFromUE_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleDetachAcceptFromUE_v\n");
 
@@ -383,11 +380,11 @@ void S1MsgHandler::handleDetachAcceptFromUE_v(IpcEventMessage* eMsg, uint32_t ue
 	}
 
 	//Fire NI_Detach Event, insert CB to procedure queue
-	SM::Event evt(DETACH_ACCEPT_FROM_UE, eMsg);
+	SM::Event evt(DETACH_ACCEPT_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleServiceRequest_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleServiceRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleServiceRequest_v\n");
 
@@ -402,11 +399,11 @@ void S1MsgHandler::handleServiceRequest_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 	}
 
 	//Fire NI_Detach Event, insert CB to procedure queue
-	SM::Event evt(SERVICE_REQUEST_FROM_UE, eMsg);
+	SM::Event evt(SERVICE_REQUEST_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleTauRequestMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void S1MsgHandler::handleTauRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleTauRequestMsg_v\n");
 
@@ -421,11 +418,11 @@ void S1MsgHandler::handleTauRequestMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 	}
 
 	// Fire tau-start event, insert cb to procedure queue
-	SM::Event evt(TAU_REQUEST_FROM_UE, eMsg);
+	SM::Event evt(TAU_REQUEST_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleHandoverRequiredMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleHandoverRequiredMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleHandoverRequiredMsg_v\n");
@@ -440,11 +437,11 @@ void S1MsgHandler::handleHandoverRequiredMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire HO Required event, insert cb to procedure queue
-    SM::Event evt(HO_REQUIRED_FROM_ENB, eMsg);
+    SM::Event evt(HO_REQUIRED_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleHandoverRequestAckMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleHandoverRequestAckMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleHandoverRequestAckMsg_v\n");
@@ -459,11 +456,11 @@ void S1MsgHandler::handleHandoverRequestAckMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire HO Request Ack event, insert cb to procedure queue
-    SM::Event evt(HO_REQUEST_ACK_FROM_ENB, eMsg);
+    SM::Event evt(HO_REQUEST_ACK_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleHandoverNotifyMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleHandoverNotifyMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleHandoverNotifyMsg_v\n");
@@ -478,11 +475,11 @@ void S1MsgHandler::handleHandoverNotifyMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire HO Notify event, insert cb to procedure queue
-    SM::Event evt(HO_NOTIFY_FROM_ENB, eMsg);
+    SM::Event evt(HO_NOTIFY_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleEnbStatusTransferMsg_v\n");
@@ -497,11 +494,11 @@ void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire Enb Status Transfer event, insert cb to procedure queue
-    SM::Event evt(ENB_STATUS_TRANFER_FROM_SRC_ENB, eMsg);
+    SM::Event evt(ENB_STATUS_TRANFER_FROM_SRC_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleHandoverCancelMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleHandoverCancelMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleHandoverCancelMsg_v\n");
@@ -516,11 +513,11 @@ void S1MsgHandler::handleHandoverCancelMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire Handover Cancel event, insert cb to procedure queue
-    SM::Event evt(HO_CANCEL_REQ_FROM_SRC_ENB, eMsg);
+    SM::Event evt(HO_CANCEL_REQ_FROM_SRC_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleHandoverFailureMsg_v(IpcEventMessage *eMsg,
+void S1MsgHandler::handleHandoverFailureMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
     log_msg(LOG_INFO, "S1 - handleHandoverFailureMsg_v\n");
@@ -535,11 +532,11 @@ void S1MsgHandler::handleHandoverFailureMsg_v(IpcEventMessage *eMsg,
     }
 
     // Fire Handover Failure event, insert cb to procedure queue
-    SM::Event evt(HO_FAILURE_FROM_TARGET_ENB, eMsg);
+    SM::Event evt(HO_FAILURE_FROM_TARGET_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }
 
-void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEventMessage* eMsg, 
+void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "S1 - handleErabModificationIndicationMsg_v\n");
@@ -554,6 +551,6 @@ void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEventMessage* eMsg,
     }
 
     // Fire erab_mod_ind_start event, insert cb to procedure queue
-    SM::Event evt(ERAB_MOD_INDICATION_FROM_ENB, eMsg);
+    SM::Event evt(ERAB_MOD_INDICATION_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }

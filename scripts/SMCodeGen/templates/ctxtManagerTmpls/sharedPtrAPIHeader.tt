@@ -1,0 +1,17 @@
+			/****************************************
+			* set[% String.new(Item.Name).capital.text() %]
+			*    set [% Item.Name %] to [% dataBlockClassName %]
+			****************************************/
+			void set[% String.new(Item.Name).capital.text() %]([% ARG(Item,"set") %]);
+			
+			/****************************************
+			* get[% String.new(Item.Name).capital.text() %]
+			*    get [% Item.Name %] from [% dataBlockClassName %]
+			****************************************/
+			[% Item.Type %] get[% String.new(Item.Name).capital.text() %]() const;
+			
+			/****************************************
+			* get[% String.new(Item.Name).capital.text() %]Ptr
+			*    get [% Item.Name %]Ptr from [% dataBlockClassName %]
+			****************************************/
+			const [% ptrType.0 %]* get[% String.new(Item.Name).capital.text() %]Raw()const;
