@@ -507,6 +507,11 @@ bool DigitRegister15::operator < ( const DigitRegister15& data_i )const
     return rc;
 }
 
+const uint8_t* DigitRegister15::getDigitsArray() const
+{
+   return digitsArray;
+}
+
 std::ostream& operator << ( std::ostream& os, const DigitRegister15& data_i )
 {
 	for( auto x : data_i.digitsArray )
@@ -517,4 +522,3 @@ std::ostream& operator << ( std::ostream& os, const DigitRegister15& data_i )
 	os << "\0";	
 	return os;
 }
-

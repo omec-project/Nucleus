@@ -66,6 +66,7 @@
 							{
 								"Name": "imsi",
 								"Type": "DigitRegister15",
+								"Hash": "DigitRegister15Hash",
 								"Key": "Yes"
 							},
 							{

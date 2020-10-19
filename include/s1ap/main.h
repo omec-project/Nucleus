@@ -22,7 +22,7 @@
 
 #define THREADPOOL_SIZE 10
 
-#define SCTP_BUF_SIZE 1024
+#define SCTP_BUF_SIZE 4096
 
 /*Timer and stat calculations*/
 struct time_stat {
@@ -108,6 +108,9 @@ void
 
 void
 *erab_mod_confirm_handler(void *);
+
+void
+*erab_setup_req_handler(void *);
 
 void
 calculate_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
