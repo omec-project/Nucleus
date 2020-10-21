@@ -19,12 +19,9 @@ extern mme_config_t *mme_cfg;
 void MmeDnsMsgUtils::Ipv4_gateway_ip( EPCDNS::StringVector &ipv4_ip, unsigned long * sgw_ip)
 {
         EPCDNS::StringVector::const_iterator it = ipv4_ip.begin();
-        std::cout<<*it <<"\n";
         char * result = (char*)ipv4_ip[0].c_str();
-        std::cout << result << "\n";
         unsigned long tmp = htonl(inet_addr(result));
         memcpy(sgw_ip,&tmp, sizeof(unsigned long));
-        std::cout << *sgw_ip << "\n";
 }
 void MmeDnsMsgUtils::Extract_IPs( EPCDNS::NodeSelectorResultList &at, unsigned long  *sgw_ip)
 {

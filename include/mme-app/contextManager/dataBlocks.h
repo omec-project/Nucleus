@@ -292,16 +292,16 @@ namespace mme
 			const Paa& getPdnAddr()const;			
 			
 			/****************************************
-			* setSgwCtrlPIP
-			*    set sgwCtrlPIP to UEContext
+			* setSgwCtrlIP
+			*    set sgwCtrlIP to UEContext
 			****************************************/
-			void setSgwCtrlPIP(uint64_t sgwCtrlPIP_i);
+			void setSgwCtrlIP(uint64_t sgwCtrlIP_i);
 			
 			/****************************************
-			* getSgwCtrlPIP
-			*    get sgwCtrlPIP from UEContext
+			* getSgwCtrlIP
+			*    get sgwCtrlIP from UEContext
 			****************************************/
-			uint64_t getSgwCtrlPIP()const;			
+			uint64_t getSgwCtrlIP()const;			
 			
 			/****************************************
 			* setMmContext
@@ -391,7 +391,7 @@ namespace mme
 			Paa pdnAddr_m;
 			
 			// DataName
-			uint64_t sgwCtrlPIP_m;
+			uint64_t sgwCtrlIP_m;
 			
 			// MmContext
 			MmContext* MmContext_mp;

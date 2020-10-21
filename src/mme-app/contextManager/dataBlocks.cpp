@@ -45,7 +45,7 @@ namespace mme
             mTmsi_m(0),
             subscribedApn_m(),
             pdnAddr_m(),
-            sgwCtrlPIP_m(0),MmContext_mp(NULL),SessionContext_mp(NULL)
+            sgwCtrlIP_m(0),MmContext_mp(NULL),SessionContext_mp(NULL)
 	{	
 	}
 	
@@ -397,19 +397,19 @@ namespace mme
 
 	
 	/******************************************************************************
-	* sets sgwCtrlPIP
+	* sets sgwCtrlIP
 	******************************************************************************/
-	void UEContext::setSgwCtrlPIP( uint64_t sgwCtrlPIP_i )
+	void UEContext::setSgwCtrlIP( uint64_t sgwCtrlIP_i )
 	{
-		sgwCtrlPIP_m = sgwCtrlPIP_i;
+		sgwCtrlIP_m = sgwCtrlIP_i;
 	}
 	
 	/******************************************************************************
-	* returns sgwCtrlPIP
+	* returns sgwCtrlIP
 	******************************************************************************/	
-        uint64_t UEContext::getSgwCtrlPIP() const
+        uint64_t UEContext::getSgwCtrlIP() const
         {
-                return sgwCtrlPIP_m;
+                return sgwCtrlIP_m;
         }
 
 	

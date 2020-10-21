@@ -101,7 +101,7 @@
 								"Type": "Paa"
 							},
 							{
-                                                                "Name": "sgwCtrlPIP",
+                                                                "Name": "sgwCtrlIP",
                                                                 "Type": "uint64_t"
                                                         }
 						]
