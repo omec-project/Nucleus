@@ -77,6 +77,8 @@ namespace mme
                 static int num_of_erab_mod_conf_sent;	
                 static int num_of_erab_mod_ind_timeout;
                 static int num_of_abort_erab_mod_indication;
+		static int num_of_req_sent_to_dns;
+		static int num_of_processed_dns_response;
 
         };
 };

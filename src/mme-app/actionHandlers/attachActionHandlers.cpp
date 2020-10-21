@@ -16,6 +16,13 @@
 #include <3gpp_24008.h>
 #include <typeinfo>
 #include "actionHandlers/actionHandlers.h"
+#include "epc/epctools.h"
+#include "epc/etevent.h"
+#include "epc/esocket.h"
+#include "epc/einternal.h"
+
+#include "epc/epcdns.h"
+#include "epc/dnscache.h"
 #include "mme_app.h"
 #include "controlBlock.h"
 #include "msgType.h"
@@ -28,7 +35,6 @@
 #include <sstream>
 #include <mmeSmDefs.h>
 #include <cstring>
-#include <event.h>
 #include <ipcTypes.h>
 #include <tipcTypes.h>
 #include <msgBuffer.h>
@@ -36,10 +42,15 @@
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCauseUtils.h>
+#include <utils/mmeDnsMsgUtils.h>
 #include "mmeNasUtils.h"
 #include "mme_app.h"
 #include "gtpCauseTypes.h"
 #include "promClient.h"
+#include "msgHandlers/MmeDnsMsgHandler.h"
+
+#define MCC_MNC_LEN 4
+#define LB_HB_LEN 8
 
 using namespace SM;
 using namespace mme;
@@ -48,6 +59,23 @@ using namespace cmn::utils;
 
 extern mme_config_t *mme_cfg;
 extern mmeConfig *mme_tables;
+
+
+Void AsyncNodeSelector(EPCDNS::NodeSelector &ns, cpVoid data)
+{
+	unsigned long sgw_ip;
+	UEContext *ue_ctxt = (UEContext*)data;
+	uint32_t ue_idx = ue_ctxt->getContextID();
+	log_msg(LOG_DEBUG,"Asynchronous Node Selector\n");
+	ns.dump();
+	
+
+	MmeDnsMsgUtils::Extract_IPs(ns.getResults(),&sgw_ip);
+	MmeDnsMsgHandler::Instance()->handleDnsResponse(sgw_ip, ue_idx);
+
+}
+
+
 
 ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
 {
@@ -799,7 +827,6 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
     memset(&cs_msg, 0, sizeof(cs_msg));
 	cs_msg.msg_type = create_session_request;
 	cs_msg.ue_idx = ue_ctxt->getContextID();
-	
 	const DigitRegister15& ueImsi = ue_ctxt->getImsi();
 	ueImsi.convertToBcdArray( cs_msg.IMSI );
 	
@@ -855,6 +882,11 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
             log_msg(LOG_DEBUG, "APN not found in static apn configuration \n");
         }
     }
+	 if(mme_cfg->dns_config.dns_flag == 1)
+        {
+                cs_msg.sgw_ip = ue_ctxt->getSgwCtrlIP();
+        }
+
 	memcpy(&(cs_msg.tai), &(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	memcpy(&(cs_msg.utran_cgi), &(ue_ctxt->getUtranCgi().cgi_m), sizeof(struct CGI));
 	cs_msg.pco_length = procCtxt->getPcoOptionsLen();
@@ -1444,3 +1476,98 @@ ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock
     mme_tables->initiate_spgw_resolution();
     return ActStatus::ABORT;
 }
+/***************************************
+* Action handler : req_to_dns
+***************************************/
+ActStatus ActionHandlers::req_to_dns(ControlBlock& cb)
+{
+	if(mme_cfg->dns_config.dns_flag == 1)
+        {
+
+	uint8_t plmn_id[3] = {0};
+
+        UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+        if (ue_ctxt == NULL)
+        {
+                log_msg(LOG_DEBUG, "req_to_dns: trans_dns is NULL \n");
+                return ActStatus::HALT;
+        
+	}
+
+	 MmeDnsMsgUtils::SetDNSConfiguration();
+	/* Query DNS based on lb and hb of tac */
+	char lb[LB_HB_LEN] = {0};
+	char hb[LB_HB_LEN] = {0};
+	char mnc[MCC_MNC_LEN] = {0};
+	char mcc[MCC_MNC_LEN] = {0};
+	short tac=0;
+	char mccDigit1 =  ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0x0F;
+	char mccDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[0] & 0xF0) >> 4;
+	char mccDigit3 = ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0x0F;
+	char mncDigit1 = ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0x0F;
+	char mncDigit2 = (ue_ctxt->getTai().tai_m.plmn_id.idx[2] & 0xF0) >> 4;
+	char mncDigit3 = (ue_ctxt->getTai().tai_m.plmn_id.idx[1] & 0xF0) >> 4;
+
+
+
+	if (mncDigit3 == 15)
+			snprintf(mnc, MCC_MNC_LEN, "%u%u", mncDigit1,mncDigit2);
+	else
+			snprintf(mnc, MCC_MNC_LEN, "%u%u%u", mncDigit1,mncDigit2,mncDigit3);
+
+
+	snprintf(mcc,MCC_MNC_LEN, "%u%u%u", mccDigit1, mccDigit2, mccDigit3);
+
+	memcpy(plmn_id, ue_ctxt->getTai().tai_m.plmn_id.idx, 3);
+	tac = ntohs(ue_ctxt->getTai().tai_m.tac);
+	log_msg(LOG_DEBUG, " %u %u  %u %u %u %u mcc and mnc digits\n %s %s: mnc and mcc\n %s %s: plmn_id\n %d %d tac value* \n",mccDigit1, mccDigit2, mccDigit2, mncDigit1, mncDigit2, mncDigit3,  mnc,mcc,  plmn_id,ue_ctxt->getTai().tai_m.plmn_id.idx, tac, ue_ctxt->getTai().tai_m.tac);
+	if ( tac != 1) {
+			log_msg(LOG_DEBUG, "Could not get SPGW list using DNS query.\n");
+			return ActStatus::HALT;
+	}
+
+	sprintf(lb, "%u", ue_ctxt->getTai().tai_m.tac & 0xFF);
+	sprintf(hb, "%u", (ue_ctxt->getTai().tai_m.tac >> 8) & 0xFF);
+	log_msg(LOG_DEBUG, "%s %s lb and hb value is\n", lb,hb);
+	
+	EPCDNS::SGWNodeSelector s2(lb, hb,mnc,mcc);
+        s2.setNamedServerID(DNS::NS_DEFAULT);
+        s2.addDesiredProtocol( EPCDNS::SGWAppProtocolEnum::sgw_x_s11 );
+	s2.process(ue_ctxt,AsyncNodeSelector);
+	ProcedureStats::num_of_req_sent_to_dns ++;
+	}
+	
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : process_dns_resp
+***************************************/
+ActStatus ActionHandlers::process_dns_resp(ControlBlock& cb)
+{
+   if(mme_cfg->dns_config.dns_flag == 1)
+   {
+
+    UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+	log_msg(LOG_DEBUG, "process_dns_resp: ue context is NULL \n");
+	return ActStatus::HALT;
+     }
+    SM::Event currentEvent;
+    
+    if (cb.getCurrentEvent(currentEvent) == false)
+    {
+	return ActStatus::HALT;
+    }
+    cmn::EventMessage * event_data = currentEvent.getEventData();
+	
+    DnsEventMessage* eMsg = dynamic_cast<DnsEventMessage*>(event_data);
+	
+    ue_ctxt->setSgwCtrlIP(eMsg->getIPAddress());
+   }
+    ProcedureStats::num_of_processed_dns_response ++;
+
+    return ActStatus::PROCEED;
+}
+

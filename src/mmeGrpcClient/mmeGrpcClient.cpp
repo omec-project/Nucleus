@@ -216,6 +216,8 @@ class MmeGrpcCliClient {
 	    cout << "num_of_erab_mod_conf_sent		     " << reply.num_of_erab_mod_conf_sent() << endl;
 	    cout << "num_of_erab_mod_ind_timeout             " << reply.num_of_erab_mod_ind_timeout() << endl;
 	    cout << "num_of_abort_erab_mod_indication        " << reply.num_of_abort_erab_mod_indication() << endl;
+	    cout << "num_of_req_sent_to_dns		     " << reply.num_of_req_sent_to_dns() << endl;
+	    cout << "num_of_processed_dns_response	     " << reply.num_of_processed_dns_response() << endl;
 
     } else {
       std::cout << status.error_code() << ": " << status.error_message()

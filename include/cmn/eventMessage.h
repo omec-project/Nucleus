@@ -14,6 +14,7 @@ namespace cmn
 {
     const uint16_t IPC_EMSG = 0x01;
     const uint16_t TIMEOUT_EMSG = 0x02;
+    const uint16_t DNS_RESP_EMSG = 0x04;
 
 	class EventMessage
 	{
@@ -88,8 +89,28 @@ namespace cmn
         private:
             TimerContext* timerctxt_p;
     };
+    
+    class DnsEventMessage :public EventMessage
+    {
+        public:
+            DnsEventMessage (uint64_t ip ):
+                EventMessage(DNS_RESP_EMSG), ipAddress(ip)
+            {
+            }
+	    
+           virtual ~DnsEventMessage ()
+            {
+
+            }
+	    uint64_t getIPAddress() 
+            {
+		return ipAddress;
+            }
+
+        private:
+            uint64_t ipAddress;
+    };
+
 }
-
-
 
 #endif /* INCLUDE_CMN_EVENTMESSAGE_H_ */

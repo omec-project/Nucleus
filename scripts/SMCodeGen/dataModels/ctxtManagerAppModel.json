@@ -99,7 +99,11 @@
 							{
 								"Name": "pdnAddr",
 								"Type": "Paa"
-							}
+							},
+							{
+                                                                "Name": "sgwCtrlIP",
+                                                                "Type": "uint64_t"
+                                                        }
 						]
 					},
 					{

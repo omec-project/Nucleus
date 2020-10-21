@@ -37,6 +37,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(DEL_SESSION_RESP_FROM_SGW,"DEL_SESSION_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(DETACH_ACCEPT_FROM_UE,"DETACH_ACCEPT_FROM_UE");      
     smUtil->addEventToStrEntry(DETACH_REQ_FROM_UE,"DETACH_REQ_FROM_UE");      
+    smUtil->addEventToStrEntry(DNS_RESPONSE,"DNS_RESPONSE");      
     smUtil->addEventToStrEntry(ENB_STATUS_TRANFER_FROM_SRC_ENB,"ENB_STATUS_TRANFER_FROM_SRC_ENB");      
     smUtil->addEventToStrEntry(eRAB_MOD_IND_START,"eRAB_MOD_IND_START");      
     smUtil->addEventToStrEntry(ERAB_MOD_INDICATION_FROM_ENB,"ERAB_MOD_INDICATION_FROM_ENB");      
@@ -78,6 +79,7 @@ void populateStateStringMap()
     smUtil->addStateToStrEntry(attach_wf_auth_resp,"attach_wf_auth_resp");
     smUtil->addStateToStrEntry(attach_wf_auth_resp_validate,"attach_wf_auth_resp_validate");
     smUtil->addStateToStrEntry(attach_wf_cs_resp,"attach_wf_cs_resp");
+    smUtil->addStateToStrEntry(attach_wf_dns_resp,"attach_wf_dns_resp");
     smUtil->addStateToStrEntry(attach_wf_esm_info_check,"attach_wf_esm_info_check");
     smUtil->addStateToStrEntry(attach_wf_esm_info_resp,"attach_wf_esm_info_resp");
     smUtil->addStateToStrEntry(attach_wf_identity_response,"attach_wf_identity_response");

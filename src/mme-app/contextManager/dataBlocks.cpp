@@ -44,7 +44,8 @@ namespace mme
             aiaSecInfo_m(),
             mTmsi_m(0),
             subscribedApn_m(),
-            pdnAddr_m(),MmContext_mp(NULL),SessionContext_mp(NULL)
+            pdnAddr_m(),
+            sgwCtrlIP_m(0),MmContext_mp(NULL),SessionContext_mp(NULL)
 	{	
 	}
 	
@@ -392,6 +393,23 @@ namespace mme
         const Paa& UEContext::getPdnAddr() const
         {
                 return pdnAddr_m;
+        }
+
+	
+	/******************************************************************************
+	* sets sgwCtrlIP
+	******************************************************************************/
+	void UEContext::setSgwCtrlIP( uint64_t sgwCtrlIP_i )
+	{
+		sgwCtrlIP_m = sgwCtrlIP_i;
+	}
+	
+	/******************************************************************************
+	* returns sgwCtrlIP
+	******************************************************************************/	
+        uint64_t UEContext::getSgwCtrlIP() const
+        {
+                return sgwCtrlIP_m;
         }
 
 	

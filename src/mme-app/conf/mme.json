@@ -24,6 +24,19 @@
 			"plmn1": "mcc=315,mnc=010",
 			"plmn2": "mcc=208,mnc=01"
         },
+	"dns":{
+		"dns_enable": 0,
+		"cache": {
+			"concurrent" : 25,
+			"percentage" : 80,
+			"interval_seconds" : 60,
+			"query_timeout_ms" :1000,
+			"query_tries" : 1
+			},
+		"dns1" :{
+			"address" : "10.43.11.48"
+			}			      
+	},
         "apnlist": {
             "__comment__": " apn name to ip addresss/service name mapping.",
             "internet": "spgwc-headless",

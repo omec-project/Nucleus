@@ -34,7 +34,9 @@ CC := gcc
 
 DEBUG = false
 
-GRPC_ROOT=/tmp/grpc
+GRPC_ROOT=$(TOPDIR)/third_party/grpc
+
+EPCTOOLS_ROOT=$(TOPDIR)/third_party/epctools
 
 CFLAGS += -D_FORTIFY_SOURCE=2 -fasynchronous-unwind-tables -fexceptions
 CFLAGS += -fstack-protector-all -fstack-protector-strong -Wall
