@@ -29,12 +29,10 @@ extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern s11_config_t g_s11_cfg;
 extern socklen_t g_s11_serv_size;
-extern volatile uint32_t g_s11_sequence;
 
 struct thread_pool *g_tpool;
 
 extern struct GtpV2Stack* gtpStack_gp;
-extern volatile uint32_t g_s11_sequence;
 
 /****Global and externs end***/
 
@@ -61,30 +59,29 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
     create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
                     db_resp_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
-	g_s11_sequence++;
 	DeleteBearerResponseMsgData msgData;
 	memset(&msgData, 0, sizeof(DeleteBearerRequestMsgData));
     
 	msgData.cause.causeValue = db_resp_msg->cause;
 
-	if(db_resp_msg->bearerCtxList.bearers_count > 0)
+	if(db_resp_msg->bearer_ctxt_db_resp_list.bearers_count > 0)
 	{
-	    msgData.bearerContextsCount = db_resp_msg->bearerCtxList.bearers_count;
+	    msgData.bearerContextsCount = db_resp_msg->bearer_ctxt_db_resp_list.bearers_count;
 
 	    for(int i=0; i < msgData.bearerContextsCount; i++)
 	    {
-	        msgData.bearerContexts[i].epsBearerId.epsBearerId = db_resp_msg->bearerCtxList.bearerCtxt[i].eps_bearer_id;
+	        msgData.bearerContexts[i].epsBearerId.epsBearerId = db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].eps_bearer_id;
 
-		msgData.bearerContexts[i].cause.causeValue = db_resp_msg->bearerCtxList.bearerCtxt[i].cause.data;
+		msgData.bearerContexts[i].cause.causeValue = db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].cause.data;
 
-		if(db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length > 0)
+		if(db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length > 0)
 		{
 		    msgData.bearerContexts[i].protocolConfigurationOptionsIePresent = true;
 		    msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
-				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length;
+				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length;
 		    memcpy(msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values, 
-				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_options, 
-				    db_resp_msg->bearerCtxList.bearerCtxt[i].pco.pco_length);
+				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_options,
+				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
 		}
 	    }
 	}

@@ -30,7 +30,7 @@ s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 	struct ddn_Q_msg ddn_info;
 	ddn_info.header.msg_type = downlink_data_notification;
-	ddn_info.header.ue_idx = hdr->teid;
+	ddn_info.s11_mme_cp_teid = hdr->teid;
 	ddn_info.seq_no = hdr->sequenceNumber;
 	ddn_info.sgw_ip = sgw_ip;
 
@@ -65,10 +65,8 @@ s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 	ddn_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send DDN msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&ddn_info, sizeof(struct ddn_Q_msg));
-
 	log_msg(LOG_INFO, "Send ddn to mme-app\n");
-	
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&ddn_info, sizeof(struct ddn_Q_msg));
 
 	return SUCCESS;
 }

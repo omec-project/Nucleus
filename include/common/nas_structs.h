@@ -507,8 +507,8 @@ typedef struct esm_msg_container {
 	esm_qos negotiated_qos;
 	ESM_APN_AMBR apn_ambr;
 	extended_apn_ambr extd_apn_ambr;
-    struct pco pco_opt;
-    bearer_tft tft;
+	struct pco pco_opt;
+	bearer_tft tft;
 } esm_msg_container;
 
 #define NAS_RAND_SIZE 16

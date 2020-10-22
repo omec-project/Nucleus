@@ -31,7 +31,7 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 
 	struct db_req_Q_msg dbr_info = {0};
 
-	dbr_info.header.ue_idx = hdr->teid;
+	dbr_info.s11_mme_cp_teid = hdr->teid;
 	dbr_info.header.msg_type = delete_bearer_request;
 	dbr_info.seq_no = hdr->sequenceNumber;
 
@@ -47,18 +47,13 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 			return E_PARSING_FAILED;
 	}
 
-	if (msgData.linkedEpsBearerIdIePresent)
+	if (msgData.epsBearerIdsCount > 0)
 	{
-	    dbr_info.linked_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
-	}
-        else if (msgData.epsBearerIdsCount > 0)
-	{
-	    /*Rewriting msgData.epsBearerIdsCount as 1, since we support only one bearer ctxt in the Q msg struct currently*/
-	    msgData.epsBearerIdsCount = 1;
-	    for(int i=0; i < msgData.epsBearerIdsCount; i++)
+	    /*Rewriting eps_bearer_ids_count as 1, since we support only one bearer ctxt in the Q msg struct currently*/
+	    dbr_info.eps_bearer_ids_count = 1;
+	    for(int i=0; i < dbr_info.eps_bearer_ids_count; i++)
 	    {
-	    	dbr_info.bearerCtxList.bearerCtxt[i].eps_bearer_id =
-	    			    				msgData.epsBearerIds[i].epsBearerId;
+            	dbr_info.eps_bearer_ids[i] = msgData.epsBearerIds[i].epsBearerId;
 	    }
 	}
 
@@ -75,27 +70,11 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
                             msgData.protocolConfigurationOptions.pcoValue.count);
         }
 
-	if(msgData.failedBearerContextsCount > 0)
-	{
-		/*Hard-coding the bearer count as 1, since we support only one bearer Ctxt in the Q msg struct currently.
-           	  Count value can be replaced with "msgData.failedBearerContextsCount" while supporting multiple bearers */	
-		dbr_info.bearerCtxList.bearers_count = 1;
-		for(int i=0; i < dbr_info.bearerCtxList.bearers_count; i++)
-		{
-			dbr_info.bearerCtxList.bearerCtxt[i].eps_bearer_id =
-					msgData.failedBearerContexts[i].epsBearerId.epsBearerId;
-			dbr_info.bearerCtxList.bearerCtxt[i].cause.data =
-					msgData.failedBearerContexts[i].cause.causeValue;
-		}
-	}
-
-
 	dbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	dbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CB request msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dbr_info, sizeof(struct db_req_Q_msg));
 	log_msg(LOG_INFO, "Send DB req to mme-app.\n");
-	
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dbr_info, sizeof(struct db_req_Q_msg));
 	return SUCCESS;
 }

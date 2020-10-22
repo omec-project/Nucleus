@@ -266,7 +266,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
-    VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg), return ActStatus::ABORT, "Invalid message length \n");
+    VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg), return ActStatus::ABORT, "Invalid DDN message length \n");
 
     const struct ddn_Q_msg *ddn_info =
     		static_cast<const ddn_Q_msg*>(msgBuf->getDataPointer());

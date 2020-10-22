@@ -400,7 +400,7 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
-    VERIFY(msgBuf->getLength() >= sizeof(struct MB_resp_Q_msg), return ActStatus::ABORT, "Invalid message length \n");
+    VERIFY(msgBuf->getLength() >= sizeof(struct MB_resp_Q_msg), return ActStatus::ABORT, "Invalid MBResp message length \n");
 
     const struct MB_resp_Q_msg *mbr_info =
     		static_cast<const MB_resp_Q_msg*>(msgBuf->getDataPointer());

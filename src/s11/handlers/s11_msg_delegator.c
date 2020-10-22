@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 #include "err_codes.h"
+#include "gtpv2c.h"
 #include "s11_options.h"
 #include "ipc_api.h"
 #include "s11.h"
@@ -165,6 +166,7 @@ handle_s11_message(void *message)
 	MsgBuffer* msgBuf_p = (MsgBuffer*)(message);
 
 	uint32_t sgw_ip = MsgBuffer_readUint32(msgBuf_p, sgw_ip);
+	uint16_t src_port = MsgBuffer_readUint16(msgBuf_p, src_port);
 	
 	GtpV2MessageHeader msgHeader;
 
@@ -174,31 +176,31 @@ handle_s11_message(void *message)
 		log_msg(LOG_ERROR,"Failed to decode the GTP Message\n");
 
 	switch(msgHeader.msgType){
-	case S11_GTP_CREATE_SESSION_RESP:
+	case GTP_CREATE_SESSION_RSP:
 		s11_CS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 
-	case S11_GTP_MODIFY_BEARER_RESP:
+	case GTP_MODIFY_BEARER_RSP:
 		s11_MB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 
-	case S11_GTP_DELETE_SESSION_RESP:
+	case GTP_DELETE_SESSION_RSP:
 		s11_DS_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 	
-	case S11_GTP_REL_ACCESS_BEARER_RESP:
+	case GTP_RABR_RSP:
 		s11_RB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 	
-	case S11_GTP_DOWNLINK_DATA_NOTIFICATION:
+	case GTP_DOWNLINK_DATA_NOTIFICATION:
 		s11_DDN_handler(msgBuf_p, &msgHeader, sgw_ip);
 		break;
 	
-	case S11_GTP_CREATE_BEARER_REQ:
-        	s11_CB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
+	case GTP_CREATE_BEARER_REQ:
+        	s11_CB_req_handler(msgBuf_p, &msgHeader, sgw_ip ,src_port);
         	break;
 				
-    	case S11_GTP_DELETE_BEARER_REQ:
+    	case GTP_DELETE_BEARER_REQ:
         	s11_DB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
         	break;
 

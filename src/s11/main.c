@@ -202,10 +202,11 @@ s11_reader()
 		if(len > 0) {
 			MsgBuffer* tmp_buf_p = createMsgBuffer(len);
 			uint32_t ip = ntohl(g_s11_cp_addr.sin_addr.s_addr);
+			uint16_t src_port = ntohs(g_s11_cp_addr.sin_port);
 			MsgBuffer_writeUint32(tmp_buf_p, ip, true);
+			MsgBuffer_writeUint16(tmp_buf_p, src_port, true);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
-
 			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
 
 			insert_job(g_tpool, handle_s11_message, tmp_buf_p);

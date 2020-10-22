@@ -33,12 +33,12 @@ int
 s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
 
-	struct csr_Q_msg csr_info;
+	struct csr_Q_msg csr_info = {0};
 	/*****Message structure***
 	*/
 
 	/*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
-	csr_info.header.ue_idx = hdr->teid;
+	csr_info.s11_mme_cp_teid = hdr->teid;
 	csr_info.header.msg_type = create_session_response;
 
     delete_gtp_transaction(hdr->sequenceNumber);
@@ -98,8 +98,8 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	csr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CS response msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&csr_info, sizeof(struct csr_Q_msg));
 	log_msg(LOG_INFO, "Send CS resp to mme-app stage6.\n");
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&csr_info, sizeof(struct csr_Q_msg));
 
 	return SUCCESS;
 }

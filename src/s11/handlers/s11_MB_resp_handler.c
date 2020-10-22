@@ -43,12 +43,12 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	/*Check whether has teid flag is set. Also check whether this check is needed for CSR.*/
 	if(hdr->teid)
     {
-        mbr_info.header.ue_idx = hdr->teid;
+        mbr_info.s11_mme_cp_teid = hdr->teid;
     }
     else
     {
         log_msg(LOG_WARNING, "Unknown Teid in MBR.\n");
-        mbr_info.header.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
+        mbr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
     delete_gtp_transaction(hdr->sequenceNumber);
@@ -70,8 +70,8 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	mbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, sizeof(struct MB_resp_Q_msg));
 	log_msg(LOG_INFO, "Send MB resp to mme-app stage8.\n");
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, sizeof(struct MB_resp_Q_msg));
 
 	return SUCCESS;
 }

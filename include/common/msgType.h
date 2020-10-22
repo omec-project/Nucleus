@@ -640,9 +640,10 @@ struct DDN_FAIL_Q_msg{
 struct CB_RESP_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
+    uint16_t destination_port;
     uint8_t cause;
     uint32_t seq_no;
-    bearerCtxList_t bearerCtxList;
+    bearer_ctxt_cb_resp_list_t bearer_ctxt_cb_resp_list;
     struct pco pco;
     struct fteid s11_sgw_c_fteid;
  };
@@ -654,7 +655,7 @@ struct DB_RESP_Q_msg {
     uint32_t seq_no;
     uint8_t cause;
     uint8_t linked_bearer_id;
-    bearerCtxList_t bearerCtxList;
+    bearer_ctxt_db_resp_list_t bearer_ctxt_db_resp_list;
     struct pco pco;
     struct fteid s11_sgw_c_fteid;
  };
@@ -668,11 +669,11 @@ typedef struct gtp_incoming_msg_data_t {
     uint32_t destInstAddr;
     uint32_t srcInstAddr;
     msg_type_t msg_type;
-    int ue_idx;
 }gtp_incoming_msg_data_t;
 
 struct csr_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
     int status;
     struct fteid s11_sgw_fteid;
     struct fteid s5s8_pgwc_fteid;
@@ -687,18 +688,25 @@ struct csr_Q_msg {
 
 struct MB_resp_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
     uint8_t cause;
     struct fteid s1u_sgw_fteid;
 };
 
+struct DS_resp_Q_msg {
+    gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
+};
 
 struct RB_resp_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
     struct fteid s1u_sgw_fteid;
 };
 
 struct ddn_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
     struct ARP arp;
     uint8_t cause;
     uint8_t eps_bearer_id;
@@ -708,21 +716,24 @@ struct ddn_Q_msg {
 
 struct cb_req_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
+    uint16_t source_port;
     uint8_t linked_eps_bearer_id;
     uint32_t seq_no;
     struct pco pco;
-    bearerCtxList_t bearerCtxList;
-};
+    bearer_ctx_list_t bearer_ctx_list;
 
+};
 
 struct db_req_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s11_mme_cp_teid;
     uint8_t cause;
     uint8_t linked_bearer_id;
     uint32_t seq_no;
+    uint8_t eps_bearer_ids_count;
     uint8_t eps_bearer_ids[DED_BEARER_COUNT];
     struct pco pco;
-    bearerCtxList_t bearerCtxList;
 };
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)

@@ -850,7 +850,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
-	VERIFY(msgBuf->getLength() >= sizeof(struct csr_Q_msg), return ActStatus::ABORT, "Invalid message length \n");
+	VERIFY(msgBuf->getLength() >= sizeof(struct csr_Q_msg), return ActStatus::ABORT, "Invalid CSRsp message length \n");
 
 	const struct csr_Q_msg* csr_info= static_cast<const struct csr_Q_msg*>(msgBuf->getDataPointer());
 
