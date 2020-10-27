@@ -299,6 +299,7 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
     {
         if (ula_msg.supp_features_list.supp_features[i].feature_list_id == 2)
         {
+            log_msg(LOG_DEBUG,"received feature_list_id2 from hss %u %u \n",ula_msg.supp_features_list.supp_features[i].feature_list_id, ula_msg.supp_features_list.supp_features[i].feature_list);
             ue_ctxt->setHssFeatList2(
                     ula_msg.supp_features_list.supp_features[i]);
             break;
