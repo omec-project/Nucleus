@@ -29,7 +29,7 @@ extern struct GtpV2Stack* gtpStack_gp;
 int
 s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {	
-	struct gtp_incoming_msg_data_t rbr_info;
+	struct RB_resp_Q_msg rbr_info;
 	
 	/*****Message structure***
 	*/
@@ -39,16 +39,16 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	
 	if(hdr->teid)
     {
-        rbr_info.ue_idx = hdr->teid;
+        rbr_info.s11_mme_cp_teid = hdr->teid;
     }
     else
     {
         log_msg(LOG_WARNING, "Unknown Teid in RABR.\n");
-        rbr_info.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
+        rbr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
     delete_gtp_transaction(hdr->sequenceNumber);
-	rbr_info.msg_type = release_bearer_response;
+	rbr_info.header.msg_type = release_bearer_response;
 	
 	ReleaseAccessBearersResponseMsgData msgData;
         memset(&msgData, 0, sizeof(ReleaseAccessBearersResponseMsgData));
@@ -63,12 +63,12 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
         }
 
 			
-	rbr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	rbr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	rbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	rbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send RAB Release response msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&rbr_info, GTP_READ_MSG_BUF_SIZE);
 	log_msg(LOG_INFO, "Send RB resp to mme-app stage2.\n");
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&rbr_info, sizeof(struct RB_resp_Q_msg));
 
 	return SUCCESS;
 }

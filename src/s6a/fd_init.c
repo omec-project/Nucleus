@@ -112,6 +112,9 @@ s6a_fd_objs_init()
 	//TODO: Check app id
 	application_id_t app_s6a = 16777251;
 
+	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME, "Vendor-Id",
+			g_fd_dict_objs.vendor_id_supported);
+
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME, "Result-Code",
 			g_fd_dict_objs.res_code);
 
@@ -442,6 +445,11 @@ s6a_fd_data_init()
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.subscriber_status,
 				&g_fd_dict_data.subscriber_status),
 				return S6A_FD_ERROR);
+
+	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.vendor_id_supported,
+                                &g_fd_dict_data.vendor_id_supported),
+                                return S6A_FD_ERROR);
+
 
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.supported_features,
                                 &g_fd_dict_data.supported_features),
