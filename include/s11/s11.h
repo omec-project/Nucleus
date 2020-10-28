@@ -21,16 +21,6 @@
 
 #define S11_GTPV2C_BUF_LEN	4096
 
-/*GTPv2c message types*/
-#define S11_GTP_CREATE_SESSION_REQ	32
-#define S11_GTP_CREATE_SESSION_RESP	33
-#define S11_GTP_MODIFY_BEARER_RESP	35
-#define S11_GTP_DELETE_SESSION_RESP	37
-#define S11_GTP_REL_ACCESS_BEARER_REQ	170
-#define S11_GTP_REL_ACCESS_BEARER_RESP	171
-#define S11_GTP_DOWNLINK_DATA_NOTIFICATION 176
-#define S11_GTP_DOWNLINK_DATA_NOTIFICATION_FAILURE_INDICATION 70
-
 /*GTPv2c IE message types*/
 #define S11_IE_CAUSE		2
 #define S11_IE_FTEID_C		87
@@ -55,11 +45,15 @@ int
 s11_transation(char * buf, unsigned int len);
 
 void* create_session_handler(void *);
+void* create_bearer_resp_handler(void *);
+void* delete_bearer_resp_handler(void *);
 void* modify_bearer_handler(void *);
 void* release_bearer_handler(void *); 
 void* delete_session_handler(void *);
 void* ddn_ack_handler(void *);
 int s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip, uint16_t src_port);
+int s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);

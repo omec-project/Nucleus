@@ -318,6 +318,16 @@ typedef struct s1apCause {
     } choice;
 } s1apCause_t;
 
+typedef struct erab_failed_to_setup_item {
+    uint8_t e_RAB_ID;
+    s1apCause_t cause;
+} erab_failed_to_setup_item;
+
+typedef struct erab_failed_to_setup_list {
+    uint8_t count;
+    erab_failed_to_setup_item erab_fail_item[MAX_ERAB_SIZE];
+} erab_failed_to_setup_list;
+
 /*36.413: 9.2.1.3a*/
 enum ie_RRC_est_cause {
 	EMERGENCY,
@@ -399,13 +409,13 @@ typedef struct E_RAB_Level_QoS_Params {
 } E_RAB_Level_QoS_Params;
 
 
-typedef struct ERABSetup {
+typedef struct erab_setup_item {
 	uint8_t e_RAB_ID;
 	E_RAB_Level_QoS_Params e_RAB_QoS_Params;
 	uint32_t transportLayerAddress;
 	uint32_t gtp_teid;
 	struct nasPDU nas;
-} ERABSetup;
+} erab_setup_item;
 
 
 struct ERAB_admitted_list{
@@ -413,10 +423,10 @@ struct ERAB_admitted_list{
         ERAB_admitted erab_admitted[MAX_ERAB_SIZE];
 };
 
-struct ERABSetupList{
+typedef struct erab_setup_list {
         int count ;
-        ERABSetup eRABSetup[MAX_ERAB_SIZE];
-};
+        erab_setup_item erab_su_item[MAX_ERAB_SIZE];
+}erab_setup_list;
 
 
 #define SECURITY_KEY_SIZE 32
@@ -435,7 +445,9 @@ typedef struct proto_IE_data {
         enum ie_RRC_est_cause 	rrc_est_cause;
         struct eRAB_elements 	erab;
         ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
-        ERABSetup E_RABToBeSetupItemCtxtSUReq;
+        erab_setup_item erab_to_be_setup_item_ctxt_su_req;
+	erab_setup_list erab_su_list;
+	erab_failed_to_setup_list erab_fail_list;
         erab_to_be_modified_list erab_to_be_mod_list;
         ue_sec_capabilities ue_sec_capab;
         uint8_t sec_key[SECURITY_KEY_SIZE];

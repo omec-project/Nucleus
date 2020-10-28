@@ -495,7 +495,7 @@ typedef struct
     PcoIeData protocolConfigurationOptions;
 
     Uint16 bearerContextsCount;
-    BearerContextsInCreateBearerRequestData bearerContexts[11];
+    BearerContextsInCreateBearerRequestData bearerContexts[10];
     FqCsidIeData pgwFqCsid;
     FqCsidIeData sgwFqCsid;
     ChangeReportingActionIeData changeReportingAction;
@@ -562,7 +562,6 @@ typedef struct
 typedef struct
 {
     bool linkedEpsBearerIdIePresent;   
-    bool epsBearerIdsIePresent;   
     bool procedureTransactionIdIePresent;   
     bool protocolConfigurationOptionsIePresent;   
     bool pgwFqCsidIePresent;   
@@ -579,10 +578,12 @@ typedef struct
 
 
     EbiIeData linkedEpsBearerId;
-    EbiIeData epsBearerIds;
+
+    Uint16 epsBearerIdsCount;
+    EbiIeData epsBearerIds[10];
 
     Uint16 failedBearerContextsCount;
-    FailedBearerContextsInDeleteBearerRequestData failedBearerContexts[11];
+    FailedBearerContextsInDeleteBearerRequestData failedBearerContexts[10];
     PtiIeData procedureTransactionId;
     PcoIeData protocolConfigurationOptions;
     FqCsidIeData pgwFqCsid;

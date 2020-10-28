@@ -21,7 +21,7 @@ rc = groupedIeInstance.decode[% ieTypeData.grpIeInstClassName %](buffer,
 data.[% ieTypeData.ieVarName %][data.[% ieTypeData.ieVarName %]Count], ieHeader.length);
 data.[% ieTypeData.ieVarName %]Count++; // TODO Count validation
 [% ELSE -%]
-rc = ieObject.decode[% ieTypeData.ieType %]Ie(buffer, data.[% ieTypeData.ieVarName %][[% ieTypeData.ieVarName %]Count], ieHeader.length);
+rc = ieObject.decode[% ieTypeData.ieType %]Ie(buffer, data.[% ieTypeData.ieVarName %][data.[% ieTypeData.ieVarName %]Count], ieHeader.length);
 data.[% ieTypeData.ieVarName %]Count++; // TODO Count validation
 [% END -%]
 [% END -%]

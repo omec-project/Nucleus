@@ -58,11 +58,11 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     hoReq.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL =
             (ueCtxt.getAmbr().ambr_m).max_requested_bw_ul;
 
-    hoReq.eRABSetupList.count = 1;
-    hoReq.eRABSetupList.eRABSetup[0].e_RAB_ID = 5;
-    hoReq.eRABSetupList.eRABSetup[0].gtp_teid =
+    hoReq.erab_su_list.count = 1;
+    hoReq.erab_su_list.erab_su_item[0].e_RAB_ID = 5;
+    hoReq.erab_su_list.erab_su_item[0].gtp_teid =
             bearerCtxt->getS1uSgwUserFteid().fteid_m.header.teid_gre;
-    hoReq.eRABSetupList.eRABSetup[0].transportLayerAddress =
+    hoReq.erab_su_list.erab_su_item[0].transportLayerAddress =
             bearerCtxt->getS1uSgwUserFteid().fteid_m.ip.ipv4.s_addr;
 
     hoReq.gummei.mme_code = mme_cfg->mme_code;

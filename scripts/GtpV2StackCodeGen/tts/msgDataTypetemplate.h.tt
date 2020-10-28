@@ -56,7 +56,11 @@ typedef struct
     [% ieData.grpIeInstClassName%]Data [% ieData.ieVarName%];
 [% END -%]
 [% ELSE -%]
+[% IF ieData.ieCardinality != 1 -%]
+    [% ieData.ieType%]IeData [% ieData.ieVarName%][[%ieData.ieCardinality%]];
+[% ELSE -%]
     [% ieData.ieType%]IeData [% ieData.ieVarName%];
+[% END -%]
 [% END -%]
 [% END -%]
 }[% msg.msgDataName %];
