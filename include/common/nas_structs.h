@@ -498,6 +498,7 @@ typedef struct esm_msg_container {
 	uint8_t proto_discriminator :4;
 	uint8_t procedure_trans_identity;
 	uint8_t session_management_msgs;
+	esm_cause_t esm_cause;
 	eps_qos_t eps_qos;  /* TODO: Revisit 24.301 - 9.9.4.3.1 */
 	struct apn_name apn;
 	struct apn_name selected_apn;
@@ -508,7 +509,6 @@ typedef struct esm_msg_container {
 	extended_apn_ambr extd_apn_ambr;
 	struct pco pco_opt;
 	bearer_tft tft;
-	esm_cause_t esm_cause;
 } esm_msg_container;
 
 #define NAS_RAND_SIZE 16

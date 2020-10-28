@@ -265,16 +265,11 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
     ProcedureStats::num_of_ddn_received++;
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-    if (msgBuf == NULL)
-    {
-        log_msg(LOG_INFO, "default_ddn_handler: msgBuf is NULL \n");
-        return ActStatus::PROCEED;
-    }
+    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
+    VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg), return ActStatus::ABORT, "Invalid DDN message length \n");
 
-    const gtp_incoming_msg_data_t *gtp_msg_data =
-            static_cast<const gtp_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    const struct ddn_Q_msg &ddn_info =
-            gtp_msg_data->msg_data.ddn_Q_msg_m;
+    const struct ddn_Q_msg *ddn_info =
+    		static_cast<const ddn_Q_msg*>(msgBuf->getDataPointer());
 
     uint8_t gtpCause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
     int sgw_cp_teid = 0;
@@ -294,9 +289,9 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
                             cb, PagingTrigger::ddnInit_c);
             if (svcReqProc_p != NULL)
             {
-                svcReqProc_p->setDdnSeqNo(ddn_info.seq_no);
-                svcReqProc_p->setArp(Arp(ddn_info.arp));
-                svcReqProc_p->setEpsBearerId(ddn_info.eps_bearer_id);
+                svcReqProc_p->setDdnSeqNo(ddn_info->seq_no);
+                svcReqProc_p->setArp(Arp(ddn_info->arp));
+                svcReqProc_p->setEpsBearerId(ddn_info->eps_bearer_id);
 
                 SM::Event evt(DDN_FROM_SGW, NULL);
                 cb.addEventToProcQ(evt);
@@ -331,8 +326,8 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
         ddnAck.msg_type = ddn_acknowledgement;
 	/*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
         ddnAck.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
-	ddnAck.s11_sgw_c_fteid.ip.ipv4.s_addr = ddn_info.sgw_ip;
-        ddnAck.seq_no= ddn_info.seq_no;
+	ddnAck.s11_sgw_c_fteid.ip.ipv4.s_addr = ddn_info->sgw_ip;
+        ddnAck.seq_no= ddn_info->seq_no;
         ddnAck.cause = gtpCause;
 
         cmn::ipc::IpcAddress destAddr;

@@ -312,17 +312,18 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
     {
         case downlink_data_notification:
         {
-            if (msgData_p->ue_idx == 0)
+	    const struct ddn_Q_msg* ddn = (const struct ddn_Q_msg*) (msg_p->getDataPointer());
+            if (ddn->s11_mme_cp_teid == 0)
             {
                 log_msg(LOG_INFO, "UE Index in DDN message data is 0.\n");
                 return cb_p;
             }
 
-            cb_p = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
+            cb_p = SubsDataGroupManager::Instance()->findControlBlock(ddn->s11_mme_cp_teid);
             if (cb_p == NULL)
             {
                 log_msg(LOG_INFO, "Failed to find control block using index %d."
-                        " Allocate a temporary control block\n", msgData_p->ue_idx);
+                        " Allocate a temporary control block\n", ddn->s11_mme_cp_teid);
 
                 // Respond  with DDN failure from default DDN event handler
                 cb_p = SubsDataGroupManager::Instance()->allocateCB();

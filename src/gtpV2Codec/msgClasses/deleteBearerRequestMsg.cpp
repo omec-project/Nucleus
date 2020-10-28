@@ -87,10 +87,18 @@ bool DeleteBearerRequestMsg::encodeDeleteBearerRequestMsg(MsgBuffer &buffer,
         }
     }
 
-    if (data.epsBearerIdsIePresent)
+    // First validate if the applicatoin provided more than the expected cardinality
+    if (data.epsBearerIdsCount > 10)
     {
-        
-        // Encode the Ie Header
+        errorStream.add((char *)"Number of entries of epsBearerIds exceeded\n");
+        errorStream.add((char *)"Expected count: 10 Received count: ");
+        errorStream.add((char *)"data.epsBearerIdsCount");
+        errorStream.endOfLine();
+        return false;
+    }
+    for (Uint8 i = 0; i < data.epsBearerIdsCount; i++)
+    {
+    	// Encode the Ie Header
         header.ieType = EbiIeType;
         header.instance = 1;
         header.length = 0; // We will encode the IE first and then update the length
@@ -98,28 +106,29 @@ bool DeleteBearerRequestMsg::encodeDeleteBearerRequestMsg(MsgBuffer &buffer,
         startIndex = buffer.getCurrentIndex(); 
         EbiIe epsBearerIds=
         dynamic_cast<
-        EbiIe&>(GtpV2IeFactory::getInstance().getIeObject(EbiIeType));
-        rc = epsBearerIds.encodeEbiIe(buffer, data.epsBearerIds);
+        EbiIe&>(GtpV2IeFactory::getInstance().
+        getIeObject(EbiIeType));
+        rc = epsBearerIds.encodeEbiIe(buffer, data.epsBearerIds[i]);
         endIndex = buffer.getCurrentIndex();
         length = endIndex - startIndex;
-        
+    
         // encode the length value now
         buffer.goToIndex(startIndex - 3);
         buffer.writeUint16(length, false);
         buffer.goToIndex(endIndex);
+    }
 
-        if (!(rc))
-        { 
-            errorStream.add((char *)"Failed to encode IE: epsBearerIds\n");
-            return false;
-        }
+    if (!(rc))
+    { 
+        errorStream.add((char *)"Failed to encode IE: epsBearerIds\n");
+        return false;
     }
 
     // First validate if the applicatoin provided more than the expected cardinality
-    if (data.failedBearerContextsCount > 11)
+    if (data.failedBearerContextsCount > 10)
     {
         errorStream.add((char *)"Number of entries of failedBearerContexts exceeded\n");
-        errorStream.add((char *)"Expected count: 11 Received count: ");
+        errorStream.add((char *)"Expected count: 10 Received count: ");
         errorStream.add((char *)"data.failedBearerContextsCount");
         errorStream.endOfLine();
         return false;
@@ -584,9 +593,15 @@ bool DeleteBearerRequestMsg::decodeDeleteBearerRequestMsg(MsgBuffer &buffer,
                 }
                 else if(ieHeader.instance == 1)
                 {
-                    rc = ieObject.decodeEbiIe(buffer, data.epsBearerIds, ieHeader.length);
+                    // First check if we have enough space left to decode and store this instance
+                    if (data.epsBearerIdsCount == 10)
+                    {
+                        errorStream.add((char *)"More than 10 instances of epsBearerIds received\n");
+                    	return false;
+                    }
+                    rc = ieObject.decodeEbiIe(buffer, data.epsBearerIds[data.epsBearerIdsCount], ieHeader.length);
+                    data.epsBearerIdsCount++; // TODO Count validation
 
-                    data.epsBearerIdsIePresent = true;
                     if (!(rc))
                     {
                         errorStream.add((char *)"Failed to decode IE: epsBearerIds\n");
@@ -614,9 +629,9 @@ bool DeleteBearerRequestMsg::decodeDeleteBearerRequestMsg(MsgBuffer &buffer,
                 if(ieHeader.instance == 0)
                 {
                     // First check if we have enough space left to decode and store this instance
-                    if (data.failedBearerContextsCount == 11)
+                    if (data.failedBearerContextsCount == 10)
                     {
-                        errorStream.add((char *)"More than 11 instances of failedBearerContexts received\n");
+                        errorStream.add((char *)"More than 10 instances of failedBearerContexts received\n");
                     	return false;
                     }
                     FailedBearerContextsInDeleteBearerRequest groupedIeInstance =
@@ -998,29 +1013,36 @@ displayDeleteBearerRequestMsgData_v(DeleteBearerRequestMsgData const &data, Debu
         linkedEpsBearerId.displayEbiIe_v(data.linkedEpsBearerId, stream);
 
     }
-    if (data.epsBearerIdsIePresent)
+
+    Uint8 displayCount;
+    
+    displayCount = data.epsBearerIdsCount;
+    if (displayCount > 10)
     {
-
-
-        stream.add((char *)"IE - epsBearerIds:");
+        stream.add((char *)"Invalid data more than 10 instances");
+        stream.endOfLine();
+        stream.add((char *)"Displaying only 10");
+        stream.endOfLine();
+        displayCount = 10;
+    }
+    for (Uint8 i = 0; i < displayCount; i++)
+    {
+        stream.add((char *)"IE -  epsBearerIds:");
         stream.endOfLine();
         EbiIe epsBearerIds=
         dynamic_cast<
         EbiIe&>(GtpV2IeFactory::getInstance().getIeObject(EbiIeType));
-        epsBearerIds.displayEbiIe_v(data.epsBearerIds, stream);
+        epsBearerIds.displayEbiIe_v(data.epsBearerIds[i], stream);
 
-    }
-
-    Uint8 displayCount;
-    
+    }  
     displayCount = data.failedBearerContextsCount;
-    if (displayCount > 11)
+    if (displayCount > 10)
     {
-        stream.add((char *)"Invalid data more than 11 instances");
+        stream.add((char *)"Invalid data more than 10 instances");
         stream.endOfLine();
-        stream.add((char *)"Displaying only 11");
+        stream.add((char *)"Displaying only 10");
         stream.endOfLine();
-        displayCount = 11;
+        displayCount = 10;
     }
     for (Uint8 i = 0; i < displayCount; i++)
     {
