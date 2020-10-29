@@ -57,30 +57,40 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEMsgUnqPtr eMsg)
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::create_session_response:
+		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_CREATE_SESSION_RESPONSE);
-			handleCreateSessionResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-			break;
-
+			const struct csr_Q_msg* csr_info= (const struct csr_Q_msg*) (msgBuf->getDataPointer());
+			handleCreateSessionResponseMsg_v(std::move(eMsg), csr_info->s11_mme_cp_teid);
+		}
+		break;
 		case msg_type_t::modify_bearer_response:
+		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_MODIFY_BEARER_RESPONSE);
-			handleModifyBearerResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-			break;
-
+			const struct MB_resp_Q_msg* mbr_info= (const struct MB_resp_Q_msg*) (msgBuf->getDataPointer());
+			handleModifyBearerResponseMsg_v(std::move(eMsg), mbr_info->s11_mme_cp_teid);
+		}
+		break;
 		case msg_type_t::delete_session_response:
+		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_SESSION_RESPONSE);
-			handleDeleteSessionResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-			break;
-			
+			const struct DS_resp_Q_msg* dsr_info= (const struct DS_resp_Q_msg*) (msgBuf->getDataPointer());
+			handleDeleteSessionResponseMsg_v(std::move(eMsg), dsr_info->s11_mme_cp_teid);
+		}
+		break;
 		case msg_type_t::release_bearer_response:
+		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_RELEASE_BEARER_RESPONSE);
-			handleReleaseBearerResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-			break;
-		
+			const struct RB_resp_Q_msg* rbr_info= (const struct RB_resp_Q_msg*) (msgBuf->getDataPointer());
+			handleReleaseBearerResponseMsg_v(std::move(eMsg), rbr_info->s11_mme_cp_teid);
+		}
+		break;
 		case msg_type_t::downlink_data_notification:
+		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION);
-			handleDdnMsg_v(std::move(eMsg), msgData_p->ue_idx);
-			break;
-
+			const struct ddn_Q_msg* ddn = (const struct ddn_Q_msg*) (msgBuf->getDataPointer());
+			handleDdnMsg_v(std::move(eMsg), ddn->s11_mme_cp_teid);
+		}
+		break;
 		default:
 			log_msg(LOG_INFO, "Unhandled Gtp Message %d \n", msgData_p->msg_type);
 	}

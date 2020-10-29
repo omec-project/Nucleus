@@ -45,7 +45,7 @@
 #define FEAT_LIST_ID_AVP_CODE 629
 #define FEAT_LIST_AVP_CODE 630
 #define SUB_DATA_AVP_CODE 1400
-
+#define SUPP_FEAT_VENDOR_ID_AVP_CODE 266
 #define S6A_RAT_EUTRAN 1004
 
 #define FD_DICT_SEARCH(dict, cond, id, obj) \
@@ -112,6 +112,7 @@ struct fd_dict_objects {
 	/*ULR elements*/
 	struct dict_object *RAT_type;
 	struct dict_object *ULR_flags;
+	struct dict_object *vendor_id_supported;
 
 	/*ULA elements*/
 	struct dict_object *ULA_flags;
@@ -193,6 +194,7 @@ struct fd_dict_data {
 	/*ULR data*/
 	struct dict_avp_data RAT_type;
 	struct dict_avp_data ULR_flags;
+	struct dict_avp_data vendor_id_supported;
 
 	/*ULA data*/
 	struct dict_avp_data ULA_flags;
