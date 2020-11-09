@@ -28,11 +28,11 @@ extern struct GtpV2Stack* gtpStack_gp;
 int
 s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 {
-	struct gtp_incoming_msg_data_t ddn_info;
-	ddn_info.msg_type = downlink_data_notification;
-	ddn_info.ue_idx = hdr->teid;
-	ddn_info.msg_data.ddn_Q_msg_m.seq_no = hdr->sequenceNumber;
-	ddn_info.msg_data.ddn_Q_msg_m.sgw_ip = sgw_ip;
+	struct ddn_Q_msg ddn_info;
+	ddn_info.header.msg_type = downlink_data_notification;
+	ddn_info.s11_mme_cp_teid = hdr->teid;
+	ddn_info.seq_no = hdr->sequenceNumber;
+	ddn_info.sgw_ip = sgw_ip;
 
 
 	DownlinkDataNotificationMsgData msgData;
@@ -52,23 +52,21 @@ s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 
 	//TODO : check cause for the result verification
 	if (msgData.allocationRetentionPriorityIePresent) {
-		ddn_info.msg_data.ddn_Q_msg_m.arp.prioLevel = msgData.allocationRetentionPriority.pl;
-		ddn_info.msg_data.ddn_Q_msg_m.arp.preEmptionCapab = msgData.allocationRetentionPriority.pci;
-		ddn_info.msg_data.ddn_Q_msg_m.arp.preEmptionVulnebility = msgData.allocationRetentionPriority.pvi;
+		ddn_info.arp.prioLevel = msgData.allocationRetentionPriority.pl;
+		ddn_info.arp.preEmptionCapab = msgData.allocationRetentionPriority.pci;
+		ddn_info.arp.preEmptionVulnebility = msgData.allocationRetentionPriority.pvi;
 	}
 	if (msgData.causeIePresent)
-		ddn_info.msg_data.ddn_Q_msg_m.cause = msgData.cause.causeValue;
+		ddn_info.cause = msgData.cause.causeValue;
 	if (msgData.epsBearerIdIePresent)
-		ddn_info.msg_data.ddn_Q_msg_m.eps_bearer_id = msgData.epsBearerId.epsBearerId;
+		ddn_info.eps_bearer_id = msgData.epsBearerId.epsBearerId;
 
-	ddn_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	ddn_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	ddn_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	ddn_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send DDN msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&ddn_info, GTP_READ_MSG_BUF_SIZE);
-
 	log_msg(LOG_INFO, "Send ddn to mme-app\n");
-	
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&ddn_info, sizeof(struct ddn_Q_msg));
 
 	return SUCCESS;
 }

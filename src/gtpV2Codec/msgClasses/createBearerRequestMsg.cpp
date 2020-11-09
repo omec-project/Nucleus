@@ -147,10 +147,10 @@ bool CreateBearerRequestMsg::encodeCreateBearerRequestMsg(MsgBuffer &buffer,
     }
 
     // First validate if the applicatoin provided more than the expected cardinality
-    if (data.bearerContextsCount > 11)
+    if (data.bearerContextsCount > 10)
     {
         errorStream.add((char *)"Number of entries of bearerContexts exceeded\n");
-        errorStream.add((char *)"Expected count: 11 Received count: ");
+        errorStream.add((char *)"Expected count: 10 Received count: ");
         errorStream.add((char *)"data.bearerContextsCount");
         errorStream.endOfLine();
         return false;
@@ -691,9 +691,9 @@ bool CreateBearerRequestMsg::decodeCreateBearerRequestMsg(MsgBuffer &buffer,
                 if(ieHeader.instance == 0)
                 {
                     // First check if we have enough space left to decode and store this instance
-                    if (data.bearerContextsCount == 11)
+                    if (data.bearerContextsCount == 10)
                     {
-                        errorStream.add((char *)"More than 11 instances of bearerContexts received\n");
+                        errorStream.add((char *)"More than 10 instances of bearerContexts received\n");
                     	return false;
                     }
                     BearerContextsInCreateBearerRequest groupedIeInstance =
@@ -1098,13 +1098,13 @@ displayCreateBearerRequestMsgData_v(CreateBearerRequestMsgData const &data, Debu
     Uint8 displayCount;
     
     displayCount = data.bearerContextsCount;
-    if (displayCount > 11)
+    if (displayCount > 10)
     {
-        stream.add((char *)"Invalid data more than 11 instances");
+        stream.add((char *)"Invalid data more than 10 instances");
         stream.endOfLine();
-        stream.add((char *)"Displaying only 11");
+        stream.add((char *)"Displaying only 10");
         stream.endOfLine();
-        displayCount = 11;
+        displayCount = 10;
     }
     for (Uint8 i = 0; i < displayCount; i++)
     {

@@ -33,8 +33,8 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 {
 
 
-	struct gtp_incoming_msg_data_t dsr_info;
-	dsr_info.msg_type = delete_session_response;
+	struct DS_resp_Q_msg dsr_info = {0};
+	dsr_info.header.msg_type = delete_session_response;
 
 	/*****Message structure****/
 	log_msg(LOG_INFO, "Parse S11 DS resp message\n");
@@ -46,23 +46,23 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	 * */
 	if(hdr->teid)
     {
-        dsr_info.ue_idx = hdr->teid;
+        dsr_info.s11_mme_cp_teid =  hdr->teid;
     }
     else
     {
         log_msg(LOG_WARNING, "Unknown Teid in DSR.\n");
-        dsr_info.ue_idx = find_gtp_transaction(hdr->sequenceNumber);
+        dsr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
     delete_gtp_transaction(hdr->sequenceNumber);
 
-	dsr_info.destInstAddr = htonl(mmeAppInstanceNum_c);
-	dsr_info.srcInstAddr = htonl(s11AppInstanceNum_c);
+	dsr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	dsr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CS response msg*/
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dsr_info,
-			GTP_READ_MSG_BUF_SIZE);
 	log_msg(LOG_INFO, "Send DS resp to mme-app stage8.\n");
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dsr_info,
+		 	sizeof(struct DS_resp_Q_msg));
 
 	return SUCCESS;
 }

@@ -40,6 +40,11 @@ extern "C"
         	return msgBuf_p->writeBytes(data, size, append);
         }
 
+	bool MsgBuffer_readBytes(MsgBuffer* msgBuf_p, Uint8* data, Uint16 size)
+        {
+            return msgBuf_p->readBytes(data, size);
+        }
+
 	const uint32_t MsgBuffer_readUint32(MsgBuffer* msgBuf_p, Uint32 data)
 	{
 		msgBuf_p->readUint32(data);
@@ -50,6 +55,17 @@ extern "C"
 	{
 		return msgBuf_p->writeUint32(data, append);
 	}
+
+	const uint16_t MsgBuffer_readUint16(MsgBuffer* msgBuf_p, Uint16 data)
+    	{
+        	msgBuf_p->readUint16(data);
+        	return data;
+    	}
+
+    	bool MsgBuffer_writeUint16(MsgBuffer* msgBuf_p, Uint16 data, bool append)
+    	{
+        	return msgBuf_p->writeUint16(data, append);
+    	}
 
         void MsgBuffer_rewind(MsgBuffer* msgBuf_p)
         {

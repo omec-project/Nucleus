@@ -119,13 +119,15 @@ send_FD_ULR(struct s6a_Q_msg *aia_msg, char imsi[])
 	
 	for(int i = 0; i < aia_msg->supp_features_list.count ; i++)
 	{
-	    /*AVP: Supported Features*/
-            CHECK_FCT_DO(fd_msg_avp_new(
-		g_fd_dict_objs.supported_features, 0, &avp_ptr),
-                return -1);
+	        /*AVP: Supported Features*/
+            CHECK_FCT_DO(fd_msg_avp_new(g_fd_dict_objs.supported_features, 0, &avp_ptr), return -1);
             CHECK_FCT_DO(fd_msg_avp_add(fd_msg, MSG_BRW_LAST_CHILD, avp_ptr), return -1);
 
-	    /*AVP: Supported Features
+            val.u32 = 10415;
+            add_fd_msg(&val, g_fd_dict_objs.vendor_id_supported, (struct msg**)&avp_ptr);
+
+
+	        /*AVP: Supported Features
              *----->AVP: Feature-List-Id*/
             val.u32 = aia_msg->supp_features_list.supp_features[i].feature_list_id ;
             add_fd_msg(&val, g_fd_dict_objs.feature_list_id,

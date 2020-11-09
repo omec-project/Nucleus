@@ -27,7 +27,7 @@
         },
         "feature_list": {
             "dcnr_support": "enabled"
-        }
+        },
         "apnlist": {
             "__comment__": " apn name to ip addresss/service name mapping.",
             "internet": "spgwc-headless",
