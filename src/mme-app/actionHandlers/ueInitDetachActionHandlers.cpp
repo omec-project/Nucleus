@@ -39,57 +39,88 @@ using namespace cmn::utils;
 
 ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside delete_session_req \n");
-		
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "delete_session_req: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
-		
-	//ue_ctxt->getUeSecInfo().increment_uplink_count();
-	
-	struct DS_Q_msg g_ds_msg;
-	g_ds_msg.msg_type = delete_session_request;
-	g_ds_msg.ue_idx = ue_ctxt->getContextID();
-	
-	memset(g_ds_msg.indication, 0, S11_DS_INDICATION_FLAG_SIZE);
-	g_ds_msg.indication[0] = 8; /* TODO : define macro or enum */
-	
-	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
-	if(sessionCtxtContainer.size() < 1)
-	{
-		log_msg(LOG_ERROR, "delete_session_req: Session context list is empty\n");
-		return ActStatus::HALT;
-	}
+    log_msg(LOG_DEBUG, "Inside delete_session_req \n");
 
-	SessionContext* sessionCtxt = sessionCtxtContainer.front();
-	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
-	g_ds_msg.bearer_id = bearerCtxt->getBearerId();
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
-	memcpy(&(g_ds_msg.s11_sgw_c_fteid), &(sessionCtxt->getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
-		
-	/* Send message to S11app in S11q*/
-	cmn::ipc::IpcAddress destAddr;
-	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+    bool status = false;
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_DELETE_SESSION_REQUEST);
-	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-	mmeIpcIf.dispatchIpcMsg((char *) &g_ds_msg, sizeof(g_ds_msg), destAddr);
-	
-	log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
-	ProcedureStats::num_of_del_session_req_sent ++;	
-	return ActStatus::PROCEED;
+    auto &sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    if(sessionCtxtContainer.size() > 0)
+    {
+        SessionContext *sessionCtxt = sessionCtxtContainer.front();
+        if(sessionCtxt)
+        {
+            struct DS_Q_msg g_ds_msg;
+            g_ds_msg.msg_type = delete_session_request;
+            g_ds_msg.ue_idx = ue_ctxt->getContextID();
 
+            memset(g_ds_msg.indication, 0, S11_DS_INDICATION_FLAG_SIZE);
+            g_ds_msg.indication[0] = 8; /* TODO : define macro or enum */
+
+            g_ds_msg.bearer_id = sessionCtxt->getLinkedBearerId();
+
+            memcpy(&(g_ds_msg.s11_sgw_c_fteid),
+                   &(sessionCtxt->getS11SgwCtrlFteid().fteid_m),
+                   sizeof(struct fteid));
+
+            /* Send message to S11app in S11q*/
+            cmn::ipc::IpcAddress destAddr;
+            destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_DELETE_SESSION_REQUEST);
+
+            MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+            mmeIpcIf.dispatchIpcMsg((char*) &g_ds_msg, sizeof(g_ds_msg), destAddr);
+
+            log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
+            ProcedureStats::num_of_del_session_req_sent++;
+
+            status = true; // delete session sent success
+        }
+    }
+
+    ActStatus rc = ActStatus::PROCEED;
+
+    // This action may be invoked during an abort of procedure other than detach as well.
+    // In such cases, even if we are not able to successfully send delete, return proceed
+    // so that abort can continue.
+    if(!status)
+    {
+        MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+
+        if(procCtxt != NULL)
+        {
+            switch (procCtxt->getCtxtType())
+            {
+                case detach_c:
+                {
+                    // Action invoked as part of detach success path, return abort as
+                    // we failed to send out delete session request to gw
+                    if(procCtxt->getMmeErrorCause() == SUCCESS)
+                    {
+                        rc = ActStatus::ABORT;
+                    }
+
+                }break;
+                default:
+                {
+                    // Do Nothing
+                }
+            }
+
+        }
+    }
+
+    return rc;
 }
 
 ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside purge_req \n");
 	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
+
 	if (ue_ctxt == NULL)
 	{
 		log_msg(LOG_DEBUG, "purge_req: ue context is NULL\n");
@@ -222,3 +253,4 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	return ActStatus::PROCEED;
 	
 }
+

@@ -485,7 +485,8 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     if (msgBuf == NULL)
     {
         log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
-        return ActStatus::HALT;
+	// Wait for UE to retry.
+        return ActStatus::PROCEED;
     }
 
     s1_incoming_msg_data_t *msgData_p =
@@ -493,27 +494,29 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     if (msgData_p == NULL)
     {
         log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
+	// Wait for UE to retry.
+        return ActStatus::PROCEED;
     }
 
-	MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
-	if( prcdCtxt_p == NULL )
-	{
-		log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt \n");
-		return ActStatus::HALT;
-	}
+    MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
+    if( prcdCtxt_p == NULL )
+    {
+	log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt \n");
+	// Wait for UE to retry.
+	return ActStatus::PROCEED;
+    }
 	
     prcdCtxt_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-	prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
-	prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
-	cb.setCurrentTempDataBlock(prcdCtxt_p);
+    prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
+    prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
+    cb.setCurrentTempDataBlock(prcdCtxt_p);
 
-	ProcedureStats::num_of_s1_rel_req_received ++;
+    ProcedureStats::num_of_s1_rel_req_received ++;
 
-	SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
-	cb.addEventToProcQ(evt);
+    SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
+    cb.addEventToProcQ(evt);
 
-	return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 }
 
 /***************************************

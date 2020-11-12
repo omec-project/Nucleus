@@ -130,7 +130,7 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
     {
         log_msg(LOG_INFO, "HO Request ACK does not contain any eRAB Admitted Items.");
 
-        ho_ctxt->setMmeErrorCause(hoRequestAckFailure_c);
+        ho_ctxt->setMmeErrorCause(S1AP_HOREQACK_FAILED);
        	S1apCause s1apCause = MmeCauseUtils::convertToS1apCause(
                 ho_ctxt->getMmeErrorCause());
         ho_ctxt->setS1HoCause(s1apCause);
