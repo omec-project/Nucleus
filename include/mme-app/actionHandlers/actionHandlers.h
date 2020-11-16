@@ -44,6 +44,16 @@ namespace mme
         static SM::ActStatus abort_attach(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_create_bearer_procedure
+        ***********************************************/
+        static SM::ActStatus abort_create_bearer_procedure(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : abort_ded_activation
+        ***********************************************/
+        static SM::ActStatus abort_ded_activation(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_erab_mod_indication
         ***********************************************/
         static SM::ActStatus abort_erab_mod_indication(SM::ControlBlock& cb);                
@@ -89,9 +99,19 @@ namespace mme
         static SM::ActStatus check_esm_info_req_required(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : create_bearer_proc_complete
+        ***********************************************/
+        static SM::ActStatus create_bearer_proc_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : cs_req_to_sgw
         ***********************************************/
         static SM::ActStatus cs_req_to_sgw(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : ded_act_complete
+        ***********************************************/
+        static SM::ActStatus ded_act_complete(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : default_attach_req_handler
@@ -102,6 +122,11 @@ namespace mme
         * Action handler : default_cancel_loc_req_handler
         ***********************************************/
         static SM::ActStatus default_cancel_loc_req_handler(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : default_create_bearer_req_handler
+        ***********************************************/
+        static SM::ActStatus default_create_bearer_req_handler(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : default_ddn_handler
@@ -159,6 +184,11 @@ namespace mme
         static SM::ActStatus handle_attach_request(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_ded_act_cmp_ind
+        ***********************************************/
+        static SM::ActStatus handle_ded_act_cmp_ind(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_state_guard_timeouts
         ***********************************************/
         static SM::ActStatus handle_state_guard_timeouts(SM::ControlBlock& cb);                
@@ -179,6 +209,11 @@ namespace mme
         static SM::ActStatus ho_complete(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : init_ded_bearer_activation
+        ***********************************************/
+        static SM::ActStatus init_ded_bearer_activation(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : is_tau_required
         ***********************************************/
         static SM::ActStatus is_tau_required(SM::ControlBlock& cb);                
@@ -187,6 +222,16 @@ namespace mme
         * Action handler : ni_detach_req_to_ue
         ***********************************************/
         static SM::ActStatus ni_detach_req_to_ue(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : process_act_ded_bearer_accept
+        ***********************************************/
+        static SM::ActStatus process_act_ded_bearer_accept(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : process_act_ded_bearer_reject
+        ***********************************************/
+        static SM::ActStatus process_act_ded_bearer_reject(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : process_aia
@@ -212,6 +257,11 @@ namespace mme
         * Action handler : process_detach_accept_from_ue
         ***********************************************/
         static SM::ActStatus process_detach_accept_from_ue(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : process_erab_setup_response
+        ***********************************************/
+        static SM::ActStatus process_erab_setup_response(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : process_esm_info_resp
@@ -332,6 +382,16 @@ namespace mme
         * Action handler : send_auth_reject
         ***********************************************/
         static SM::ActStatus send_auth_reject(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_bearer_setup_and_sess_mgmt_req
+        ***********************************************/
+        static SM::ActStatus send_bearer_setup_and_sess_mgmt_req(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_create_bearer_response
+        ***********************************************/
+        static SM::ActStatus send_create_bearer_response(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_ddn_ack_to_sgw

@@ -158,10 +158,13 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
 
         mmCtxt->setEcmState(ecmIdle_c);
 
-    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
-	ue_ctxt->setS1apEnbUeId(0);
-	ProcedureStats::num_of_s1_rel_comp_received++;
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
+
+        MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+
+        ue_ctxt->setS1apEnbUeId(0);
+        ProcedureStats::num_of_s1_rel_comp_received++;
 
     	log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp \n");
 
@@ -179,7 +182,9 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
-        MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
+
+        MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_FAILURE);

@@ -77,7 +77,16 @@ namespace mme
                 static int num_of_erab_mod_conf_sent;	
                 static int num_of_erab_mod_ind_timeout;
                 static int num_of_abort_erab_mod_indication;
-
+                static int num_of_erab_setup_req_sent;
+                static int num_of_erab_setup_resp_received;
+                static int num_of_create_bearer_req_received;
+                static int num_of_create_bearer_resp_sent;
+                static int num_of_act_ded_br_ctxt_req_sent;
+                static int num_of_ded_bearer_ctxt_acpt_received;
+                static int num_of_ded_bearer_ctxt_reject_received;
+                static int num_of_abort_ded_activation;
+                static int num_of_ded_act_complete;
+                static int num_of_create_bearer_proc_complete;
         };
 };
 #endif

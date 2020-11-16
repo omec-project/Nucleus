@@ -181,13 +181,13 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
     }
     else
-	{
-		mmCtxt->setMmState( EpsDetached );
-		mmCtxt->setEcmState( ecmIdle_c );
-		ueCtxt->setS1apEnbUeId(0);
-		mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
-		MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c);
-	}
+    {
+    	mmCtxt->setMmState( EpsDetached );
+    	mmCtxt->setEcmState( ecmIdle_c );
+    	ueCtxt->setS1apEnbUeId(0);
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
+    	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
+    }
 
     ProcedureStats::num_of_s1_rel_comp_received ++;
     ProcedureStats::num_of_subscribers_detached ++;

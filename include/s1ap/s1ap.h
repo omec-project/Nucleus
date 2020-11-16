@@ -92,7 +92,8 @@ s1_handover_cancel_handler(InitiatingMessage_t *msg);
 int
 erab_mod_indication_handler(InitiatingMessage_t *msg);
 
-int 
+
+int
 erab_setup_response_handler(SuccessfulOutcome_t *msg);
 
 int s1ap_mme_encode_ue_context_release_command(

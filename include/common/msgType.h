@@ -286,7 +286,7 @@ struct dedicatedBearerContextAccept_Q_msg {
 struct dedicatedBearerContextReject_Q_msg {
     uint8_t eps_bearer_id;
     uint8_t pti;
-    uint8_t esm_cause;
+    esm_cause_t esm_cause;
 }__attribute__ ((packed));
 
 union s1_incoming_msgs {
@@ -717,6 +717,7 @@ struct ddn_Q_msg {
 struct cb_req_Q_msg {
     gtp_incoming_msg_data_t header;
     int s11_mme_cp_teid;
+    uint32_t sgw_ip;
     uint16_t source_port;
     uint8_t linked_eps_bearer_id;
     uint32_t seq_no;
@@ -728,6 +729,8 @@ struct cb_req_Q_msg {
 struct db_req_Q_msg {
     gtp_incoming_msg_data_t header;
     int s11_mme_cp_teid;
+    uint32_t sgw_ip;
+    uint16_t source_port;
     uint8_t cause;
     uint8_t linked_bearer_id;
     uint32_t seq_no;

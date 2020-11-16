@@ -6,6 +6,9 @@
 
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
+#include <err_codes.h>
+#include <gtpCauseTypes.h>
+#include <mmeSmDefs.h>
 #include <state.h>
 #include <timeoutManager.h>
 #include <timerQueue.h>
@@ -14,8 +17,14 @@
 #include <utils/mmeTimerTypes.h>
 #include <utils/mmeTimerUtils.h>
 
+#include <state.h>
+#include <tempDataBlock.h>
+#include <vector>
+
 using namespace mme;
 using namespace SM;
+using namespace cmn;
+using namespace std;
 
 /***************************************
 * MmeStatesUtils : on_state_entry
@@ -48,7 +57,11 @@ ActStatus MmeStatesUtils::on_state_entry(ControlBlock& cb)
                                 currentState_p->getStateId())); // treat state id as timerId
 
                 if (timerCtxt != NULL)
+                {
+                    timerCtxt->setProcType(procedure_p->getCtxtType());
+                    timerCtxt->setBearerId(procedure_p->getBearerId());
                     procedure_p->setStateGuardTimerCtxt(timerCtxt);
+                }
             }
         }
     }
@@ -84,14 +97,23 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
 {
     EventStatus rc = EventStatus::IGNORE;
 
+    SM::State* currentState = tempDataBlock->getCurrentState();
+    if(currentState->isEventHandled(event.getEventId()) == false)
+    {
+        return EventStatus::FORWARD;
+    }
+
+    MmeProcedureCtxt *smProc_p =
+            static_cast<MmeProcedureCtxt*>(tempDataBlock);
+
     switch (event.getEventId())
     {
     case STATE_GUARD_TIMEOUT:
     {
-        cmn::TimeoutMessage *eMsg =
-                static_cast<cmn::TimeoutMessage*>(event.getEventData());
+        cmn::TimeoutEMsgShPtr eMsg = std::dynamic_pointer_cast<cmn::TimeoutMessage>(
+                event.getEventData());
 
-        if (eMsg != NULL)
+        if (eMsg)
         {
             MmeUeTimerContext *timerCtxt =
                     static_cast<MmeUeTimerContext*>(eMsg->getTimerContext());
@@ -99,18 +121,123 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
             if (timerCtxt != NULL)
             {
                 uint16_t timerId =
-                        tempDataBlock->getCurrentState()->getStateId();
+                        smProc_p->getCurrentState()->getStateId();
 
                 // Check if we are in same state or state has already changed.
                 // This happens when an event for the state was received and before
                 // it got processed, the timeout event was fired by the timer thread.
                 // If so, we need to ignore the guard timer expiry event.
-                if (timerCtxt->getTimerId() == timerId)
+                if (smProc_p->getCtxtType() == timerCtxt->getProcType() &&
+						smProc_p->getBearerId() == timerCtxt->getBearerId())
                 {
-                    rc = EventStatus::CONSUME;
+                    if (timerCtxt->getTimerId() == timerId)
+                        rc = EventStatus::CONSUME;
+                    else
+                        rc = EventStatus::IGNORE;
+                }
+                else
+                {
+                    rc = EventStatus::FORWARD;
                 }
             }
         }
+    }break;
+    case ERAB_SETUP_RESP_FROM_ENB:
+    {
+        cmn::IpcEMsgShPtr eMsg =
+                std::dynamic_pointer_cast<cmn::IpcEventMessage>(
+                        event.getEventData());
+        if (eMsg)
+        {
+            utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+            if (msgBuf != NULL)
+            {
+                const s1_incoming_msg_data_t *msgData_p =
+                        (s1_incoming_msg_data_t*) (msgBuf->getDataPointer());
+
+                if (msgData_p != NULL)
+                {
+                    const struct erabSuResp_Q_msg &erabSuResp =
+                            (msgData_p->msg_data.erabSuResp_Q_msg_m);
+
+                    for (int i = 0; i < erabSuResp.erab_su_list.count; i++)
+                    {
+                        if (erabSuResp.erab_su_list.erab_su_item[i].e_RAB_ID ==
+                                smProc_p->getBearerId())
+                        {
+                            rc = EventStatus::CONSUME_AND_FORWARD;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+        break;
+    case ACT_DED_BEARER_ACCEPT_FROM_UE:
+    {
+        cmn::IpcEMsgShPtr eMsg =
+                std::dynamic_pointer_cast<cmn::IpcEventMessage>(
+                        event.getEventData());
+        if (eMsg)
+        {
+            utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+            if (msgBuf != NULL)
+            {
+                const s1_incoming_msg_data_t *msgData_p =
+                        (s1_incoming_msg_data_t*) (msgBuf->getDataPointer());
+                if (msgData_p != NULL)
+                {
+                    const struct dedicatedBearerContextAccept_Q_msg &dedBrAcpt =
+                            (msgData_p->msg_data.dedBearerContextAccept_Q_msg_m);
+
+                    if (smProc_p->getBearerId() == dedBrAcpt.eps_bearer_id)
+                    {
+                        rc = EventStatus::CONSUME;
+                    }
+                    else
+                    {
+                        rc = EventStatus::FORWARD;
+                    }
+                }
+            }
+        }
+    }
+        break;
+    case ACT_DED_BEARER_REJECT_FROM_UE:
+    {
+        cmn::IpcEMsgShPtr eMsg =
+                std::dynamic_pointer_cast<cmn::IpcEventMessage>(
+                        event.getEventData());
+        if (eMsg)
+        {
+            utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+            if (msgBuf != NULL)
+            {
+                const s1_incoming_msg_data_t *msgData_p =
+                        (s1_incoming_msg_data_t*) (msgBuf->getDataPointer());
+                if (msgData_p != NULL)
+                {
+                    const struct dedicatedBearerContextReject_Q_msg &dedBrRjct =
+                            (msgData_p->msg_data.dedBearerContextReject_Q_msg_m);
+
+                    if (smProc_p->getBearerId() == dedBrRjct.eps_bearer_id)
+                    {
+                        rc = EventStatus::CONSUME;
+                    }
+                    else
+                    {
+                        rc = EventStatus::FORWARD;
+                    }
+                }
+            }
+        }
+    }
+        break;
+    case GW_CP_REQ_INIT_PAGING:
+    case GW_INIT_DED_BEARER_AND_SESSION_SETUP:
+    {
+        rc = EventStatus::CONSUME_AND_FORWARD;
     }
         break;
     default:

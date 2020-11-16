@@ -139,7 +139,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setCtxtType( ProcedureType::attach_c );
 	prcdCtxt_p->setNextState(AttachStart::Instance());
 
-	cb.setCurrentTempDataBlock(prcdCtxt_p);
+	cb.addTempDataBlock(prcdCtxt_p);
 	
 	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ue_info.tai.plmn_id));
 	MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ue_info.utran_cgi.plmn_id));
@@ -179,7 +179,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 			SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());
 
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
@@ -188,14 +188,14 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 			// copy seq num?
 
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
 		case unknownGutiAttach_c:
 		{
 			SM::Event evt(VALIDATE_IMSI, NULL);
-			cb.addEventToProcQ(evt);
+			cb.qInternalEvent(evt);
 
 			break;
 		}
@@ -250,7 +250,7 @@ ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
     ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
     
     SM::Event evt(DETACH_REQ_FROM_UE, NULL);
-    cb.addEventToProcQ(evt);
+    cb.qInternalEvent(evt);
     
     ProcedureStats::num_of_detach_req_received ++;
     
@@ -286,7 +286,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 
             MmeSvcReqProcedureCtxt *svcReqProc_p =
                     MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
-                            cb, PagingTrigger::ddnInit_c);
+                            cb, ddnInit_c);
             if (svcReqProc_p != NULL)
             {
                 svcReqProc_p->setDdnSeqNo(ddn_info->seq_no);
@@ -294,7 +294,7 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
                 svcReqProc_p->setEpsBearerId(ddn_info->eps_bearer_id);
 
                 SM::Event evt(DDN_FROM_SGW, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -382,7 +382,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
                 ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
 
                 SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -471,7 +471,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setNasDetachType(reattachNotRequired);
 
 	SM::Event evt(CLR_FROM_HSS, NULL);
-	cb.addEventToProcQ(evt);
+	cb.qInternalEvent(evt);
 	
 	return ActStatus::PROCEED;
 }
@@ -507,14 +507,14 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     }
 	
     prcdCtxt_p->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-    prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
-    prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
-    cb.setCurrentTempDataBlock(prcdCtxt_p);
+	prcdCtxt_p->setCtxtType( ProcedureType::s1Release_c );
+	prcdCtxt_p->setNextState(S1ReleaseStart::Instance());	
+	cb.addTempDataBlock(prcdCtxt_p);
 
     ProcedureStats::num_of_s1_rel_req_received ++;
 
-    SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
-    cb.addEventToProcQ(evt);
+	SM::Event evt(S1_REL_REQ_FROM_UE, NULL);
+	cb.qInternalEvent(evt);
 
     return ActStatus::PROCEED;
 }
@@ -578,7 +578,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
                 tauReqProc_p->setTai(Tai(tauReq.tai));
                 tauReqProc_p->setEUtranCgi(Cgi(tauReq.eUtran_cgi));
                 SM::Event evt(TAU_REQUEST_FROM_UE, NULL);
-                cb.addEventToProcQ(evt);
+                cb.qInternalEvent(evt);
             }
             else
             {
@@ -672,7 +672,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	ProcedureStats::num_of_ho_required_received++;
 
 	SM::Event evt(INTRA_S1HO_START, NULL);
-	cb.addEventToProcQ(evt);
+	cb.qInternalEvent(evt);
     return ActStatus::PROCEED;
 }
 
@@ -721,7 +721,7 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
                 erabModInd.erab_to_be_mod_list.count);
 
         SM::Event evt(eRAB_MOD_IND_START, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     else
     {
@@ -731,3 +731,121 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
+/***************************************
+ * Action handler : default_create_bearer_req_handler
+ ***************************************/
+ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
+{
+    log_msg(LOG_DEBUG, "default_create_bearer_req_handler: Entry \n");
+    ProcedureStats::num_of_create_bearer_req_received++;
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    // Invalid buffer. Nothing to do, wait for gw to retry.
+    VERIFY(msgBuf, return ActStatus::PROCEED,
+            "Invalid create bearer request msg buffer\n");
+
+    const cb_req_Q_msg *cb_req =
+            static_cast<const cb_req_Q_msg*>(msgBuf->getDataPointer());
+    VERIFY(cb_req, return ActStatus::PROCEED,
+            "Invalid create bearer request data\n");
+
+    uint8_t gtpCause = 0;
+    int sgw_cp_teid = 0;
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        MmContext *mmCtxt = ueCtxt->getMmContext();
+        if (mmCtxt != NULL)
+        {
+            MmeSmCreateBearerProcCtxt *cbReqProc_p =
+                    MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(
+                            cb);
+
+            if (cbReqProc_p != NULL)
+            {
+                cbReqProc_p->setCreateBearerReqEMsg(cb.getEventMessage());
+                cbReqProc_p->setBearerId(cb_req->linked_eps_bearer_id);
+                MmeSvcReqProcedureCtxt *srvReqProc_p = NULL;
+                srvReqProc_p =
+                        dynamic_cast<MmeSvcReqProcedureCtxt*>(cb.getTempDataBlock());
+                if(srvReqProc_p != NULL)
+                {
+                    // If a service request is already in progress, just set the paging flag,
+                    // so that at the end of service request procedure, CBReq procedure will
+                    // be informed and can proceed with the ded activation.
+                    srvReqProc_p->setPagingTriggerBit(pgwInit_c);
+
+                    SM::Event evt(GW_CP_REQ_INIT_PAGING, NULL);
+                    cb.qInternalEvent(evt);
+                }
+                else if(mmCtxt->getEcmState() == ecmIdle_c)
+                {
+                    // If ECM state is ECM idle, allocate service request and set paging
+                    // trigger as pgwInit_c, so that at the end of service request procedure,
+                    // CBReq procedure will be informed and can proceed with the ded activation.
+                    srvReqProc_p =
+                            MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
+                                    cb, pgwInit_c);
+                    if(srvReqProc_p != NULL)
+                    {
+                        SM::Event evt(GW_CP_REQ_INIT_PAGING, NULL);
+                        cb.qInternalEvent(evt);
+                    }
+                    else
+                    {
+                        log_msg(LOG_ERROR,
+                                "Failed to allocate context for paging procedure.\n");
+                        gtpCause = GTPV2C_CAUSE_UNABLE_TO_PAGE_UE;
+                    }
+
+                }
+                else
+                {
+                    SM::Event evt(CREATE_BEARER_START, NULL);
+                    cb.qInternalEvent(evt);
+                }
+            }
+            else
+            {
+                log_msg(LOG_INFO,
+                        "Failed to allocate context for create bearer procedure.\n");
+                gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
+            }
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL \n");
+            gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "UE Context is NULL \n");
+
+        gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (gtpCause != 0)
+    {
+        struct CB_RESP_Q_msg cbRsp;
+        memset(&cbRsp, 0, sizeof(cbRsp));
+        cbRsp.msg_type = create_bearer_response;
+        cbRsp.ue_idx = cb_req->s11_mme_cp_teid;
+        cbRsp.cause = gtpCause;
+        /*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
+        cbRsp.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
+        cbRsp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+
+        mmeStats::Instance()->increment(
+                mmeStatsCounter::MME_MSG_TX_S11_CREATE_BEARER_RESPONSE);
+        FIND_COMPONENT(MmeIpcInterface, MmeIpcInterfaceCompId).
+        		dispatchIpcMsg((char*) &cbRsp, sizeof(cbRsp), destAddr);
+    }
+
+    return ActStatus::PROCEED;
+}

@@ -296,8 +296,18 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         reply->set_num_of_ho_cancel_ack_sent(ProcedureStats::num_of_ho_cancel_ack_sent);
         reply->set_num_of_erab_mod_ind_received(ProcedureStats::num_of_erab_mod_ind_received);
        	reply->set_num_of_erab_mod_conf_sent(ProcedureStats::num_of_erab_mod_conf_sent);
-	reply->set_num_of_erab_mod_ind_timeout(ProcedureStats::num_of_erab_mod_ind_timeout);
-	reply->set_num_of_abort_erab_mod_indication(ProcedureStats::num_of_abort_erab_mod_indication);
+       	reply->set_num_of_erab_mod_ind_timeout(ProcedureStats::num_of_erab_mod_ind_timeout);
+       	reply->set_num_of_abort_erab_mod_indication(ProcedureStats::num_of_abort_erab_mod_indication);
+       	reply->set_num_of_erab_setup_req_sent(ProcedureStats::num_of_erab_setup_req_sent);
+       	reply->set_num_of_act_ded_br_ctxt_req_sent(ProcedureStats::num_of_act_ded_br_ctxt_req_sent);
+       	reply->set_num_of_erab_setup_resp_received(ProcedureStats::num_of_erab_setup_resp_received);
+       	reply->set_num_of_create_bearer_req_received(ProcedureStats::num_of_create_bearer_req_received);
+       	reply->set_num_of_create_bearer_resp_sent(ProcedureStats::num_of_create_bearer_resp_sent);
+       	reply->set_num_of_ded_bearer_ctxt_acpt_received(ProcedureStats::num_of_ded_bearer_ctxt_acpt_received);
+       	reply->set_num_of_ded_bearer_ctxt_reject_received(ProcedureStats::num_of_ded_bearer_ctxt_reject_received);
+       	reply->set_num_of_abort_ded_activation(ProcedureStats::num_of_abort_ded_activation);
+       	reply->set_num_of_ded_act_complete(ProcedureStats::num_of_ded_act_complete);
+       	reply->set_num_of_create_bearer_proc_complete(ProcedureStats::num_of_create_bearer_proc_complete);
 
         return Status::OK;
   }

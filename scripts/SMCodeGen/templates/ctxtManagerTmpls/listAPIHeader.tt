@@ -1,0 +1,49 @@
+			/****************************************
+			* add[% String.new(Item.Name).capital.text() %]
+			*    add [% Item.Name %] to [% dataBlockClassName %]
+			****************************************/
+			[%-IF Item.Cardinality!='' %]
+			bool add[% String.new(Item.Name).capital.text() %]([% ARG(Param,"set")%]);
+			[%- ELSE %]
+	        	void add[% String.new(Item.Name).capital.text() %]([% ARG(Param, "set")%]);
+	        	[%- END %]
+			
+			/****************************************
+			* remove[% String.new(Item.Name).capital.text() %]
+			*    remove [% Item.Name %] from [% dataBlockClassName %]
+			****************************************/
+			void remove[% String.new(Item.Name).capital.text() %]([% ARG(Param,"set")%]);
+			[%-IF Item.defined('Properties') == 1 && Item.Properties.defined('FindBy') %]
+			[%-IF primitiveTypes.grep("$listType.2").size != 0 || listType.3=='*'%]
+			[%- FOREACH id = Item.Properties.FindBy %]
+			
+			/****************************************
+			* find[% String.new(Item.Name).capital.text() %]By[% String.new(id.Name).capital.text() %]
+			*    find [% Item.Name %] By[% String.new(id.Name).capital.text() %]
+			****************************************/
+			[% listType.1 %] find[% String.new(Item.Name).capital.text() %]By[% String.new(id.Name).capital.text() %]([% ARG(id,"set")%]);
+			[%- END %]
+			[%- ELSE %]
+			[%- FOREACH id = Item.Properties.FindBy %]
+			
+			/****************************************
+			* find[% String.new(Item.Name).capital.text() %]By[% String.new(id.Name).capital.text() %]
+			*    find [% Item.Name %] By[% String.new(id.Name).capital.text() %]
+			****************************************/
+			bool find[% String.new(Item.Name).capital.text() %]By[% String.new(id.Name).capital.text() %]([% ARG(id,"set")%], [% ARG(Param,"set")%] );
+			[%- END %]
+			[%- END %]
+			[%- ELSE %]
+			
+			/****************************************
+			* find[% String.new(Item.Name).capital.text() %]
+			*    find [% Item.Name %]
+			****************************************/
+			[% Item.Type %]::iterator find[% String.new(Item.Name).capital.text() %]([% ARG(Param, "set")%]);
+			[%- END %]
+			
+			/****************************************
+			* get[% String.new(Item.Name).capital.text() %]Container
+			*    get [% Item.Name %]Container to [% dataBlockClassName %]
+			****************************************/
+			[% Item.Type %]& get[% String.new(Item.Name).capital.text() %]Container();

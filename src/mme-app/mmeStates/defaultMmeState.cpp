@@ -101,4 +101,9 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::default_erab_mod_indication_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ERAB_MOD_INDICATION_FROM_ENB, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_create_bearer_req_handler);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(CREATE_BEARER_REQ_FROM_GW, actionTable));
+        }
 }

@@ -28,6 +28,8 @@ enum class mmeStatsCounter {
 	MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE,
 	MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE,
 	MME_MSG_RX_NAS_ESM_RESPONSE,
+	MME_MSG_RX_NAS_ACT_DED_BR_CTXT_ACPT,
+	MME_MSG_RX_NAS_ACT_DED_BR_CTXT_RJCT,
 	MME_MSG_RX_S1AP_INIT_CONTEXT_RESPONSE,
 	MME_MSG_RX_NAS_ATTACH_COMPLETE,
 	MME_MSG_RX_NAS_DETACH_REQUEST,
@@ -43,6 +45,7 @@ enum class mmeStatsCounter {
 	MME_MSG_RX_S1AP_HANDOVER_CANCEL,
 	MME_MSG_RX_S1AP_HANDOVER_FAILURE,
 	MME_MSG_RX_S1AP_ERAB_MODIFICATION_INDICATION,
+	MME_MSG_RX_S1AP_ERAB_SETUP_RESPONSE,
 	MME_MSG_RX_S6A_AUTHENTICATION_INFORMATION_ANSWER,
 	MME_MSG_RX_S6A_UPDATE_LOCATION_ANSWER,
 	MME_MSG_RX_S6A_PURGE_ANSWER,
@@ -52,6 +55,7 @@ enum class mmeStatsCounter {
 	MME_MSG_RX_S11_DELETE_SESSION_RESPONSE,
 	MME_MSG_RX_S11_RELEASE_BEARER_RESPONSE,
 	MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION,
+	MME_MSG_RX_S11_CREATE_BEARER_REQUEST,
 	MME_MSG_TX_NAS_IDENTITY_REQUEST,
 	MME_MSG_TX_NAS_AUTHENTICATION_REQUEST,
 	MME_MSG_TX_NAS_SECURITY_MODE_COMMAND,
@@ -61,6 +65,7 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_NAS_ATTACH_REJECT,
 	MME_MSG_TX_NAS_SERVICE_REJECT,
 	MME_MSG_TX_NAS_TAU_RESPONSE,
+	MME_MSG_TX_NAS_ACT_DED_BR_CTXT_REQUEST,
 	MME_MSG_TX_S1AP_ERAB_MODIFICATION_INDICATION,
 	MME_MSG_TX_NAS_NETWORK_INITIATED_DETACH,
 	MME_MSG_TX_S1AP_S1_RELEASE_COMMAND,
@@ -72,11 +77,13 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_S1AP_PAGING_REQUEST,
 	MME_MSG_TX_S1AP_ICS_REQUEST_PAGING,
 	MME_MSG_TX_S1AP_DETACH_ACCEPT,
+	MME_MSG_TX_S1AP_ERAB_SETUP_REQUEST,
 	MME_MSG_TX_S11_CREATE_SESSION_REQUEST,
 	MME_MSG_TX_S11_MODIFY_BEARER_REQUEST,
 	MME_MSG_TX_S11_DELETE_SESSION_REQUEST,
 	MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_ACK,
 	MME_MSG_TX_S11_RELEASE_BEARER_REQUEST,
+	MME_MSG_TX_S11_CREATE_BEARER_RESPONSE,
 	MME_MSG_TX_S6A_AUTHENTICATION_INFO_REQUEST,
 	MME_MSG_TX_S6A_UPDATE_LOCATION_REQUEST,
 	MME_MSG_TX_S6A_PURGE_REQUEST,
@@ -92,6 +99,7 @@ enum class mmeStatsCounter {
 	MME_PROCEDURES_S1_RELEASE_PROC_SUCCESS,
 	MME_PROCEDURES_S1_RELEASE_PROC_FAILURE,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_DDN_INIT,
+	MME_PROCEDURES_SERVICE_REQUEST_PROC_PGW_INIT,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_UE_INIT,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_SUCCESS,
 	MME_PROCEDURES_SERVICE_REQUEST_PROC_FAILURE,
@@ -103,7 +111,13 @@ enum class mmeStatsCounter {
 	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_FAILURE,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS,
-	MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE
+	MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE,
+	MME_PROCEDURES_CREATE_BEARER_PROC,
+	MME_PROCEDURES_CREATE_BEARER_PROC_SUCCESS,
+	MME_PROCEDURES_CREATE_BEARER_PROC_FAILURE,
+	MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC,
+	MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC_SUCCESS,
+	MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC_FAILURE
 };
 
 struct Node 
@@ -293,6 +307,8 @@ class mme_msg_rx_counters {
 	Counter &mme_msg_rx_s1ap_init_context_response;
 	Counter &mme_msg_rx_nas_attach_complete;
 	Counter &mme_msg_rx_nas_detach_request;
+	Counter &mme_msg_rx_nas_act_ded_br_ctxt_acpt;
+	Counter &mme_msg_rx_nas_act_ded_br_ctxt_rjct;
 	Counter &mme_msg_rx_s1ap_release_request;
 	Counter &mme_msg_rx_s1ap_release_complete;
 	Counter &mme_msg_rx_s1ap_detach_accept;
@@ -305,6 +321,7 @@ class mme_msg_rx_counters {
 	Counter &mme_msg_rx_s1ap_handover_cancel;
 	Counter &mme_msg_rx_s1ap_handover_failure;
 	Counter &mme_msg_rx_s1ap_erab_modification_indication;
+	Counter &mme_msg_rx_s1ap_erab_setup_response;
 	Counter &mme_msg_rx_s6a_authentication_information_answer;
 	Counter &mme_msg_rx_s6a_update_location_answer;
 	Counter &mme_msg_rx_s6a_purge_answer;
@@ -314,6 +331,7 @@ class mme_msg_rx_counters {
 	Counter &mme_msg_rx_s11_delete_session_response;
 	Counter &mme_msg_rx_s11_release_bearer_response;
 	Counter &mme_msg_rx_s11_downlink_notification_indication;
+	Counter &mme_msg_rx_s11_create_bearer_request;
 
 	mme_msg_rx_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
 		return new mme_msg_rx_DynamicMetricObject1(mme_msg_rx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0);
@@ -384,6 +402,7 @@ class mme_msg_tx_counters {
 	Counter &mme_msg_tx_nas_attach_reject;
 	Counter &mme_msg_tx_nas_service_reject;
 	Counter &mme_msg_tx_nas_tau_response;
+	Counter &mme_msg_tx_nas_act_ded_br_ctxt_request;
 	Counter &mme_msg_tx_s1ap_erab_modification_indication;
 	Counter &mme_msg_tx_nas_network_initiated_detach;
 	Counter &mme_msg_tx_s1ap_s1_release_command;
@@ -395,11 +414,13 @@ class mme_msg_tx_counters {
 	Counter &mme_msg_tx_s1ap_paging_request;
 	Counter &mme_msg_tx_s1ap_ics_request_paging;
 	Counter &mme_msg_tx_s1ap_detach_accept;
+	Counter &mme_msg_tx_s1ap_erab_setup_request;
 	Counter &mme_msg_tx_s11_create_session_request;
 	Counter &mme_msg_tx_s11_modify_bearer_request;
 	Counter &mme_msg_tx_s11_delete_session_request;
 	Counter &mme_msg_tx_s11_downlink_data_notification_ack;
 	Counter &mme_msg_tx_s11_release_bearer_request;
+	Counter &mme_msg_tx_s11_create_bearer_response;
 	Counter &mme_msg_tx_s6a_authentication_info_request;
 	Counter &mme_msg_tx_s6a_update_location_request;
 	Counter &mme_msg_tx_s6a_purge_request;
@@ -491,6 +512,7 @@ class mme_procedures_counters {
 	Counter &mme_procedures_s1_release_proc_success;
 	Counter &mme_procedures_s1_release_proc_failure;
 	Counter &mme_procedures_service_request_proc_ddn_init;
+	Counter &mme_procedures_service_request_proc_pgw_init;
 	Counter &mme_procedures_service_request_proc_ue_init;
 	Counter &mme_procedures_service_request_proc_success;
 	Counter &mme_procedures_service_request_proc_failure;
@@ -503,6 +525,12 @@ class mme_procedures_counters {
 	Counter &mme_procedures_erab_mod_ind_proc;
 	Counter &mme_procedures_erab_mod_ind_proc_success;
 	Counter &mme_procedures_erab_mod_ind_proc_failure;
+	Counter &mme_procedures_create_bearer_proc;
+	Counter &mme_procedures_create_bearer_proc_success;
+	Counter &mme_procedures_create_bearer_proc_failure;
+	Counter &mme_procedures_ded_bearer_activation_proc;
+	Counter &mme_procedures_ded_bearer_activation_proc_success;
+	Counter &mme_procedures_ded_bearer_activation_proc_failure;
 
 	mme_procedures_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
 		return new mme_procedures_DynamicMetricObject1(mme_procedures_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0);

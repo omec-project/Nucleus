@@ -33,48 +33,45 @@ S6MsgHandler* S6MsgHandler::Instance()
 	return &msgHandler;
 }
 
-void S6MsgHandler::handleS6Message_v(IpcEventMessage* eMsg)
+void S6MsgHandler::handleS6Message_v(IpcEMsgUnqPtr eMsg)
 {
-	if (eMsg == NULL)
-        	return;
+    if (eMsg.get() == NULL)
+        return;
 
-    	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
-    	if (msgBuf == NULL)
-    	{
-		log_msg(LOG_INFO, "S6 Message Buffer is empty \n");
+    utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_INFO, "S6 Message Buffer is empty \n");
+        return;
+    }
 
-        	delete eMsg;
-        	return;
-    	}
-    	if (msgBuf->getLength() < sizeof (s6_incoming_msg_data_t))
-    	{
-        	log_msg(LOG_INFO, "Not enough bytes in s6 message \n");
-
-        	delete eMsg;
-        	return;
-    	}
+    if (msgBuf->getLength() < sizeof(s6_incoming_msg_data_t))
+    {
+        log_msg(LOG_INFO, "Not enough bytes in s6 message \n");
+        return;
+    }
 
 	const s6_incoming_msg_data_t* msgData_p = (s6_incoming_msg_data_t*)(msgBuf->getDataPointer());
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::auth_info_answer:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_AUTHENTICATION_INFORMATION_ANSWER);
-			handleAuthInfoAnswer_v(eMsg, msgData_p->ue_idx);
+			handleAuthInfoAnswer_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::update_loc_answer:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_UPDATE_LOCATION_ANSWER);
-			handleUpdateLocationAnswer_v(eMsg,  msgData_p->ue_idx);
+			handleUpdateLocationAnswer_v(std::move(eMsg),  msgData_p->ue_idx);
 			break;
 
 		case msg_type_t::purge_answser:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_PURGE_ANSWER);
-			handlePurgeAnswer_v(eMsg,  msgData_p->ue_idx);
+			handlePurgeAnswer_v(std::move(eMsg),  msgData_p->ue_idx);
 			break;
 		
 		case msg_type_t::cancel_location_request:
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_CANCEL_LOCATION_REQUEST);
-			handleCancelLocationRequest_v(eMsg);
+			handleCancelLocationRequest_v(std::move(eMsg));
 			break;
 
 		default:
@@ -83,7 +80,7 @@ void S6MsgHandler::handleS6Message_v(IpcEventMessage* eMsg)
 
 }
 
-void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
+void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handleAuthInfoAnswer_v \n");
 
@@ -97,11 +94,11 @@ void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t u
 	}
 
 	// Fire Auth Info Answer event, insert cb to procedure queue
-	SM::Event evt(AIA_FROM_HSS, eMsg);
+	SM::Event evt(AIA_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
+void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handleUpdateLocationAnswer_v \n");
 
@@ -114,11 +111,11 @@ void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEventMessage* eMsg, uint
 		return;
 	}
 	// Fire Update Loc Answer event, insert cb to procedure queue
-	SM::Event evt(ULA_FROM_HSS, eMsg);
+	SM::Event evt(ULA_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueIdx)
+void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "Inside handlePurgeAnswer_v \n");
 
@@ -131,12 +128,12 @@ void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEventMessage* eMsg, uint32_t ueId
 		return;
 	}
 	// Fire purge-resp event, insert cb to procedure queue
-	SM::Event evt(PURGE_RESP_FROM_HSS, eMsg);
+	SM::Event evt(PURGE_RESP_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 	
 }
 
-void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEventMessage* eMsg)
+void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 {
 	log_msg(LOG_INFO, "Inside handleCancelLocationRequest \n");
         
@@ -164,7 +161,7 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEventMessage* eMsg)
 		return;
 	}
 	//Fire CLR event, insert CB to Procedure Queue
-	SM::Event evt(CLR_FROM_HSS, eMsg);
+	SM::Event evt(CLR_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 

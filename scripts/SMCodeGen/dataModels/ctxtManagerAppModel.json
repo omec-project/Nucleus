@@ -249,6 +249,15 @@
 							{
 								"Name": "bearerId",
 								"Type": "uint8_t"
+							},
+							{
+								"Name": "bearerQos",
+								"Type": "bearer_qos_t"
+							},
+							{
+								"Name": "bearerTft",
+								"Type": "uint8_t",
+								"Cardinality": "256"
 							}
 						]
 					},
@@ -273,6 +282,11 @@
 								"Type": "S1apCause"
 							},
 							{
+								"Name": "esmCause",
+								"Type": "esm_cause_t",
+								"DefaultVal": "NOT_SET"
+							},
+							{
 								"Name": "stateGuardTimerCtxt",
 								"Type": "MmeUeTimerContext*"
 							},
@@ -283,6 +297,10 @@
 							{
 								"Name": "auts",
 								"Type": "Auts"
+							},
+							{
+								"Name": "bearerId",
+								"Type": "uint8_t"
 							}
 						]
 					},
@@ -375,8 +393,10 @@
 							},
 							{
 								"Name": "pagingTrigger",
-								"Type": "enum PagingTrigger",
-								"DefaultVal": "none_c"
+								"Type": "uint32_t",
+								"Properties" : {
+									"BitFlag": "true"
+								}
 							},
 							{
 								"Name": "epsBearerId",
@@ -486,9 +506,45 @@
                                                                 "Cardinality": "15"
                                                         }
                                                         ]
+					},
+					{
+						"BlockName": "MmeSmCreateBearerProcCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "createBearerReqEMsg",
+								"Type": "std::shared_ptr<cmn::EventMessage>"
+							},
+							{
+								"Name":"bearerStatus",
+								"Type": "std::list<BearerCtxtCBResp>"
+							}
+						]
+					},
+					{
+						"BlockName": "SmDedActProcCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "linkedBearerId",
+								"Type": "uint8_t"
+							},
+							{
+								"Name": "triggerProc",
+								"Type": "enum ProcedureType",
+								"DefaultVal": "invalidProcedureType_c"
+							}
+						]
 					}
 				]
 			}
 		]
 	}
 }
+

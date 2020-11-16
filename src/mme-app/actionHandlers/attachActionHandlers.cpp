@@ -60,7 +60,7 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
     if (ueCtxt_p->getImsi().isValid())
     {
         SM::Event evt(IMSI_VALIDATION_SUCCESS, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     else
     {
@@ -68,7 +68,7 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
         // If unknown GUTI, IMSI_VALIDATION_FAILURE_UNKNOWN_GUTI to query old mme
         // when s10 is supported in MME
         SM::Event evt(IMSI_VALIDATION_FAILURE, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     return ActStatus::PROCEED;
 }
@@ -402,7 +402,7 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		{
 			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n");
 			SM::Event evt(AUTH_RESP_FAILURE,NULL);
-        		controlBlk_p->addEventToProcQ(evt);
+        		controlBlk_p->qInternalEvent(evt);
 		}
 		else
 		{
@@ -410,14 +410,16 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 			procedure_p->setAuthRespStatus(auth_resp.status);
 			procedure_p->setAuts(Auts(auth_resp.auts));
 			SM::Event evt(AUTH_RESP_SYNC_FAILURE,NULL);
-            		controlBlk_p->addEventToProcQ(evt);
+            		controlBlk_p->qInternalEvent(evt);
 		}
 	}
-	else{
-        log_msg(LOG_INFO,"Auth response validation success. Proceeding to Sec mode Command\n");
+    else
+    {
+        log_msg(LOG_INFO,
+                "Auth response validation success. Proceeding to Sec mode Command\n");
         uint64_t xres = 0;
-        memcpy(&xres, 
-               ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val, sizeof(uint64_t));
+        memcpy(&xres, ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val,
+                sizeof(uint64_t));
         uint64_t res = 0;
         memcpy(&res, auth_resp.res.val, sizeof(uint64_t));
         log_msg(LOG_DEBUG, "Auth response Comparing received result from UE " 
@@ -433,10 +435,11 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
             return ActStatus::ABORT;
         }
 
-        ProcedureStats::num_of_processed_auth_response ++;
-        SM::Event evt(AUTH_RESP_SUCCESS,NULL);
-        controlBlk_p->addEventToProcQ(evt);
-	}
+        ProcedureStats::num_of_processed_auth_response++;
+        SM::Event evt(AUTH_RESP_SUCCESS, NULL);
+        controlBlk_p->qInternalEvent(evt);
+
+    }
 	
 	log_msg(LOG_DEBUG, "Leaving auth_response_validate \n");
 	
@@ -618,12 +621,12 @@ ActStatus ActionHandlers::check_esm_info_req_required(SM::ControlBlock& cb)
 	if (procedure_p->getEsmInfoTxRequired() == false)
 	{
 		SM::Event evt(ESM_INFO_NOT_REQUIRED, NULL);
-		cb.addEventToProcQ(evt);
+		cb.qInternalEvent(evt);
 	} 
 	else
 	{
 		SM::Event evt(ESM_INFO_REQUIRED, NULL);
-		cb.addEventToProcQ(evt);
+		cb.qInternalEvent(evt);
 	}
 	
 	return  ActStatus::PROCEED;
@@ -1316,8 +1319,10 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 
 	mmCtxt->setMmState(EpsAttached);
 	
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
+	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_SUCCESS);
+
+	MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
 
 	ProcedureStats::num_of_attach_done++;
 	ProcedureStats::num_of_subscribers_attached ++;
@@ -1389,7 +1394,8 @@ ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 
     if (errorCause == ABORT_DUE_TO_ATTACH_COLLISION)
     {
-        MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
+    	MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
     }
     else

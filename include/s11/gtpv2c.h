@@ -24,7 +24,7 @@
 #define GTP_MODIFY_BEARER_RSP                                35
 #define GTP_DELETE_SESSION_REQ                               36
 #define GTP_DELETE_SESSION_RSP                               37
-#define GTP_DOWNLINK_DATA_NOTIFICATION_FAILURE_IND 	     70
+#define GTP_DOWNLINK_DATA_NOTIFICATION_FAILURE_IND 	         70
 #define GTP_CREATE_BEARER_REQ                                95
 #define GTP_CREATE_BEARER_RSP                                96
 #define GTP_DELETE_BEARER_REQ                                99

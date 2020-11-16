@@ -56,6 +56,7 @@ s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip,
 	cbr_info.s11_mme_cp_teid = hdr->teid;
 	cbr_info.header.msg_type = create_bearer_request;
 	cbr_info.seq_no = hdr->sequenceNumber;
+	cbr_info.sgw_ip = sgw_ip;
 	cbr_info.source_port = src_port;
 
 	CreateBearerRequestMsgData msgData;

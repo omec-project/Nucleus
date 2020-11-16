@@ -14,7 +14,12 @@
 #include <msgBuffer.h>
 #include <s1ap_structs.h>
 #include <utils/defaultMmeProcedureCtxt.h>
+#include <utils/mmeContextManagerUtils.h>
+#include "mmeNasUtils.h"
+#include "mmeStatsPromClient.h"
 #include "secUtils.h"
+#include "gtpCauseTypes.h"
+
 using namespace mme;
 
 extern mme_config_t *mme_cfg;
@@ -110,4 +115,85 @@ void MmeS1MsgUtils::populateHoCommand(SM::ControlBlock& cb,
 	erabsSubjectToFwding->dL_transportLayerAddress =
 	        procCtxt.getErabAdmittedItem().dL_transportLayerAddress;
 
+}
+
+bool MmeS1MsgUtils::populateErabSetupAndActDedBrReq(SM::ControlBlock &cb,
+        UEContext &ueCtxt, MmeSmCreateBearerProcCtxt &procCtxt,
+        struct erabsu_ctx_req_Q_msg &erab_su_req)
+{
+    bool status = true;
+    erab_su_req.msg_type = erab_setup_request;
+
+    erab_su_req.mme_ue_s1ap_id = ueCtxt.getContextID();
+    erab_su_req.enb_s1ap_ue_id = ueCtxt.getS1apEnbUeId();
+    erab_su_req.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL =
+            (ueCtxt.getAmbr().ambr_m).max_requested_bw_dl;
+    erab_su_req.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL =
+            (ueCtxt.getAmbr().ambr_m).max_requested_bw_ul;
+    erab_su_req.enb_context_id = ueCtxt.getEnbFd();
+
+    SessionContext *sess_p = ueCtxt.findSessionContextByLinkedBearerId(procCtxt.getBearerId());
+    VERIFY(sess_p, procCtxt.setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND);
+        return false, "Session Context is NULL\n");
+
+    auto cbBearerStatusCont = procCtxt.getBearerStatusContainer();
+
+    uint8_t i = 0;
+
+    for (auto &bearerStatus: cbBearerStatusCont)
+    {
+        if (bearerStatus.bearer_ctxt_cb_resp_m.cause.cause == GTPV2C_NO_CAUSE)
+        {
+            BearerContext *bearerCtxt_p =
+                    MmeContextManagerUtils::findBearerContext(
+                            bearerStatus.bearer_ctxt_cb_resp_m.eps_bearer_id,
+                            &ueCtxt);
+            if (bearerCtxt_p != NULL)
+            {
+                erab_su_req.erab_su_list.erab_su_item[i].e_RAB_ID =
+                        bearerCtxt_p->getBearerId();
+                erab_su_req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci =
+                        bearerCtxt_p->getBearerQos().qci;
+                erab_su_req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.prioLevel =
+                        bearerCtxt_p->getBearerQos().arp.prioLevel;
+                erab_su_req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionCapab =
+                        bearerCtxt_p->getBearerQos().arp.preEmptionCapab;
+                erab_su_req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionVulnebility =
+                        bearerCtxt_p->getBearerQos().arp.preEmptionVulnebility;
+                erab_su_req.erab_su_list.erab_su_item[i].transportLayerAddress =
+                        bearerCtxt_p->getS1uSgwUserFteid().fteid_m.ip.ipv4.s_addr;
+                erab_su_req.erab_su_list.erab_su_item[i].gtp_teid =
+                        bearerCtxt_p->getS1uSgwUserFteid().fteid_m.header.teid_gre;
+
+                erab_su_req.nas_buf[i] = { 0 };
+                struct nasPDU nas = erab_su_req.erab_su_list.erab_su_item[i].nas;
+
+                MmeNasUtils::encode_act_ded_br_req_nas_pdu(sess_p,
+                        bearerCtxt_p, ueCtxt.getUeSecInfo(), &nas);
+
+                MmeNasUtils::encode_nas_msg(&erab_su_req.nas_buf[i], &nas,
+                        ueCtxt.getUeSecInfo());
+
+                mmeStats::Instance()->increment(
+                        mmeStatsCounter::MME_MSG_TX_NAS_ACT_DED_BR_CTXT_REQUEST);
+
+                i++;
+            }
+            else
+            {
+                bearerStatus.bearer_ctxt_cb_resp_m.cause.cause = GTPV2C_CAUSE_REQUEST_REJECTED;
+            }
+        }
+    }
+
+    if (i > 0)
+    {
+        erab_su_req.erab_su_list.count = i;
+    }
+    else
+    {
+        status = false;
+    }
+
+    return status;
 }

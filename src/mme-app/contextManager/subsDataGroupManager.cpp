@@ -32,6 +32,8 @@ namespace mme
 			MmeTauProcedureCtxtManagerm_p = NULL;
 			S1HandoverProcedureContextManagerm_p = NULL;
 			MmeErabModIndProcedureCtxtManagerm_p = NULL;
+			MmeSmCreateBearerProcCtxtManagerm_p = NULL;
+			SmDedActProcCtxtManagerm_p = NULL;
 
 			initialize();
 	}
@@ -53,6 +55,8 @@ namespace mme
 			delete MmeTauProcedureCtxtManagerm_p;
 			delete S1HandoverProcedureContextManagerm_p;
 			delete MmeErabModIndProcedureCtxtManagerm_p;
+			delete MmeSmCreateBearerProcCtxtManagerm_p;
+			delete SmDedActProcCtxtManagerm_p;
 	}
 	
 	/******************************************
@@ -74,6 +78,8 @@ namespace mme
 		MmeTauProcedureCtxtManagerm_p = new MmeTauProcedureCtxtManager(8000);
 		S1HandoverProcedureContextManagerm_p = new S1HandoverProcedureContextManager(8000);
 		MmeErabModIndProcedureCtxtManagerm_p = new MmeErabModIndProcedureCtxtManager(8000);
+		MmeSmCreateBearerProcCtxtManagerm_p = new MmeSmCreateBearerProcCtxtManager(8000);
+		SmDedActProcCtxtManagerm_p = new SmDedActProcCtxtManager(8000);
 	}
 	
 	/******************************************************************************
@@ -192,6 +198,24 @@ namespace mme
 	void SubsDataGroupManager::deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp )
 	{
 		MmeErabModIndProcedureCtxtManagerm_p->deallocateMmeErabModIndProcedureCtxt( MmeErabModIndProcedureCtxtp );
+	}
+	MmeSmCreateBearerProcCtxt* SubsDataGroupManager::getMmeSmCreateBearerProcCtxt()
+	{
+		return MmeSmCreateBearerProcCtxtManagerm_p->allocateMmeSmCreateBearerProcCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeSmCreateBearerProcCtxt(MmeSmCreateBearerProcCtxt* MmeSmCreateBearerProcCtxtp )
+	{
+		MmeSmCreateBearerProcCtxtManagerm_p->deallocateMmeSmCreateBearerProcCtxt( MmeSmCreateBearerProcCtxtp );
+	}
+	SmDedActProcCtxt* SubsDataGroupManager::getSmDedActProcCtxt()
+	{
+		return SmDedActProcCtxtManagerm_p->allocateSmDedActProcCtxt();
+	}
+
+	void SubsDataGroupManager::deleteSmDedActProcCtxt(SmDedActProcCtxt* SmDedActProcCtxtp )
+	{
+		SmDedActProcCtxtManagerm_p->deallocateSmDedActProcCtxt( SmDedActProcCtxtp );
 	}
 	
 	/******************************************

@@ -88,7 +88,7 @@ cmn::ipc::IpcChannel* MmeIpcInterface::reader()
 		return NULL;
 }
 
-void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
+void MmeIpcInterface::handleIpcMsg(cmn::IpcEMsgUnqPtr eMsg)
 {
 	uint32_t srcAddr, destAddr;
 
@@ -103,13 +103,13 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEventMessage* eMsg)
 
 	{
 	case TipcInstanceTypes::s1apAppInstanceNum_c:
-		S1MsgHandler::Instance()->handleS1Message_v(eMsg);
+		S1MsgHandler::Instance()->handleS1Message_v(std::move(eMsg));
 		break;
 	case TipcInstanceTypes::s11AppInstanceNum_c:
-		GtpMsgHandler::Instance()->handleGtpMessage_v(eMsg);
+		GtpMsgHandler::Instance()->handleGtpMessage_v(std::move(eMsg));
 		break;
 	case TipcInstanceTypes::s6AppInstanceNum_c:
-		S6MsgHandler::Instance()->handleS6Message_v(eMsg);
+		S6MsgHandler::Instance()->handleS6Message_v(std::move(eMsg));
 		break;
 	default:
 		log_msg(LOG_INFO, "IPC Message from unsupported instance\n");

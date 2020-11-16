@@ -1653,11 +1653,14 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
 
 	uint32_t transport_layer_address = htonl(s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
 	erab_to_be_setup->transportLayerAddress.size = 4;
-	erab_to_be_setup->transportLayerAddress.buf = (uint8_t*)&transport_layer_address;
+	erab_to_be_setup->transportLayerAddress.buf = calloc(4, sizeof(uint8_t));
+        memcpy(erab_to_be_setup->transportLayerAddress.buf, &transport_layer_address, sizeof(uint32_t));
+
 
 	uint32_t s1uSgwTeid = htonl(s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
     	erab_to_be_setup->gTP_TEID.size = 4;
-    	erab_to_be_setup->gTP_TEID.buf = (uint8_t*)&s1uSgwTeid;
+	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
+	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
 
         erab_to_be_setup->nAS_PDU.size = s1apPDU->nas_buf[i].pos;
         erab_to_be_setup->nAS_PDU.buf = s1apPDU->nas_buf[i].buf;

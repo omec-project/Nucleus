@@ -8,7 +8,8 @@
 
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
-#include <contextManager/subsDataGroupManager.h>
+#include <utils/mmeContextManagerUtils.h>
+#include "gtpCauseTypes.h"
 #include <log.h>
 #include <mme_app.h>
 
@@ -49,4 +50,113 @@ void MmeGtpMsgUtils::populateModifyBearerRequestHo(SM::ControlBlock& cb,
 
     mbMsg.servingNetworkIePresent = true;
 
+}
+
+bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
+        MmeSmCreateBearerProcCtxt &createBearerProc, struct CB_RESP_Q_msg &cb_resp)
+{
+    bool status = false;
+
+    cb_resp.msg_type = create_bearer_response;
+
+    UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt_p != NULL)
+    {
+        SessionContext *sessionCtxt_p =
+                ueCtxt_p->findSessionContextByLinkedBearerId(
+                        createBearerProc.getBearerId());
+
+        if (sessionCtxt_p != NULL)
+        {
+            uint8_t index = 0;
+            uint8_t successCount = 0;
+
+            memcpy(&(cb_resp.s11_sgw_c_fteid),
+                    &(sessionCtxt_p->getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
+
+            auto &bearerStatusContainer = createBearerProc.getBearerStatusContainer();
+            cb_resp.bearer_ctxt_cb_resp_list.bearers_count = bearerStatusContainer.size();
+
+            for (auto &it : bearerStatusContainer)
+            {
+                BearerContext *bearerCtxt_p =
+                        MmeContextManagerUtils::findBearerContext(
+                                it.bearer_ctxt_cb_resp_m.eps_bearer_id,
+                                ueCtxt_p);
+
+                memcpy(&cb_resp.bearer_ctxt_cb_resp_list.bearer_ctxt[index],
+                        &it.bearer_ctxt_cb_resp_m,
+                        sizeof(bearer_ctxt_cb_resp_t));
+                if (bearerCtxt_p != NULL)
+                {
+                    memcpy(
+                            &(cb_resp.bearer_ctxt_cb_resp_list.bearer_ctxt[index].s1u_enb_fteid),
+                            &(bearerCtxt_p->getS1uEnbUserFteid().fteid_m),
+                            sizeof(struct fteid));
+                }
+
+                index++;
+
+                if (it.bearer_ctxt_cb_resp_m.cause.cause
+                        == GTPV2C_CAUSE_REQUEST_ACCEPTED
+                        || it.bearer_ctxt_cb_resp_m.cause.cause
+                                == GTPV2C_CAUSE_REQUEST_ACCEPTED_PARTIALLY)
+                {
+                    successCount++;
+                }
+            }
+
+            if (successCount == 0)
+                cb_resp.cause = GTPV2C_CAUSE_REQUEST_REJECTED;
+            else
+                cb_resp.cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+        }
+        else
+        {
+            log_msg(LOG_INFO,
+                    "populateCreateBearerResponse : SessionContext is NULL \n");
+            cb_resp.cause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+        }
+    }
+    else
+    {
+        log_msg(LOG_INFO,
+                "populateCreateBearerResponse : UEContext is NULL \n");
+        cb_resp.cause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+    }
+
+    const cmn::IpcEventMessage *eMsg =
+            dynamic_cast<const cmn::IpcEventMessage*>(createBearerProc.getCreateBearerReqEMsgRaw());
+
+    cmn::IpcEventMessage *ipcMsg = const_cast<cmn::IpcEventMessage *>(eMsg);
+
+    if (ipcMsg != NULL)
+    {
+        cmn::utils::MsgBuffer *msgBuf =
+                static_cast<cmn::utils::MsgBuffer*>(ipcMsg->getMsgBuffer());
+        if (msgBuf != NULL)
+        {
+            cb_req_Q_msg *cb_req =
+                    static_cast<cb_req_Q_msg*>(msgBuf->getDataPointer());
+
+            if (cb_req != NULL)
+            {
+                // In case of unavailability of session/UE Contexts,
+                // s11_sgw_cp_teid will be set as 0
+                if (cb_resp.cause == GTPV2C_CAUSE_CONTEXT_NOT_FOUND)
+                {
+                    cb_resp.s11_sgw_c_fteid.header.teid_gre = 0;
+                }
+                cb_resp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
+                cb_resp.destination_port = cb_req->source_port;
+
+                //TODO : SET SEQ NUMBER
+
+                status = true;
+
+                log_msg(LOG_INFO, "populateCreateBearerResponse : CB Response Cause: %d \n", cb_resp.cause);
+            }
+        }
+    }
+    return status;
 }

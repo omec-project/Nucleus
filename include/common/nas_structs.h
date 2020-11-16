@@ -50,8 +50,8 @@ struct esm_sec_info {
 #define MAX_PCO_OPTION_SIZE 260
 struct pco 
 {
-    unsigned char pco_length;
-    unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+    uint16_t pco_length;
+    uint8_t pco_options[MAX_PCO_OPTION_SIZE];
 };
 
 typedef struct pdn_address {
@@ -435,6 +435,7 @@ typedef struct bearer_tft{
     uint16_t len;
     uint8_t data[TFT_MAX_SIZE];
 } bearer_tft;
+
 
 /* 24.301 v15.6.0 - 9.9.4.4 */
 typedef enum esm_cause_t {

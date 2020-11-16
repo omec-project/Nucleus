@@ -44,4 +44,3 @@ erab_setup_req_handler(void *data)
     return NULL;
 }
 
-

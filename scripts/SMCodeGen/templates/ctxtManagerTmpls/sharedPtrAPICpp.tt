@@ -1,0 +1,23 @@
+	/******************************************************************************
+	* sets [% Item.Name %]
+	******************************************************************************/
+	void [% dataBlockClassName %]::set[% String.new(Item.Name).capital.text() %]( [% ARG(Item,"set") %] )
+	{
+		[% Item.Name %]_m = std::move([% Item.Name %]_i);
+	}
+	
+	/******************************************************************************
+	* returns [% Item.Name %]
+	******************************************************************************/
+	[% Item.Type %] [% dataBlockClassName %]::get[% String.new(Item.Name).capital.text() %]() const
+	{
+        	return [% Item.Name %]_m;
+	}
+	
+	/******************************************************************************
+	* returns [% Item.Name %]Raw
+	******************************************************************************/
+	[% ptrType.0 %]* [% dataBlockClassName %]::get[% String.new(Item.Name).capital.text() %]Raw() const
+    	{
+        	return [% Item.Name %]_m.get();
+    	}

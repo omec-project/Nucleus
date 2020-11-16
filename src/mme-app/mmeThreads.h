@@ -54,13 +54,16 @@ class MmeIngressIpcConsumerThread
 public:
 	void operator()()
 	{
+        MmeIpcInterface &mmeIpcIf =
+                static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+
 		while(1)
 		{
 			cmn::IpcEventMessage* eMsg = NULL;
 			while(mmeIpcIngressFifo_g.pop(eMsg) == true)
 			{
-				MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-				mmeIpcIf.handleIpcMsg(eMsg);
+			    IpcEMsgUnqPtr eMsgPtr(eMsg);
+				mmeIpcIf.handleIpcMsg(std::move(eMsgPtr));
 			}
 		}
 	}
@@ -71,6 +74,9 @@ class MmeEgressIpcConsumerThread
 public:
 	void operator()()
 	{
+        MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>
+                        (compDb.getComponent(MmeIpcInterfaceCompId));
+
 		while(1)
 		{
 			cmn::IpcEventMessage* eMsg = NULL;
@@ -82,8 +88,6 @@ public:
 					if (msgBuf != NULL)
 					{
 						cmn::ipc::IpcMsgHeader ipcHdr;
-						MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>
-										(compDb.getComponent(MmeIpcInterfaceCompId));
 						msgBuf->rewind();
 						msgBuf->readUint32(ipcHdr.destAddr.u32);
 						msgBuf->readUint32(ipcHdr.srcAddr.u32);

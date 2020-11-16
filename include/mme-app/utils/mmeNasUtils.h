@@ -19,6 +19,8 @@ class Secinfo;
 namespace mme
 {
     class UEContext;
+    class SessionContext;
+    class BearerContext;
 }
 	
 	class MmeNasUtils
@@ -33,9 +35,10 @@ namespace mme
 			static void decode_attach_req(unsigned char *msg,  int& nas_msg_len, struct nasPDU *nas);
 			static void decode_tau_req(unsigned char *msg,  int& nas_msg_len, struct nasPDU *nas);
 			static void cal_nas_bit_rate(uint64_t bit_rate_kbps, uint8_t* out);
-			static void encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos);
+			static void encode_eps_qos(const bearer_qos_t& bearerQos, eps_qos_t& eps_qos);
 			static void decode_act_ded_br_ctxt_acpt(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas);
 			static void decode_act_ded_br_ctxt_rjct(unsigned char *msg, int& nas_msg_len, struct nasPDU *nas);
+			static void encode_act_ded_br_req_nas_pdu(mme::SessionContext* sessionCtxt, mme::BearerContext* bearerCtxt_p, Secinfo& secContext, struct nasPDU *nas);
 			static uint8_t encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasPDU *nas);
 	};
 #endif

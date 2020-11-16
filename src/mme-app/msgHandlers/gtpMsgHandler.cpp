@@ -34,24 +34,20 @@ GtpMsgHandler* GtpMsgHandler::Instance()
 	return &msgHandler;
 }
 
-void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
+void GtpMsgHandler::handleGtpMessage_v(IpcEMsgUnqPtr eMsg)
 {
-    if (eMsg == NULL)
+    if (eMsg.get() == NULL)
         return;
 
     utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
     {
         log_msg(LOG_INFO, "GTP Message Buffer is empty \n");
-
-        delete eMsg;
         return;
     }
     if (msgBuf->getLength() < sizeof(gtp_incoming_msg_data_t))
     {
         log_msg(LOG_INFO, "Not enough bytes in gtp message \n");
-
-        delete eMsg;
         return;
     }
 
@@ -64,7 +60,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_CREATE_SESSION_RESPONSE);
 			const struct csr_Q_msg* csr_info= (const struct csr_Q_msg*) (msgBuf->getDataPointer());
-			handleCreateSessionResponseMsg_v(eMsg, csr_info->s11_mme_cp_teid);
+			handleCreateSessionResponseMsg_v(std::move(eMsg), csr_info->s11_mme_cp_teid);
 		}
 		break;
 
@@ -72,7 +68,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_MODIFY_BEARER_RESPONSE);
 			const struct MB_resp_Q_msg* mbr_info= (const struct MB_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleModifyBearerResponseMsg_v(eMsg, mbr_info->s11_mme_cp_teid);
+			handleModifyBearerResponseMsg_v(std::move(eMsg), mbr_info->s11_mme_cp_teid);
 		}
 		break;
 
@@ -80,7 +76,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_SESSION_RESPONSE);
 			const struct DS_resp_Q_msg* dsr_info= (const struct DS_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleDeleteSessionResponseMsg_v(eMsg, dsr_info->s11_mme_cp_teid);
+			handleDeleteSessionResponseMsg_v(std::move(eMsg), dsr_info->s11_mme_cp_teid);
 		}
 		break;
 			
@@ -88,7 +84,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_RELEASE_BEARER_RESPONSE);
 			const struct RB_resp_Q_msg* rbr_info= (const struct RB_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleReleaseBearerResponseMsg_v(eMsg, rbr_info->s11_mme_cp_teid);
+			handleReleaseBearerResponseMsg_v(std::move(eMsg), rbr_info->s11_mme_cp_teid);
 		}
 		break;
 		
@@ -96,18 +92,25 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEventMessage* eMsg)
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION);
 			const struct ddn_Q_msg* ddn = (const struct ddn_Q_msg*) (msgBuf->getDataPointer());
-			handleDdnMsg_v(eMsg, ddn->s11_mme_cp_teid);
+			handleDdnMsg_v(std::move(eMsg), ddn->s11_mme_cp_teid);
+		}
+		break;
+
+		case msg_type_t::create_bearer_request:
+		{
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_CREATE_BEARER_REQUEST);
+			const struct cb_req_Q_msg * cbr = (const struct cb_req_Q_msg *) (msgBuf->getDataPointer());
+			handleCreateBearerRequestMsg_v(std::move(eMsg), cbr->s11_mme_cp_teid);
 		}
 		break;
 
 		default:
 			log_msg(LOG_INFO, "Unhandled Gtp Message %d \n", msgData_p->msg_type);
-			delete eMsg;
 	}
 
 }
 
-void GtpMsgHandler::handleCreateSessionResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void GtpMsgHandler::handleCreateSessionResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "handleCreateSessionResponseMsg_v");
 
@@ -121,11 +124,11 @@ void GtpMsgHandler::handleCreateSessionResponseMsg_v(IpcEventMessage* eMsg, uint
 	}
 
 	// Fire CS resp from SGW event, insert cb to procedure queue
-	SM::Event evt(CS_RESP_FROM_SGW, eMsg);
+	SM::Event evt(CS_RESP_FROM_SGW, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void GtpMsgHandler::handleModifyBearerResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void GtpMsgHandler::handleModifyBearerResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "handleModifyBearerResponseMsg_v");
 
@@ -139,11 +142,11 @@ void GtpMsgHandler::handleModifyBearerResponseMsg_v(IpcEventMessage* eMsg, uint3
 	}
 
 	// Fire MB rep from SGW event, insert cb to procedure queue
-	SM::Event evt(MB_RESP_FROM_SGW, eMsg);
+	SM::Event evt(MB_RESP_FROM_SGW, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void GtpMsgHandler::handleDeleteSessionResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void GtpMsgHandler::handleDeleteSessionResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "handleDeleteSessionResponseMsg_v");
 	
@@ -156,11 +159,11 @@ void GtpMsgHandler::handleDeleteSessionResponseMsg_v(IpcEventMessage* eMsg, uint
 		return;
 	}
 
-	SM::Event evt(DEL_SESSION_RESP_FROM_SGW, eMsg);
+	SM::Event evt(DEL_SESSION_RESP_FROM_SGW, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void GtpMsgHandler::handleReleaseBearerResponseMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void GtpMsgHandler::handleReleaseBearerResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO, "handleReleaseBearerResponseMsg_v");
 
@@ -174,11 +177,11 @@ void GtpMsgHandler::handleReleaseBearerResponseMsg_v(IpcEventMessage* eMsg, uint
 	}
 	
 	// Fire rel bearer response from sgw event, insert cb to procedure queue
-	SM::Event evt(REL_AB_RESP_FROM_SGW, eMsg);
+	SM::Event evt(REL_AB_RESP_FROM_SGW, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
-void GtpMsgHandler::handleDdnMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
+void GtpMsgHandler::handleDdnMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
 	log_msg(LOG_INFO,"Inside handle DDN\n");
 
@@ -193,7 +196,25 @@ void GtpMsgHandler::handleDdnMsg_v(IpcEventMessage* eMsg, uint32_t ueIdx)
 	}
 
 	// Fire ddn from sgw event, insert cb to procedure queue
-	SM::Event evt(DDN_FROM_SGW, eMsg);
+	SM::Event evt(DDN_FROM_SGW, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 
+void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
+{
+        log_msg(LOG_INFO,"Inside handle Create Bearer Request\n");
+
+        SM::ControlBlock* controlBlk_p =
+                MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
+        if(controlBlk_p == NULL)
+        {
+                log_msg(LOG_ERROR, "handleCreateBearerRequestMsg_v: "
+                                                        "Failed to find UE context using idx %d\n",
+                                                        ueIdx);
+                return;
+        }
+
+        // Fire CB Req from gw event, insert cb to procedure queue
+        SM::Event evt(CREATE_BEARER_REQ_FROM_GW, cmn::IpcEMsgShPtr(std::move(eMsg)));
+        controlBlk_p->addEventToProcQ(evt);
+}

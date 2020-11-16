@@ -123,7 +123,16 @@ message ProcedureStatsRespBuf
 	uint32 num_of_erab_mod_conf_sent = 64;	
 	uint32 num_of_erab_mod_ind_timeout = 65;
 	uint32 num_of_abort_erab_mod_indication = 66;
-	
+	uint32 num_of_erab_setup_req_sent = 67;
+	uint32 num_of_erab_setup_resp_received = 68;
+	uint32 num_of_create_bearer_req_received = 69;
+	uint32 num_of_create_bearer_resp_sent = 70;
+	uint32 num_of_ded_bearer_ctxt_acpt_received = 71;
+	uint32 num_of_ded_bearer_ctxt_reject_received = 72;
+	uint32 num_of_abort_ded_activation = 73;
+	uint32 num_of_ded_act_complete = 74;
+	uint32 num_of_create_bearer_proc_complete = 75;
+	uint32 num_of_act_ded_br_ctxt_req_sent = 76;
 }
 
 message Empty

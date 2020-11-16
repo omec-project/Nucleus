@@ -54,12 +54,31 @@ namespace mme
 			*    destructor
 			****************************************/
 			~[% dataBlockClassName %]();
-			[%- FOREACH Data = DataBlock.Data %]
-			
-[% INCLUDE templates/ctxtManagerTmpls/getterSetterAPIHeader.tt %]
+			[%- FOREACH Item = DataBlock.Data %]
+	        	[%- ptrType = Item.Type.match('^std\:\:shared_ptr\<(\w+\:{0,2}\w+)\>$') -%]
+	        	[%- listType = Item.Type.match('^std\:\:(list|vector|array)\<((\w+\:{0,2}\w+)((\*|\&))?)(\,\d+)?\>$') -%]
+            		[%- IF ptrType %][%- FILTER indent('		') %]
+
+[% INCLUDE templates/ctxtManagerTmpls/sharedPtrAPIHeader.tt -%][%- END %]
+            		[%- ELSIF listType %]
+                		[%- Param.Name = Item.Name %][%- Param.Type = listType.1 %][%- Param.Properties.accessor = "mutable" %]
+	            		[%- IF listType.0 =='list' %]
+
+[% INCLUDE templates/ctxtManagerTmpls/listAPIHeader.tt %]
+	            		[%- ELSIF listType.0 =='vector'%]
+
+[% INCLUDE templates/ctxtManagerTmpls/vectorAPIHeader.tt %]
+	            		[%- ELSIF listType.0 == 'array'%]
+
+[% INCLUDE templates/ctxtManagerTmpls/arrayAPIHeader.tt %]	
+	            		[%-END%]
+            		[%- ELSE %]
+
+[%- INCLUDE templates/ctxtManagerTmpls/getterSetterAPIHeader.tt %]
+			[%- END %]
 			[%- END %]
 			
-			[%- FOREACH Child = DataBlock.Children %]
+			[%- FOREACH Item = DataBlock.Children %]
 [%- INCLUDE templates/ctxtManagerTmpls/childAPIHeader.tt %]
 			[%- END %]
 		
@@ -68,6 +87,9 @@ namespace mme
 			[%- FOREACH Data = DataBlock.Data %]
 			[%- DataName = CLASSNAME(Data.Name) %]
 			// DataName
+			[%- IF Data.Type.search('std\:\:array') %]
+            		uint16_t [% Data.Name %]Count_m;
+            		[%- END %]
 			[%-IF Data.Cardinality=='' %]
 			[%- IF Data.Type.search("enum") %]
 			[% Data.Type.substr(5) %] [% Data.Name %]_m;
@@ -75,7 +97,9 @@ namespace mme
 			[% Data.Type %] [% Data.Name %]_m;
 			[%- END %]
 			[%-ELSE%]
+            		[%- UNLESS Data.Type.search('std\:\:(list|vector|array)')  %]
 			uint16_t [% Data.Name %]Len_m;
+			[%- END %]
 			[% Data.Type %] [% Data.Name %]_m[[% Data.Cardinality %]];
 			[% END %]
 			[% END %]

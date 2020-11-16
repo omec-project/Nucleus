@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <msgType.h>
+#include <smTypes.h>
 
 namespace SM
 {
@@ -18,6 +19,7 @@ namespace SM
 namespace mme
 {
 	class S1HandoverProcedureContext;
+	class MmeSmCreateBearerProcCtxt;
 	class UEContext;
 	class MmeS1MsgUtils
 	{
@@ -27,6 +29,8 @@ namespace mme
 				S1HandoverProcedureContext& procCtxt, struct handover_request_Q_msg& horeq);
 		static void populateHoCommand(SM::ControlBlock& cb, UEContext& ueCtxt,
 				S1HandoverProcedureContext& procCtxt, struct handover_command_Q_msg& hoCommand);
+		static bool populateErabSetupAndActDedBrReq(SM::ControlBlock& cb, UEContext& ueCtxt,
+				MmeSmCreateBearerProcCtxt& procCtxt, struct erabsu_ctx_req_Q_msg& erab_su_req);
 
 	private:
 		MmeS1MsgUtils();

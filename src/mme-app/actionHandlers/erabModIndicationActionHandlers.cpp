@@ -102,10 +102,13 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
 ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 {
     log_msg(LOG_DEBUG, "Inside erab_mod_ind_complete\n");
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS);
-    MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
-    return ActStatus::PROCEED;
 
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS);
+
+    MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+
+    return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -147,7 +150,9 @@ ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
     ActStatus actStatus = ActStatus::PROCEED;
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE);
-    MmeContextManagerUtils::deallocateProcedureCtxt(cb, erabModInd_c);
+
+    MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
 
     // Start MME_INIT Detach procedure
     MmeDetachProcedureCtxt *prcdCtxt_p =
@@ -160,7 +165,7 @@ ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
                         prcdCtxt_p->getMmeErrorCause()));
 
         SM::Event evt(MME_INIT_DETACH, NULL);
-        cb.addEventToProcQ(evt);
+        cb.qInternalEvent(evt);
     }
     else
     {

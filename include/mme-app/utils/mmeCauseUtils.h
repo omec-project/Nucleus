@@ -18,6 +18,8 @@ namespace mme
 			static uint32_t convertToNasEmmCause(ERROR_CODES mmeErrorCause);
 			static uint32_t convertToGtpCause(ERROR_CODES mmeErrorCause);
 			static S1apCause convertToS1apCause(ERROR_CODES mmeErrorCause);
+			static uint32_t convertToGtpCause(s1apCause_t s1apCause);
+			static uint32_t convertToGtpCause(esm_cause_t esmCause);
 	
 		private:
 			MmeCauseUtils();

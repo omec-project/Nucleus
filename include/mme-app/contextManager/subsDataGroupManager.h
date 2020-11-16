@@ -30,6 +30,8 @@
 #include "contextManager/mmeTauProcedureCtxtManager.h"
 #include "contextManager/s1HandoverProcedureContextManager.h"
 #include "contextManager/mmeErabModIndProcedureCtxtManager.h"
+#include "contextManager/mmeSmCreateBearerProcCtxtManager.h"
+#include "contextManager/smDedActProcCtxtManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -186,6 +188,28 @@ namespace mme
 			 *  Delete a MmeErabModIndProcedureCtxt data block
 			 ******************************************/
 			void deleteMmeErabModIndProcedureCtxt(MmeErabModIndProcedureCtxt* MmeErabModIndProcedureCtxtp );
+			/******************************************
+			 * getMmeSmCreateBearerProcCtxt
+			 * Get MmeSmCreateBearerProcCtxt data block
+			 ******************************************/
+			MmeSmCreateBearerProcCtxt* getMmeSmCreateBearerProcCtxt();
+			
+			/******************************************
+			 * deleteMmeSmCreateBearerProcCtxt
+			 *  Delete a MmeSmCreateBearerProcCtxt data block
+			 ******************************************/
+			void deleteMmeSmCreateBearerProcCtxt(MmeSmCreateBearerProcCtxt* MmeSmCreateBearerProcCtxtp );
+			/******************************************
+			 * getSmDedActProcCtxt
+			 * Get SmDedActProcCtxt data block
+			 ******************************************/
+			SmDedActProcCtxt* getSmDedActProcCtxt();
+			
+			/******************************************
+			 * deleteSmDedActProcCtxt
+			 *  Delete a SmDedActProcCtxt data block
+			 ******************************************/
+			void deleteSmDedActProcCtxt(SmDedActProcCtxt* SmDedActProcCtxtp );
 			
 			/******************************************
 			* addimsikey
@@ -302,6 +326,16 @@ namespace mme
 			* MmeErabModIndProcedureCtxt Pool Manager
 			****************************************/
 			MmeErabModIndProcedureCtxtManager* MmeErabModIndProcedureCtxtManagerm_p;
+			
+			/****************************************
+			* MmeSmCreateBearerProcCtxt Pool Manager
+			****************************************/
+			MmeSmCreateBearerProcCtxtManager* MmeSmCreateBearerProcCtxtManagerm_p;
+			
+			/****************************************
+			* SmDedActProcCtxt Pool Manager
+			****************************************/
+			SmDedActProcCtxtManager* SmDedActProcCtxtManagerm_p;
 			
 			
 			/****************************************

@@ -45,6 +45,10 @@ uint32_t MmeCauseUtils::convertToGtpCause(ERROR_CODES mmeErrorCause)
 		case NETWORK_TIMEOUT:
 			gtpCause = GTPV2C_CAUSE_UE_NOT_RESPONDING;
 			break;
+		case BEARER_CONTEXT_NOT_FOUND:
+		case SESSION_CONTEXT_NOT_FOUND:
+			gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+			break;
 		default:
 			gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;
 			break;
@@ -105,4 +109,84 @@ S1apCause MmeCauseUtils::convertToS1apCause(ERROR_CODES mmeErrorCause)
     return s1apCause;
 }
 
+uint32_t MmeCauseUtils::convertToGtpCause(s1apCause_t s1apCause)
+{
+	uint32_t gtpCause = 0;
+
+    switch (s1apCause.present)
+    {
+        case s1apCause_PR_radioNetwork:
+        {
+            switch (s1apCause.choice.radioNetwork)
+            {
+                case s1apCauseRadioNetwork_multiple_E_RAB_ID_instances:
+                case s1apCauseRadioNetwork_unknown_E_RAB_ID:
+                case s1apCauseRadioNetwork_not_supported_QCI_value:
+                {
+                	gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
+                    break;
+                }
+                case s1apCauseRadioNetwork_s1_intra_system_handover_triggered:
+                case s1apCauseRadioNetwork_s1_inter_system_handover_triggered:
+                case s1apCauseRadioNetwork_x2_handover_triggered:
+                {
+                	gtpCause = GTPV2C_CAUSE_TEMPORARILY_REJECTED_DUE_TO_HANDOVER_TAU_RAU_PROCEDURE_IN_PROGRESS;
+                    break;
+                }
+            }
+        }
+        default:
+        {
+        	gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;
+	    break;
+        }
+    }
+
+    return gtpCause;
+}
+
+uint32_t MmeCauseUtils::convertToGtpCause(esm_cause_t esmCause)
+{
+	uint32_t gtpCause = 0;
+
+    switch (esmCause)
+    {
+	case INSUFFICIENT_RESOURCES:
+	{
+		gtpCause = GTPV2C_CAUSE_NO_RESOURCES_AVAILABLE;
+	    break;
+	}
+	case SERVICE_OPTION_NOT_SUPPORTED:
+	{
+		gtpCause = GTPV2C_CAUSE_SERVICE_NOT_SUPPORTED;
+	    break;
+	}
+	case SEMANTIC_ERROR_IN_THE_TFT_OPERATION:
+	{
+		gtpCause = GTPV2C_CAUSE_SEMANTIC_ERROR_IN_THE_TFT_OPERATION;
+	    break;
+	}
+	case SYNTACTICAL_ERROR_IN_THE_TFT_OPERATION:
+	{
+		gtpCause = GTPV2C_CAUSE_SYNTACTIC_ERROR_IN_THE_TFT_OPERATION;
+	    break;
+	}
+	case SEMANTIC_ERROR_IN_PACKET_FILTERS:
+	{
+		gtpCause = GTPV2C_CAUSE_SEMANTIC_ERRORS_IN_PACKET_FILTERS;
+	    break;
+	}
+	case SYNTACTICAL_ERROR_IN_PACKET_FILTERS:
+	{
+		gtpCause = GTPV2C_CAUSE_SYNTACTIC_ERRORS_IN_PACKET_FILTERS;
+	    break;
+	}
+	default:
+	{
+		gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;
+	    break;
+	}
+    }
+    return gtpCause;
+}
 

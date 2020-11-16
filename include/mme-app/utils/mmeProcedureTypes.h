@@ -7,6 +7,7 @@
 #ifndef INCLUDE_MME_APP_UTILS_MMEPROCEDURETYPES_H_
 #define INCLUDE_MME_APP_UTILS_MMEPROCEDURETYPES_H_
 #include <list>
+#include <structs.h>
 namespace mme
 {
 
@@ -33,6 +34,8 @@ namespace mme
     	tau_c,
     	s1Handover_c,
         erabModInd_c,
+	cbReq_c,
+	dedBrActivation_c,
 
     	maxProcedureType_c
  };
@@ -60,13 +63,11 @@ namespace mme
  };
  using EmmState = UE_State_e;
 
- enum PagingTrigger
- {
-        none_c,
-        hssInit_c,
-        ddnInit_c,
-        maxPagingTrigger_c
- };
+ typedef uint32_t PagingTrigger;
+ const PagingTrigger none_c = 0x00;
+ const PagingTrigger ddnInit_c = 0x01;
+ const PagingTrigger pgwInit_c = 0x02;
+ const PagingTrigger hssInit_c = 0x04;
 
  enum EcmState{
 	ecmUnknown_c,
@@ -89,6 +90,20 @@ namespace mme
  	intraMmeS1Ho_c
  };
 
+ struct BearerStatusCompareById
+ {
+     uint8_t bearerId;
+     BearerStatusCompareById(uint8_t id):bearerId(id)
+     { }
+
+     bool operator()(const BearerCtxtCBResp& lhs)
+     {
+         if (lhs.bearer_ctxt_cb_resp_m.eps_bearer_id == bearerId)
+             return true;
+         else
+             return false;
+     }
+ };
 
 }
 

@@ -11,7 +11,9 @@
 #include "msgType.h"
 #include "s1ap_structs.h"
 #include "s11_structs.h"
-#include <utils/mmeProcedureTypes.h>
+#include "eventMessage.h"
+#include "mme_app.h"
+#include <memory>
 
 struct nas_count {
     unsigned int mask :8;
@@ -297,5 +299,43 @@ struct DigitRegister15Hash {
         return hash;
     }
 };
+
+class BearerCtxtCBResp
+{
+        public:
+                BearerCtxtCBResp();
+                BearerCtxtCBResp( bearer_ctxt_cb_resp_t& bearer_ctxt_cb_resp_i );
+                ~BearerCtxtCBResp();
+                void operator = ( const BearerCtxtCBResp& bearer_ctxt_cb_resp_i );
+		bool operator == ( const BearerCtxtCBResp& bearer_ctxt_cb_resp_i )const;
+        public:
+                bearer_ctxt_cb_resp_t bearer_ctxt_cb_resp_m;
+};
+
+class BearerStatusEMsg : public cmn::EventMessage
+{
+public:
+    BearerStatusEMsg(uint8_t bearerId, uint8_t cause):
+        EventMessage(BEARER_STATUS_EMSG), bearerId_m(bearerId), cause_m(cause)
+    { }
+
+    ~BearerStatusEMsg(){}
+
+    uint8_t getBearerId() const
+    {
+        return bearerId_m;
+    }
+
+    uint8_t getCause() const
+    {
+        return cause_m;
+    }
+
+private:
+    uint8_t bearerId_m;
+    uint8_t cause_m;
+};
+
+using BearerStatusEMsgShPtr = std::shared_ptr<BearerStatusEMsg>;
 
 #endif
