@@ -9,16 +9,15 @@
 
 #include <stdint.h>
 #include <structs.h>
-#include <utils/mmeCauseTypes.h>
 
 namespace mme
 {
 	class MmeCauseUtils
 	{
 		public:
-			static uint32_t convertToNasEmmCause(MmeErrorCause mmeErrorCause);
-			static uint32_t convertToGtpCause(MmeErrorCause mmeErrorCause);
-			static S1apCause convertToS1apCause(MmeErrorCause mmeErrorCause);
+			static uint32_t convertToNasEmmCause(ERROR_CODES mmeErrorCause);
+			static uint32_t convertToGtpCause(ERROR_CODES mmeErrorCause);
+			static S1apCause convertToS1apCause(ERROR_CODES mmeErrorCause);
 	
 		private:
 			MmeCauseUtils();

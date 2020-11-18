@@ -123,7 +123,7 @@ ActStatus ActionHandlers::handle_state_guard_timeouts_for_erab_mod_ind(
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt != NULL)
     {
-        procCtxt->setMmeErrorCause(networkTimeout_c);
+        procCtxt->setMmeErrorCause(NETWORK_TIMEOUT);
         ProcedureStats::num_of_erab_mod_ind_timeout++;
     }
     else

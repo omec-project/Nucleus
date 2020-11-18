@@ -17,8 +17,8 @@
 #include "tempDataBlock.h"
 #include <algorithm>
 #include <list>
+#include <err_codes.h>
 #include <structs.h>
-#include <utils/mmeCauseTypes.h>
 #include <utils/mmeProcedureTypes.h>
 #include <utils/mmeTimerTypes.h>
 
@@ -834,13 +834,13 @@ namespace mme
 			* setMmeErrorCause
 			*    set mmeErrorCause to MmeProcedureCtxt
 			****************************************/
-			void setMmeErrorCause(MmeErrorCause mmeErrorCause_i);
+			void setMmeErrorCause(ERROR_CODES mmeErrorCause_i);
 			
 			/****************************************
 			* getMmeErrorCause
 			*    get mmeErrorCause from MmeProcedureCtxt
 			****************************************/
-			MmeErrorCause getMmeErrorCause()const;			
+			ERROR_CODES getMmeErrorCause()const;			
 			
 			/****************************************
 			* setS1apCause
@@ -897,7 +897,7 @@ namespace mme
 			ProcedureType ctxtType_m;
 			
 			// DataName
-			MmeErrorCause mmeErrorCause_m;
+			ERROR_CODES mmeErrorCause_m;
 			
 			// DataName
 			S1apCause s1apCause_m;
