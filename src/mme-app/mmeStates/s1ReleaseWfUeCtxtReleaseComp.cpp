@@ -68,6 +68,7 @@ void S1ReleaseWfUeCtxtReleaseComp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.addAction(&ActionHandlers::abort_s1_release);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }

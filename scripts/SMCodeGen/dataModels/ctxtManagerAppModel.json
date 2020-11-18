@@ -265,8 +265,8 @@
 							},
 							{
 								"Name": "mmeErrorCause",
-								"Type": "enum MmeErrorCause",
-								"DefaultVal": "noError_c"
+								"Type": "enum ERROR_CODES",
+								"DefaultVal": "SUCCESS"
 							},
 							{
 								"Name": "s1apCause",

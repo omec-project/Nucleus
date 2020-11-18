@@ -46,40 +46,31 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside send_rel_ab_req_to_sgw \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "send_rel_ab_req_to_sgw: ue ctxt is NULL \n");
-		return ActStatus::HALT;
-	}
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 	
+    	MmeS1RelProcedureCtxt *procCtxt = dynamic_cast<MmeS1RelProcedureCtxt*>(cb.getTempDataBlock());
+    	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+
 	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
-	if(sessionCtxtContainer.size() < 1)
-	{
-		log_msg(LOG_DEBUG, "send_rel_ab_req_to_sgw:Session context list is empty\n");
-		return ActStatus::ABORT;
-	}
+	VERIFY(sessionCtxtContainer.size() > 0,
+	        procCtxt->setMmeErrorCause(SESSION_CONTAINER_EMPTY); return ActStatus::ABORT,
+	        "Sessions Container is empty\n");
 
 	SessionContext* sessionCtxt = sessionCtxtContainer.front();
+    	VERIFY(sessionCtxt,
+            procCtxt->setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
+            "Sessions Context is NULL\n");
 
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
-	if (bearerCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, " send_rel_ab_req_to_sgw: bearer ctxt is NULL \n");
-		return ActStatus::HALT;
-	}
+	VERIFY(bearerCtxt,
+	        procCtxt->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);return ActStatus::ABORT,
+	          "Bearer Context is NULL \n");
 
-    MmeS1RelProcedureCtxt *procCtxt = dynamic_cast<MmeS1RelProcedureCtxt*>(cb.getTempDataBlock());
-    if (procCtxt == NULL)
-    {
-        log_msg(LOG_DEBUG, "S1 Release Proc Ctxt is Null. Abort.\n");
+    	if(ue_ctxt->getS1apEnbUeId() != procCtxt->getS1apEnbUeId())
+    	{
+        	log_msg(LOG_DEBUG, "S1 Release req with wrong enb_s1ap_ue_id.\n");
 		return ActStatus::ABORT;
-    }
-
-    if(ue_ctxt->getS1apEnbUeId() != procCtxt->getS1apEnbUeId())
-    {
-        log_msg(LOG_DEBUG, "S1 Release req with wrong enb_s1ap_ue_id.\n");
-		return ActStatus::ABORT;
-    }
+    	}
 
 	struct RB_Q_msg rb_msg;
 	rb_msg.msg_type = release_bearer_request;
@@ -96,7 +87,7 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 	
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_RELEASE_BEARER_REQUEST);
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_RELEASE_BEARER_REQUEST);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &rb_msg, sizeof(rb_msg), destAddr);
 
@@ -121,23 +112,14 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue\n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if(ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue: ue context is NULL \n");
-
-		return ActStatus::HALT;
-	}
-	
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	S1apCause s1apCause;
 	MmeProcedureCtxt* prcdCtxt_p = 
 		dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 
-	if (prcdCtxt_p == NULL)
-	{
-		log_msg(LOG_ERROR, "send_s1_rel_cmd_to_ue: Proc Ctxt is NULL\n");
-		return ActStatus::HALT;
-	}
+	if(prcdCtxt_p)
+	    s1apCause = prcdCtxt_p->getS1apCause();
 
-	S1apCause s1apCause = prcdCtxt_p->getS1apCause();
 	if(s1apCause.s1apCause_m.present == s1apCause_PR_NOTHING)
 	{
 	    s1apCause = MmeCauseUtils::convertToS1apCause(prcdCtxt_p->getMmeErrorCause());
@@ -153,7 +135,7 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_S1_RELEASE_COMMAND);
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_S1_RELEASE_COMMAND);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 	
@@ -169,24 +151,14 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside handle_ctxt_rel_comp \n");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "process_ue_ctxt_rel_comp: ue context is NULL\n");
-
-		return ActStatus::HALT;
-	}
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
 	MmContext* mmCtxt = ue_ctxt->getMmContext();
-        if (mmCtxt == NULL)
-        {
-                log_msg(LOG_ERROR, "process_ue_ctxt_rel_comp: MMcontext is NULL \n");
-                return ActStatus::HALT;
-        }
+	VERIFY(mmCtxt, return ActStatus::ABORT, "MM Context is NULL \n");
 
         mmCtxt->setEcmState(ecmIdle_c);
 
-
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, s1Release_c);
 	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_s1_rel_comp_received++;
@@ -201,7 +173,7 @@ ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
 {
-    MmeErrorCause errorCause = noError_c;
+    ERROR_CODES errorCause = SUCCESS;
 
     MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt != NULL)
@@ -211,11 +183,14 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_FAILURE);
-    if (errorCause == abortDueToAttachCollision_c)
+    if (errorCause == ABORT_DUE_TO_ATTACH_COLLISION)
     {
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
     }
-
+    else
+    {
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
     return ActStatus::PROCEED;
 }
 

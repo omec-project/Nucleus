@@ -254,7 +254,7 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 	{	
 		/* send attach reject and release UE */
         	log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
-        	procedure_p->setMmeErrorCause(s6AiaFailure_c);
+        	procedure_p->setMmeErrorCause(S6A_AIA_FAILED);
         	return ActStatus::ABORT;
 	}
 
@@ -588,7 +588,7 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	else
 	{
 		log_msg(LOG_INFO, "Sec mode failed. UE %d", ue_ctxt->getContextID());
-		procedure_p->setMmeErrorCause(secModeRespFailure_c);
+		procedure_p->setMmeErrorCause((ERROR_CODES)secmode_resp.status);
 		return ActStatus::ABORT;
 	}
 
@@ -1377,7 +1377,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
-    MmeErrorCause errorCause = noError_c;
+    ERROR_CODES errorCause = SUCCESS;
 
     MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt != NULL)
@@ -1387,7 +1387,7 @@ ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);
 
-    if (errorCause == abortDueToAttachCollision_c)
+    if (errorCause == ABORT_DUE_TO_ATTACH_COLLISION)
     {
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, attach_c);
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
@@ -1412,7 +1412,7 @@ ActStatus ActionHandlers::handle_attach_request(ControlBlock& cb)
                 procCtxt->getCtxtType());
 
         // abort current procedure. Set appropriate error cause for aborting the procedure
-        procCtxt->setMmeErrorCause(abortDueToAttachCollision_c);
+        procCtxt->setMmeErrorCause(ABORT_DUE_TO_ATTACH_COLLISION);
     }
 
     return ActStatus::PROCEED;
