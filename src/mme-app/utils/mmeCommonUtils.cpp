@@ -14,6 +14,7 @@
 #include <msgBuffer.h>
 #include <s1ap_structs.h>
 #include <utils/defaultMmeProcedureCtxt.h>
+#include <random>
 
 using namespace mme;
 
@@ -67,10 +68,12 @@ uint8_t MmeCommonUtils::select_preferred_sec_algo(uint8_t &val)
 uint32_t MmeCommonUtils::allocateMtmsi()
 {
 	uint32_t tmsi = 0;
+	std::default_random_engine generator(time(NULL));
+	std::uniform_int_distribution<int> temp_fun(0, 1000000);
 
 	while(1)
 	{
-		tmsi = rand() % 10000;
+		tmsi = temp_fun(generator);
 
 		if (SubsDataGroupManager::Instance()->findCBWithmTmsi(tmsi) == -1)
 			break;
