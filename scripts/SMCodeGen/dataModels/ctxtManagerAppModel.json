@@ -3,7 +3,7 @@
 		"DataGroups": [
 			{
 				"DgName": "Subs",
-				"PoolSize": "8000",
+				"PoolSize": "16000",
 				"DataBlocks": [
 					{
 						"BlockName": "UEContext",
@@ -32,7 +32,7 @@
 								}
 							}
 						],
-						"PoolSize": "8000",
+						"PoolSize": "16000",
 						"Cardinality": "1",
 						"Data": [
 							{
@@ -147,7 +147,7 @@
 						"BlockType": "Permanent",
 						"Parent": "UEContext",
 						"Children": [],
-						"PoolSize": "8000",
+						"PoolSize": "16000",
 						"Cardinality": "1",
 						"Data": [
 							{
@@ -186,7 +186,7 @@
 								}
 							}
 						],
-						"PoolSize": "8000",
+						"PoolSize": "16000",
 						"Cardinality": "3",
 						"Data": [
 							{
@@ -231,7 +231,7 @@
 						"BlockName": "BearerContext",
 						"BlockType": "Permanent",
 						"Parent": "SessionContext",
-						"PoolSize": "8000",
+						"PoolSize": "16000",
 						"Cardinality": "11",
 						"Data": [
 							{
@@ -468,25 +468,25 @@
 							}
 						]
 					},
-					{
-                                                "BlockName": "MmeErabModIndProcedureCtxt",
-                                                "BlockType": "Temporary",
-                                                "Parent": "MmeProcedureCtxt",
-                                                "PoolSize": "8000",
-                                                "Cardinality": "1",
-                                                "Data": [
-							{
-                                                                "Name": "erabToBeModifiedList",
-                                                                "Type": "erab_to_be_modified_item",
-                                                                "Cardinality": "15"
-                                                        },
-						        {
-                                                                "Name": "erabModifiedList",
-                                                                "Type": "uint8_t",
-                                                                "Cardinality": "15"
-                                                        }
-                                                        ]
-					}
+                    {
+                        "BlockName": "MmeErabModIndProcedureCtxt",
+                        "BlockType": "Temporary",
+                        "Parent": "MmeProcedureCtxt",
+                        "PoolSize": "8000",
+                        "Cardinality": "1",
+                        "Data": [
+                        {
+                            "Name": "erabToBeModifiedList",
+                            "Type": "erab_to_be_modified_item",
+                            "Cardinality": "15"
+                        },
+                        {
+                            "Name": "erabModifiedList",
+                            "Type": "uint8_t",
+                            "Cardinality": "15"
+                        }
+                        ]
+                    }
 				]
 			}
 		]
