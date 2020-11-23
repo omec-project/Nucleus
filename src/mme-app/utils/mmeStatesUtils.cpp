@@ -95,12 +95,12 @@ ActStatus MmeStatesUtils::on_state_exit(ControlBlock &cb)
 EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
         TempDataBlock *tempDataBlock, SM::Event &event)
 {
-    EventStatus rc = EventStatus::IGNORE;
+    EventStatus rc = EventStatus::FORWARD;
 
     SM::State* currentState = tempDataBlock->getCurrentState();
     if(currentState->isEventHandled(event.getEventId()) == false)
     {
-        return EventStatus::FORWARD;
+        return rc;
     }
 
     MmeProcedureCtxt *smProc_p =
@@ -135,10 +135,6 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
                     else
                         rc = EventStatus::IGNORE;
                 }
-                else
-                {
-                    rc = EventStatus::FORWARD;
-                }
             }
         }
     }break;
@@ -160,15 +156,33 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
                     const struct erabSuResp_Q_msg &erabSuResp =
                             (msgData_p->msg_data.erabSuResp_Q_msg_m);
 
-                    for (int i = 0; i < erabSuResp.erab_su_list.count; i++)
+                    if (erabSuResp.erab_su_list.count)
                     {
-                        if (erabSuResp.erab_su_list.erab_su_item[i].e_RAB_ID ==
-                                smProc_p->getBearerId())
+                        for (int i = 0; i < erabSuResp.erab_su_list.count; i++)
                         {
-                            rc = EventStatus::CONSUME_AND_FORWARD;
-                            break;
+                            if (erabSuResp.erab_su_list.erab_su_item[i].e_RAB_ID
+                                    == smProc_p->getBearerId())
+                            {
+                                rc = EventStatus::CONSUME_AND_FORWARD;
+                                break;
+                            }
                         }
                     }
+
+                    if (erabSuResp.erab_fail_list.count)
+                    {
+                        for (int i = 0; i < erabSuResp.erab_fail_list.count;
+                                i++)
+                        {
+                            if (erabSuResp.erab_fail_list.erab_fail_item[i].e_RAB_ID
+                                    == smProc_p->getBearerId())
+                            {
+                                rc = EventStatus::CONSUME_AND_FORWARD;
+                                break;
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -195,10 +209,6 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
                     {
                         rc = EventStatus::CONSUME;
                     }
-                    else
-                    {
-                        rc = EventStatus::FORWARD;
-                    }
                 }
             }
         }
@@ -224,10 +234,6 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
                     if (smProc_p->getBearerId() == dedBrRjct.eps_bearer_id)
                     {
                         rc = EventStatus::CONSUME;
-                    }
-                    else
-                    {
-                        rc = EventStatus::FORWARD;
                     }
                 }
             }

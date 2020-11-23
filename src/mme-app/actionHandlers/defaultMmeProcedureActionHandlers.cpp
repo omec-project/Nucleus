@@ -833,10 +833,14 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
         memset(&cbRsp, 0, sizeof(cbRsp));
         cbRsp.msg_type = create_bearer_response;
         cbRsp.ue_idx = cb_req->s11_mme_cp_teid;
+	cbRsp.seq_no = cb_req->seq_no;
         cbRsp.cause = gtpCause;
         /*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
         cbRsp.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
         cbRsp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
+	cbRsp.destination_port = cb_req->source_port;
+
+	log_msg(LOG_INFO,"CB RESP sent with cause : CONTEXT_NOT_FOUND\n");
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;

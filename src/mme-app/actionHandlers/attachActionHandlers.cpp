@@ -1430,6 +1430,12 @@ ActStatus ActionHandlers::handle_attach_request(ControlBlock& cb)
 ActStatus ActionHandlers::handle_state_guard_timeouts(ControlBlock& cb)
 {
     log_msg(LOG_DEBUG,"State guard timeout.Abort.\n");
+    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+	procCtxt->setMmeErrorCause(NETWORK_TIMEOUT);
+    }
+
     return ActStatus::ABORT;
 }
 /***************************************

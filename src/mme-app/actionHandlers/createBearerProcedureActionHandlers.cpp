@@ -161,7 +161,7 @@ ActStatus ActionHandlers::send_bearer_setup_and_sess_mgmt_req(ControlBlock &cb)
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
-    MmeSmCreateBearerProcCtxt *cbReqProc_p =
+    MmeSmCreateBearerProcCtxt *cbReqProc_p = 
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
             "Create Bearer Procedure Context is NULL \n");
@@ -238,7 +238,7 @@ ActStatus ActionHandlers::handle_ded_act_cmp_ind(ControlBlock &cb)
 {
     log_msg(LOG_DEBUG, "handle_ded_act_cmp_ind : Entry\n");
 
-    MmeSmCreateBearerProcCtxt *cbReqProc_p =
+    MmeSmCreateBearerProcCtxt *cbReqProc_p = 
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
             "Create Bearer Procedure Context is NULL \n");
@@ -283,10 +283,36 @@ ActStatus ActionHandlers::abort_create_bearer_procedure(ControlBlock &cb)
 {
     log_msg(LOG_DEBUG, "abort_create_bearer_procedure : Entry\n");
 
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+
     MmeSmCreateBearerProcCtxt *cbReqProc_p =
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     if (cbReqProc_p != NULL)
     {
+	auto &bearerStatusContainer = cbReqProc_p->getBearerStatusContainer();
+
+        for (auto &entry: bearerStatusContainer)
+        {
+            BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
+            			entry.bearer_ctxt_cb_resp_m.eps_bearer_id, ue_ctxt);
+
+	    if(bearerCtxt_p)
+	    {
+		MmeContextManagerUtils::deallocateBearerContext(cb, bearerCtxt_p);
+	    }
+
+	    SmDedActProcCtxt *dedActProc_p = dynamic_cast<SmDedActProcCtxt*>
+		    (MmeContextManagerUtils::findProcedureCtxt(cb, dedBrActivation_c, 
+				    entry.bearer_ctxt_cb_resp_m.eps_bearer_id));
+
+	    if(dedActProc_p)
+	    {
+		MmeContextManagerUtils::deallocateProcedureCtxt(cb, dedActProc_p);
+	    }
+
+	}
+
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, cbReqProc_p);
 
         mmeStats::Instance()->increment(

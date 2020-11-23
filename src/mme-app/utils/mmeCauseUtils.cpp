@@ -134,7 +134,7 @@ uint32_t MmeCauseUtils::convertToGtpCause(s1apCause_t s1apCause)
                     break;
                 }
             }
-        }
+        }break;
         default:
         {
         	gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;

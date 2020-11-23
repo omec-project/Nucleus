@@ -9,6 +9,7 @@
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
 #include <utils/mmeContextManagerUtils.h>
+#include <utils/mmeCauseUtils.h>
 #include "gtpCauseTypes.h"
 #include <log.h>
 #include <mme_app.h>
@@ -149,8 +150,7 @@ bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
                 }
                 cb_resp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
                 cb_resp.destination_port = cb_req->source_port;
-
-                //TODO : SET SEQ NUMBER
+		cb_resp.seq_no = cb_req->seq_no;
 
                 status = true;
 

@@ -135,9 +135,15 @@ void StateMachineEngine::run()
                 {
                     log_msg(LOG_INFO, "Abort Event Initiated \n");
 
+                    uint16_t currentEventId = smCtxt.evt.getEventId();
+
                     // Abort on same temp data block.
                     smCtxt.evt.setEventId((uint16_t) ABORT_EVENT);
                     ret = handleProcedureEvent(*cb, smCtxt);
+
+                    // revert to the original event and let other procedure
+                    // decide what to do with this event
+                    smCtxt.evt.setEventId(currentEventId);
                 }
 
                 if (eStatus == CONSUME || cb->getControlBlockState() == FREE)

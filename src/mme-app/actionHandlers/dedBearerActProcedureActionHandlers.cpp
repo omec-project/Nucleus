@@ -245,17 +245,22 @@ ActStatus ActionHandlers::abort_ded_activation(ControlBlock &cb)
         }
         if (dedBrActProc_p->getTriggerProc() == cbReq_c)
         {
-        	uint32_t gtpCause = 0;
-        	if(dedBrActProc_p->getMmeErrorCause() == S1AP_FAILURE_IND)
-        	{
-        		gtpCause = MmeCauseUtils::convertToGtpCause(
+            uint32_t gtpCause = 0;
+            if (dedBrActProc_p->getMmeErrorCause() == S1AP_FAILURE_IND)
+            {
+                gtpCause = MmeCauseUtils::convertToGtpCause(
                         dedBrActProc_p->getS1apCause().s1apCause_m);
-        	}
-        	else if(dedBrActProc_p->getMmeErrorCause() == NAS_ESM_FAILURE_IND)
-        	{
-        		gtpCause = MmeCauseUtils::convertToGtpCause(
-        		                        dedBrActProc_p->getEsmCause());
-        	}
+            }
+            else if (dedBrActProc_p->getMmeErrorCause() == NAS_ESM_FAILURE_IND)
+            {
+                gtpCause = MmeCauseUtils::convertToGtpCause(
+                        dedBrActProc_p->getEsmCause());
+            }
+            else
+            {
+                gtpCause = MmeCauseUtils::convertToGtpCause(
+                        dedBrActProc_p->getMmeErrorCause());
+            }
             BearerStatusEMsgShPtr eMsg = std::make_shared<BearerStatusEMsg>(
                     dedBrActProc_p->getBearerId(), gtpCause);
 
