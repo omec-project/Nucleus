@@ -60,12 +60,12 @@ namespace mme
 	******************************************/
 	void SubsDataGroupManager::initialize()
 	{
-		initializeCBStore(8000);
+		initializeCBStore(16000);
 
-		UEContextManagerm_p = new UEContextManager(8000);
-		MmContextManagerm_p = new MmContextManager(8000);
-		SessionContextManagerm_p = new SessionContextManager(8000);
-		BearerContextManagerm_p = new BearerContextManager(8000);
+		UEContextManagerm_p = new UEContextManager(16000);
+		MmContextManagerm_p = new MmContextManager(16000);
+		SessionContextManagerm_p = new SessionContextManager(16000);
+		BearerContextManagerm_p = new BearerContextManager(16000);
 		MmeProcedureCtxtManagerm_p = new MmeProcedureCtxtManager(8000);
 		MmeAttachProcedureCtxtManagerm_p = new MmeAttachProcedureCtxtManager(8000);
 		MmeDetachProcedureCtxtManagerm_p = new MmeDetachProcedureCtxtManager(8000);
