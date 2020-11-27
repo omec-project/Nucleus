@@ -120,18 +120,19 @@ const uint16_t INTRA_S1HO_START = 137;
 const uint16_t MB_RESP_FROM_SGW = 138; 
 const uint16_t MME_INIT_DETACH = 139; 
 const uint16_t PAGING_COMPLETE = 140; 
-const uint16_t PURGE_RESP_FROM_HSS = 141; 
-const uint16_t REL_AB_RESP_FROM_SGW = 142; 
-const uint16_t S1_REL_REQ_FROM_UE = 143; 
-const uint16_t SEC_MODE_RESP_FROM_UE = 144; 
-const uint16_t SERVICE_REQUEST_FROM_UE = 145; 
-const uint16_t TAU_NOT_REQUIRED = 146; 
-const uint16_t TAU_REQUEST_FROM_UE = 147; 
-const uint16_t TAU_REQUIRED = 148; 
-const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 149; 
-const uint16_t ULA_FROM_HSS = 150; 
-const uint16_t VALIDATE_IMSI = 151; 
-const uint16_t END_EVENT = 152;    
+const uint16_t PAGING_FAILURE = 141; 
+const uint16_t PURGE_RESP_FROM_HSS = 142; 
+const uint16_t REL_AB_RESP_FROM_SGW = 143; 
+const uint16_t S1_REL_REQ_FROM_UE = 144; 
+const uint16_t SEC_MODE_RESP_FROM_UE = 145; 
+const uint16_t SERVICE_REQUEST_FROM_UE = 146; 
+const uint16_t TAU_NOT_REQUIRED = 147; 
+const uint16_t TAU_REQUEST_FROM_UE = 148; 
+const uint16_t TAU_REQUIRED = 149; 
+const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 150; 
+const uint16_t ULA_FROM_HSS = 151; 
+const uint16_t VALIDATE_IMSI = 152; 
+const uint16_t END_EVENT = 153;    
 
 /******************************************
 * Maps Event Name to Event ID

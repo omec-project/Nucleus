@@ -768,7 +768,7 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
                 cbReqProc_p->setBearerId(cb_req->linked_eps_bearer_id);
                 MmeSvcReqProcedureCtxt *srvReqProc_p = NULL;
                 srvReqProc_p =
-                        dynamic_cast<MmeSvcReqProcedureCtxt*>(cb.getTempDataBlock());
+                        dynamic_cast<MmeSvcReqProcedureCtxt*>(MmeContextManagerUtils::findProcedureCtxt(cb, serviceRequest_c));
                 if(srvReqProc_p != NULL)
                 {
                     // If a service request is already in progress, just set the paging flag,
@@ -840,8 +840,6 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
         cbRsp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
 	cbRsp.destination_port = cb_req->source_port;
 
-	log_msg(LOG_INFO,"CB RESP sent with cause : CONTEXT_NOT_FOUND\n");
-
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
@@ -852,4 +850,33 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
     }
 
     return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : handle_paging_failure
+***************************************/
+ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "handle_paging_failure: Entry \n");
+
+    ActStatus rc = ActStatus::PROCEED;
+    MmeProcedureCtxt *procCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if(procCtxt_p != NULL)
+    {
+	if(procCtxt_p->getCtxtType() == cbReq_c)
+	{
+	    MmeSmCreateBearerProcCtxt *cbReqProc_p =
+		dynamic_cast<MmeSmCreateBearerProcCtxt*>(MmeContextManagerUtils::findProcedureCtxt(cb, cbReq_c));
+	    cbReqProc_p->setMmeErrorCause(PAGING_FAILED);
+	    rc = ActStatus::ABORT;
+        }
+	else if(procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
+        {
+	    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+	}
+    }
+
+    log_msg(LOG_DEBUG, "handle_paging_failure: Exit \n");
+
+    return rc;
 }

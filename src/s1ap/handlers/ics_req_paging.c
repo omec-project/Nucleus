@@ -62,8 +62,24 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
     	req.mme_s1ap_ue_id = g_icsreq->ue_idx;
 	req.ueag_max_dl_bitrate = g_icsreq->ueag_max_dl_bitrate;
 	req.ueag_max_ul_bitrate = g_icsreq->ueag_max_ul_bitrate;
-	req.bearer_id = g_icsreq->bearer_id;
-	memcpy(&(req.gtp_teid), &(g_icsreq->gtp_teid), sizeof(struct fteid));
+	req.erab_su_list.count = g_icsreq->erab_su_list.count;
+	for(int i = 0; i < g_icsreq->erab_su_list.count; i++)
+	{
+		req.erab_su_list.erab_su_item[i].e_RAB_ID =
+				g_icsreq->erab_su_list.erab_su_item[i].e_RAB_ID;
+		req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci =
+				g_icsreq->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci;
+		req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.prioLevel =
+				g_icsreq->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.prioLevel;
+		req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionVulnebility =
+				g_icsreq->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionVulnebility;
+		req.erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionCapab =
+				g_icsreq->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.arPrio.preEmptionCapab;
+		req.erab_su_list.erab_su_item[i].gtp_teid =
+				g_icsreq->erab_su_list.erab_su_item[i].gtp_teid;
+		req.erab_su_list.erab_su_item[i].transportLayerAddress =
+				g_icsreq->erab_su_list.erab_su_item[i].transportLayerAddress;
+	}
 	memcpy(&(req.sec_key), &(g_icsreq->sec_key), KENB_SIZE);	
 	
 	log_msg(LOG_DEBUG,"Before s1ap_encoder\n");

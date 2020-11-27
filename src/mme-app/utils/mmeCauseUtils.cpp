@@ -49,6 +49,9 @@ uint32_t MmeCauseUtils::convertToGtpCause(ERROR_CODES mmeErrorCause)
 		case SESSION_CONTEXT_NOT_FOUND:
 			gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
 			break;
+		case PAGING_FAILED:
+			gtpCause = GTPV2C_CAUSE_UNABLE_TO_PAGE_UE;
+			break;
 		default:
 			gtpCause = GTPV2C_CAUSE_NETWORK_FAILURE;
 			break;

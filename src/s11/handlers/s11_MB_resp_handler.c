@@ -67,6 +67,27 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	}
 	mbr_info.cause = msgData.cause.causeValue;
 
+	mbr_info.bearer_ctxt_mb_resp_list.bearers_count = msgData.bearerContextsModifiedCount;
+
+	for(int i = 0; i < msgData.bearerContextsModifiedCount; i++)
+	{
+		mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].eps_bearer_id =
+				msgData.bearerContextsModified[i].epsBearerId.epsBearerId;
+		mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].cause.cause =
+				msgData.bearerContextsModified[i].cause.causeValue;
+		if(msgData.bearerContextsModified[i].s1USgwFTeidIePresent)
+		{
+			mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.v4 =
+					msgData.bearerContextsModified[i].s1USgwFTeid.ipv4present;
+			mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.iface_type =
+					msgData.bearerContextsModified[i].s1USgwFTeid.interfaceType;
+			mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.teid_gre =
+					msgData.bearerContextsModified[i].s1USgwFTeid.teidGreKey;
+			mbr_info.bearer_ctxt_mb_resp_list.bearer_ctxt[i].s1u_sgw_teid.ip.ipv4.s_addr =
+					msgData.bearerContextsModified[i].s1USgwFTeid.ipV4Address.ipValue;
+
+		}
+	}
 	mbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 

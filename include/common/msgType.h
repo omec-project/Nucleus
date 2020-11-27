@@ -169,9 +169,7 @@ struct esm_resp_Q_msg {
 }__attribute__ ((packed));
 
 struct initctx_resp_Q_msg{
-    unsigned short 	eRAB_id;
-    unsigned int 	transp_layer_addr;
-    unsigned int 	gtp_teid;
+    erab_su_resp_list erab_setup_resp_list;
 }__attribute__ ((packed));
 
 struct attach_complete_Q_msg {
@@ -432,8 +430,7 @@ struct ics_req_paging_Q_msg {
     int enb_fd;
 	unsigned long ueag_max_ul_bitrate;
 	unsigned long ueag_max_dl_bitrate;
-	unsigned char bearer_id;
-	struct fteid gtp_teid;
+	erab_setup_list erab_su_list;
 	unsigned char sec_key[32];
 };
 #define ICS_REQ_PAGING_BUF_SIZE sizeof(struct ics_req_paging_Q_msg)
@@ -591,11 +588,10 @@ struct MB_Q_msg {
 	struct TAI tai;
 	struct CGI utran_cgi;
 	unsigned short indication[S11_MB_INDICATION_FLAG_SIZE];/*Provision*/
-	unsigned char bearer_id;
 	struct fteid s11_sgw_c_fteid;
-	struct fteid s1u_enb_fteid;
 	bool userLocationInformationIePresent;
     	bool servingNetworkIePresent;
+    	bearer_ctx_list_t bearer_ctx_list;
 };
 #define S11_MBREQ_STAGE7_BUF_SIZE sizeof(struct MB_Q_msg)
 
@@ -690,7 +686,7 @@ struct MB_resp_Q_msg {
     gtp_incoming_msg_data_t header;
     int s11_mme_cp_teid;
     uint8_t cause;
-    struct fteid s1u_sgw_fteid;
+    bearer_ctxt_mb_resp_list_t bearer_ctxt_mb_resp_list;
 };
 
 struct DS_resp_Q_msg {

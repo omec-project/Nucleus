@@ -8,8 +8,8 @@
 
 #include <controlBlock.h>
 #include <contextManager/dataBlocks.h>
-#include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCauseUtils.h>
+#include <utils/mmeContextManagerUtils.h>
 #include "gtpCauseTypes.h"
 #include <log.h>
 #include <mme_app.h>
@@ -33,17 +33,19 @@ void MmeGtpMsgUtils::populateModifyBearerRequestHo(SM::ControlBlock& cb,
         return;
     }
 
-    mbMsg.bearer_id = bearerCtxt->getBearerId();
+    mbMsg.bearer_ctx_list.bearers_count = 1;
+
+    mbMsg.bearer_ctx_list.bearer_ctxt[0].eps_bearer_id = bearerCtxt->getBearerId();
     memcpy(&(mbMsg.s11_sgw_c_fteid),
             &(sessionCtxt.getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
 
-    mbMsg.s1u_enb_fteid.header.iface_type = 0;
-    mbMsg.s1u_enb_fteid.header.v4 = 1;
-    mbMsg.s1u_enb_fteid.header.teid_gre = procCtxt.getErabAdmittedItem().gtp_teid;
-    mbMsg.s1u_enb_fteid.ip.ipv4.s_addr =
+    mbMsg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid.header.iface_type = 0;
+    mbMsg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid.header.v4 = 1;
+    mbMsg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid.header.teid_gre = procCtxt.getErabAdmittedItem().gtp_teid;
+    mbMsg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid.ip.ipv4.s_addr =
             procCtxt.getErabAdmittedItem().transportLayerAddress;
 
-    bearerCtxt->setS1uEnbUserFteid(Fteid(mbMsg.s1u_enb_fteid));
+    bearerCtxt->setS1uEnbUserFteid(Fteid(mbMsg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid));
 
     mbMsg.userLocationInformationIePresent = true;
     memcpy(&(mbMsg.tai), &(procCtxt.getTargetTai().tai_m), sizeof(struct TAI));
@@ -151,6 +153,11 @@ bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
                 cb_resp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
                 cb_resp.destination_port = cb_req->source_port;
 		cb_resp.seq_no = cb_req->seq_no;
+		if(createBearerProc.getMmeErrorCause())
+		{
+                    cb_resp.cause = MmeCauseUtils::convertToGtpCause(
+                        createBearerProc.getMmeErrorCause());
+		}
 
                 status = true;
 

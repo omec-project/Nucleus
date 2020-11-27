@@ -242,6 +242,7 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
         break;
     case GW_CP_REQ_INIT_PAGING:
     case GW_INIT_DED_BEARER_AND_SESSION_SETUP:
+    case PAGING_FAILURE:
     {
         rc = EventStatus::CONSUME_AND_FORWARD;
     }

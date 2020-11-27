@@ -106,4 +106,9 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::default_create_bearer_req_handler);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(CREATE_BEARER_REQ_FROM_GW, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_paging_failure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(PAGING_FAILURE, actionTable));
+        }
 }

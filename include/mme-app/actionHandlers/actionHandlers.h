@@ -189,6 +189,11 @@ namespace mme
         static SM::ActStatus handle_ded_act_cmp_ind(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_paging_failure
+        ***********************************************/
+        static SM::ActStatus handle_paging_failure(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_state_guard_timeouts
         ***********************************************/
         static SM::ActStatus handle_state_guard_timeouts(SM::ControlBlock& cb);                

@@ -66,6 +66,11 @@ void CreateBearerWfPagingComplete::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_paging_failure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(PAGING_FAILURE, actionTable));
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }

@@ -200,13 +200,12 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					log_msg(LOG_DEBUG, "create new cb for IMSI.\n");
 
 					cb = SubsDataGroupManager::Instance()->allocateCB();
-					
 					if(cb == NULL) 
 					{
 						log_msg(LOG_DEBUG, "create new cb for IMSI failed.\n");
 						return nullptr;
 					}
-          cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 				}
 			}
 			else if (UE_ID_GUTI(ue_info.flags))

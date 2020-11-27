@@ -136,6 +136,18 @@ typedef struct bearer_ctxt_db_resp_list {
     bearer_ctxt_db_resp_t bearer_ctxt[DED_BEARER_COUNT];
 } bearer_ctxt_db_resp_list_t;
 
+typedef struct bearer_ctxt_mb_resp
+{
+    uint8_t eps_bearer_id;
+    struct gtp_cause cause;
+    fteid_t s1u_sgw_teid;
+} bearer_ctxt_mb_resp_t;
+
+typedef struct bearer_ctxt_mb_resp_list {
+    uint8_t bearers_count;
+    bearer_ctxt_mb_resp_t bearer_ctxt[DED_BEARER_COUNT];
+} bearer_ctxt_mb_resp_list_t;
+
 typedef struct failed_bearer_ctxt
 {
     uint8_t eps_bearer_id;

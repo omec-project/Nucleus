@@ -1164,8 +1164,8 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	fteid S1uEnbUserFteid;
 	S1uEnbUserFteid.header.iface_type = 0;
 	S1uEnbUserFteid.header.v4 = 1;
-	S1uEnbUserFteid.header.teid_gre = ics_res.gtp_teid;
-	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.transp_layer_addr;
+	S1uEnbUserFteid.header.teid_gre = ics_res.erab_setup_resp_list.erab_su_res_item[0].gtp_teid;
+	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.erab_setup_resp_list.erab_su_res_item[0].transportLayerAddress;
 	
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
@@ -1200,12 +1200,13 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
-	mb_msg.bearer_id = bearerCtxt->getBearerId();
+	mb_msg.bearer_ctx_list.bearers_count = 1;
+	mb_msg.bearer_ctx_list.bearer_ctxt[0].eps_bearer_id = bearerCtxt->getBearerId();
 
 	memcpy(&(mb_msg.s11_sgw_c_fteid), &(sessionCtxt->getS11SgwCtrlFteid().fteid_m),
 		sizeof(struct fteid));
 
-	memcpy(&(mb_msg.s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
+	memcpy(&(mb_msg.bearer_ctx_list.bearer_ctxt[0].s1u_enb_fteid), &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
 		sizeof(struct fteid));
 	mb_msg.servingNetworkIePresent = false;
 	mb_msg.userLocationInformationIePresent = false;
@@ -1435,7 +1436,6 @@ ActStatus ActionHandlers::handle_state_guard_timeouts(ControlBlock& cb)
     {
 	procCtxt->setMmeErrorCause(NETWORK_TIMEOUT);
     }
-
     return ActStatus::ABORT;
 }
 /***************************************

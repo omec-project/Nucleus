@@ -77,7 +77,14 @@
                                     "DEFAULT_CREATE_BEARER_REQ_HANDLER"
                                 ],
                                 "NextState":"end_state"
-                            }
+                            },
+			    {
+				"Name":"PAGING_FAILURE",
+				"Actions":[
+				    "HANDLE_PAGING_FAILURE"
+				],
+				"NextState":"end_state"
+			    }
                         ]
                     }
                 ]
@@ -1038,6 +1045,15 @@
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
+                            },
+			    {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -1305,6 +1321,13 @@
                                 ],
                                 "NextState":"create_bearer_wf_ded_act_complete"
                             },
+			    {
+				"Name":"PAGING_FAILURE",
+				"Actions":[
+				    "HANDLE_PAGING_FAILURE"
+				],
+				"NextState":"end_state"
+			    },
 			    {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[

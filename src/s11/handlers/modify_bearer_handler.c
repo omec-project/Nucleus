@@ -125,14 +125,17 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
                 & 0xF0) >> 4;
     }
 
-	//TODO:Support dedicated bearer
-	msgData.bearerContextsToBeModifiedCount = 1;
-	msgData.bearerContextsToBeModified[0].epsBearerId.epsBearerId = 5;
-	msgData.bearerContextsToBeModified[0].s1EnodebFTeidIePresent = true;
-	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipv4present = true;
-	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.interfaceType = mb_msg->s1u_enb_fteid.header.iface_type;
-	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.teidGreKey = mb_msg->s1u_enb_fteid.header.teid_gre;
-	msgData.bearerContextsToBeModified[0].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->s1u_enb_fteid.ip.ipv4.s_addr;
+	//Support dedicated bearer
+	msgData.bearerContextsToBeModifiedCount = mb_msg->bearer_ctx_list.bearers_count;
+	for(int i = 0; i < mb_msg->bearer_ctx_list.bearers_count; i++)
+	{
+		msgData.bearerContextsToBeModified[i].epsBearerId.epsBearerId = mb_msg->bearer_ctx_list.bearer_ctxt[i].eps_bearer_id;
+		msgData.bearerContextsToBeModified[i].s1EnodebFTeidIePresent = true;
+		msgData.bearerContextsToBeModified[i].s1EnodebFTeid.ipv4present = true;
+		msgData.bearerContextsToBeModified[i].s1EnodebFTeid.interfaceType = mb_msg->bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid.header.iface_type;
+		msgData.bearerContextsToBeModified[i].s1EnodebFTeid.teidGreKey = mb_msg->bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid.header.teid_gre;
+		msgData.bearerContextsToBeModified[i].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid.ip.ipv4.s_addr;
+	}
 
     add_gtp_transaction(gtpHeader.sequenceNumber, mb_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
