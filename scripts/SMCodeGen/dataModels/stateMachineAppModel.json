@@ -555,7 +555,8 @@
 			    {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
-				    "DETACH_ACCEPT_TO_UE"
+				    "DETACH_ACCEPT_TO_UE",
+                                    "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
                            }
@@ -581,7 +582,15 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
-                                    "DETACH_ACCEPT_TO_UE"
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+			    {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+				    "DETACH_ACCEPT_TO_UE",
+                                    "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -601,8 +610,15 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
-                                    "PROCESS_DEL_SESSION_RESP",
-                                    "DETACH_ACCEPT_TO_UE"
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+			    {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "DETACH_ACCEPT_TO_UE",
+                                    "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
                             }
@@ -622,7 +638,15 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
-                                    "DETACH_ACCEPT_TO_UE"
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+			    {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "DETACH_ACCEPT_TO_UE",
+                                    "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
                             }
