@@ -10,11 +10,14 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
-#include <math.h>
+//#include <math.h>
+#include <mutex>
 
 using namespace SM;
 using namespace mme;
 using namespace cmn;
+
+static void log_buffer_free(unsigned char** buffer);
 
 #define AES_128_KEY_SIZE 16
 static unsigned short get_length(unsigned char **msg) 
@@ -193,18 +196,16 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 }
 #endif
 
+std::mutex mutex_m;
 static void
 calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
         uint8_t bearer, uint8_t *data, uint16_t data_len,
         uint8_t *mac)
 {
-        log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", seq_no, bearer, direction, data_len);
-    log_msg(LOG_DEBUG,"nas data \n");
-    printBytes(data, data_len);
-    log_msg(LOG_DEBUG,"nas key \n");
-    printBytes(int_key, AES_128_KEY_SIZE);
-
+    std::unique_lock<std::mutex> lock(mutex_m);
+    log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", seq_no, bearer, direction, data_len);
     f9(int_key, seq_no, bearer, direction, data, data_len * 8, mac);
+    mutex_m.unlock();
 
     return;
 }
@@ -894,7 +895,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                         if(memcmp(nas->header.short_mac, 
                                   short_mac_local, SHORT_MAC_SIZE))
                         {
-                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
+                            log_msg(LOG_ERROR,"Service Request :  MAC not matching. Fail msg.\n");
                             return E_FAIL;
                         }
 
