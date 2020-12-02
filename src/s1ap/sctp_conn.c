@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/sctp.h>
+#include <pthread.h>
 
 #include "log.h"
 #include "sctp_conn.h"
@@ -91,12 +92,16 @@ int recv_sctp_msg(int connSock, unsigned char *buffer, size_t len)
 			(struct sockaddr *) NULL, 0, &sndrcvinfo, &flags);
 }
 
+pthread_mutex_t sctp_sock_mutex;	/* protection to sctp_sock */
 int send_sctp_msg(int connSock, unsigned char *buffer, size_t len, uint16_t stream_no)
 {
 	uint32_t ppid = S1AP_PPID;
     uint32_t enb_fd = getEnbFdWithCbIndex(connSock);
-	return sctp_sendmsg(enb_fd, (void *)buffer, len,
+	pthread_mutex_lock(&sctp_sock_mutex);
+	int ret = sctp_sendmsg(enb_fd, (void *)buffer, len,
 			NULL, 0, htonl(ppid), 0, stream_no, 0, 0);
+	pthread_mutex_unlock(&sctp_sock_mutex);
+    return ret;
 }
 
 int send_sctp_msg_with_fd(int connSock, unsigned char *buffer, size_t len, uint16_t stream_no)

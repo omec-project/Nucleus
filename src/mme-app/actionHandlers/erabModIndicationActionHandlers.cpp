@@ -114,8 +114,7 @@ ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 ActStatus ActionHandlers::handle_state_guard_timeouts_for_erab_mod_ind(
         ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG,
-            "Inside handle_state_guard_timeout_erab_mod_ind_proc \n");
+    log_msg(LOG_DEBUG, "Inside handle_state_guard_timeout_erab_mod_ind_proc \n");
 
     ActStatus actStatus = ActStatus::PROCEED;
 
