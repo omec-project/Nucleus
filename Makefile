@@ -58,3 +58,6 @@ docker-push:
 	docker push ${DOCKER_IMAGENAME}
 
 .PHONY: $(TOPTARGETS) $(SUBDIRS) docker-build docker-push
+
+cppcheck:
+	cppcheck --error-exitcode=1 -q .
