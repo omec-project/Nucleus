@@ -522,13 +522,17 @@ int s1ap_mme_encode_initial_context_setup_request(
     val[3].criticality = 0;
     val[3].value.present = InitialContextSetupRequestIEs__value_PR_E_RABToBeSetupListCtxtSUReq;
 
+    E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item_list =
+            (E_RABToBeSetupItemCtxtSUReqIEs_t *)calloc(s1apPDU->erab_su_list.count,
+                    sizeof(E_RABToBeSetupItemCtxtSUReqIEs_t));
+
     for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
     {
-    	E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item =
-    			calloc(1, sizeof(E_RABToBeSetupItemCtxtSUReqIEs_t));
+	E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item =
+                &(erab_to_be_setup_item_list[i]);
 
-    	E_RABToBeSetupItemCtxtSUReq_t *erab_to_be_setup =
-    			&(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemCtxtSUReq);
+        E_RABToBeSetupItemCtxtSUReq_t *erab_to_be_setup =
+                &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemCtxtSUReq);
 
     	erab_to_be_setup_item->id =
     			ProtocolIE_ID_id_E_RABToBeSetupItemCtxtSUReq;
@@ -551,18 +555,23 @@ int s1ap_mme_encode_initial_context_setup_request(
     	erab_to_be_setup->e_RABlevelQoSParameters.qCI =
                     s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci;
 
-    	uint32_t transport_layer_address = htonl(s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
-    	erab_to_be_setup->transportLayerAddress.size = 4;
-    	erab_to_be_setup->transportLayerAddress.buf = calloc(4, sizeof(uint8_t));
-    	memcpy(erab_to_be_setup->transportLayerAddress.buf, &transport_layer_address, sizeof(uint32_t));
+	uint32_t transport_layer_address = htonl(
+                s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
+	erab_to_be_setup->transportLayerAddress.size = 4;
+	erab_to_be_setup->transportLayerAddress.buf = calloc(4,
+                sizeof(uint8_t));
+	memcpy(erab_to_be_setup->transportLayerAddress.buf,
+                &transport_layer_address, sizeof(uint32_t));
 
-    	uint32_t s1uSgwTeid = htonl(s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
-    	erab_to_be_setup->gTP_TEID.size = 4;
-    	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
-    	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
+	uint32_t s1uSgwTeid = htonl(
+                s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
+	erab_to_be_setup->gTP_TEID.size = 4;
+	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
+	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
 
-	ASN_SEQUENCE_ADD(&val[3].value.choice.E_RABToBeSetupListCtxtSUReq.list,
-                    erab_to_be_setup_item);
+        ASN_SEQUENCE_ADD(&val[3].value.choice.E_RABToBeSetupListCtxtSUReq.list,
+                erab_to_be_setup_item);
+
     }
 
 
@@ -605,6 +614,18 @@ int s1ap_mme_encode_initial_context_setup_request(
     free(val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.buf);
     free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
     free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
+    for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
+    {
+        E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item =
+                &(erab_to_be_setup_item_list[i]);
+
+        E_RABToBeSetupItemCtxtSUReq_t *erab_to_be_setup =
+                &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemCtxtSUReq);
+
+        free(erab_to_be_setup->transportLayerAddress.buf);
+        free(erab_to_be_setup->gTP_TEID.buf);
+    }
+    free(erab_to_be_setup_item_list);
     free(pdu.choice.initiatingMessage);
 
     *length = enc_ret;
@@ -1634,16 +1655,20 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
     val[3].value.present =
             E_RABSetupRequestIEs__value_PR_E_RABToBeSetupListBearerSUReq;
 
+    E_RABToBeSetupItemBearerSUReqIEs_t *erab_to_be_setup_item_list =
+            (E_RABToBeSetupItemBearerSUReqIEs_t *)calloc(s1apPDU->erab_su_list.count,
+                    sizeof(E_RABToBeSetupItemBearerSUReqIEs_t));
+
     for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
     {
-	E_RABToBeSetupItemBearerSUReqIEs_t *erab_to_be_setup_item = 
-		calloc(1, sizeof(E_RABToBeSetupItemBearerSUReqIEs_t));
+        E_RABToBeSetupItemBearerSUReqIEs_t *erab_to_be_setup_item =
+                &(erab_to_be_setup_item_list[i]);
 
         E_RABToBeSetupItemBearerSUReq_t *erab_to_be_setup =
                 &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemBearerSUReq);
 
         erab_to_be_setup_item->id =
-                ProtocolIE_ID_id_E_RABToBeSetupItemBearerSUReq;
+        ProtocolIE_ID_id_E_RABToBeSetupItemBearerSUReq;
         erab_to_be_setup_item->criticality = 0;
         erab_to_be_setup_item->value.present =
                 E_RABToBeSetupItemBearerSUReqIEs__value_PR_E_RABToBeSetupItemBearerSUReq;
@@ -1663,16 +1688,19 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
         erab_to_be_setup->e_RABlevelQoSParameters.qCI =
                 s1apPDU->erab_su_list.erab_su_item[i].e_RAB_QoS_Params.qci;
 
-	uint32_t transport_layer_address = htonl(s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
-	erab_to_be_setup->transportLayerAddress.size = 4;
-	erab_to_be_setup->transportLayerAddress.buf = calloc(4, sizeof(uint8_t));
-        memcpy(erab_to_be_setup->transportLayerAddress.buf, &transport_layer_address, sizeof(uint32_t));
+        uint32_t transport_layer_address = htonl(
+                s1apPDU->erab_su_list.erab_su_item[i].transportLayerAddress);
+        erab_to_be_setup->transportLayerAddress.size = 4;
+        erab_to_be_setup->transportLayerAddress.buf = calloc(4,
+                sizeof(uint8_t));
+        memcpy(erab_to_be_setup->transportLayerAddress.buf,
+                &transport_layer_address, sizeof(uint32_t));
 
-
-	uint32_t s1uSgwTeid = htonl(s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
-    	erab_to_be_setup->gTP_TEID.size = 4;
-	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
-	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
+        uint32_t s1uSgwTeid = htonl(
+                s1apPDU->erab_su_list.erab_su_item[i].gtp_teid);
+        erab_to_be_setup->gTP_TEID.size = 4;
+        erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
+        memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
 
         erab_to_be_setup->nAS_PDU.size = s1apPDU->nas_buf[i].pos;
         erab_to_be_setup->nAS_PDU.buf = s1apPDU->nas_buf[i].buf;
@@ -1707,6 +1735,20 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
             val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
     free(
             val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
+
+    for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
+    {
+        E_RABToBeSetupItemBearerSUReqIEs_t *erab_to_be_setup_item =
+                &(erab_to_be_setup_item_list[i]);
+
+        E_RABToBeSetupItemBearerSUReq_t *erab_to_be_setup =
+                &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemBearerSUReq);
+
+        free(erab_to_be_setup->transportLayerAddress.buf);
+        free(erab_to_be_setup->gTP_TEID.buf);
+    }
+    free(erab_to_be_setup_item_list);
+
     free(pdu.choice.initiatingMessage);
 
     *length = enc_ret;

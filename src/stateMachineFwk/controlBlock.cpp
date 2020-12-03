@@ -130,8 +130,6 @@ namespace SM
 
     void ControlBlock::qInternalEvent(Event &event)
     {
-        std::lock_guard<std::mutex> lock(mutex_m);
-
         if (cbState_m == ALLOCATED)
         {
             internalEventQ.push(event);

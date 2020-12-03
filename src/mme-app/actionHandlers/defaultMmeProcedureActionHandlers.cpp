@@ -833,12 +833,12 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
         memset(&cbRsp, 0, sizeof(cbRsp));
         cbRsp.msg_type = create_bearer_response;
         cbRsp.ue_idx = cb_req->s11_mme_cp_teid;
-	cbRsp.seq_no = cb_req->seq_no;
+        cbRsp.seq_no = cb_req->seq_no;
         cbRsp.cause = gtpCause;
         /*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
         cbRsp.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
         cbRsp.s11_sgw_c_fteid.ip.ipv4.s_addr = cb_req->sgw_ip;
-	cbRsp.destination_port = cb_req->source_port;
+        cbRsp.destination_port = cb_req->source_port;
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
@@ -860,20 +860,24 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
     log_msg(LOG_DEBUG, "handle_paging_failure: Entry \n");
 
     ActStatus rc = ActStatus::PROCEED;
-    MmeProcedureCtxt *procCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-    if(procCtxt_p != NULL)
+
+    MmeProcedureCtxt *procCtxt_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt_p != NULL)
     {
-	if(procCtxt_p->getCtxtType() == cbReq_c)
-	{
-	    MmeSmCreateBearerProcCtxt *cbReqProc_p =
-		dynamic_cast<MmeSmCreateBearerProcCtxt*>(MmeContextManagerUtils::findProcedureCtxt(cb, cbReq_c));
-	    cbReqProc_p->setMmeErrorCause(PAGING_FAILED);
-	    rc = ActStatus::ABORT;
-        }
-	else if(procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
+        if (procCtxt_p->getCtxtType() == cbReq_c)
         {
-	    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
-	}
+            MmeSmCreateBearerProcCtxt *cbReqProc_p =
+                    dynamic_cast<MmeSmCreateBearerProcCtxt*>(procCtxt_p);
+
+            cbReqProc_p->setMmeErrorCause(PAGING_FAILED);
+
+            rc = ActStatus::ABORT;
+        }
+        else if (procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
+        {
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }
     }
 
     log_msg(LOG_DEBUG, "handle_paging_failure: Exit \n");

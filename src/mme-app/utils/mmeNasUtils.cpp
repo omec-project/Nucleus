@@ -1817,16 +1817,14 @@ void MmeNasUtils::encode_act_ded_br_req_nas_pdu(mme::SessionContext* sessionCtxt
 	nas->header.eps_bearer_identity = sessionCtxt->getLinkedBearerId();
 	nas->header.seq_no = secContext.getDownlinkCount();
 	secContext.increment_downlink_count();
-	/* If the procedure was triggered by the transport of user data
-	 * via the control plane, the network shall set the PTI value in
-	 * the EPS bearer context related request message to
-	 * "no procedure transaction identity assigned" - Spec 24.301 sec: 6.3.2 */
-	nas->header.procedure_trans_identity = 0;
 
 	nas->elements[0].pduElement.esm_msg.eps_bearer_id =
 	                bearerCtxt_p->getBearerId();
-	nas->elements[0].pduElement.esm_msg.procedure_trans_identity =
-	                sessionCtxt->getPti();
+	/* If the procedure was triggered by the transport of user data
+         * via the control plane, the network shall set the PTI value in
+         * the EPS bearer context related request message to
+         * "no procedure transaction identity assigned" - Spec 24.301 sec: 6.3.2 */
+	nas->elements[0].pduElement.esm_msg.procedure_trans_identity = 0;
 	nas->elements[0].pduElement.esm_msg.proto_discriminator =
 	                EPSSessionManagementMessage;
 	nas->elements[0].pduElement.esm_msg.session_management_msgs =
@@ -1854,7 +1852,7 @@ uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasP
     value = (nas->elements[0].pduElement.esm_msg.eps_bearer_id << 4) |
 	        (nas->elements[0].pduElement.esm_msg.proto_discriminator);
     buffer_copy(nasBuffer, &value, sizeof(value));
-    buffer_copy(nasBuffer, & nas->header.procedure_trans_identity, sizeof(uint8_t));
+    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.procedure_trans_identity, sizeof(uint8_t));
     buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.session_management_msgs, sizeof(uint8_t));
     value = (spare_half_oct << 4) | nas->header.eps_bearer_identity;
     buffer_copy(nasBuffer, &value, sizeof(value));

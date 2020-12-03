@@ -81,7 +81,7 @@ void StateMachineEngine::run()
 
     if (cb->getControlBlockState() == FREE)
     {
-        log_msg(LOG_INFO, "Control block is freed\n");
+        log_msg(LOG_ERROR, "A freed Control Block found in Procedure Queue\n");
         return;
     }
 
@@ -142,7 +142,8 @@ void StateMachineEngine::run()
                     ret = handleProcedureEvent(*cb, smCtxt);
 
                     // revert to the original event and let other procedure
-                    // decide what to do with this event
+                    // decide what to do with this event (in case this is
+                    // a consume and forward event)
                     smCtxt.evt.setEventId(currentEventId);
                 }
 

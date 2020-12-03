@@ -5,7 +5,7 @@
  [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim %]
  [%- poolMgrClassName = CLASSNAME(DataBlock.BlockName, "Manager") -%]
  /*
- * Copyright 2019-present Infosys Limited
+ * Copyright [%CURRENTYEAR%]-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */ 

@@ -1,9 +1,16 @@
+[%- USE date(format = '%Y')%]
 [%- #---------------------------------  START: GLOBALS ----------------------------------------# %]
  [%- primitiveTypes = [ "bool", "char",  "signed char", "unsigned char", "uint8_t",
                       "short", "signed short", "unsigned short", "uint16_t", 
                       "int", "signed int", "unsigned int", "uint32_t","long",
                       "signed long", "unsigned long", "float" , "uint64_t"] -%]
 [%- #---------------------------------  END: GLOBALS ----------------------------------------# %]
+[%- #-----------------------------  START: MACRO CURRENTYEAR --------------------------------# %]
+ [%- MACRO CURRENTYEAR BLOCK- %]
+ [%- currentYear = date.format %]
+ [%- currentYear %]
+ [%- END %]
+[%- #-----------------------------  END: MACRO CURRENTYEAR ----------------------------------# %]
 [%- #-----------------------------  START: MACRO CLASSNAME(str, AppendStr) -------------------# %]
  [%- MACRO CLASSNAME(Data, AppendStr) BLOCK- %]
  [%- className =  String.new %]

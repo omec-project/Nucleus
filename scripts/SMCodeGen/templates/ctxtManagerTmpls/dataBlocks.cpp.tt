@@ -2,7 +2,7 @@
 [%- USE String %]
 [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim -%]
 /*
- * Copyright 2019-present Infosys Limited
+ * Copyright [%CURRENTYEAR%]-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */

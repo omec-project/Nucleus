@@ -197,7 +197,8 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				}
 				if (cb == NULL)
 				{
-					log_msg(LOG_DEBUG, "create new cb for IMSI.\n");
+					log_msg(LOG_INFO, "create new cb for IMSI %s.\n",
+							IMSIInfo.getDigitsArray());
 
 					cb = SubsDataGroupManager::Instance()->allocateCB();
 					if(cb == NULL) 

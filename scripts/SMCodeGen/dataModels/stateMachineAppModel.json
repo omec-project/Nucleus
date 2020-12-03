@@ -78,13 +78,13 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
-				"Name":"PAGING_FAILURE",
-				"Actions":[
-				    "HANDLE_PAGING_FAILURE"
-				],
-				"NextState":"end_state"
-			    }
+                            {
+                                "Name":"PAGING_FAILURE",
+                                "Actions":[
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState":"end_state"
+                            }
                         ]
                     }
                 ]
@@ -845,13 +845,13 @@
                     {
                         "Name":"paging_start",
                         "Events":[
-			    {
-				"Name":"GW_CP_REQ_INIT_PAGING",
-				"Actions":[
-				    "SEND_PAGING_REQ_TO_UE"
-				],
-				"NextState":"paging_wf_service_req"
-			    },
+                            {
+                                "Name":"GW_CP_REQ_INIT_PAGING",
+                                "Actions":[
+                                    "SEND_PAGING_REQ_TO_UE"
+                                ],
+                                "NextState":"paging_wf_service_req"
+                            },
                             {
                                 "Name":"DDN_FROM_SGW",
                                 "Actions":[
@@ -1046,7 +1046,7 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_SERVICE_REJECT",
@@ -1246,18 +1246,18 @@
                         ]
                     },
                     {
-		        "Name":"erab_mod_ind_wf_mb_resp",
+                        "Name":"erab_mod_ind_wf_mb_resp",
                         "Events":[
                             {
-				"Name":"MB_RESP_FROM_SGW",
-				"Actions":[
-				    "PROCESS_MB_RESP_SVC_REQ",
-				    "SEND_ERAB_MOD_CONF_TO_ENB",
-				    "ERAB_MOD_IND_COMPLETE"
-				],
-				"NextState":"end_state"
+                                "Name":"MB_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_MB_RESP_SVC_REQ",
+                                    "SEND_ERAB_MOD_CONF_TO_ENB",
+                                    "ERAB_MOD_IND_COMPLETE"
+                                ],
+                                "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "ABORT_ERAB_MOD_INDICATION"
@@ -1281,7 +1281,7 @@
                     }
                 ]
             },
-	    {
+            {
                 "Name":"CREATE_BEARER_PROCEDURE",
                 "States":[
                     {
@@ -1321,14 +1321,14 @@
                                 ],
                                 "NextState":"create_bearer_wf_ded_act_complete"
                             },
-			    {
-				"Name":"PAGING_FAILURE",
-				"Actions":[
-				    "HANDLE_PAGING_FAILURE"
-				],
-				"NextState":"end_state"
-			    },
-			    {
+                            {
+                                "Name":"PAGING_FAILURE",
+                                "Actions":[
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
                                     "HANDLE_STATE_GUARD_TIMEOUTS"
@@ -1369,7 +1369,7 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_CREATE_BEARER_RESPONSE",
@@ -1378,9 +1378,9 @@
                                 "NextState":"end_state"
                             }
                         ],
-			"Properties": [
+                        "Properties": [
                     	    {
-                        	"timeout" : "12000"
+                                "timeout" : "12000"
                             }
                 	]
                     }

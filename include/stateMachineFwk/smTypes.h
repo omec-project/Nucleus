@@ -31,6 +31,7 @@ class Event;
  * is PROCEED
  * ABORT: Aborts execution of remaining actions. In addition,
  * SM frameworks fires a default 'ABORT_EVENT' on the current tempdata block.
+ * Action handlers for ABORT_EVENT should not use 'ABORT' return codes.
  * BREAK: Stops execution of subsequent actions. Next State is
  * also not set.
  * HALT: Stops execution of subsequent actions. Any remaining events

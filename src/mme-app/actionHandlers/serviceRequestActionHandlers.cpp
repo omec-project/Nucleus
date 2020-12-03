@@ -283,7 +283,7 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
         const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
         const struct initctx_resp_Q_msg &ics_res =s1_msg_data->msg_data.initctx_resp_Q_msg_m;
 
-	auto &bearerCtxtCont = sessionCtxt->getBearerContextContainer();
+        auto &bearerCtxtCont = sessionCtxt->getBearerContextContainer();
 
         uint8_t i = 0;
 
@@ -291,24 +291,24 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
         {
             if ((bearerCtxt != NULL) && (i < ics_res.erab_setup_resp_list.count))
             {
-		fteid S1uEnbUserFteid;
-        	S1uEnbUserFteid.header.iface_type = 0;
-        	S1uEnbUserFteid.header.v4 = 1;
-        	S1uEnbUserFteid.header.teid_gre = ics_res.erab_setup_resp_list.erab_su_res_item[i].gtp_teid;
-        	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.erab_setup_resp_list.erab_su_res_item[i].transportLayerAddress;
+                fteid S1uEnbUserFteid;
+                S1uEnbUserFteid.header.iface_type = 0;
+                S1uEnbUserFteid.header.v4 = 1;
+                S1uEnbUserFteid.header.teid_gre = ics_res.erab_setup_resp_list.erab_su_res_item[i].gtp_teid;
+                S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.erab_setup_resp_list.erab_su_res_item[i].transportLayerAddress;
 
-		if (bearerCtxt->getBearerId() == ics_res.erab_setup_resp_list.erab_su_res_item[i].e_RAB_ID)
-		{
-		    bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
-		}
-		i++;
-	    }
+                if (bearerCtxt->getBearerId() == ics_res.erab_setup_resp_list.erab_su_res_item[i].e_RAB_ID)
+                {
+                    bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
+                }
+                i++;
+            }
         }
 
-	ProcedureStats::num_of_processed_init_ctxt_resp ++;
+        ProcedureStats::num_of_processed_init_ctxt_resp ++;
         log_msg(LOG_DEBUG, "Leaving process_init_ctxt_resp_svc_req \n");
 
-	return ActStatus::PROCEED;
+        return ActStatus::PROCEED;
 }
 
 
@@ -351,48 +351,55 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
 
                 mb_msg.msg_type = modify_bearer_request;
                 mb_msg.ue_idx = ue_ctxt->getContextID();
-		mb_msg.bearer_ctx_list.bearers_count = bearerCtxtCont.size();
+                mb_msg.bearer_ctx_list.bearers_count = bearerCtxtCont.size();
 
-                for(auto& bearerCtxt : bearerCtxtCont)
+                for (auto &bearerCtxt : bearerCtxtCont)
                 {
-		    if(bearerCtxt != NULL)
-		    {
-                	mb_msg.bearer_ctx_list.bearer_ctxt[i].eps_bearer_id = bearerCtxt->getBearerId();
+                    if (bearerCtxt != NULL)
+                    {
+                        mb_msg.bearer_ctx_list.bearer_ctxt[i].eps_bearer_id =
+                                bearerCtxt->getBearerId();
 
-                	memcpy(&(mb_msg.s11_sgw_c_fteid),
-                        &(sessionCtxt->getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
+                        memcpy(&(mb_msg.s11_sgw_c_fteid),
+                                &(sessionCtxt->getS11SgwCtrlFteid().fteid_m),
+                                sizeof(struct fteid));
 
-                	if (procCtxt->getCtxtType() == erabModInd_c)
-                	{
-                		MmeErabModIndProcedureCtxt *prcdCtxt =
-                            static_cast<MmeErabModIndProcedureCtxt*>(cb.getTempDataBlock());
+                        if (procCtxt->getCtxtType() == erabModInd_c)
+                        {
+                            MmeErabModIndProcedureCtxt *prcdCtxt =
+                                    static_cast<MmeErabModIndProcedureCtxt*>(cb.getTempDataBlock());
 
-                		if (prcdCtxt->getErabToBeModifiedListLen() > 0)
-                		{
-                			for(int j = 0; j < prcdCtxt->getErabToBeModifiedListLen(); j++)
-                			{
-                				if(prcdCtxt->getErabToBeModifiedList()[j].e_RAB_ID == bearerCtxt->getBearerId())
-                				{
-                					fteid S1uEnbUserFteid ;
-                					S1uEnbUserFteid.header.iface_type = 0;
-                					S1uEnbUserFteid.header.v4 = 1;
-                					S1uEnbUserFteid.header.teid_gre =
-                						prcdCtxt->getErabToBeModifiedList()[j].dl_gtp_teid;
-                					S1uEnbUserFteid.ip.ipv4.s_addr =
-                						prcdCtxt->getErabToBeModifiedList()[j].transportLayerAddress;
+                            if (prcdCtxt->getErabToBeModifiedListLen() > 0)
+                            {
+                                for (int j = 0;
+                                        j < prcdCtxt->getErabToBeModifiedListLen(); j++)
+                                {
+                                    if (prcdCtxt->getErabToBeModifiedList()[j].e_RAB_ID
+                                            == bearerCtxt->getBearerId())
+                                    {
+                                        fteid S1uEnbUserFteid;
+                                        S1uEnbUserFteid.header.iface_type = 0;
+                                        S1uEnbUserFteid.header.v4 = 1;
+                                        S1uEnbUserFteid.header.teid_gre =
+                                                prcdCtxt->getErabToBeModifiedList()[j].dl_gtp_teid;
+                                        S1uEnbUserFteid.ip.ipv4.s_addr =
+                                                prcdCtxt->getErabToBeModifiedList()[j].transportLayerAddress;
 
-                					bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
-                				}
-                			}
-                		}
-                	}
+                                        bearerCtxt->setS1uEnbUserFteid(
+                                                Fteid(S1uEnbUserFteid));
+                                    }
+                                }
+                            }
+                        }
 
-                	memcpy(&(mb_msg.bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid), 
-					&(bearerCtxt->getS1uEnbUserFteid().fteid_m), sizeof(struct fteid));
+                        memcpy(
+                                &(mb_msg.bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid),
+                                &(bearerCtxt->getS1uEnbUserFteid().fteid_m),
+                                sizeof(struct fteid));
 
-                	i++;
-		    }
-            	}
+                        i++;
+                    }
+                }
                 cmn::ipc::IpcAddress destAddr;
                 destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
 
@@ -583,9 +590,11 @@ ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
             static_cast<MmeSvcReqProcedureCtxt*>(cb.getTempDataBlock());
     if (procedure_p != NULL)
     {
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
     }
 
+    // Fire a page failure event, so that interested procedures
+    // can take appropriate actions.
     SM::Event evt(PAGING_FAILURE, NULL);
     cb.qInternalEvent(evt);
 

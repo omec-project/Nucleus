@@ -533,7 +533,6 @@ BearerCtxtCBResp::BearerCtxtCBResp()
 
 BearerCtxtCBResp::BearerCtxtCBResp( bearer_ctxt_cb_resp_t& bearer_ctxt_cb_resp_i )
 {
-        memset( &bearer_ctxt_cb_resp_m, 0, sizeof( bearer_ctxt_cb_resp_m ));
         memcpy( &bearer_ctxt_cb_resp_m, &bearer_ctxt_cb_resp_i, sizeof( bearer_ctxt_cb_resp_i ));
 }
 
