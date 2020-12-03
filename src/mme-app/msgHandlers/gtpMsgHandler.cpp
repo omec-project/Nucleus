@@ -208,7 +208,8 @@ void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t 
                 MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
         if(controlBlk_p == NULL)
         {
-                log_msg(LOG_ERROR, "handleCreateBearerRequestMsg_v: "
+                   /* TODO : generate CBRsp with cause context not found */
+                  log_msg(LOG_ERROR, "handleCreateBearerRequestMsg_v: "
                                                         "Failed to find UE context using idx %d\n",
                                                         ueIdx);
                 return;
