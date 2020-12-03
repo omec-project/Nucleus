@@ -21,11 +21,6 @@
 #include  "log.h"
 #include "snow_3g.h"
 
-/****Globals and externs ***/
-
-/*Making global just to avoid stack passing*/
-static Buffer g_esm_buffer = {0};
-static Buffer g_esm_value_buffer = {0};
 
 
 /****Global and externs end***/
@@ -54,8 +49,12 @@ get_esmreq_protoie_value(struct proto_IE *value, struct esm_req_Q_msg * g_esmReq
 static int
 esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 {
+    Buffer g_esm_value_buffer = {0};
+    Buffer g_esm_buffer = {0};
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
+	log_msg(LOG_INFO, "ESM Info Request handler MME-s1ap-id %d, enb-s1ap-id %d, fd %d \n",
+			g_esmReqInfo->ue_idx, g_esmReqInfo->enb_s1ap_ue_id, g_esmReqInfo->enb_fd);
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
@@ -141,7 +140,11 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 	buffer_copy(&g_esm_buffer, &g_esm_value_buffer,
 			g_esm_value_buffer.pos);
 
-	send_sctp_msg(g_esmReqInfo->enb_fd, g_esm_buffer.buf, g_esm_buffer.pos, 1);
+	int ret = send_sctp_msg(g_esmReqInfo->enb_fd, g_esm_buffer.buf, g_esm_buffer.pos, 1);
+	if(ret < 0) {
+	log_msg(LOG_ERROR, "Failed to send - ESM Info Request. MME-s1ap-id %d, enb-s1ap-id %d, fd %d \n",
+			g_esmReqInfo->ue_idx, g_esmReqInfo->enb_s1ap_ue_id, g_esmReqInfo->enb_fd);
+	}
 
 	free(s1apPDU.value.data);
 
@@ -151,7 +154,6 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 void*
 esmreq_handler(void *data)
 {
-	log_msg(LOG_INFO, "ESM Info Request handler\n");
 	esmreq_processing((struct esm_req_Q_msg *)data);
 
 	return NULL;
