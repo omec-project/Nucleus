@@ -39,10 +39,10 @@ using namespace cmn::utils;
 
 ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside delete_session_req \n");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    log_msg(LOG_DEBUG, "%s Inside delete_session_req %u \n", __FUNCTION__, ue_ctxt->getContextID());
 
     bool status = false;
 
@@ -195,7 +195,6 @@ ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside send_detach_accept \n");
 	
 	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	
@@ -204,6 +203,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_DEBUG, "send_detach_accept: ue context is NULL\n");
 		return ActStatus::HALT;
 	}
+	log_msg(LOG_DEBUG, "%s - Inside send_detach_accept %u \n", __FUNCTION__,ue_ctxt->getContextID());
     mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
