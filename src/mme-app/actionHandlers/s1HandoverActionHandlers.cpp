@@ -615,7 +615,6 @@ ActStatus ActionHandlers::abort_handover(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_target_enb\n");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
@@ -634,6 +633,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
         return ActStatus::HALT;
     }
    
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_target_enb %u \n",ue_ctxt->getContextID());
     struct s1relcmd_info s1relcmd;
     s1relcmd.msg_type = s1_release_command;
     s1relcmd.ue_idx = ue_ctxt->getContextID();

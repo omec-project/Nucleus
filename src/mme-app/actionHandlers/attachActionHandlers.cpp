@@ -640,6 +640,7 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 		log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n", cb.getCBIndex());
 		return ActStatus::HALT;
 	}
+	log_msg(LOG_DEBUG,"%s Sending ESM info request UE index %u \n", __FUNCTION__, ue_ctxt->getContextID());
 
 	SessionContext* sessionCtxt = sessionCtxtContainer.front();
 	esm_req_Q_msg esmreq;
@@ -1333,6 +1334,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 {
         UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
         VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+	log_msg(LOG_DEBUG,"%s Sending attach reject UE index %u \n", __FUNCTION__, ueCtxt_p->getContextID());
 
         MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
         
@@ -1431,8 +1433,10 @@ ActStatus ActionHandlers::handle_state_guard_timeouts(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock& cb)
 {
-    log_msg(LOG_ERROR,"CSRsp not received from SPGW, guard timer expired");
-    log_msg(LOG_DEBUG,"DNS resolution timeout, Let's try one more time ");
+	UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    log_msg(LOG_ERROR,"CSRsp not received from SPGW, guard timer expired. "
+                      "Let's try to resolve spgw address - Ue Index %d \n", 
+                      ueCtxt_p != NULL ? ueCtxt_p->getContextID():0);
     // invalidate dns entries 
     mme_tables->invalidate_dns();
     mme_tables->initiate_spgw_resolution();
