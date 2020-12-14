@@ -219,32 +219,21 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 {
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-    if (msgBuf == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
-        return ActStatus::HALT;
-    }
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message buffer is NULL \n");
 
     const s1_incoming_msg_data_t* msgData_p =
             static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message data buffer is NULL \n");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    if (ueCtxt == NULL)
-    {
-        log_msg(LOG_DEBUG, "ue context is NULL \n");
-        return ActStatus::HALT;
-    }
+    VERIFY_UE(cb, ueCtxt, "Detach Hdlr: UE Context is NULL \n");
 
     MmeDetachProcedureCtxt* prcdCtxt_p = MmeContextManagerUtils::allocateDetachProcedureCtxt(cb, ueInitDetach_c);
     if( prcdCtxt_p == NULL )
     {
-	log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
-	return ActStatus::HALT;
+        log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        return ActStatus::PROCEED;
     }
 
     ueCtxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
@@ -265,8 +254,12 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
     ProcedureStats::num_of_ddn_received++;
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
-    VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg), return ActStatus::ABORT, "Invalid DDN message length \n");
+
+    VERIFY(msgBuf, return ActStatus::PROCEED,
+            "default_ddn_handler: Invalid message buffer \n");
+
+    VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg),
+            return ActStatus::PROCEED, "default_ddn_handler: Invalid DDN message length \n");
 
     const struct ddn_Q_msg *ddn_info =
     		static_cast<const ddn_Q_msg*>(msgBuf->getDataPointer());
