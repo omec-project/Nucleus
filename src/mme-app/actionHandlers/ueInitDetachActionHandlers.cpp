@@ -74,7 +74,6 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
             MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
             mmeIpcIf.dispatchIpcMsg((char*) &g_ds_msg, sizeof(g_ds_msg), destAddr);
 
-            log_msg(LOG_DEBUG, "Leaving delete_session_req \n");
             ProcedureStats::num_of_del_session_req_sent++;
 
             status = true; // delete session sent success
@@ -119,13 +118,8 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside purge_req \n");
-	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "purge_req: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
+	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 	
 	s6a_Q_msg purge_msg;
 	purge_msg.msg_type = purge_request;	
@@ -141,7 +135,6 @@ ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
     MmeIpcInterface &mmeIpcIf =static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));	
 	mmeIpcIf.dispatchIpcMsg((char *) &purge_msg, sizeof(purge_msg), destAddr);
 	
-	log_msg(LOG_DEBUG, "Leaving purge_req \n");
 	ProcedureStats::num_of_purge_req_sent ++;
 	return ActStatus::PROCEED;
 	
@@ -152,19 +145,16 @@ ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_delete_session_resp \n");
 	
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ue_ctxt == NULL)
-	{
-	    log_msg(LOG_DEBUG, "delete_session_req: ue context is NULL\n");
-	    return ActStatus::HALT;
-	}
+	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+
 	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
 	if(sessionCtxtContainer.size() > 0)
 	{
 	    SessionContext* sessionCtxt = sessionCtxtContainer.front();
+	    VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
 	    MmeContextManagerUtils::deallocateSessionContext(cb, sessionCtxt, ue_ctxt);
 	}
-	log_msg(LOG_DEBUG, "Leaving handle_delete_session_resp \n");
 	ProcedureStats::num_of_processed_del_session_resp ++;
 	return ActStatus::PROCEED;
 }
@@ -174,20 +164,13 @@ ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside handle_purge_resp \n");
 	
-	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "handle_purge_resp: ue context is NULL \n");
-		return ActStatus::HALT;
-	}
+	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 	//struct purge_resp_Q_msg *purge_msg = nullptr;
 	
 	/*Nothing is been done. Only takes the UE Index
 	 * increment the stats counter and changes the state*/
 	
-	
-	log_msg(LOG_DEBUG, "Leaving handle_purge_resp for UE-%d.\n", ue_ctxt->getContextID());
 	ProcedureStats::num_of_processed_pur_resp ++;
 	return ActStatus::PROCEED;
 	
@@ -196,15 +179,12 @@ ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 {
 	
-	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "send_detach_accept: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
+	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+  
 	log_msg(LOG_DEBUG, "%s - Inside send_detach_accept %u \n", __FUNCTION__,ue_ctxt->getContextID());
-    mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
+  
+  mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();
@@ -242,10 +222,11 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p );
 
 	MmContext* mmCtxt = ue_ctxt->getMmContext();
-	mmCtxt->setMmState( EpsDetached );
-	mmCtxt->setEcmState( ecmIdle_c );
+	VERIFY_UE(cb, mmCtxt, "Invalid UE\n");
 
-	log_msg(LOG_DEBUG, "Leaving send_detach_accept for UE \n");
+	mmCtxt->setMmState(EpsDetached);
+	mmCtxt->setEcmState(ecmIdle_c);
+
 	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_detach_accept_to_ue_sent ++;
 	ProcedureStats::num_of_subscribers_detached ++;
@@ -254,5 +235,13 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 
 	return ActStatus::PROCEED;
 	
+}
+/***************************************
+* Action handler : abort_detach
+***************************************/
+ActStatus ActionHandlers::abort_detach(ControlBlock& cb)
+{
+    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    return ActStatus::PROCEED;
 }
 

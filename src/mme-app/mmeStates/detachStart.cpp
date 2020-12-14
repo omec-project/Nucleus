@@ -67,6 +67,7 @@ void DetachStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_detach);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

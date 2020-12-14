@@ -54,6 +54,11 @@ namespace mme
         static SM::ActStatus abort_ded_activation(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_detach
+        ***********************************************/
+        static SM::ActStatus abort_detach(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : abort_erab_mod_indication
         ***********************************************/
         static SM::ActStatus abort_erab_mod_indication(SM::ControlBlock& cb);                
