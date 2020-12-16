@@ -181,7 +181,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				log_msg(LOG_INFO, "IMSI attach received.\n");
 
 				uint8_t imsi[BINARY_IMSI_LEN] = {0};
-                memcpy( imsi, ue_info.IMSI, BINARY_IMSI_LEN );
+				memcpy( imsi, ue_info.IMSI, BINARY_IMSI_LEN );
 
 				uint8_t first = imsi[0] >> 4;
 				imsi[0] = (uint8_t)(( first << 4 ) | 0x0f );
@@ -192,25 +192,26 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				int cbIndex = SubsDataGroupManager::Instance()->findCBWithimsi(IMSIInfo);
 				if (cbIndex > 0)
 				{
-                    log_msg(LOG_DEBUG, "existing cb for IMSI.\n");
+					log_msg(LOG_DEBUG, "existing cb for IMSI.\n");
 					cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 				}
-				
-                if (cb == NULL)
+				if (cb == NULL)
 				{
-                    log_msg(LOG_DEBUG, "create new cb for IMSI.\n");
+					log_msg(LOG_INFO, "create new cb for IMSI %s.\n",
+							IMSIInfo.getDigitsArray());
+
 					cb = SubsDataGroupManager::Instance()->allocateCB();
 					if(cb == NULL) 
 					{
 						log_msg(LOG_DEBUG, "create new cb for IMSI failed.\n");
 						return nullptr;
 					}
-					cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 				}
 			}
 			else if (UE_ID_GUTI(ue_info.flags))
 			{
-                		log_msg(LOG_INFO, "GUTI attach received.\n");
+				log_msg(LOG_INFO, "GUTI attach received.\n");
 
 				if (isLocalGuti(ue_info.mi_guti))
 				{
@@ -225,16 +226,16 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					{
 						log_msg(LOG_ERROR, "Failed to find control block with mTmsi.\n");
 
-                                                // allocate new cb and proceed?
-                                                cb = SubsDataGroupManager::Instance()->allocateCB();
-                                                cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+						// allocate new cb and proceed?
+						cb = SubsDataGroupManager::Instance()->allocateCB();
+						cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 					}
 				}
 				else
-                                {
-                                        cb = SubsDataGroupManager::Instance()->allocateCB();
-                    			cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
-                		}
+				{
+					cb = SubsDataGroupManager::Instance()->allocateCB();
+					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+				}
 			}
 			break;
 		}
@@ -252,12 +253,12 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 
 			if (cb == NULL)
 			{
-                            log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
-                                              " Allocate a temporary control block\n", msgData_p->ue_idx);
+				log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
+						" Allocate a temporary control block\n", msgData_p->ue_idx);
 			    
 			    // Respond  with Service Reject from default Service Request event handler
 			    cb = SubsDataGroupManager::Instance()->allocateCB();
-			    cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+			    cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;
@@ -288,10 +289,9 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			{
 				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
                                               " Allocate a temporary control block\n", tau_Req.ue_m_tmsi);
-
-                            	// Respond  with TAU Reject from default TAU event handler
-                            	cb = SubsDataGroupManager::Instance()->allocateCB();
-                            	cb->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+				// Respond  with TAU Reject from default TAU event handler
+				cb = SubsDataGroupManager::Instance()->allocateCB();
+				cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;
@@ -335,7 +335,27 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
 
                 // Respond  with DDN failure from default DDN event handler
                 cb_p = SubsDataGroupManager::Instance()->allocateCB();
-                cb_p->setTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+                cb_p->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+            }
+        }break;
+	case create_bearer_request:
+        {
+	    const struct cb_req_Q_msg * cbr = (const struct cb_req_Q_msg *) (msg_p->getDataPointer());
+            if (cbr->s11_mme_cp_teid == 0)
+            {
+                log_msg(LOG_INFO, "UE Index in CB Req message data is 0.\n");
+                return cb_p;
+            }
+
+            cb_p = SubsDataGroupManager::Instance()->findControlBlock(cbr->s11_mme_cp_teid);
+            if (cb_p == NULL)
+            {
+                log_msg(LOG_INFO, "Failed to find control block using index %d."
+                        " Allocate a temporary control block\n", cbr->s11_mme_cp_teid);
+
+                // Respond  with CB Resp from default CB Req event handler
+                cb_p = SubsDataGroupManager::Instance()->allocateCB();
+                cb_p->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
             }
         }break;
         default:

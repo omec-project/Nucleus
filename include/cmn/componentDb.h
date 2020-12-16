@@ -27,6 +27,10 @@ namespace cmn
     };
 
 extern ComponentDb compDb;
+
+#define FIND_COMPONENT(Component, ComponentId) \
+        static_cast<Component&>(compDb.getComponent(ComponentId))
+
 }
 
 #endif /* COMPONENTDB_H_ */

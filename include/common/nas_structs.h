@@ -47,11 +47,11 @@ struct esm_sec_info {
 /* sec. 10.5.6.3 of 3GPP TS 24.008 has following statement:
  * The protocol configuration options is a type 4 information element with a minimum length of 3 octets and a maximum length of 253 octets.
  */
-#define MAX_PCO_OPTION_SIZE 260
+#define MAX_PCO_OPTION_SIZE 255
 struct pco 
 {
-    unsigned char pco_length;
-    unsigned char pco_options[MAX_PCO_OPTION_SIZE];
+    uint8_t pco_length;
+    uint8_t pco_options[MAX_PCO_OPTION_SIZE];
 };
 
 typedef struct pdn_address {
@@ -435,6 +435,7 @@ typedef struct bearer_tft{
     uint16_t len;
     uint8_t data[TFT_MAX_SIZE];
 } bearer_tft;
+
 
 /* 24.301 v15.6.0 - 9.9.4.4 */
 typedef enum esm_cause_t {

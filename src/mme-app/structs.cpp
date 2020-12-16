@@ -522,3 +522,31 @@ std::ostream& operator << ( std::ostream& os, const DigitRegister15& data_i )
 	os << "\0";	
 	return os;
 }
+
+/*******************************************************
+*BearerCtxtCBResp
+********************************************************/
+BearerCtxtCBResp::BearerCtxtCBResp()
+{
+        memset( &bearer_ctxt_cb_resp_m, 0, sizeof( bearer_ctxt_cb_resp_m ));
+}
+
+BearerCtxtCBResp::BearerCtxtCBResp( bearer_ctxt_cb_resp_t& bearer_ctxt_cb_resp_i )
+{
+        memcpy( &bearer_ctxt_cb_resp_m, &bearer_ctxt_cb_resp_i, sizeof( bearer_ctxt_cb_resp_i ));
+}
+
+BearerCtxtCBResp::~BearerCtxtCBResp()
+{
+}
+
+void BearerCtxtCBResp::operator = ( const BearerCtxtCBResp& bearer_ctxt_cb_resp_i )
+{
+        memcpy( &bearer_ctxt_cb_resp_m, &(bearer_ctxt_cb_resp_i.bearer_ctxt_cb_resp_m),
+                        sizeof( bearer_ctxt_cb_resp_i.bearer_ctxt_cb_resp_m ));
+}
+
+bool BearerCtxtCBResp::operator==(const BearerCtxtCBResp& bearer_ctxt_cb_resp_i) const
+{
+    return (bearer_ctxt_cb_resp_i.bearer_ctxt_cb_resp_m.eps_bearer_id == bearer_ctxt_cb_resp_m.eps_bearer_id);
+}

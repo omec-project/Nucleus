@@ -9,7 +9,6 @@
 
 #include <string>
 #include <map>
-
 #include <eventMessage.h>
 
 using namespace std;
@@ -19,8 +18,8 @@ namespace SM
 	class Event
 	{
    	public:
-		Event();
-      		Event(uint16_t evtID, cmn::EventMessage * eventData);
+	        Event();
+      		Event(uint16_t evtID, cmn::EventMsgShPtr eventData);
       		virtual ~Event();
 
       		inline uint16_t getEventId()const
@@ -28,12 +27,17 @@ namespace SM
       			return eventID;
       		}
 
-      		cmn::EventMessage * getEventData() const;
+      		inline void setEventId(uint16_t evt)
+      		{
+      		    eventID = evt;
+      		}
+
+      		cmn::EventMsgShPtr getEventData() const;
       		virtual void display();
  
    	private:
 	      	uint16_t eventID;
-	      	cmn::EventMessage * eventData_p;
+	      	cmn::EventMsgShPtr eventData;
 	};
 }
 

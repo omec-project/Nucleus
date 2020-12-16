@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <msgType.h>
+#include <smTypes.h>
 
 namespace SM
 {
@@ -18,6 +19,7 @@ namespace SM
 namespace mme
 {
 	class S1HandoverProcedureContext;
+	class MmeSmCreateBearerProcCtxt;
 	class UEContext;
 	class SessionContext;
 	class MmeGtpMsgUtils
@@ -28,6 +30,9 @@ namespace mme
 		        SessionContext& sessCtxt,
 				S1HandoverProcedureContext& procCtxt,
 				struct MB_Q_msg& mbMsg);
+
+        static bool populateCreateBearerResponse(SM::ControlBlock& cb,
+                MmeSmCreateBearerProcCtxt& procCtxt, struct CB_RESP_Q_msg& cb_resp);
 	private:
 		MmeGtpMsgUtils();
 		~MmeGtpMsgUtils();

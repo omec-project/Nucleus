@@ -100,8 +100,8 @@ handle_mmeapp_message(void * data)
 		handover_cancel_ack_handler(msg);
 		break;
 	case erab_setup_request:
-                erab_setup_req_handler(msg);
-                break;
+		erab_setup_req_handler(msg);
+		break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

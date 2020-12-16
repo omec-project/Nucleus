@@ -7,7 +7,10 @@
 #include <cmath>
 #include <controlBlock.h>
 #include <contextManager/subsDataGroupManager.h>
+#include <err_codes.h>
 #include <log.h>
+#include <mmeStates/createBearerStart.h>
+#include <mmeStates/dedActStart.h>
 #include <mmeStates/detachStart.h>
 #include <mmeStates/niDetachStart.h>
 #include <mmeStates/pagingStart.h>
@@ -50,7 +53,7 @@ MmeDetachProcedureCtxt* MmeContextManagerUtils::allocateDetachProcedureCtxt(SM::
             prcdCtxt_p->setNextState(NiDetachStart::Instance());
         }
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -73,13 +76,18 @@ MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb
             mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_DDN_INIT);
             prcdCtxt_p->setNextState(PagingStart::Instance());
         }
+        else if(pagingTrigger == pgwInit_c)
+        {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_PGW_INIT);
+            prcdCtxt_p->setNextState(PagingStart::Instance());
+        }
         else
         {
             mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_UE_INIT);
             prcdCtxt_p->setNextState(ServiceRequestStart::Instance());
         }
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
 
     }
     return prcdCtxt_p;
@@ -98,7 +106,7 @@ MmeContextManagerUtils::allocateTauProcedureCtxt(SM::ControlBlock& cb_r)
         prcdCtxt_p->setCtxtType(ProcedureType::tau_c);
         prcdCtxt_p->setNextState(TauStart::Instance());
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -117,7 +125,7 @@ MmeContextManagerUtils::allocateErabModIndProcedureCtxt(SM::ControlBlock& cb_r)
         prcdCtxt_p->setCtxtType(ProcedureType::erabModInd_c);
         prcdCtxt_p->setNextState(ErabModIndStart::Instance());
 
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -135,7 +143,44 @@ S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::Contro
         prcdCtxt_p->setCtxtType(ProcedureType::s1Handover_c);
         prcdCtxt_p->setNextState(IntraS1HoStart::Instance());
         prcdCtxt_p->setHoType(intraMmeS1Ho_c);
-        cb_r.setCurrentTempDataBlock(prcdCtxt_p);
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+MmeSmCreateBearerProcCtxt*
+MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateCreateBearerRequestProcedureCtxt: Entry");
+
+    MmeSmCreateBearerProcCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeSmCreateBearerProcCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_CREATE_BEARER_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::cbReq_c);
+        prcdCtxt_p->setNextState(CreateBearerStart::Instance());
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+SmDedActProcCtxt*
+MmeContextManagerUtils::allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateDedBrActivationProcedureCtxt: Entry");
+
+    SmDedActProcCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getSmDedActProcCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::dedBrActivation_c);
+        prcdCtxt_p->setNextState(DedActStart::Instance());
+
+        cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
     return prcdCtxt_p;
@@ -220,6 +265,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 
 			break;
 		}
+		case cbReq_c:
+		{
+			MmeSmCreateBearerProcCtxt* cbReqProc_p =
+							static_cast<MmeSmCreateBearerProcCtxt*>(procedure_p);
+
+			subsDgMgr_p->deleteMmeSmCreateBearerProcCtxt(cbReqProc_p);
+
+			break;
+		}
+		case dedBrActivation_c:
+		{
+			SmDedActProcCtxt* dedActProc_p =
+							static_cast<SmDedActProcCtxt*>(procedure_p);
+
+			subsDgMgr_p->deleteSmDedActProcCtxt(dedActProc_p);
+
+			break;
+		}
 		default:
 		{
 			log_msg(LOG_INFO, "Unsupported procedure type %d\n", procedure_p->getCtxtType());
@@ -229,52 +292,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 	return rc;
 }
 
-bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType)
+bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, MmeProcedureCtxt* procedure_p)
 {
-    bool rc = false;
-    
-    MmeProcedureCtxt* procedure_p =
-			static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
-
-    MmeProcedureCtxt* prevProcedure_p = NULL;
-    MmeProcedureCtxt* nextProcedure_p = NULL;
-
-    while (procedure_p != NULL)
+    if (procedure_p == NULL)
     {
-        nextProcedure_p =
-            static_cast<MmeProcedureCtxt*>(procedure_p->getNextTempDataBlock());
-        
-        ProcedureType procedureType = procedure_p->getCtxtType();
-        if (procType == procedureType)
-        {
-            log_msg(LOG_INFO, "Procedure type %d\n", procedureType);
-
-	    // Stop procedure specific timers 
-	    // Stop state guard timer if its running
-    	    MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
-            
-	    rc = deleteProcedureCtxt(procedure_p);
-            
-            if (rc == true)
-            {
-                if (prevProcedure_p != NULL)
-                {
-                    if (nextProcedure_p != NULL)
-                    {
-                        prevProcedure_p->setNextTempDataBlock(nextProcedure_p);
-                    }
-                }
-                else
-                {
-                    cb_r.setTempDataBlock(nextProcedure_p);
-                }
-            }
-            // break out of while loop
-            break;
-        }
-        prevProcedure_p = procedure_p;
-        procedure_p = nextProcedure_p;		
+        return true;
     }
+
+    bool rc = false;
+
+    // Remove the procedure from the temp data block list
+    // maintained by the control block
+    cb_r.removeTempDataBlock(procedure_p);
+
+    // Stop any timers running
+    MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
+
+    // return the procedure context to mem-pool
+    deleteProcedureCtxt(procedure_p);
 
     return rc;
 }
@@ -284,7 +319,7 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     bool rc = false;
 
     MmeProcedureCtxt* procedure_p =
-    		static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
+    		static_cast<MmeProcedureCtxt*>(cb_r.getFirstTempDataBlock());
     
     MmeProcedureCtxt* nextProcedure_p = NULL;
     
@@ -306,12 +341,12 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     return rc;
 }
 
-MmeProcedureCtxt* MmeContextManagerUtils::findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType)
+MmeProcedureCtxt* MmeContextManagerUtils::findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType, uint8_t bearerId)
 {
     MmeProcedureCtxt* mmeProcCtxt_p = NULL;
 
     MmeProcedureCtxt* currentProcedure_p =
-                static_cast<MmeProcedureCtxt*>(cb_r.getTempDataBlock());
+                static_cast<MmeProcedureCtxt*>(cb_r.getFirstTempDataBlock());
 
     MmeProcedureCtxt* nextProcedure_p = NULL;
 
@@ -467,6 +502,7 @@ void MmeContextManagerUtils::deallocateSessionContext(SM::ControlBlock &cb_r,
                     cb_r.getCBIndex());
             return;
         }
+
         auto it = bearerCtxtContainer.begin();
         BearerContext *bearer_p = NULL;
         while (it != bearerCtxtContainer.end())
@@ -505,3 +541,24 @@ void MmeContextManagerUtils::deallocateBearerContext(SM::ControlBlock &cb_r,
     }
 }
 
+BearerContext* MmeContextManagerUtils::findBearerContext(uint8_t bearerId,
+        UEContext *ueCtxt_p, SessionContext *sessionCtxt_p)
+{
+    BearerContext *bearerCtxt_p = NULL;
+    if (sessionCtxt_p != NULL)
+    {
+        bearerCtxt_p = sessionCtxt_p->findBearerContextByBearerId(bearerId);
+    }
+    else
+    {
+        auto &sessionCtxtContainer = ueCtxt_p->getSessionContextContainer();
+
+        for (auto sessEntry : sessionCtxtContainer)
+        {
+            bearerCtxt_p = sessEntry->findBearerContextByBearerId(bearerId);
+            if (bearerCtxt_p != NULL)
+                break;
+        }
+    }
+    return bearerCtxt_p;
+}

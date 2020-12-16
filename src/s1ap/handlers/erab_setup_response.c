@@ -133,4 +133,3 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
 
     return SUCCESS;
 }
-

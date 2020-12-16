@@ -134,8 +134,14 @@ class mmeConfig
 
 
 const size_t fifoQSize_c = 1000;
+
+// Components Ids used by the ComonponentDB
 const uint16_t MmeIpcInterfaceCompId = 1;
 const uint16_t TimeoutManagerCompId = 2;
+
+
+// Message Ids used for the cmn::EventMessage
+const uint16_t BEARER_STATUS_EMSG = 0x64;
 
 void stat_init();
 

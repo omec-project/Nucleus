@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2019-present, Infosys Limited.
+ * Copyright 2020-present, Infosys Limited.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,7 +17,9 @@
 #include "tempDataBlock.h"
 #include <algorithm>
 #include <list>
+#include <memory>
 #include <err_codes.h>
+#include <eventMessage.h>
 #include <structs.h>
 #include <utils/mmeProcedureTypes.h>
 #include <utils/mmeTimerTypes.h>
@@ -36,6 +38,8 @@ namespace mme
 	class MmeTauProcedureCtxt;
 	class S1HandoverProcedureContext;
 	class MmeErabModIndProcedureCtxt;
+	class MmeSmCreateBearerProcCtxt;
+	class SmDedActProcCtxt;
 	 
 	class UEContext:public SM::PermDataBlock
 	{
@@ -785,6 +789,36 @@ namespace mme
 			****************************************/
 			uint8_t getBearerId()const;			
 			
+			/****************************************
+			* setBearerQos
+			*    set bearerQos to BearerContext
+			****************************************/
+			void setBearerQos(const bearer_qos_t& bearerQos_i);
+			
+			/****************************************
+			* getBearerQos
+			*    get bearerQos from BearerContext
+			****************************************/
+			const bearer_qos_t& getBearerQos()const;			
+			
+			/****************************************
+			* setBearerTft
+			*    set bearerTft to BearerContext
+			****************************************/
+			void setBearerTft(const uint8_t* bearerTft_i,uint16_t len);
+			
+			/****************************************
+			* getBearerTft
+			*    get bearerTft from BearerContext
+			****************************************/
+			const uint8_t* getBearerTft()const;
+
+			/****************************************
+			* getBearerTftLen
+			*    get bearerTftLen from BearerContext
+			****************************************/
+			uint16_t getBearerTftLen()const;				
+			
 		
 		private:
 		
@@ -799,6 +833,14 @@ namespace mme
 			
 			// DataName
 			uint8_t bearerId_m;
+			
+			// DataName
+			bearer_qos_t bearerQos_m;
+			
+			// DataName
+			uint16_t bearerTftLen_m;
+			uint8_t bearerTft_m[256];
+			
 			
 	};
 	 
@@ -855,6 +897,18 @@ namespace mme
 			const S1apCause& getS1apCause()const;			
 			
 			/****************************************
+			* setEsmCause
+			*    set esmCause to MmeProcedureCtxt
+			****************************************/
+			void setEsmCause(const esm_cause_t& esmCause_i);
+			
+			/****************************************
+			* getEsmCause
+			*    get esmCause from MmeProcedureCtxt
+			****************************************/
+			const esm_cause_t& getEsmCause()const;			
+			
+			/****************************************
 			* setStateGuardTimerCtxt
 			*    set stateGuardTimerCtxt to MmeProcedureCtxt
 			****************************************/
@@ -890,6 +944,18 @@ namespace mme
 			****************************************/
 			const Auts& getAuts()const;			
 			
+			/****************************************
+			* setBearerId
+			*    set bearerId to MmeProcedureCtxt
+			****************************************/
+			void setBearerId(uint8_t bearerId_i);
+			
+			/****************************************
+			* getBearerId
+			*    get bearerId from MmeProcedureCtxt
+			****************************************/
+			uint8_t getBearerId()const;			
+			
 		
 		private:
 		
@@ -903,6 +969,9 @@ namespace mme
 			S1apCause s1apCause_m;
 			
 			// DataName
+			esm_cause_t esmCause_m;
+			
+			// DataName
 			MmeUeTimerContext* stateGuardTimerCtxt_m;
 			
 			// DataName
@@ -910,6 +979,9 @@ namespace mme
 			
 			// DataName
 			Auts auts_m;
+			
+			// DataName
+			uint8_t bearerId_m;
 			
 	};
 	 
@@ -1181,13 +1253,31 @@ namespace mme
 			* setPagingTrigger
 			*    set pagingTrigger to MmeSvcReqProcedureCtxt
 			****************************************/
-			void setPagingTrigger(PagingTrigger pagingTrigger_i);
+			void setPagingTrigger(uint32_t pagingTrigger_i);
 			
 			/****************************************
 			* getPagingTrigger
 			*    get pagingTrigger from MmeSvcReqProcedureCtxt
 			****************************************/
-			PagingTrigger getPagingTrigger()const;			
+			uint32_t getPagingTrigger()const;
+            
+			/****************************************
+			* setPagingTriggerBit
+			*    set pagingTriggerBit to MmeSvcReqProcedureCtxt
+			****************************************/
+			void setPagingTriggerBit(uint32_t pagingTriggerBit_i);
+            
+			/****************************************
+			* clearPagingTriggerBit
+			*    clear pagingTriggerBit to MmeSvcReqProcedureCtxt
+			****************************************/
+			void clearPagingTriggerBit(uint32_t pagingTriggerBit_i);
+            
+			/****************************************
+			* checkPagingTriggerBit
+			*    check pagingTriggerBit to MmeSvcReqProcedureCtxt
+			****************************************/
+			bool checkPagingTriggerBit(uint32_t pagingTriggerBit_i);			
 			
 			/****************************************
 			* setEpsBearerId
@@ -1220,7 +1310,7 @@ namespace mme
 			uint32_t ddnSeqNo_m;
 			
 			// DataName
-			PagingTrigger pagingTrigger_m;
+			uint32_t pagingTrigger_m;
 			
 			// DataName
 			uint8_t epsBearerId_m;
@@ -1561,6 +1651,127 @@ namespace mme
 			uint16_t erabModifiedListLen_m;
 			uint8_t erabModifiedList_m[15];
 			
+			
+	};
+	 
+	class MmeSmCreateBearerProcCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* MmeSmCreateBearerProcCtxt
+			*    constructor
+			****************************************/
+			MmeSmCreateBearerProcCtxt();
+			
+			/****************************************
+			* ~MmeSmCreateBearerProcCtxt
+			*    destructor
+			****************************************/
+			~MmeSmCreateBearerProcCtxt();		
+		
+			/****************************************
+			* setCreateBearerReqEMsg
+			*    set createBearerReqEMsg to MmeSmCreateBearerProcCtxt
+			****************************************/
+			void setCreateBearerReqEMsg(std::shared_ptr<cmn::EventMessage> createBearerReqEMsg_i);
+					
+			/****************************************
+			* getCreateBearerReqEMsg
+			*    get createBearerReqEMsg from MmeSmCreateBearerProcCtxt
+			****************************************/
+			std::shared_ptr<cmn::EventMessage> getCreateBearerReqEMsg() const;
+					
+			/****************************************
+			* getCreateBearerReqEMsgRaw
+			*    get createBearerReqEMsgRaw from MmeSmCreateBearerProcCtxt
+			****************************************/
+			cmn::EventMessage* getCreateBearerReqEMsgRaw()const;
+
+
+			/****************************************
+			* addBearerStatus
+			*    add bearerStatus to MmeSmCreateBearerProcCtxt
+			****************************************/
+	        	void addBearerStatus(BearerCtxtCBResp& bearerStatus_i);
+			
+			/****************************************
+			* removeBearerStatus
+			*    remove bearerStatus from MmeSmCreateBearerProcCtxt
+			****************************************/
+			void removeBearerStatus(BearerCtxtCBResp& bearerStatus_i);
+			
+			/****************************************
+			* findBearerStatus
+			*    find bearerStatus
+			****************************************/
+			std::list<BearerCtxtCBResp>::iterator findBearerStatus(BearerCtxtCBResp& bearerStatus_i);
+			
+			/****************************************
+			* getBearerStatusContainer
+			*    get bearerStatusContainer to MmeSmCreateBearerProcCtxt
+			****************************************/
+			std::list<BearerCtxtCBResp>& getBearerStatusContainer();
+			
+		
+		private:
+		
+			// DataName
+			std::shared_ptr<cmn::EventMessage> createBearerReqEMsg_m;
+			
+			// DataName
+			std::list<BearerCtxtCBResp> bearerStatus_m;
+			
+	};
+	 
+	class SmDedActProcCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* SmDedActProcCtxt
+			*    constructor
+			****************************************/
+			SmDedActProcCtxt();
+			
+			/****************************************
+			* ~SmDedActProcCtxt
+			*    destructor
+			****************************************/
+			~SmDedActProcCtxt();
+			
+			/****************************************
+			* setLinkedBearerId
+			*    set linkedBearerId to SmDedActProcCtxt
+			****************************************/
+			void setLinkedBearerId(uint8_t linkedBearerId_i);
+			
+			/****************************************
+			* getLinkedBearerId
+			*    get linkedBearerId from SmDedActProcCtxt
+			****************************************/
+			uint8_t getLinkedBearerId()const;			
+			
+			/****************************************
+			* setTriggerProc
+			*    set triggerProc to SmDedActProcCtxt
+			****************************************/
+			void setTriggerProc(ProcedureType triggerProc_i);
+			
+			/****************************************
+			* getTriggerProc
+			*    get triggerProc from SmDedActProcCtxt
+			****************************************/
+			ProcedureType getTriggerProc()const;			
+			
+		
+		private:
+		
+			// DataName
+			uint8_t linkedBearerId_m;
+			
+			// DataName
+			ProcedureType triggerProc_m;
 			
 	};
 	

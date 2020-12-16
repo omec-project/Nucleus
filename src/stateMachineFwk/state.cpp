@@ -91,6 +91,17 @@ namespace SM
         return stateGuardTimeoutDuration_m;
     }
 
+    bool State::isEventHandled(uint16_t eventId)
+    {
+        bool handleEvent = false;
+
+        auto ret = eventToActionsMap.find(eventId);
+        if (ret != eventToActionsMap.end())
+            handleEvent = true;
+
+        return handleEvent;
+    }
+
 	uint16_t State::getStateId()const
 	{
 	    return stateID;

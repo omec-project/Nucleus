@@ -212,10 +212,20 @@ class MmeGrpcCliClient {
 	    cout << "num_of_ho_prep_failure_sent     		 " << reply.num_of_ho_prep_failure_sent() << endl;
 	    cout << "num_of_ho_cancel_received     		     " << reply.num_of_ho_cancel_received() << endl;
 	    cout << "num_of_ho_cancel_ack_sent     		     " << reply.num_of_ho_cancel_ack_sent() << endl;
-            cout << "num_of_erab_mod_ind_received	     " << reply.num_of_erab_mod_ind_received() << endl;
+	    cout << "num_of_erab_mod_ind_received	     " << reply.num_of_erab_mod_ind_received() << endl;
 	    cout << "num_of_erab_mod_conf_sent		     " << reply.num_of_erab_mod_conf_sent() << endl;
 	    cout << "num_of_erab_mod_ind_timeout             " << reply.num_of_erab_mod_ind_timeout() << endl;
 	    cout << "num_of_abort_erab_mod_indication        " << reply.num_of_abort_erab_mod_indication() << endl;
+	    cout << "num_of_erab_setup_req_sent		     " << reply.num_of_erab_setup_req_sent() << endl;
+	    cout << "num_of_act_ded_br_ctxt_req_sent	 " << reply.num_of_act_ded_br_ctxt_req_sent() << endl;
+	    cout << "num_of_erab_setup_resp_received	     " << reply.num_of_erab_setup_resp_received() << endl;
+	    cout << "num_of_create_bearer_req_received	     " << reply.num_of_create_bearer_req_received() << endl;
+	    cout << "num_of_create_bearer_resp_sent	     " << reply.num_of_create_bearer_resp_sent() << endl;
+	    cout << "num_of_ded_bearer_ctxt_acpt_received    " << reply.num_of_ded_bearer_ctxt_acpt_received() << endl;
+	    cout << "num_of_ded_bearer_ctxt_reject_received  " << reply.num_of_ded_bearer_ctxt_reject_received() << endl;
+	    cout << "num_of_abort_ded_activation	     " << reply.num_of_abort_ded_activation() << endl;
+	    cout << "num_of_ded_act_complete		     " << reply.num_of_ded_act_complete() << endl;
+	    cout << "num_of_create_bearer_proc_complete	     " << reply.num_of_create_bearer_proc_complete() << endl;
 
     } else {
       std::cout << status.error_code() << ": " << status.error_message()

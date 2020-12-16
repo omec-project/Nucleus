@@ -982,11 +982,10 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *
                 memcpy(&nas_header_long, msg, sizeof(nas_header_long)); /*copy only till msg type*/
                 msg += 3;
 
-		nas->header.eps_bearer_identity = nas_header_long.security_header_type;
-		nas->header.proto_discriminator = nas_header_long.proto_discriminator;
-		nas->header.procedure_trans_identity = nas_header_long.procedure_trans_identity;
-		nas->header.message_type = nas_header_long.message_type;
-
+                nas->header.eps_bearer_identity = sec_header_type;
+                nas->header.proto_discriminator = protocol_discr;
+                nas->header.procedure_trans_identity = nas_header_long.procedure_trans_identity;
+                nas->header.message_type = nas_header_long.message_type;
         } else {
                 log_msg(LOG_INFO, "NAS PDU is EMM\n");
                 memcpy(&nas_header_short, msg, sizeof(nas_header_short)); /*copy only till msg type*/
@@ -1409,13 +1408,14 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
                    BINARY_IMSI_LEN);
 
 	    	break;
-		}
-					
+		}	
 		case ActivateDedicatedBearerContextAccept:
 		{
 	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_ACPT\n");
 		    int nas_index = 0;
 		    s1Msg->msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_accept;
+		    s1Msg->msg_data.dedBearerContextAccept_Q_msg_m.eps_bearer_id = nas->header.eps_bearer_identity;
+                    s1Msg->msg_data.dedBearerContextAccept_Q_msg_m.pti = nas->header.procedure_trans_identity;
 
 		    while (nas_index < nas->elements_len)
             	    {
@@ -1445,6 +1445,9 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *
 	    	    log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_RJCT\n");
 		    int nas_index = 0;
 	    	    s1Msg->msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_reject;
+		    s1Msg->msg_data.dedBearerContextReject_Q_msg_m.eps_bearer_id = nas->header.eps_bearer_identity;
+                    s1Msg->msg_data.dedBearerContextReject_Q_msg_m.pti = nas->header.procedure_trans_identity;
+
 		    while (nas_index < nas->elements_len)
                     {
                         log_msg(LOG_INFO, "nasIndex %d, msgType %d\n", nas_index, nas->elements[nas_index].msgType);
@@ -1748,7 +1751,8 @@ void MmeNasUtils::cal_nas_bit_rate(uint64_t bit_rate_kbps, uint8_t* out)
 	    out[2] = bit_rate_ext_2;
 }
 
-void MmeNasUtils::encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
+
+void MmeNasUtils::encode_eps_qos(const bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
 {
     uint8_t br_arr[3] = {0};
 
@@ -1800,10 +1804,46 @@ void MmeNasUtils::encode_eps_qos(bearer_qos_t& bearerQos, eps_qos_t& eps_qos)
             eps_qos.len += 4;
 }
 
+void MmeNasUtils::encode_act_ded_br_req_nas_pdu(mme::SessionContext* sessionCtxt,
+		mme::BearerContext* bearerCtxt_p, Secinfo& secContext, struct nasPDU *nas)
+{
+	const uint8_t num_nas_elements = 1;
+	nas->elements = (nas_pdu_elements*) calloc(num_nas_elements,
+	                	sizeof(nas_pdu_elements));
+	nas->elements_len = num_nas_elements;
+	nas->header.message_type = ActivateDedicatedBearerContextRequest;
+	nas->header.security_header_type = IntegrityProtectedCiphered;
+	nas->header.proto_discriminator = EPSMobilityManagementMessages;
+	nas->header.eps_bearer_identity = sessionCtxt->getLinkedBearerId();
+	nas->header.seq_no = secContext.getDownlinkCount();
+	secContext.increment_downlink_count();
+
+	nas->elements[0].pduElement.esm_msg.eps_bearer_id =
+	                bearerCtxt_p->getBearerId();
+	/* If the procedure was triggered by the transport of user data
+         * via the control plane, the network shall set the PTI value in
+         * the EPS bearer context related request message to
+         * "no procedure transaction identity assigned" - Spec 24.301 sec: 6.3.2 */
+	nas->elements[0].pduElement.esm_msg.procedure_trans_identity = 0;
+	nas->elements[0].pduElement.esm_msg.proto_discriminator =
+	                EPSSessionManagementMessage;
+	nas->elements[0].pduElement.esm_msg.session_management_msgs =
+	                ActivateDedicatedBearerContextRequest;
+
+	MmeNasUtils::encode_eps_qos(bearerCtxt_p->getBearerQos(),
+	                nas->elements[0].pduElement.esm_msg.eps_qos);
+
+	nas->elements[0].pduElement.esm_msg.tft.len =
+	                bearerCtxt_p->getBearerTftLen();
+	memcpy(nas->elements[0].pduElement.esm_msg.tft.data,
+	                bearerCtxt_p->getBearerTft(), 32);
+}
+
 uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasPDU *nas)
 {
     nasBuffer->pos = 0;
     uint8_t value = (nas->header.security_header_type << 4 | nas->header.proto_discriminator);
+    buffer_copy(nasBuffer, &value, sizeof(value));
     uint8_t spare_half_oct = 0;
     uint8_t mac_data_pos = 0;
     buffer_copy(nasBuffer, &nas->header.mac, MAC_SIZE);
@@ -1812,7 +1852,7 @@ uint8_t MmeNasUtils::encode_act_ded_br_req(struct Buffer *nasBuffer, struct nasP
     value = (nas->elements[0].pduElement.esm_msg.eps_bearer_id << 4) |
 	        (nas->elements[0].pduElement.esm_msg.proto_discriminator);
     buffer_copy(nasBuffer, &value, sizeof(value));
-    buffer_copy(nasBuffer, & nas->header.procedure_trans_identity, sizeof(uint8_t));
+    buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.procedure_trans_identity, sizeof(uint8_t));
     buffer_copy(nasBuffer, & nas->elements[0].pduElement.esm_msg.session_management_msgs, sizeof(uint8_t));
     value = (spare_half_oct << 4) | nas->header.eps_bearer_identity;
     buffer_copy(nasBuffer, &value, sizeof(value));
@@ -2322,20 +2362,19 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 		{
 			log_msg(LOG_DEBUG, "Encoding Activate Dedicated Bearer Context Req NAS message in mme-app\n");
 			uint8_t mac_data_pos = MmeNasUtils::encode_act_ded_br_req(nasBuffer, nas);
-
+			
 			/* Calculate mac */
-                        uint8_t direction = 1;
-                        uint8_t bearer = 0;
-                        unsigned char int_key[NAS_INT_KEY_SIZE];
-                        secContext.getIntKey(&int_key[0]);
-            		nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
-                        calculate_mac(int_key, nas->dl_count, direction,
-                                                        bearer, &nasBuffer->buf[mac_data_pos],
-                                                        nasBuffer->pos - mac_data_pos,
-                                                        &nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
+			uint8_t direction = 1;
+			uint8_t bearer = 0;
+			unsigned char int_key[NAS_INT_KEY_SIZE];
+			secContext.getIntKey(&int_key[0]);
+			nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+			calculate_mac(int_key, nas->dl_count, direction,
+									bearer, &nasBuffer->buf[mac_data_pos],
+									nasBuffer->pos - mac_data_pos,
+									&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 			break;
-		}	
-
+		}
 		default:
 			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app\n");
 	}

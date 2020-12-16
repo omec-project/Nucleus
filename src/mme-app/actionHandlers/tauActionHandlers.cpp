@@ -153,8 +153,9 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 
 	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
 	{
-    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_TAU_PROC_SUCCESS);
-		MmeContextManagerUtils::deallocateProcedureCtxt(cb, tau_c );
+	    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_TAU_PROC_SUCCESS);
+
+		MmeContextManagerUtils::deallocateProcedureCtxt(cb, prcdCtxt_p );
 	}
 	ProcedureStats::num_of_tau_response_to_ue_sent++;
 

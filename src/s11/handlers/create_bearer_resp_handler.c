@@ -67,39 +67,44 @@ cb_resp_processing(struct CB_RESP_Q_msg *cb_resp_msg)
 	msgData.bearerContextsCount = cb_resp_msg->bearer_ctxt_cb_resp_list.bearers_count;
 	for(int i = 0; i < msgData.bearerContextsCount; i++)
 	{
-	    msgData.bearerContexts[i].epsBearerId.epsBearerId = cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].eps_bearer_id;
-	    
-	    msgData.bearerContexts[i].cause.causeValue = cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].cause.data;
+        msgData.bearerContexts[i].epsBearerId.epsBearerId =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].eps_bearer_id;
 
-	    msgData.bearerContexts[i].s1UEnodebFTeidIePresent = true;
-	    msgData.bearerContexts[i].s1UEnodebFTeid.ipv4present = 
-		    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.v4;
-	    msgData.bearerContexts[i].s1UEnodebFTeid.interfaceType = 
-		    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.iface_type;
-	    msgData.bearerContexts[i].s1UEnodebFTeid.teidGreKey =
-		    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.teid_gre;
-	    msgData.bearerContexts[i].s1UEnodebFTeid.ipV4Address.ipValue =
-		    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.ip.ipv4.s_addr;
+        msgData.bearerContexts[i].cause.causeValue =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].cause.cause;
 
-	    msgData.bearerContexts[i].s1USgwFTeidIePresent = true;
-            msgData.bearerContexts[i].s1USgwFTeid.ipv4present =
-                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.v4;
-            msgData.bearerContexts[i].s1USgwFTeid.interfaceType =
-                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.iface_type;
-            msgData.bearerContexts[i].s1USgwFTeid.teidGreKey =
-                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.teid_gre;
-            msgData.bearerContexts[i].s1USgwFTeid.ipV4Address.ipValue =
-                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.ip.ipv4.s_addr;
+        msgData.bearerContexts[i].s1UEnodebFTeidIePresent = true;
+        msgData.bearerContexts[i].s1UEnodebFTeid.ipv4present =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.v4;
+        msgData.bearerContexts[i].s1UEnodebFTeid.interfaceType =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.iface_type;
+        msgData.bearerContexts[i].s1UEnodebFTeid.teidGreKey =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.header.teid_gre;
+        msgData.bearerContexts[i].s1UEnodebFTeid.ipV4Address.ipValue =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_enb_fteid.ip.ipv4.s_addr;
 
-	    if(cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length > 0)
-	    {
-	        msgData.bearerContexts[i].protocolConfigurationOptionsIePresent = true;
-		msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
-				cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length;
-		memcpy(msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values, 
-				cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_options,
-				cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
-	    }
+        msgData.bearerContexts[i].s1USgwFTeidIePresent = true;
+        msgData.bearerContexts[i].s1USgwFTeid.ipv4present =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.v4;
+        msgData.bearerContexts[i].s1USgwFTeid.interfaceType =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.iface_type;
+        msgData.bearerContexts[i].s1USgwFTeid.teidGreKey =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.header.teid_gre;
+        msgData.bearerContexts[i].s1USgwFTeid.ipV4Address.ipValue =
+                cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].s1u_sgw_teid.ip.ipv4.s_addr;
+
+        if (cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length
+                > 0)
+        {
+            msgData.bearerContexts[i].protocolConfigurationOptionsIePresent =
+                    true;
+            msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
+                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length;
+            memcpy(
+                    msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values,
+                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_options,
+                    cb_resp_msg->bearer_ctxt_cb_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
+        }
 
 	}
 

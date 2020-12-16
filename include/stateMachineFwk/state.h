@@ -53,6 +53,7 @@ namespace SM
 
 	      	uint32_t getStateGuardTimeoutDuration() const;
 
+	      	bool isEventHandled(uint16_t eventId);
 
    	protected:
       		uint16_t stateID;

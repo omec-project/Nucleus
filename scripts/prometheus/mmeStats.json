@@ -155,6 +155,32 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+	{
+            "name" : "nas_act_ded_br_ctxt_acpt",
+            "help" : "number of NAS act ded bearer accept message received by MME",
+            "label_0": [
+                { "interface":"nas"}
+            ],
+            "label_1": [
+                {"msg_type": "act_ded_br_ctxt_acpt"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "nas_act_ded_br_ctxt_rjct",
+            "help" : "number of NAS act ded bearer reject message received by MME",
+            "label_0": [
+                { "interface":"nas"}
+            ],
+            "label_1": [
+                {"msg_type": "act_ded_br_ctxt_rjct"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s1ap_release_request",
             "help" : "number of s1ap release request received by MME",
@@ -222,7 +248,7 @@
         },      
         { 
             "name" : "s1ap_handover_request_ack",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Handover request ack received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -235,7 +261,7 @@
         },
         { 
             "name" : "s1ap_handover_notify",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Handover notify received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -248,7 +274,7 @@
         },
         { 
             "name" : "s1ap_handover_required",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Handover required received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -261,7 +287,7 @@
         },
         { 
             "name" : "s1ap_enb_status_transfer",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap enb status transfer received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -274,7 +300,7 @@
         },
         { 
             "name" : "s1ap_handover_cancel",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Handover cancel received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -287,7 +313,7 @@
         },
         { 
             "name" : "s1ap_handover_failure",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Handover failure received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
@@ -300,12 +326,25 @@
         },
         { 
             "name" : "s1ap_erab_modification_indication",
-            "help" : "number of s1ap TAU request received by MME",
+            "help" : "number of s1ap Erab modification indication received by MME",
             "label_0": [
                 { "interface":"s1ap"}
             ],
             "label_1": [
                 {"msg_type": "erab_modification_indication"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "s1ap_erab_setup_response",
+            "help" : "number of s1ap Erab setup response received by MME",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "erab_setup_response"}
             ],
             "dynamic_label_0": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -423,6 +462,19 @@
             ],
             "label_1": [
                 {"msg_type": "downlink_notification_indication"}
+            ],
+            "dynamic_label_0": [
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
+        {
+            "name" : "s11_create_bearer_request",
+            "help" : "number of create bearer request received by MME",
+            "label_0": [
+                { "interface":"s11"}
+            ],
+            "label_1": [
+                {"msg_type": "create_bearer_request"}
             ],
             "dynamic_label_0": [
                 {"sgw_addr" : "sgw address of s11 connection "}
@@ -555,6 +607,20 @@
             ],
             "label_1": [
                 {"msg_type": "tau_response"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+
+        {
+            "name" : "nas_act_ded_br_ctxt_request",
+            "help" : "number of act ded bearer request sent to UE",
+            "label_0": [
+                { "interface":"nas"}
+            ],
+            "label_1": [
+                {"msg_type": "act_ded_br_ctxt_request"}
             ],
             "dynamic_label_0": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -714,6 +780,19 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "s1ap_erab_setup_request",
+            "help" : "number of erab setup request sent to eNB",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "erab_setup_request"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s11_create_session_request",
             "help" : "number of CSReq sent by MME",
@@ -774,6 +853,19 @@
             ],
             "label_1": [
                 {"msg_type": "release_bearer_request"}
+            ],
+            "dynamic_label_0": [
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
+        {
+            "name" : "s11_create_bearer_response",
+            "help" : "number of create bearer response sent by MME",
+            "label_0": [
+                { "interface":"s11"}
+            ],
+            "label_1": [
+                {"msg_type": "create_bearer_response"}
             ],
             "dynamic_label_0": [
                 {"sgw_addr" : "sgw address of s11 connection "}
@@ -926,6 +1018,7 @@
             ],
             "label_1": [
                 { "init_by":"ddn_init"},
+                { "init_by":"pgw_init"},
                 { "init_by":"ue_init"}
             ],
             "dynamic_label_0": [
@@ -1018,6 +1111,60 @@
             "help" : "erab modification indication indication procedure results",
             "label_0": [
                 { "procedure":"ERAB_MOD_IND_PROC"}
+            ],
+            "label_1": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ],
+            "dynamic_label_1": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "create_bearer_proc",
+            "help" : "number of create bearer request procedure started by MME",
+            "label_0": [
+                { "procedure":"CREATE_BEARER_PROC"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "create_bearer_proc_result",
+            "help" : "create bearer request indication procedure results",
+            "label_0": [
+                { "procedure":"CREATE_BEARER_PROC"}
+            ],
+            "label_1": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ],
+            "dynamic_label_1": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "ded_bearer_activation_proc",
+            "help" : "number of ded bearer activation procedure started by MME",
+            "label_0": [
+                { "procedure":"DED_BEARER_ACTIVATION_PROC"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "ded_bearer_activation_proc_result",
+            "help" : "ded_bearer_activation procedure results",
+            "label_0": [
+                { "procedure":"DED_BEARER_ACTIVATION_PROC"}
             ],
             "label_1": [
                 {"proc_result": "success"},

@@ -60,6 +60,12 @@ void PagingStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_paging_req_to_ue);
+                actionTable.setNextState(PagingWfServiceReq::Instance());
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(GW_CP_REQ_INIT_PAGING, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_paging_req_to_ue);
                 actionTable.addAction(&ActionHandlers::send_ddn_ack_to_sgw);
                 actionTable.setNextState(PagingWfServiceReq::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DDN_FROM_SGW, actionTable));

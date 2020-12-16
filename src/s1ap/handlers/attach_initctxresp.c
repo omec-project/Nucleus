@@ -49,12 +49,16 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
                 }break;
             case S1AP_ERAB_SETUP_CTX_SUR:
                 {
+		    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.count = s1_ics_ies.data[i].val.erab.no_of_elements;
                     for(int j = 0; j < s1_ics_ies.data[i].val.erab.no_of_elements; j++)
                     {
                         /*TBD: Handle multiple erabs in ics rsp*/
-	                    ics_resp.msg_data.initctx_resp_Q_msg_m.transp_layer_addr = s1_ics_ies.data[i].val.erab.elements[j].su_res.transp_layer_addr;
-	                    ics_resp.msg_data.initctx_resp_Q_msg_m.gtp_teid = s1_ics_ies.data[i].val.erab.elements[j].su_res.gtp_teid;
-                        break;
+			    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].e_RAB_ID =
+				    s1_ics_ies.data[i].val.erab.elements[j].su_res.eRAB_id;
+	                    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].transportLayerAddress =
+				    s1_ics_ies.data[i].val.erab.elements[j].su_res.transp_layer_addr;
+	                    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].gtp_teid =
+				    s1_ics_ies.data[i].val.erab.elements[j].su_res.gtp_teid;
                     }
                 }break;
             default:

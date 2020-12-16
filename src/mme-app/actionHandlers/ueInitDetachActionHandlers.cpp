@@ -216,8 +216,10 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &detach_accpt, sizeof(detach_accpt), destAddr);
 	
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, detach_c );
-  	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
+	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
+
+	MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p );
 
 	MmContext* mmCtxt = ue_ctxt->getMmContext();
 	VERIFY_UE(cb, mmCtxt, "Invalid UE\n");

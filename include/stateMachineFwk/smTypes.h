@@ -8,8 +8,13 @@
 #define INCLUDE_STATEMACHFWK_SMTYPES_H_
 
 #include <map>
+#include <event.h>
 
 using namespace std;
+
+namespace cmn {
+class EventMessage;
+}
 
 namespace SM{
 
@@ -18,22 +23,46 @@ class ActionTable;
 class TempDataBlock;
 class Event;
 
+/******************************************************************
+ * enum ActStatus
+ * Indicates the status of execution of an Action.
+ * PROCEED: Continues execution of next action
+ * in the action table. Next State is set only if the ActStatus
+ * is PROCEED
+ * ABORT: Aborts execution of remaining actions. In addition,
+ * SM frameworks fires a default 'ABORT_EVENT' on the current tempdata block.
+ * Action handlers for ABORT_EVENT should not use 'ABORT' return codes.
+ * BREAK: Stops execution of subsequent actions. Next State is
+ * also not set.
+ * HALT: Stops execution of subsequent actions. Any remaining events
+ * queued in the event q will be ignored.
+ */
 enum ActStatus
 {
 	PROCEED,
-	HALT,
-	ABORT
+	ABORT,
+	BREAK,
+    HALT
 };
 
-/* IGNORE : Event will be ignored by the current procedure
- * CONSUME: Event will be processed by the current procedure */
+/******************************************************************
+ * enum EventStatus
+ * Used by the event validator to denote whether an event is
+ * intended for a specific procedure block or not.
+ * IGNORE : Event will be ignored by the procedure block.
+ * CONSUME: Event will be processed by the procedure block.
+ * FORWARD: Event is not meant for the current procedure block, SM forwards
+ * the event to the next procedure block in the list for its validation.
+ * CONSUME_AND_FORWARD: Event is to be consumed by the current procedure
+ * as well as forwarded to other procedures for their validation.
+ */
 enum EventStatus
 {
     IGNORE,
-    CONSUME
-    // TODO: Concurrent procedure support
-    // FORWARD,
-    // CONSUME_AND_FORWARD,
+    CONSUME,
+    FORWARD,
+    CONSUME_AND_FORWARD,
+    INVALID_STATUS
 };
 
 enum ControlBlockState
@@ -116,7 +145,25 @@ private:
     StateIdToStringMap stateToStringMap;
 
 };
-        
+
+class StateMachineContext
+{
+public:
+    Event evt;
+    TempDataBlock* tempDataBlock_mp;
+
+    StateMachineContext():evt(),
+            tempDataBlock_mp(NULL)
+    {
+    }
+
+    void clear()
+    {
+        tempDataBlock_mp = NULL;
+        static Event dummyEvt;
+        evt = dummyEvt;
+    }
+};
 
 }
 

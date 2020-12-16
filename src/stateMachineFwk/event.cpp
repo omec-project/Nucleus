@@ -23,12 +23,12 @@ using namespace std;
 namespace SM
 {
 	Event::Event():
-		eventID(), eventData_p(NULL)
+		eventID(), eventData()
 	{
 	}
 
-	Event::Event(uint16_t evtID, cmn::EventMessage * ptr)
-	  	:eventID(evtID), eventData_p(ptr)
+	Event::Event(uint16_t evtID, cmn::EventMsgShPtr ptr)
+	  	:eventID(evtID), eventData(ptr)
 	{
 	}
 
@@ -36,13 +36,13 @@ namespace SM
 	{
 	}
 
-	cmn::EventMessage* Event::getEventData() const
+	cmn::EventMsgShPtr Event::getEventData() const
 	{
-		return eventData_p;
+		return eventData;
 	}
 
 	void Event::display()
 	{
-        	log_msg(LOG_DEBUG,"Event ID - %d",eventID);
+        	log_msg(LOG_DEBUG, "Event ID - %d", eventID);
 	}
 }

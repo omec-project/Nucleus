@@ -38,10 +38,16 @@ public:
     static S1HandoverProcedureContext*
     allocateHoContext(SM::ControlBlock& cb_r);
 
-    static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
+    static MmeSmCreateBearerProcCtxt*
+	allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r);
+
+    static SmDedActProcCtxt*
+	allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r);
+
+    static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType, uint8_t bearerId = 0);
 
 	static bool deleteProcedureCtxt(MmeProcedureCtxt* procedure_p);
-	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType);
+	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, MmeProcedureCtxt* procedure_p);
 	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r);
 
 	static void deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag=true);
@@ -58,6 +64,9 @@ public:
     static void
     deallocateBearerContext(SM::ControlBlock& cb_r, BearerContext *bearerCtxt_p,
             SessionContext *sessionCtxt_p=NULL, UEContext *ueCtxt_p=NULL);
+
+    static BearerContext*
+	findBearerContext(uint8_t bearerId, UEContext *ueCtxt_p, SessionContext *sessionCtxt_p=NULL);
 
 private:
 	MmeContextManagerUtils();

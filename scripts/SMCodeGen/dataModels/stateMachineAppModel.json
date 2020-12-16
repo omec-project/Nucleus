@@ -70,6 +70,20 @@
                                     "DEFAULT_ERAB_MOD_INDICATION_HANDLER"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"CREATE_BEARER_REQ_FROM_GW",
+                                "Actions":[
+                                    "DEFAULT_CREATE_BEARER_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"PAGING_FAILURE",
+                                "Actions":[
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -856,6 +870,13 @@
                         "Name":"paging_start",
                         "Events":[
                             {
+                                "Name":"GW_CP_REQ_INIT_PAGING",
+                                "Actions":[
+                                    "SEND_PAGING_REQ_TO_UE"
+                                ],
+                                "NextState":"paging_wf_service_req"
+                            },
+                            {
                                 "Name":"DDN_FROM_SGW",
                                 "Actions":[
                                     "SEND_PAGING_REQ_TO_UE",
@@ -1042,6 +1063,15 @@
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
@@ -1240,18 +1270,18 @@
                         ]
                     },
                     {
-		        "Name":"erab_mod_ind_wf_mb_resp",
+                        "Name":"erab_mod_ind_wf_mb_resp",
                         "Events":[
                             {
-				"Name":"MB_RESP_FROM_SGW",
-				"Actions":[
-				    "PROCESS_MB_RESP_SVC_REQ",
-				    "SEND_ERAB_MOD_CONF_TO_ENB",
-				    "ERAB_MOD_IND_COMPLETE"
-				],
-				"NextState":"end_state"
+                                "Name":"MB_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_MB_RESP_SVC_REQ",
+                                    "SEND_ERAB_MOD_CONF_TO_ENB",
+                                    "ERAB_MOD_IND_COMPLETE"
+                                ],
+                                "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "ABORT_ERAB_MOD_INDICATION"
@@ -1270,6 +1300,241 @@
                     }
                 ],
                 "Properties":[
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ]
+            },
+            {
+                "Name":"CREATE_BEARER_PROCEDURE",
+                "States":[
+                    {
+                        "Name":"create_bearer_start",
+                        "Events":[
+                            {
+                                "Name":"GW_CP_REQ_INIT_PAGING",
+                                "Actions":[],
+                                "NextState":"create_bearer_wf_paging_complete"
+                            },
+                            {
+                                "Name":"CREATE_BEARER_START",
+                                "Actions":[
+                                    "INIT_DED_BEARER_ACTIVATION",
+                                    "SEND_BEARER_SETUP_AND_SESS_MGMT_REQ"
+                                ],
+                                "NextState":"create_bearer_wf_ded_act_complete"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_CREATE_BEARER_RESPONSE",
+                                    "ABORT_CREATE_BEARER_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"create_bearer_wf_paging_complete",
+                        "Events":[
+                            {
+                                "Name":"PAGING_COMPLETE",
+                                "Actions":[
+                                    "INIT_DED_BEARER_ACTIVATION",
+                                    "SEND_BEARER_SETUP_AND_SESS_MGMT_REQ"
+                                ],
+                                "NextState":"create_bearer_wf_ded_act_complete"
+                            },
+                            {
+                                "Name":"PAGING_FAILURE",
+                                "Actions":[
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_CREATE_BEARER_RESPONSE",
+                                    "ABORT_CREATE_BEARER_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout" : "12000"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"create_bearer_wf_ded_act_complete",
+                        "Events":[
+                            {
+                                "Name":"DED_ACT_COMPLETE",
+                                "Actions":[
+                                    "HANDLE_DED_ACT_CMP_IND",
+                                    "SEND_CREATE_BEARER_RESPONSE",
+                                    "CREATE_BEARER_PROC_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_CREATE_BEARER_RESPONSE",
+                                    "ABORT_CREATE_BEARER_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ],
+                        "Properties": [
+                    	    {
+                                "timeout" : "12000"
+                            }
+                	]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ]
+            },
+            {
+                "Name":"DED_BEARER_ACT_PROCEDURE",
+                "States":[
+                    {
+                        "Name":"ded_act_start",
+                        "Events":[
+                            {
+                                "Name":"GW_INIT_DED_BEARER_AND_SESSION_SETUP",
+                                "Actions":[
+
+                                ],
+                                "NextState":"ded_act_wf_bearer_and_session_setup"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"ded_act_wf_bearer_and_session_setup",
+                        "Events":[
+                            {
+                                "Name":"ERAB_SETUP_RESP_FROM_ENB",
+                                "Actions":[
+                                    "PROCESS_ERAB_SETUP_RESPONSE"
+                                ],
+                                "NextState":"ded_act_wf_session_setup"
+                            },
+                            {
+                                "Name":"ACT_DED_BEARER_ACCEPT_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_ACT_DED_BEARER_ACCEPT"
+                                ],
+                                "NextState":"ded_act_wf_bearer_setup"
+                            },
+                            {
+                                "Name":"ACT_DED_BEARER_REJECT_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_ACT_DED_BEARER_REJECT",
+                                    "ABORT_DED_ACTIVATION"
+                                ],
+                                "NextState":"ded_act_wf_bearer_setup"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_DED_ACTIVATION"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"ded_act_wf_session_setup",
+                        "Events":[
+                            {
+                                "Name":"ACT_DED_BEARER_ACCEPT_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_ACT_DED_BEARER_ACCEPT",
+                                    "DED_ACT_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ACT_DED_BEARER_REJECT_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_ACT_DED_BEARER_REJECT",
+                                    "ABORT_DED_ACTIVATION"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_DED_ACTIVATION"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"ded_act_wf_bearer_setup",
+                        "Events":[
+                            {
+                                "Name":"ERAB_SETUP_RESP_FROM_ENB",
+                                "Actions":[
+                                    "PROCESS_ERAB_SETUP_RESPONSE",
+                                    "DED_ACT_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_DED_ACTIVATION"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    }
+                ],
+                "Properties": [
                     {
                         "stateGuardTimerFeature" : "enabled"
                     }

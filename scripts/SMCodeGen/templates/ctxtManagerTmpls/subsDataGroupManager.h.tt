@@ -3,7 +3,7 @@
  [%- PROCESS templates/ctxtManagerTmpls/commonMacro.tt | trim -%]
  [%- ifdefStr = String.new(DataGroup.DgName).upper.text() -%]
 /*
- * Copyright 2019-present, Infosys Limited.
+ * Copyright [%CURRENTYEAR%]-present, Infosys Limited.
  *
  * SPDX-License-Identifier: Apache-2.0
  */

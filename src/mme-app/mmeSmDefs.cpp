@@ -23,6 +23,8 @@ SM::SmUtility* smUtil = SM::SmUtility::Instance();
 void populateEventStringMap()
 {
     smUtil->addEventToStrEntry(ABORT_EVENT,"ABORT_EVENT");      
+    smUtil->addEventToStrEntry(ACT_DED_BEARER_ACCEPT_FROM_UE,"ACT_DED_BEARER_ACCEPT_FROM_UE");      
+    smUtil->addEventToStrEntry(ACT_DED_BEARER_REJECT_FROM_UE,"ACT_DED_BEARER_REJECT_FROM_UE");      
     smUtil->addEventToStrEntry(AIA_FROM_HSS,"AIA_FROM_HSS");      
     smUtil->addEventToStrEntry(ATT_CMP_FROM_UE,"ATT_CMP_FROM_UE");      
     smUtil->addEventToStrEntry(ATTACH_REQ_FROM_UE,"ATTACH_REQ_FROM_UE");      
@@ -31,8 +33,11 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(AUTH_RESP_SUCCESS,"AUTH_RESP_SUCCESS");      
     smUtil->addEventToStrEntry(AUTH_RESP_SYNC_FAILURE,"AUTH_RESP_SYNC_FAILURE");      
     smUtil->addEventToStrEntry(CLR_FROM_HSS,"CLR_FROM_HSS");      
+    smUtil->addEventToStrEntry(CREATE_BEARER_REQ_FROM_GW,"CREATE_BEARER_REQ_FROM_GW");      
+    smUtil->addEventToStrEntry(CREATE_BEARER_START,"CREATE_BEARER_START");      
     smUtil->addEventToStrEntry(CS_RESP_FROM_SGW,"CS_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(DDN_FROM_SGW,"DDN_FROM_SGW");      
+    smUtil->addEventToStrEntry(DED_ACT_COMPLETE,"DED_ACT_COMPLETE");      
     smUtil->addEventToStrEntry(DEFAULT_EVENT,"DEFAULT_EVENT");      
     smUtil->addEventToStrEntry(DEL_SESSION_RESP_FROM_SGW,"DEL_SESSION_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(DETACH_ACCEPT_FROM_UE,"DETACH_ACCEPT_FROM_UE");      
@@ -40,9 +45,12 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(ENB_STATUS_TRANFER_FROM_SRC_ENB,"ENB_STATUS_TRANFER_FROM_SRC_ENB");      
     smUtil->addEventToStrEntry(eRAB_MOD_IND_START,"eRAB_MOD_IND_START");      
     smUtil->addEventToStrEntry(ERAB_MOD_INDICATION_FROM_ENB,"ERAB_MOD_INDICATION_FROM_ENB");      
+    smUtil->addEventToStrEntry(ERAB_SETUP_RESP_FROM_ENB,"ERAB_SETUP_RESP_FROM_ENB");      
     smUtil->addEventToStrEntry(ESM_INFO_NOT_REQUIRED,"ESM_INFO_NOT_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_REQUIRED,"ESM_INFO_REQUIRED");      
     smUtil->addEventToStrEntry(ESM_INFO_RESP_FROM_UE,"ESM_INFO_RESP_FROM_UE");      
+    smUtil->addEventToStrEntry(GW_CP_REQ_INIT_PAGING,"GW_CP_REQ_INIT_PAGING");      
+    smUtil->addEventToStrEntry(GW_INIT_DED_BEARER_AND_SESSION_SETUP,"GW_INIT_DED_BEARER_AND_SESSION_SETUP");      
     smUtil->addEventToStrEntry(HO_CANCEL_REQ_FROM_SRC_ENB,"HO_CANCEL_REQ_FROM_SRC_ENB");      
     smUtil->addEventToStrEntry(HO_FAILURE_FROM_TARGET_ENB,"HO_FAILURE_FROM_TARGET_ENB");      
     smUtil->addEventToStrEntry(HO_NOTIFY_FROM_ENB,"HO_NOTIFY_FROM_ENB");      
@@ -55,6 +63,8 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(INTRA_S1HO_START,"INTRA_S1HO_START");      
     smUtil->addEventToStrEntry(MB_RESP_FROM_SGW,"MB_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(MME_INIT_DETACH,"MME_INIT_DETACH");      
+    smUtil->addEventToStrEntry(PAGING_COMPLETE,"PAGING_COMPLETE");      
+    smUtil->addEventToStrEntry(PAGING_FAILURE,"PAGING_FAILURE");      
     smUtil->addEventToStrEntry(PURGE_RESP_FROM_HSS,"PURGE_RESP_FROM_HSS");      
     smUtil->addEventToStrEntry(REL_AB_RESP_FROM_SGW,"REL_AB_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(S1_REL_REQ_FROM_UE,"S1_REL_REQ_FROM_UE");      
@@ -87,6 +97,13 @@ void populateStateStringMap()
     smUtil->addStateToStrEntry(attach_wf_mb_resp,"attach_wf_mb_resp");
     smUtil->addStateToStrEntry(attach_wf_sec_cmp,"attach_wf_sec_cmp");
     smUtil->addStateToStrEntry(attach_wf_ula,"attach_wf_ula");
+    smUtil->addStateToStrEntry(create_bearer_start,"create_bearer_start");
+    smUtil->addStateToStrEntry(create_bearer_wf_ded_act_complete,"create_bearer_wf_ded_act_complete");
+    smUtil->addStateToStrEntry(create_bearer_wf_paging_complete,"create_bearer_wf_paging_complete");
+    smUtil->addStateToStrEntry(ded_act_start,"ded_act_start");
+    smUtil->addStateToStrEntry(ded_act_wf_bearer_and_session_setup,"ded_act_wf_bearer_and_session_setup");
+    smUtil->addStateToStrEntry(ded_act_wf_bearer_setup,"ded_act_wf_bearer_setup");
+    smUtil->addStateToStrEntry(ded_act_wf_session_setup,"ded_act_wf_session_setup");
     smUtil->addStateToStrEntry(default_mme_state,"default_mme_state");
     smUtil->addStateToStrEntry(detach_start,"detach_start");
     smUtil->addStateToStrEntry(detach_wf_del_session_resp,"detach_wf_del_session_resp");

@@ -75,11 +75,11 @@ handle_mmeapp_message_s11(void * data)
 		ddn_ack_handler(msg);
 		break;
 	case create_bearer_response:
-        	create_bearer_resp_handler(msg);
-        	break;
+		create_bearer_resp_handler(msg);
+		break;
 	case delete_bearer_response:
-        	delete_bearer_resp_handler(msg);
-        	break;
+		delete_bearer_resp_handler(msg);
+		break;
 	default:
 		break;
 	}

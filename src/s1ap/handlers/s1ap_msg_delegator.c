@@ -605,7 +605,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         if(proto_ies->data[i].val.erab.elements == NULL)
                         {
                             log_msg(LOG_ERROR,"Malloc failed for protocol IE: Erab elements.");
-                            break;;
+                            break;
                         }
                         for (int j = 0; 
                              j < s1apErabSetupList_p->list.count; j++) 
@@ -628,20 +628,39 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 
                                         proto_ies->data[i].val.erab.elements[j].su_res.eRAB_id 
                                                  = (unsigned short)s1apErabSetupItem_p->e_RAB_ID;
-                                        memcpy(
-                                            &(proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid),
-                                            s1apErabSetupItem_p->gTP_TEID.buf,
-                                            s1apErabSetupItem_p->gTP_TEID.size);
-                                        proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid
-                                            = ntohl(proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid);
 
-                                        memcpy(
-                                           &(proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr),
-                                            s1apErabSetupItem_p->transportLayerAddress.buf,
-                                            s1apErabSetupItem_p->transportLayerAddress.size);
-                                        proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr
-                                            = ntohl(proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr);
-                                        s1apErabSetupItem_p = NULL;
+					if(s1apErabSetupItem_p->gTP_TEID.buf != NULL)
+					{
+                                            memcpy(
+                                                &(proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid),
+                                                s1apErabSetupItem_p->gTP_TEID.buf,
+                                                s1apErabSetupItem_p->gTP_TEID.size);
+                                            proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid
+                                                = ntohl(proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid);
+
+					}
+					else
+					{
+                                            log_msg(LOG_ERROR,
+                                            "Decoding of IE E_RABSetupItemCtxtSURes->gTP_TEID failed\n");
+                                            return -1;
+                                        }
+
+					if(s1apErabSetupItem_p->transportLayerAddress.buf != NULL)
+					{
+                                            memcpy(
+                                                &(proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr),
+                                                s1apErabSetupItem_p->transportLayerAddress.buf,
+                                                s1apErabSetupItem_p->transportLayerAddress.size);
+                                            proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr
+                                                = ntohl(proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr);
+					}
+					else
+					{
+					    log_msg(LOG_ERROR,
+                                            "Decoding of IE E_RABSetupItemCtxtSURes->transp_layer_addr failed\n");
+                                            return -1;
+					}
                                     }break;
                                 default:
                                     {
@@ -650,8 +669,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                             }
                         }
 
-						s1apErabSetupList_p = NULL;
-					} break;
+		} break;
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
@@ -2008,6 +2026,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
 		if (e_RABSetupList_p != NULL)
 		{
                     proto_ies->data[i].IE_type = S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES;
+
                     proto_ies->data[i].val.erab_su_list.count =
                             e_RABSetupList_p->list.count;
 
@@ -2029,6 +2048,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
 
                         	if (eRabSetupItem_p != NULL)
 				{
+
                       		    proto_ies->data[i].val.erab_su_list.erab_su_item[j].e_RAB_ID =
                                         (uint8_t) eRabSetupItem_p->e_RAB_ID;
 
@@ -2041,6 +2061,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                         		proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid =
                                 	    ntohl(
                                             proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid);
+
 				    }
 				    else
 				    {
@@ -2116,12 +2137,12 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                     		{
                         	    eRabFailedToSetupItem_p = &ie_p->value.choice.E_RABItem;
                     		}
-                    
+
                     		if (eRabFailedToSetupItem_p != NULL)
                     		{
                         	    proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].e_RAB_ID =
                                         (uint8_t) eRabFailedToSetupItem_p->e_RAB_ID;
-                                        
+
                         	    Cause_t *s1apCause_p = &eRabFailedToSetupItem_p->cause;
 				    if(s1apCause_p != NULL)
                         	    {
@@ -2138,6 +2159,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                                             		s1apCause_p->choice.radioNetwork;
                                 	    }break;
                                 	    default:
+
                                     		log_msg(LOG_WARNING, "Unknown cause %d\n", 
                                             			s1apCause_p->present);
                             		}
@@ -2179,4 +2201,3 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
     }
     return 0;
 }
-

@@ -97,11 +97,7 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
             return;
         }
 
-        log_msg(LOG_DEBUG, "State Guard Timeout fired. "
-                "Timer Type %d. Current Time %d\n", mmeTimerCtxt->getTimerId(),
-                time(NULL));
-
-        TimeoutMessage *eMsg = new TimeoutMessage(timerCtxt);
+        TimeoutEMsgShPtr eMsg = std::make_shared<TimeoutMessage>(timerCtxt);
 
         SM::Event evt(STATE_GUARD_TIMEOUT, eMsg);
         controlBlk_p->addEventToProcQ(evt);

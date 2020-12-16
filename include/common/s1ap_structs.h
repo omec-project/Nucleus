@@ -417,6 +417,11 @@ typedef struct erab_setup_item {
 	struct nasPDU nas;
 } erab_setup_item;
 
+typedef struct erab_su_resp_item {
+        uint8_t e_RAB_ID;
+        uint32_t transportLayerAddress;
+        uint32_t gtp_teid;
+} erab_su_resp_item;
 
 struct ERAB_admitted_list{
         int count ;
@@ -428,6 +433,10 @@ typedef struct erab_setup_list {
         erab_setup_item erab_su_item[MAX_ERAB_SIZE];
 }erab_setup_list;
 
+typedef struct erab_su_resp_list {
+        int count ;
+        erab_su_resp_item erab_su_res_item[MAX_ERAB_SIZE];
+}erab_su_resp_list;
 
 #define SECURITY_KEY_SIZE 32
 typedef struct proto_IE_data {

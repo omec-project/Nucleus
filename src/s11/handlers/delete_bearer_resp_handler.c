@@ -42,7 +42,6 @@ extern struct GtpV2Stack* gtpStack_gp;
 static int
 db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 {
-	
 	struct MsgBuffer*  dbRespMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(dbRespMsgBuf_p == NULL)
 	{
@@ -64,27 +63,33 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
     
 	msgData.cause.causeValue = db_resp_msg->cause;
 
-	if(db_resp_msg->bearer_ctxt_db_resp_list.bearers_count > 0)
-	{
-	    msgData.bearerContextsCount = db_resp_msg->bearer_ctxt_db_resp_list.bearers_count;
+    if (db_resp_msg->bearer_ctxt_db_resp_list.bearers_count > 0)
+    {
+        msgData.bearerContextsCount =
+                db_resp_msg->bearer_ctxt_db_resp_list.bearers_count;
 
-	    for(int i=0; i < msgData.bearerContextsCount; i++)
-	    {
-	        msgData.bearerContexts[i].epsBearerId.epsBearerId = db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].eps_bearer_id;
+        for (int i = 0; i < msgData.bearerContextsCount; i++)
+        {
+            msgData.bearerContexts[i].epsBearerId.epsBearerId =
+                    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].eps_bearer_id;
 
-		msgData.bearerContexts[i].cause.causeValue = db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].cause.data;
+            msgData.bearerContexts[i].cause.causeValue =
+                    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].cause.cause;
 
-		if(db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length > 0)
-		{
-		    msgData.bearerContexts[i].protocolConfigurationOptionsIePresent = true;
-		    msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
-				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length;
-		    memcpy(msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values, 
-				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_options,
-				    db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
-		}
-	    }
-	}
+            if (db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length
+                    > 0)
+            {
+                msgData.bearerContexts[i].protocolConfigurationOptionsIePresent =
+                        true;
+                msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.count =
+                        db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length;
+                memcpy(
+                        msgData.bearerContexts[i].protocolConfigurationOptions.pcoValue.values,
+                        db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_options,
+                        db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
+            }
+        }
+    }
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dbRespMsgBuf_p, &gtpHeader, &msgData);
 
@@ -109,4 +114,3 @@ delete_bearer_resp_handler(void *data)
 	db_resp_processing((struct DB_RESP_Q_msg *)data);
 	return NULL;
 }
-

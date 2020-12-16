@@ -37,6 +37,7 @@ struct s1ap_common_req_Q_msg {
 	struct fteid gtp_teid;
 	unsigned char sec_key[32];
 	unsigned char bearer_id;
+	erab_setup_list erab_su_list;
 };
 
 struct s11_req_Q_msg {

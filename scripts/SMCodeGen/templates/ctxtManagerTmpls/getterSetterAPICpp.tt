@@ -1,62 +1,90 @@
+
 	/******************************************************************************
-	* sets [% Data.Name %]
+	* sets [% Item.Name %]
 	******************************************************************************/
-	void [% dataBlockClassName %]::set[% String.new(Data.Name).capital.text() %]( [% ARG(Data,"set") %] )
+	void [% dataBlockClassName %]::set[% String.new(Item.Name).capital.text() %]( [% ARG(Item,"set") %] )
 	{
-	[%-IF Data.Cardinality=='' %]
-		[% Data.Name %]_m = [% Data.Name %]_i;
+	[%-IF Item.Cardinality=='' %]
+		[% Item.Name %]_m = [% Item.Name %]_i;
 	[%-ELSE%]
-		[% Data.Name %]Len_m=len;
-		memcpy([% Data.Name %]_m, [% Data.Name %]_i, ([% Data.Name %]Len_m * sizeof([% Data.Type %])));
+		[% Item.Name %]Len_m=len;
+		memcpy([% Item.Name %]_m, [% Item.Name %]_i, ([% Item.Name %]Len_m * sizeof([% Item.Type %])));
 	[%- END %]
 	}
 	
 	/******************************************************************************
-	* returns [% Data.Name %]
+	* returns [% Item.Name %]
 	******************************************************************************/	
-	[%- getterTypeStr = ARG(Data,"get") %] [%- functionModifier = " const" %]
+	[%- getterTypeStr = ARG(Item,"get") %] [%- functionModifier = " const" %]
         [%- IF !getterTypeStr.grep('const').size && getterTypeStr.grep('&').size == 1 %][%- functionModifier = "" %][%- END %]
-        [% getterTypeStr %] [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]()[% functionModifier %]
+        [% getterTypeStr %] [% dataBlockClassName %]::get[% String.new(Item.Name).capital.text() %]()[% functionModifier %]
         {
-                return [% Data.Name %]_m;
+                return [% Item.Name %]_m;
         }
-	[%-UNLESS Data.Properties =='' %]
-	[%- FOREACH Property = Data.Properties %]
-	[%-IF Property.metrics == "counter" %]
+	[%-IF Item.defined('Properties') == 1 %]
+	[%-IF Item.Properties.metrics == "counter" %]
     
 	/******************************************************************************
-	* increment [% Data.Name %]
+	* increment [% Item.Name %]
 	******************************************************************************/	
-	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
+	void [% dataBlockClassName %]::increment[% String.new(Item.Name).capital.text() %]()
 	{
-		[% Data.Name %]_m = [% Data.Name %]_m + 1;
+		[% Item.Name %]_m = [% Item.Name %]_m + 1;
 	}
-    	[%-ELSIF Property.metrics == "gauge" %]
+    	[%-ELSIF Item.Properties.metrics == "gauge" %]
     
 	/******************************************************************************
-	* increment [% Data.Name %]
+	* increment [% Item.Name %]
 	******************************************************************************/	
-	void [% dataBlockClassName %]::increment[% String.new(Data.Name).capital.text() %]()
+	void [% dataBlockClassName %]::increment[% String.new(Item.Name).capital.text() %]()
 	{
-		[% Data.Name %]_m = [% Data.Name %]_m + 1;
+		[% Item.Name %]_m = [% Item.Name %]_m + 1;
 	}
 
 	/******************************************************************************
-	* decrement [% Data.Name %]
+	* decrement [% Item.Name %]
 	******************************************************************************/	
-	void [% dataBlockClassName %]::decrement[% String.new(Data.Name).capital.text() %]()
+	void [% dataBlockClassName %]::decrement[% String.new(Item.Name).capital.text() %]()
 	{
-		[% Data.Name %]_m = [% Data.Name %]_m - 1;
+		[% Item.Name %]_m = [% Item.Name %]_m - 1;
 	}
-	[%- END %]   
-	[%- END %][%- END %]
-
-	[%-UNLESS Data.Cardinality=='' %]
+	[%- END %]  
+	[%-IF Item.Properties.BitFlag =="true" %]
+    
 	/******************************************************************************
-	* returns [% Data.Name %]Len
+	* set [% Item.Name %]Bit
 	******************************************************************************/	
-	uint16_t [% dataBlockClassName %]::get[% String.new(Data.Name).capital.text() %]Len() const
+	void [% dataBlockClassName %]::set[% String.new(Item.Name).capital.text() %]Bit([% Item.Type %] [% Item.Name %]Bit_i)
 	{
-    		return [% Data.Name %]Len_m;
+		[% Item.Name %]_m |= [% Item.Name %]Bit_i;
+	}
+
+	/******************************************************************************
+	* clear [% Item.Name %]Bit
+	******************************************************************************/	
+	void [% dataBlockClassName %]::clear[% String.new(Item.Name).capital.text() %]Bit([% Item.Type %] [% Item.Name %]Bit_i)
+	{
+		[% Item.Name %]_m &= ~([% Item.Name %]Bit_i);
+	}
+	
+	/******************************************************************************
+	* check [% Item.Name %]Bit
+	******************************************************************************/	
+	bool [% dataBlockClassName %]::check[% String.new(Item.Name).capital.text() %]Bit([% Item.Type %] [% Item.Name %]Bit_i)
+	{
+		if( [% Item.Name %]_m & [% Item.Name %]Bit_i )
+		    return true;
+		return false;	    
+	}
+	[%- END %] 
+    [%- END %]
+
+	[%-UNLESS Item.Cardinality=='' %]
+	/******************************************************************************
+	* returns [% Item.Name %]Len
+	******************************************************************************/	
+	uint16_t [% dataBlockClassName %]::get[% String.new(Item.Name).capital.text() %]Len() const
+	{
+    		return [% Item.Name %]Len_m;
 	}
 	[%- END %]
