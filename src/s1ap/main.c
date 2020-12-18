@@ -432,6 +432,16 @@ start_sctp_threads()
 int
 main(int argc, char **argv)
 {
+	// intentionly add mem leaking code for testing valgrind
+	void f(void) { 
+		int* x = malloc(10 * sizeof(int));
+		x[10] = 0;        // problem 1: heap block overrun
+	}                    // problem 2: memory leak -- x not freed
+
+	printf ("inside main valgrind test\n");
+	f();
+	// end of valgrind mem test
+
 	memcpy (processName, argv[0], strlen(argv[0]));
 	pid = getpid();
 	
