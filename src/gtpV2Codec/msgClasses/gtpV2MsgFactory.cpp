@@ -28,6 +28,8 @@
 #include "downlinkDataNotificationMsg.h"
 #include "downlinkDataNotificationAcknowledgeMsg.h"
 #include "downlinkDataNotificationFailureIndicationMsg.h"
+#include "echoRequestMsg.h"
+#include "echoResponseMsg.h"
 
 static GtpV2MsgFactory gtpV2MsgFactory;
 
@@ -79,6 +81,12 @@ GtpV2MsgFactory::GtpV2MsgFactory()
 
     DownlinkDataNotificationFailureIndicationMsg* downlinkDataNotificationFailureIndicationMsg_p = new (DownlinkDataNotificationFailureIndicationMsg);
     msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(DownlinkDataNotificationFailureIndicationMsgType, downlinkDataNotificationFailureIndicationMsg_p));
+
+    EchoRequestMsg* echoRequestMsg_p = new (EchoRequestMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(EchoRequestMsgType, echoRequestMsg_p));
+
+    EchoResponseMsg* echoResponseMsg_p = new (EchoResponseMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(EchoResponseMsgType, echoResponseMsg_p));
 
 
 }

@@ -709,6 +709,24 @@ typedef struct
     ImsiIeData imsi;
 }DownlinkDataNotificationFailureIndicationMsgData;
 
+typedef struct
+{
+    bool sendingNodeFeaturesIePresent;   
+
+
+    RecoveryIeData recovery;
+    NodeFeaturesIeData sendingNodeFeatures;
+}EchoRequestMsgData;
+
+typedef struct
+{
+    bool sendingNodeFeaturesIePresent;   
+
+
+    RecoveryIeData recovery;
+    NodeFeaturesIeData sendingNodeFeatures;
+}EchoResponseMsgData;
+
 
 //Ie Type Constants
 static const  Uint8  CreateSessionRequestMsgType = 32;    
@@ -726,6 +744,8 @@ static const  Uint8  DeleteBearerResponseMsgType = 100;
 static const  Uint8  DownlinkDataNotificationMsgType = 176;    
 static const  Uint8  DownlinkDataNotificationAcknowledgeMsgType = 177;    
 static const  Uint8  DownlinkDataNotificationFailureIndicationMsgType = 70;    
+static const  Uint8  EchoRequestMsgType = 1;    
+static const  Uint8  EchoResponseMsgType = 2;    
 
 
 #endif 

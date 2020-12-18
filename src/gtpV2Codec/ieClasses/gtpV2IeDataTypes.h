@@ -203,7 +203,7 @@ typedef struct
 
 typedef struct
 {
-    Uint8 restartCounter;    
+    Uint8Array32 restartCounter;    
 
 }RecoveryIeData;
 
@@ -592,6 +592,12 @@ typedef struct
 
 }PagingAndServiceInformationIeData;
 
+typedef struct
+{
+    Uint8 supportedFeatures;    
+
+}NodeFeaturesIeData;
+
 
 //Ie Type Constants
 static const  Uint8  ImsiIeType = 1;    
@@ -662,6 +668,7 @@ static const  Uint8  ApnAndRelativeCapacityIeType = 184;
 static const  Uint8  ArpIeType = 155;    
 static const  Uint8  ThrottlingIeType = 154;    
 static const  Uint8  PagingAndServiceInformationIeType = 186;    
+static const  Uint8  NodeFeaturesIeType = 152;    
 
 
 #endif 

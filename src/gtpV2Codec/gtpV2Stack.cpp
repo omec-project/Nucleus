@@ -31,6 +31,8 @@
 #include "msgClasses/downlinkDataNotificationMsg.h"
 #include "msgClasses/downlinkDataNotificationAcknowledgeMsg.h"
 #include "msgClasses/downlinkDataNotificationFailureIndicationMsg.h"
+#include "msgClasses/echoRequestMsg.h"
+#include "msgClasses/echoResponseMsg.h"
 
 thread_local cmn::utils::Debug errorStream;
 
@@ -391,6 +393,50 @@ GtpV2Stack::encodeMessage (GtpV2MessageHeader & msgHeader,
                 DownlinkDataNotificationFailureIndicationMsg & >(msg).
                 encodeDownlinkDataNotificationFailureIndicationMsg (buffer,
                             downlinkDataNotificationFailureIndicationStackData);
+            }
+            break;
+        }
+        case EchoRequestMsgType:
+        {
+            if (data_p != NULL)
+            {
+                rc =
+               dynamic_cast<
+               EchoRequestMsg & >(msg).
+               encodeEchoRequestMsg(buffer,
+    			     *((EchoRequestMsgData *)
+        			     data_p));
+            }
+            else
+            { 
+                // Application has filled the data structure provided by the stack
+                rc = 
+                dynamic_cast<
+                EchoRequestMsg & >(msg).
+                encodeEchoRequestMsg (buffer,
+                            echoRequestStackData);
+            }
+            break;
+        }
+        case EchoResponseMsgType:
+        {
+            if (data_p != NULL)
+            {
+                rc =
+               dynamic_cast<
+               EchoResponseMsg & >(msg).
+               encodeEchoResponseMsg(buffer,
+    			     *((EchoResponseMsgData *)
+        			     data_p));
+            }
+            else
+            { 
+                // Application has filled the data structure provided by the stack
+                rc = 
+                dynamic_cast<
+                EchoResponseMsg & >(msg).
+                encodeEchoResponseMsg (buffer,
+                            echoResponseStackData);
             }
             break;
         }
@@ -841,6 +887,58 @@ GtpV2Stack::decodeMessage (GtpV2MessageHeader& msgHeader,
             }
             break;
         }
+        case EchoRequestMsgType:
+        {
+            if (data_p != NULL)
+            {
+                rc =
+                dynamic_cast<
+                EchoRequestMsg & >(msg).
+                decodeEchoRequestMsg(buffer,
+                            *(EchoRequestMsgData*)
+                             data_p, msgDataLength);
+            }
+            else
+            { 
+                // Application wants to use the data structure provided by the stack
+                // let us first clear any data present in the internal data structure
+                memset (&echoRequestStackData, 0,
+                sizeof (EchoRequestMsgData));
+                rc =
+                dynamic_cast<
+                EchoRequestMsg & >(msg).
+                decodeEchoRequestMsg(buffer,
+                            echoRequestStackData,
+                            msgDataLength);
+            }
+            break;
+        }
+        case EchoResponseMsgType:
+        {
+            if (data_p != NULL)
+            {
+                rc =
+                dynamic_cast<
+                EchoResponseMsg & >(msg).
+                decodeEchoResponseMsg(buffer,
+                            *(EchoResponseMsgData*)
+                             data_p, msgDataLength);
+            }
+            else
+            { 
+                // Application wants to use the data structure provided by the stack
+                // let us first clear any data present in the internal data structure
+                memset (&echoResponseStackData, 0,
+                sizeof (EchoResponseMsgData));
+                rc =
+                dynamic_cast<
+                EchoResponseMsg & >(msg).
+                decodeEchoResponseMsg(buffer,
+                            echoResponseStackData,
+                            msgDataLength);
+            }
+            break;
+        }
     }
     return rc;
 }
@@ -1168,6 +1266,48 @@ GtpV2Stack::display_v(Uint8 msgType, Debug& stream, void* data_p)
             DownlinkDataNotificationFailureIndicationMsg & >(msg).
             displayDownlinkDataNotificationFailureIndicationMsgData_v
                         (downlinkDataNotificationFailureIndicationStackData, stream);
+            }
+           break;
+        }
+        case EchoRequestMsgType:
+        {
+            stream.add ((char *)"Message: EchoRequestMsg");
+            stream.endOfLine ();
+            if (data_p != NULL)
+            {
+            dynamic_cast<
+            EchoRequestMsg & >(msg).
+            displayEchoRequestMsgData_v (*
+                        ((EchoRequestMsgData*) data_p), stream);
+            }
+            else
+            {
+            // Application wants to use the data structure provided by the stack
+            dynamic_cast<
+            EchoRequestMsg & >(msg).
+            displayEchoRequestMsgData_v
+                        (echoRequestStackData, stream);
+            }
+           break;
+        }
+        case EchoResponseMsgType:
+        {
+            stream.add ((char *)"Message: EchoResponseMsg");
+            stream.endOfLine ();
+            if (data_p != NULL)
+            {
+            dynamic_cast<
+            EchoResponseMsg & >(msg).
+            displayEchoResponseMsgData_v (*
+                        ((EchoResponseMsgData*) data_p), stream);
+            }
+            else
+            {
+            // Application wants to use the data structure provided by the stack
+            dynamic_cast<
+            EchoResponseMsg & >(msg).
+            displayEchoResponseMsgData_v
+                        (echoResponseStackData, stream);
             }
            break;
         }
