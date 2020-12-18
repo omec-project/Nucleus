@@ -438,7 +438,7 @@ main(int argc, char **argv)
 		x[10] = 0;        // problem 1: heap block overrun
 	}                    // problem 2: memory leak -- x not freed
 
-	printf ("inside main valgrind test\n");
+	log_msg(LOG_INFO, "inside main valgrind test======\n");
 	f();
 	// end of valgrind mem test
 
