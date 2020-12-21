@@ -55,6 +55,7 @@ s11_ECHO_req_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t 
 	
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType =  GTP_ECHO_RSP;
+	gtpHeader.teidPresent = false;
 	gtpHeader.sequenceNumber = hdr->sequenceNumber;
         struct sockaddr_in sgw_ip = {0};
         create_sock_addr(&sgw_ip, src_port, sgw_ip_val);

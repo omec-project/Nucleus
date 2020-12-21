@@ -444,7 +444,11 @@ GtpV2Stack::encodeMessage (GtpV2MessageHeader & msgHeader,
 
     Uint16 endIndex = buffer.getCurrentIndex ();
 
-    Uint16 messageLength = (endIndex - startIndex)+8;
+    Uint16 messageLength = (endIndex - startIndex) + 4; // sequence number always present
+    if(msgHeader.teidPresent)
+    {
+	messageLength += 4;
+    }
 
     buffer.goToIndex (gtpHeaderStartIdx  + 2); // 2 is where length is encoded in a gtp message TODO remove hardcoding
     buffer.writeUint16 (messageLength, false);
