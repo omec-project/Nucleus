@@ -119,9 +119,13 @@ typedef enum msg_type_t {
     delete_bearer_response,
     erab_setup_request,
     erab_setup_response,
+    erab_release_command,
+    erab_release_response,
     activate_dedicated_eps_bearer_ctxt_request,
     activate_dedicated_eps_bearer_ctxt_accept,
     activate_dedicated_eps_bearer_ctxt_reject,
+    deactivate_eps_bearer_context_request,
+    deactivate_eps_bearer_context_accept,
     raw_nas_msg,
     max_msg_type
 } msg_type_t;
@@ -250,6 +254,20 @@ struct erab_mod_ind_Q_msg {
 	erab_to_be_modified_list erab_to_be_mod_list;
 }__attribute__ ((packed));
 
+struct erab_rel_resp_Q_msg {
+    int s1ap_enb_ue_id;
+    int s1ap_mme_ue_id;
+    erab_release_list erab_rel_list;
+    erab_list erab_failed_to_release_list;
+}__attribute__ ((packed));
+
+struct deactivate_epsbearerctx_accept_Q_msg {
+    uint8_t eps_bearer_id;
+    uint8_t pti;
+    struct pco pco_opt;
+}__attribute__ ((packed));
+
+
 struct s1apMsg_plus_raw_nas {
 	uint8_t 	nasMsgBuf[MAX_NAS_MSG_SIZE]; 
 	uint16_t 	nasMsgSize; 
@@ -305,10 +323,12 @@ union s1_incoming_msgs {
     struct enb_status_transfer_Q_msg enb_status_transfer_Q_msg_m;
     struct handover_failure_Q_msg handover_failure_Q_msg_m;
     struct handover_cancel_Q_msg handover_cancel_Q_msg_m;
-	struct erab_mod_ind_Q_msg erab_mod_ind_Q_msg_m;
-	struct erabSuResp_Q_msg erabSuResp_Q_msg_m;
-	struct dedicatedBearerContextAccept_Q_msg dedBearerContextAccept_Q_msg_m;
-	struct dedicatedBearerContextReject_Q_msg dedBearerContextReject_Q_msg_m;
+    struct erab_mod_ind_Q_msg erab_mod_ind_Q_msg_m;
+    struct erabSuResp_Q_msg erabSuResp_Q_msg_m;
+    struct erab_rel_resp_Q_msg erab_rel_resp_Q_msg_m;
+    struct deactivate_epsbearerctx_accept_Q_msg deactivate_epsbearerctx_accept_Q_msg_m;
+    struct dedicatedBearerContextAccept_Q_msg dedBearerContextAccept_Q_msg_m;
+    struct dedicatedBearerContextReject_Q_msg dedBearerContextReject_Q_msg_m;
 }__attribute__ ((packed));
 typedef union s1_incoming_msgs s1_incoming_msgs_t;
 
@@ -559,6 +579,18 @@ struct erabsu_ctx_req_Q_msg {
 
 #define S1AP_ERABSUREQ_BUF_SIZE sizeof(struct erabsu_ctx_req_Q_msg)
 
+struct erab_release_command_Q_msg {
+    msg_type_t msg_type;
+    uint32_t mme_ue_s1ap_id;
+    uint32_t enb_s1ap_ue_id;
+    ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
+    erab_list erab_to_be_released_list;
+    uint32_t enb_context_id;
+    uint8_t nasMsgBuf[300];
+    uint8_t nasMsgSize;
+};
+#define S1AP_ERAB_RELEASE_COMMAND_BUF_SIZE sizeof(struct erab_release_command_Q_msg)
+
 /*************************
  * Outgoing GTP Messages
  *************************/
@@ -648,6 +680,7 @@ struct CB_RESP_Q_msg {
 struct DB_RESP_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
+    uint16_t destination_port;
     uint32_t seq_no;
     uint8_t cause;
     uint8_t linked_bearer_id;

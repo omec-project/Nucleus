@@ -78,6 +78,8 @@ enum eps_nas_mesage_type {
 	ActivateDedicatedBearerContextRequest = 0xc5,
 	ActivateDedicatedBearerContextAccept = 0xc6,
 	ActivateDedicatedBearerContextReject = 0xc7,
+	DeactivateEPSBearerContextRequest = 0xcd,
+	DeactivateEPSBearerContextAccept = 0xce,
 	ESMInformationRequest = 0xd9,
 	ESMInformationResponse = 0xda,
 };

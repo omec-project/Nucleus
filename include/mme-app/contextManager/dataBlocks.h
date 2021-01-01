@@ -40,6 +40,8 @@ namespace mme
 	class MmeErabModIndProcedureCtxt;
 	class MmeSmCreateBearerProcCtxt;
 	class SmDedActProcCtxt;
+	class MmeSmDeleteBearerProcCtxt;
+	class SmDedDeActProcCtxt;
 	 
 	class UEContext:public SM::PermDataBlock
 	{
@@ -399,6 +401,7 @@ namespace mme
 			****************************************/
 			std::list<SessionContext*>& getSessionContextContainer();
 
+
 		
 		private:
 		
@@ -689,6 +692,7 @@ namespace mme
 			*    get BearerContextContainer to SessionContext
 			****************************************/
 			std::list<BearerContext*>& getBearerContextContainer();
+
 
 		
 		private:
@@ -1712,6 +1716,7 @@ namespace mme
 			*    get bearerStatusContainer to MmeSmCreateBearerProcCtxt
 			****************************************/
 			std::list<BearerCtxtCBResp>& getBearerStatusContainer();
+
 			
 		
 		private:
@@ -1761,6 +1766,143 @@ namespace mme
 			/****************************************
 			* getTriggerProc
 			*    get triggerProc from SmDedActProcCtxt
+			****************************************/
+			ProcedureType getTriggerProc()const;			
+			
+		
+		private:
+		
+			// DataName
+			uint8_t linkedBearerId_m;
+			
+			// DataName
+			ProcedureType triggerProc_m;
+			
+	};
+	 
+	class MmeSmDeleteBearerProcCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* MmeSmDeleteBearerProcCtxt
+			*    constructor
+			****************************************/
+			MmeSmDeleteBearerProcCtxt();
+			
+			/****************************************
+			* ~MmeSmDeleteBearerProcCtxt
+			*    destructor
+			****************************************/
+			~MmeSmDeleteBearerProcCtxt();		
+		
+			/****************************************
+			* setDeleteBearerReqEMsg
+			*    set deleteBearerReqEMsg to MmeSmDeleteBearerProcCtxt
+			****************************************/
+			void setDeleteBearerReqEMsg(std::shared_ptr<cmn::EventMessage> deleteBearerReqEMsg_i);
+					
+			/****************************************
+			* getDeleteBearerReqEMsg
+			*    get deleteBearerReqEMsg from MmeSmDeleteBearerProcCtxt
+			****************************************/
+			std::shared_ptr<cmn::EventMessage> getDeleteBearerReqEMsg() const;
+					
+			/****************************************
+			* getDeleteBearerReqEMsgRaw
+			*    get deleteBearerReqEMsgRaw from MmeSmDeleteBearerProcCtxt
+			****************************************/
+			cmn::EventMessage* getDeleteBearerReqEMsgRaw()const;
+
+
+			/****************************************
+			* addBearerStatus
+			*    add bearerStatus to MmeSmDeleteBearerProcCtxt
+			****************************************/
+	        	void addBearerStatus(BearerCtxtDBResp& bearerStatus_i);
+			
+			/****************************************
+			* removeBearerStatus
+			*    remove bearerStatus from MmeSmDeleteBearerProcCtxt
+			****************************************/
+			void removeBearerStatus(BearerCtxtDBResp& bearerStatus_i);
+			
+			/****************************************
+			* findBearerStatus
+			*    find bearerStatus
+			****************************************/
+			std::list<BearerCtxtDBResp>::iterator findBearerStatus(BearerCtxtDBResp& bearerStatus_i);
+			
+			/****************************************
+			* getBearerStatusContainer
+			*    get bearerStatusContainer to MmeSmDeleteBearerProcCtxt
+			****************************************/
+			std::list<BearerCtxtDBResp>& getBearerStatusContainer();
+
+			
+			/****************************************
+			* setLbiPresent
+			*    set lbiPresent to MmeSmDeleteBearerProcCtxt
+			****************************************/
+			void setLbiPresent(bool lbiPresent_i);
+			
+			/****************************************
+			* getLbiPresent
+			*    get lbiPresent from MmeSmDeleteBearerProcCtxt
+			****************************************/
+			bool getLbiPresent()const;			
+			
+		
+		private:
+		
+			// DataName
+			std::shared_ptr<cmn::EventMessage> deleteBearerReqEMsg_m;
+			
+			// DataName
+			std::list<BearerCtxtDBResp> bearerStatus_m;
+			
+			// DataName
+			bool lbiPresent_m;
+			
+	};
+	 
+	class SmDedDeActProcCtxt:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* SmDedDeActProcCtxt
+			*    constructor
+			****************************************/
+			SmDedDeActProcCtxt();
+			
+			/****************************************
+			* ~SmDedDeActProcCtxt
+			*    destructor
+			****************************************/
+			~SmDedDeActProcCtxt();
+			
+			/****************************************
+			* setLinkedBearerId
+			*    set linkedBearerId to SmDedDeActProcCtxt
+			****************************************/
+			void setLinkedBearerId(uint8_t linkedBearerId_i);
+			
+			/****************************************
+			* getLinkedBearerId
+			*    get linkedBearerId from SmDedDeActProcCtxt
+			****************************************/
+			uint8_t getLinkedBearerId()const;			
+			
+			/****************************************
+			* setTriggerProc
+			*    set triggerProc to SmDedDeActProcCtxt
+			****************************************/
+			void setTriggerProc(ProcedureType triggerProc_i);
+			
+			/****************************************
+			* getTriggerProc
+			*    get triggerProc from SmDedDeActProcCtxt
 			****************************************/
 			ProcedureType getTriggerProc()const;			
 			

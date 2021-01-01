@@ -1754,3 +1754,162 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
     *length = enc_ret;
     return enc_ret;
 }
+
+int s1ap_mme_encode_erab_release_command(
+        struct erab_release_command_Q_msg *s1apPDU, uint8_t **buffer,
+        uint32_t *length)
+{
+    S1AP_PDU_t pdu =
+    { (S1AP_PDU_PR_NOTHING) };
+    InitiatingMessage_t *initiating_msg = NULL;
+    S1AP_PDU_t *pdu_p = &pdu;
+    int enc_ret = -1;
+    memset((void*) pdu_p, 0, sizeof(S1AP_PDU_t));
+
+    pdu.present = S1AP_PDU_PR_initiatingMessage;
+    pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t),
+                                          sizeof(uint8_t));
+
+    initiating_msg = pdu.choice.initiatingMessage;
+    initiating_msg->procedureCode = ProcedureCode_id_E_RABRelease;
+    initiating_msg->criticality = 0;
+    initiating_msg->value.present =
+            InitiatingMessage__value_PR_E_RABReleaseCommand;
+
+    E_RABReleaseCommandIEs_t val[5];
+    memset(val, 0, 5 * (sizeof(E_RABReleaseCommandIEs_t)));
+
+    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0].criticality = 0;
+    val[0].value.present = E_RABReleaseCommandIEs__value_PR_MME_UE_S1AP_ID;
+    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_ue_s1ap_id;
+
+    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1].criticality = 0;
+    val[1].value.present = E_RABReleaseCommandIEs__value_PR_ENB_UE_S1AP_ID;
+    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+
+    val[2].id = ProtocolIE_ID_id_uEaggregateMaximumBitrate;
+    val[2].criticality = 0;
+    val[2].value.present =
+            E_RABReleaseCommandIEs__value_PR_UEAggregateMaximumBitrate;
+
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.size =
+            5;
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf =
+            calloc(5, sizeof(uint8_t));
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[0] =
+            0x0;
+    uint32_t temp_bitrate = htonl(
+            s1apPDU->ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL);
+    memcpy(&(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[1]),
+           &temp_bitrate, sizeof(uint32_t));
+
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.size =
+            5;
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf =
+            calloc(5, sizeof(uint8_t));
+    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[0] =
+            0x0;
+    temp_bitrate = htonl(
+            s1apPDU->ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL);
+    memcpy(&(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[1]),
+           &temp_bitrate, sizeof(uint32_t));
+
+    val[3].id = ProtocolIE_ID_id_E_RABToBeReleasedList;
+    val[3].criticality = 0;
+    val[3].value.present = E_RABReleaseCommandIEs__value_PR_E_RABList;
+
+    for (int i = 0; i < s1apPDU->erab_to_be_released_list.count; i++)
+    {
+        E_RABItemIEs_t *erab_to_be_released_item = calloc(
+                1, sizeof(E_RABItemIEs_t));
+
+        E_RABItem_t *erab_to_be_released =
+                &(erab_to_be_released_item->value.choice.E_RABItem);
+
+        erab_to_be_released_item->id =
+        ProtocolIE_ID_id_E_RABItem;
+        erab_to_be_released_item->criticality = 0;
+        erab_to_be_released_item->value.present =
+                E_RABItemIEs__value_PR_E_RABItem;
+
+        erab_to_be_released->e_RAB_ID =
+                s1apPDU->erab_to_be_released_list.erab_item[i].e_RAB_ID;
+        erab_to_be_released->cause.present =
+                s1apPDU->erab_to_be_released_list.erab_item[i].cause.present;
+        switch (erab_to_be_released->cause.present)
+        {
+            case Cause_PR_radioNetwork:
+                erab_to_be_released->cause.choice.radioNetwork =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.radioNetwork;
+                break;
+            case Cause_PR_transport:
+                erab_to_be_released->cause.choice.transport =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.transport;
+                break;
+            case Cause_PR_nas:
+                erab_to_be_released->cause.choice.nas =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.nas;
+                break;
+            case Cause_PR_protocol:
+                erab_to_be_released->cause.choice.protocol =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.protocol;
+                break;
+            case Cause_PR_misc:
+                erab_to_be_released->cause.choice.misc =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.misc;
+                break;
+            case Cause_PR_NOTHING:
+            default:
+                log_msg(LOG_WARNING, "Unknown Cause type:%d\n",
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.present);
+        }
+        ASN_SEQUENCE_ADD(&(val[3].value.choice.E_RABList.list),
+                         erab_to_be_released_item);
+    }
+    val[4].id = ProtocolIE_ID_id_NAS_PDU;
+    val[4].criticality = 0;
+    val[4].value.present = E_RABReleaseCommandIEs__value_PR_NAS_PDU;
+    val[4].value.choice.NAS_PDU.size = s1apPDU->nasMsgSize;
+    val[4].value.choice.NAS_PDU.buf = calloc(val[4].value.choice.NAS_PDU.size,
+                                             sizeof(uint8_t));
+
+    if(val[4].value.choice.NAS_PDU.buf != NULL)
+    {
+        memcpy(val[4].value.choice.NAS_PDU.buf, s1apPDU->nasMsgBuf,
+               val[4].value.choice.NAS_PDU.size);
+    }
+
+    ASN_SEQUENCE_ADD(
+            &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
+            &val[0]);
+    ASN_SEQUENCE_ADD(
+            &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
+            &val[1]);
+    ASN_SEQUENCE_ADD(
+            &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
+            &val[2]);
+    ASN_SEQUENCE_ADD(
+            &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
+            &val[3]);
+    ASN_SEQUENCE_ADD(
+            &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
+            &val[4]);
+    if((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
+                                            (void**) buffer)) < 0)
+    {
+        log_msg(LOG_ERROR, "Encoding of E_RAB Release command failed\n");
+        return -1;
+    }
+
+    log_msg(LOG_INFO, "free allocated messages\n");
+    free(val[4].value.choice.NAS_PDU.buf);
+    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
+    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
+    free(pdu.choice.initiatingMessage);
+
+    *length = enc_ret;
+    return enc_ret;
+}
+

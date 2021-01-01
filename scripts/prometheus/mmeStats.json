@@ -181,6 +181,19 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "nas_deact_eps_br_ctxt_acpt",
+            "help" : "number of NAS deact eps bearer accept message received by MME",
+            "label_0": [
+                { "interface":"nas"}
+            ],
+            "label_1": [
+                {"msg_type": "deact_eps_br_ctxt_acpt"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s1ap_release_request",
             "help" : "number of s1ap release request received by MME",
@@ -350,6 +363,19 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "s1ap_erab_release_response",
+            "help" : "number of s1ap Erab release response received by MME",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "erab_release_response"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s6a_authentication_information_answer",
             "help" : "number of authentication answer received from HSS",
@@ -475,6 +501,19 @@
             ],
             "label_1": [
                 {"msg_type": "create_bearer_request"}
+            ],
+            "dynamic_label_0": [
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
+        {
+            "name" : "s11_delete_bearer_request",
+            "help" : "number of delete bearer request received by MME",
+            "label_0": [
+                { "interface":"s11"}
+            ],
+            "label_1": [
+                {"msg_type": "delete_bearer_request"}
             ],
             "dynamic_label_0": [
                 {"sgw_addr" : "sgw address of s11 connection "}
@@ -621,6 +660,20 @@
             ],
             "label_1": [
                 {"msg_type": "act_ded_br_ctxt_request"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        
+        {
+            "name" : "nas_deact_eps_br_ctxt_request",
+            "help" : "number of deact eps bearer request sent to UE",
+            "label_0": [
+                { "interface":"nas"}
+            ],
+            "label_1": [
+                {"msg_type": "deact_eps_br_ctxt_request"}
             ],
             "dynamic_label_0": [
                 {"enb_addr" : "enb address of s1ap connection "}
@@ -793,6 +846,19 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "s1ap_erab_release_command",
+            "help" : "number of erab release command sent to eNB",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "erab_release_command"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s11_create_session_request",
             "help" : "number of CSReq sent by MME",
@@ -866,6 +932,19 @@
             ],
             "label_1": [
                 {"msg_type": "create_bearer_response"}
+            ],
+            "dynamic_label_0": [
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
+        {
+            "name" : "s11_delete_bearer_response",
+            "help" : "number of delete bearer response sent by MME",
+            "label_0": [
+                { "interface":"s11"}
+            ],
+            "label_1": [
+                {"msg_type": "delete_bearer_response"}
             ],
             "dynamic_label_0": [
                 {"sgw_addr" : "sgw address of s11 connection "}
@@ -1151,6 +1230,33 @@
             ]
         },
         {
+            "name" : "delete_bearer_proc",
+            "help" : "number of delete bearer request procedure started by MME",
+            "label_0": [
+                { "procedure":"DELETE_BEARER_PROC"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "delete_bearer_proc_result",
+            "help" : "delete bearer request indication procedure results",
+            "label_0": [
+                { "procedure":"DELETE_BEARER_PROC"}
+            ],
+            "label_1": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ],
+            "dynamic_label_1": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
             "name" : "ded_bearer_activation_proc",
             "help" : "number of ded bearer activation procedure started by MME",
             "label_0": [
@@ -1165,6 +1271,33 @@
             "help" : "ded_bearer_activation procedure results",
             "label_0": [
                 { "procedure":"DED_BEARER_ACTIVATION_PROC"}
+            ],
+            "label_1": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ],
+            "dynamic_label_1": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "ded_bearer_deactivation_proc",
+            "help" : "number of ded bearer deactivation procedure started by MME",
+            "label_0": [
+                { "procedure":"DED_BEARER_DEACTIVATION_PROC"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "ded_bearer_deactivation_proc_result",
+            "help" : "ded_bearer_deactivation procedure results",
+            "label_0": [
+                { "procedure":"DED_BEARER_DEACTIVATION_PROC"}
             ],
             "label_1": [
                 {"proc_result": "success"},

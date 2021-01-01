@@ -30,7 +30,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(ni_detach_wf_det_accpt_del_sess_resp)
+NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State(ni_detach_wf_det_accpt_del_sess_resp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -69,5 +69,16 @@ void NiDetachWfDetAccptDelSessResp::initialize()
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
                 actionTable.setNextState(NiDetachWfDetachAccept::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DEL_SESSION_RESP_FROM_SGW, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_detach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

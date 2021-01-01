@@ -2064,4 +2064,157 @@ namespace mme
         }
 
 	
+	/******************************************************************************
+	*******************************************************************************
+	*							MmeSmDeleteBearerProcCtxt
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	MmeSmDeleteBearerProcCtxt::MmeSmDeleteBearerProcCtxt():           
+            deleteBearerReqEMsg_m(),
+            bearerStatus_m(),
+            lbiPresent_m(false)
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	MmeSmDeleteBearerProcCtxt::~MmeSmDeleteBearerProcCtxt()
+	{
+	}	
+
+	/******************************************************************************
+	* sets deleteBearerReqEMsg
+	******************************************************************************/
+	void MmeSmDeleteBearerProcCtxt::setDeleteBearerReqEMsg( std::shared_ptr<cmn::EventMessage> deleteBearerReqEMsg_i )
+	{
+		deleteBearerReqEMsg_m = std::move(deleteBearerReqEMsg_i);
+	}
+	
+	/******************************************************************************
+	* returns deleteBearerReqEMsg
+	******************************************************************************/
+	std::shared_ptr<cmn::EventMessage> MmeSmDeleteBearerProcCtxt::getDeleteBearerReqEMsg() const
+	{
+        	return deleteBearerReqEMsg_m;
+	}
+	
+	/******************************************************************************
+	* returns deleteBearerReqEMsgRaw
+	******************************************************************************/
+	cmn::EventMessage* MmeSmDeleteBearerProcCtxt::getDeleteBearerReqEMsgRaw() const
+    	{
+        	return deleteBearerReqEMsg_m.get();
+    	}
+
+	/******************************************************************************
+	* add bearerStatus
+	******************************************************************************/
+	void MmeSmDeleteBearerProcCtxt::addBearerStatus(BearerCtxtDBResp& bearerStatus_i)
+	{
+    		bearerStatus_m.push_back(bearerStatus_i);
+	}
+	
+	/******************************************************************************
+	* remove bearerStatus
+	******************************************************************************/
+	void MmeSmDeleteBearerProcCtxt::removeBearerStatus(BearerCtxtDBResp& bearerStatus_i)
+	{
+    	    	bearerStatus_m.remove(bearerStatus_i);
+	}
+		
+	/******************************************************************************
+	* returns bearerStatusList
+	******************************************************************************/
+	std::list<BearerCtxtDBResp>& MmeSmDeleteBearerProcCtxt::getBearerStatusContainer()
+	{
+		return bearerStatus_m;
+	}
+
+	/******************************************************************************
+	* find bearerStatus
+	******************************************************************************/
+	std::list<BearerCtxtDBResp>::iterator MmeSmDeleteBearerProcCtxt::findBearerStatus(BearerCtxtDBResp& bearerStatus_i)
+	{
+	    return std::find(std::begin(bearerStatus_m), std::end(bearerStatus_m), bearerStatus_i);
+	}
+	
+	
+	/******************************************************************************
+	* sets lbiPresent
+	******************************************************************************/
+	void MmeSmDeleteBearerProcCtxt::setLbiPresent( bool lbiPresent_i )
+	{
+		lbiPresent_m = lbiPresent_i;
+	}
+	
+	/******************************************************************************
+	* returns lbiPresent
+	******************************************************************************/	
+        bool MmeSmDeleteBearerProcCtxt::getLbiPresent() const
+        {
+                return lbiPresent_m;
+        }
+
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							SmDedDeActProcCtxt
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	SmDedDeActProcCtxt::SmDedDeActProcCtxt():           
+            linkedBearerId_m(0),
+            triggerProc_m(invalidProcedureType_c)
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	SmDedDeActProcCtxt::~SmDedDeActProcCtxt()
+	{
+	}	
+	
+	/******************************************************************************
+	* sets linkedBearerId
+	******************************************************************************/
+	void SmDedDeActProcCtxt::setLinkedBearerId( uint8_t linkedBearerId_i )
+	{
+		linkedBearerId_m = linkedBearerId_i;
+	}
+	
+	/******************************************************************************
+	* returns linkedBearerId
+	******************************************************************************/	
+        uint8_t SmDedDeActProcCtxt::getLinkedBearerId() const
+        {
+                return linkedBearerId_m;
+        }
+
+	
+	/******************************************************************************
+	* sets triggerProc
+	******************************************************************************/
+	void SmDedDeActProcCtxt::setTriggerProc( ProcedureType triggerProc_i )
+	{
+		triggerProc_m = triggerProc_i;
+	}
+	
+	/******************************************************************************
+	* returns triggerProc
+	******************************************************************************/	
+        ProcedureType SmDedDeActProcCtxt::getTriggerProc() const
+        {
+                return triggerProc_m;
+        }
+
+	
 } // mme

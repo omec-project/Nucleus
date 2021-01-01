@@ -32,6 +32,8 @@
 #include "contextManager/mmeErabModIndProcedureCtxtManager.h"
 #include "contextManager/mmeSmCreateBearerProcCtxtManager.h"
 #include "contextManager/smDedActProcCtxtManager.h"
+#include "contextManager/mmeSmDeleteBearerProcCtxtManager.h"
+#include "contextManager/smDedDeActProcCtxtManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -210,6 +212,28 @@ namespace mme
 			 *  Delete a SmDedActProcCtxt data block
 			 ******************************************/
 			void deleteSmDedActProcCtxt(SmDedActProcCtxt* SmDedActProcCtxtp );
+			/******************************************
+			 * getMmeSmDeleteBearerProcCtxt
+			 * Get MmeSmDeleteBearerProcCtxt data block
+			 ******************************************/
+			MmeSmDeleteBearerProcCtxt* getMmeSmDeleteBearerProcCtxt();
+			
+			/******************************************
+			 * deleteMmeSmDeleteBearerProcCtxt
+			 *  Delete a MmeSmDeleteBearerProcCtxt data block
+			 ******************************************/
+			void deleteMmeSmDeleteBearerProcCtxt(MmeSmDeleteBearerProcCtxt* MmeSmDeleteBearerProcCtxtp );
+			/******************************************
+			 * getSmDedDeActProcCtxt
+			 * Get SmDedDeActProcCtxt data block
+			 ******************************************/
+			SmDedDeActProcCtxt* getSmDedDeActProcCtxt();
+			
+			/******************************************
+			 * deleteSmDedDeActProcCtxt
+			 *  Delete a SmDedDeActProcCtxt data block
+			 ******************************************/
+			void deleteSmDedDeActProcCtxt(SmDedDeActProcCtxt* SmDedDeActProcCtxtp );
 			
 			/******************************************
 			* addimsikey
@@ -336,6 +360,16 @@ namespace mme
 			* SmDedActProcCtxt Pool Manager
 			****************************************/
 			SmDedActProcCtxtManager* SmDedActProcCtxtManagerm_p;
+			
+			/****************************************
+			* MmeSmDeleteBearerProcCtxt Pool Manager
+			****************************************/
+			MmeSmDeleteBearerProcCtxtManager* MmeSmDeleteBearerProcCtxtManagerm_p;
+			
+			/****************************************
+			* SmDedDeActProcCtxt Pool Manager
+			****************************************/
+			SmDedDeActProcCtxtManager* SmDedDeActProcCtxtManagerm_p;
 			
 			
 			/****************************************

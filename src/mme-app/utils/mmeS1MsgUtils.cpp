@@ -136,7 +136,7 @@ bool MmeS1MsgUtils::populateErabSetupAndActDedBrReq(SM::ControlBlock &cb,
     VERIFY(sess_p, procCtxt.setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND);
         return false, "Session Context is NULL\n");
 
-    auto cbBearerStatusCont = procCtxt.getBearerStatusContainer();
+    auto& cbBearerStatusCont = procCtxt.getBearerStatusContainer();
 
     uint8_t i = 0;
 
@@ -189,6 +189,48 @@ bool MmeS1MsgUtils::populateErabSetupAndActDedBrReq(SM::ControlBlock &cb,
     if (i > 0)
     {
         erab_su_req.erab_su_list.count = i;
+    }
+    else
+    {
+        status = false;
+    }
+
+    return status;
+}
+
+bool MmeS1MsgUtils::populateErabRelAndDeActDedBrReq(SM::ControlBlock &cb,
+        UEContext &ueCtxt, BearerContext &bearerCtxt,
+        struct erab_release_command_Q_msg &erab_rel_cmd)
+{
+    bool status = true;
+    erab_rel_cmd.msg_type = erab_release_command;
+
+    erab_rel_cmd.mme_ue_s1ap_id = ueCtxt.getContextID();
+    erab_rel_cmd.enb_s1ap_ue_id = ueCtxt.getS1apEnbUeId();
+    erab_rel_cmd.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL =
+            (ueCtxt.getAmbr().ambr_m).max_requested_bw_dl;
+    erab_rel_cmd.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL =
+            (ueCtxt.getAmbr().ambr_m).max_requested_bw_ul;
+    erab_rel_cmd.enb_context_id = ueCtxt.getEnbFd();
+
+    erab_rel_cmd.erab_to_be_released_list.erab_item[0].e_RAB_ID = bearerCtxt.getBearerId();
+    erab_rel_cmd.erab_to_be_released_list.erab_item[0].cause.present = s1apCause_PR_nas;
+    erab_rel_cmd.erab_to_be_released_list.erab_item[0].cause.choice.nas = s1apCauseNas_normal_release;
+    struct Buffer nasBuffer;
+    struct nasPDU nas = {0};
+    MmeNasUtils::encode_deact_ded_br_req_nas_pdu(bearerCtxt.getBearerId(),
+		    ueCtxt.getUeSecInfo(), &nas);
+
+    MmeNasUtils::encode_nas_msg(&nasBuffer, &nas,
+		    ueCtxt.getUeSecInfo());
+
+    memcpy(&erab_rel_cmd.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+    erab_rel_cmd.nasMsgSize = nasBuffer.pos;
+    free(nas.elements);
+
+    if (erab_rel_cmd.nasMsgSize > 0)
+    {
+        erab_rel_cmd.erab_to_be_released_list.count = 1;
     }
     else
     {

@@ -11,6 +11,8 @@
 #include <log.h>
 #include <mmeStates/createBearerStart.h>
 #include <mmeStates/dedActStart.h>
+#include <mmeStates/dedDeactStart.h>
+#include <mmeStates/deleteBearerStart.h>
 #include <mmeStates/detachStart.h>
 #include <mmeStates/niDetachStart.h>
 #include <mmeStates/pagingStart.h>
@@ -150,7 +152,7 @@ S1HandoverProcedureContext* MmeContextManagerUtils::allocateHoContext(SM::Contro
 }
 
 MmeSmCreateBearerProcCtxt*
-MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r)
+MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId)
 {
     log_msg(LOG_DEBUG, "allocateCreateBearerRequestProcedureCtxt: Entry");
 
@@ -161,6 +163,28 @@ MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(SM::ControlBloc
     	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_CREATE_BEARER_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::cbReq_c);
         prcdCtxt_p->setNextState(CreateBearerStart::Instance());
+        prcdCtxt_p->setBearerId(bearerId);
+
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+MmeSmDeleteBearerProcCtxt*
+MmeContextManagerUtils::allocateDeleteBearerRequestProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId)
+{
+    log_msg(LOG_DEBUG, "allocateDeleteBearerRequestProcedureCtxt: Entry");
+
+    MmeSmDeleteBearerProcCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getMmeSmDeleteBearerProcCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::dbReq_c);
+        prcdCtxt_p->setNextState(DeleteBearerStart::Instance());
+        prcdCtxt_p->setBearerId(bearerId);
+
         cb_r.addTempDataBlock(prcdCtxt_p);
     }
 
@@ -168,7 +192,7 @@ MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(SM::ControlBloc
 }
 
 SmDedActProcCtxt*
-MmeContextManagerUtils::allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r)
+MmeContextManagerUtils::allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId)
 {
     log_msg(LOG_DEBUG, "allocateDedBrActivationProcedureCtxt: Entry");
 
@@ -179,6 +203,27 @@ MmeContextManagerUtils::allocateDedBrActivationProcedureCtxt(SM::ControlBlock& c
     	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC);
         prcdCtxt_p->setCtxtType(ProcedureType::dedBrActivation_c);
         prcdCtxt_p->setNextState(DedActStart::Instance());
+        prcdCtxt_p->setBearerId(bearerId);
+
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+SmDedDeActProcCtxt*
+MmeContextManagerUtils::allocateDedBrDeActivationProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId)
+{
+    log_msg(LOG_DEBUG, "allocateDedBrDeActivationProcedureCtxt: Entry");
+
+    SmDedDeActProcCtxt *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getSmDedDeActProcCtxt();
+    if (prcdCtxt_p != NULL)
+    {
+    	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::dedBrDeActivation_c);
+        prcdCtxt_p->setNextState(DedDeactStart::Instance());
+        prcdCtxt_p->setBearerId(bearerId);
 
         cb_r.addTempDataBlock(prcdCtxt_p);
     }
@@ -280,6 +325,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 							static_cast<SmDedActProcCtxt*>(procedure_p);
 
 			subsDgMgr_p->deleteSmDedActProcCtxt(dedActProc_p);
+
+			break;
+		}
+		case dbReq_c:
+		{
+			MmeSmDeleteBearerProcCtxt* dbReqProc_p =
+							static_cast<MmeSmDeleteBearerProcCtxt*>(procedure_p);
+
+			subsDgMgr_p->deleteMmeSmDeleteBearerProcCtxt(dbReqProc_p);
+
+			break;
+		}
+		case dedBrDeActivation_c:
+		{
+			SmDedDeActProcCtxt* dedDeActProc_p =
+							static_cast<SmDedDeActProcCtxt*>(procedure_p);
+
+			subsDgMgr_p->deleteSmDedDeActProcCtxt(dedDeActProc_p);
 
 			break;
 		}
@@ -484,6 +547,9 @@ MmeContextManagerUtils::allocateBearerContext(SM::ControlBlock &cb_r,
         }
     }
 
+    mmeStats::Instance()->increment(
+                mmeStatsCounter::MME_NUM_BEARERS);
+
     return bearerCtxt_p;
 }
 
@@ -538,6 +604,9 @@ void MmeContextManagerUtils::deallocateBearerContext(SM::ControlBlock &cb_r,
             }
         }
         SubsDataGroupManager::Instance()->deleteBearerContext(bearerCtxt_p);
+
+	mmeStats::Instance()->decrement(
+                mmeStatsCounter::MME_NUM_BEARERS);
     }
 }
 
@@ -561,4 +630,24 @@ BearerContext* MmeContextManagerUtils::findBearerContext(uint8_t bearerId,
         }
     }
     return bearerCtxt_p;
+}
+
+SessionContext* MmeContextManagerUtils::findSessionCtxtForEpsBrId(uint8_t bearerId, UEContext *ueCtxt_p)
+{
+    SessionContext *sessCtxt_p = NULL;
+    BearerContext *bearerCtxt_p = NULL;
+
+    auto &sessionCtxtContainer = ueCtxt_p->getSessionContextContainer();
+
+    for (auto sessEntry : sessionCtxtContainer)
+    {   
+        bearerCtxt_p = sessEntry->findBearerContextByBearerId(bearerId);
+    	if (bearerCtxt_p != NULL)
+    	{
+    		sessCtxt_p = sessEntry;
+    		break;
+    	}
+    }
+
+    return sessCtxt_p;
 }

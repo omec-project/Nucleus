@@ -241,7 +241,18 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::abort_detach(ControlBlock& cb)
 {
-    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    log_msg(LOG_DEBUG, "abort_detach : Entry \n");
+    MmeDetachProcedureCtxt *procedure_p =
+            static_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
+    if(procedure_p != NULL)
+    {
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+    }
+
+    // Fire a Detach failure event, so that interested procedures
+    // can take appropriate actions.
+    SM::Event evt(DETACH_FAILURE, NULL);
+    cb.qInternalEvent(evt);
     return ActStatus::PROCEED;
 }
 

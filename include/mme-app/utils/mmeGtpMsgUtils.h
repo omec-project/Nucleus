@@ -20,6 +20,7 @@ namespace mme
 {
 	class S1HandoverProcedureContext;
 	class MmeSmCreateBearerProcCtxt;
+	class MmeSmDeleteBearerProcCtxt;
 	class UEContext;
 	class SessionContext;
 	class MmeGtpMsgUtils
@@ -33,6 +34,9 @@ namespace mme
 
         static bool populateCreateBearerResponse(SM::ControlBlock& cb,
                 MmeSmCreateBearerProcCtxt& procCtxt, struct CB_RESP_Q_msg& cb_resp);
+
+        static bool populateDeleteBearerResponse(SM::ControlBlock& cb,
+                MmeSmDeleteBearerProcCtxt& procCtxt, struct DB_RESP_Q_msg& db_resp);
 	private:
 		MmeGtpMsgUtils();
 		~MmeGtpMsgUtils();

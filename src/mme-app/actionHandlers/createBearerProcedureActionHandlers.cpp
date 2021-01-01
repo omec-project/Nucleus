@@ -58,9 +58,8 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
             " Create Bearer Procedure Context is NULL \n");
 
-    const cmn::IpcEventMessage *eMsg =
-            dynamic_cast<const cmn::IpcEventMessage*>(cbReqProc_p->getCreateBearerReqEMsgRaw());
-    cmn::IpcEventMessage *ipcMsg = const_cast<cmn::IpcEventMessage *>(eMsg);
+    cmn::IpcEventMessage *ipcMsg =
+            dynamic_cast<cmn::IpcEventMessage*>(cbReqProc_p->getCreateBearerReqEMsgRaw());
     VERIFY(ipcMsg, return ActStatus::ABORT, "Invalid IPC Event Message in CBReq Procedure Context \n");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(ipcMsg->getMsgBuffer());
@@ -106,13 +105,12 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
             // allocate dedicated bearer activation procedure context
             SmDedActProcCtxt *dedBrActProc_p =
                     MmeContextManagerUtils::allocateDedBrActivationProcedureCtxt(
-                            cb);
+                            cb, bearerCtxt_p->getBearerId());
 
             if (dedBrActProc_p)
             {
                 brStatus.eps_bearer_id = bearerCtxt_p->getBearerId();
                 dedBrActProc_p->setLinkedBearerId(cb_req->linked_eps_bearer_id);
-                dedBrActProc_p->setBearerId(bearerCtxt_p->getBearerId());
                 dedBrActProc_p->setTriggerProc(cbReq_c);
 
                 bearerAllocCount++;
@@ -290,27 +288,34 @@ ActStatus ActionHandlers::abort_create_bearer_procedure(ControlBlock &cb)
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     if (cbReqProc_p != NULL)
     {
+	SessionContext *sessionCtxt = ue_ctxt->findSessionContextByLinkedBearerId(
+            cbReqProc_p->getBearerId());
+
 	auto &bearerStatusContainer = cbReqProc_p->getBearerStatusContainer();
 
-        for (auto &entry: bearerStatusContainer)
-        {
-            BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
-            			entry.bearer_ctxt_cb_resp_m.eps_bearer_id, ue_ctxt);
+	if(sessionCtxt)
+	{
+            for (auto &entry: bearerStatusContainer)
+            {
+                BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
+            			entry.bearer_ctxt_cb_resp_m.eps_bearer_id, ue_ctxt, sessionCtxt);
 
-	    if(bearerCtxt_p)
-	    {
-		MmeContextManagerUtils::deallocateBearerContext(cb, bearerCtxt_p);
-	    }
+	        if(bearerCtxt_p)
+	        {
+		    MmeContextManagerUtils::deallocateBearerContext(cb, bearerCtxt_p,
+				sessionCtxt, ue_ctxt);
+	        }
 
-	    SmDedActProcCtxt *dedActProc_p = dynamic_cast<SmDedActProcCtxt*>
+	        SmDedActProcCtxt *dedActProc_p = dynamic_cast<SmDedActProcCtxt*>
 		    (MmeContextManagerUtils::findProcedureCtxt(cb, dedBrActivation_c, 
 				    entry.bearer_ctxt_cb_resp_m.eps_bearer_id));
 
-	    if(dedActProc_p)
-	    {
-		MmeContextManagerUtils::deallocateProcedureCtxt(cb, dedActProc_p);
-	    }
+	        if(dedActProc_p)
+	        {
+		    MmeContextManagerUtils::deallocateProcedureCtxt(cb, dedActProc_p);
+	        }
 
+	    }
 	}
 
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, cbReqProc_p);

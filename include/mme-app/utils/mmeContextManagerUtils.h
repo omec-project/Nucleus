@@ -39,10 +39,16 @@ public:
     allocateHoContext(SM::ControlBlock& cb_r);
 
     static MmeSmCreateBearerProcCtxt*
-	allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r);
+	allocateCreateBearerRequestProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId);
 
     static SmDedActProcCtxt*
-	allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r);
+	allocateDedBrActivationProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId);
+
+    static MmeSmDeleteBearerProcCtxt*
+        allocateDeleteBearerRequestProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId);
+
+    static SmDedDeActProcCtxt*
+        allocateDedBrDeActivationProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId);
 
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType, uint8_t bearerId = 0);
 
@@ -67,6 +73,8 @@ public:
 
     static BearerContext*
 	findBearerContext(uint8_t bearerId, UEContext *ueCtxt_p, SessionContext *sessionCtxt_p=NULL);
+
+    static SessionContext* findSessionCtxtForEpsBrId(uint8_t bearerId, UEContext *ueCtxt_p);
 
 private:
 	MmeContextManagerUtils();

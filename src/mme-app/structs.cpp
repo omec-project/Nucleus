@@ -550,3 +550,19 @@ bool BearerCtxtCBResp::operator==(const BearerCtxtCBResp& bearer_ctxt_cb_resp_i)
 {
     return (bearer_ctxt_cb_resp_i.bearer_ctxt_cb_resp_m.eps_bearer_id == bearer_ctxt_cb_resp_m.eps_bearer_id);
 }
+
+/*******************************************************
+*BearerCtxtDBResp
+********************************************************/
+BearerCtxtDBResp::BearerCtxtDBResp()
+{
+}
+
+BearerCtxtDBResp::~BearerCtxtDBResp()
+{
+}
+
+bool BearerCtxtDBResp::operator==(const BearerCtxtDBResp& bearer_ctxt_db_resp_i) const
+{
+    return (bearer_ctxt_db_resp_i.eps_bearer_id == eps_bearer_id);
+}

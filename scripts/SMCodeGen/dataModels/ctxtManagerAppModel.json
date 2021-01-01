@@ -541,6 +541,45 @@
 								"DefaultVal": "invalidProcedureType_c"
 							}
 						]
+					},
+					{
+						"BlockName": "MmeSmDeleteBearerProcCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "deleteBearerReqEMsg",
+								"Type": "std::shared_ptr<cmn::EventMessage>"
+							},
+							{
+								"Name":"bearerStatus",
+								"Type": "std::list<BearerCtxtDBResp>"
+							},
+							{
+								"Name":"lbiPresent",
+								"Type":"bool"
+							}
+						]
+					},
+					{
+						"BlockName": "SmDedDeActProcCtxt",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "linkedBearerId",
+								"Type": "uint8_t"
+							},
+							{
+								"Name": "triggerProc",
+								"Type": "enum ProcedureType",
+								"DefaultVal": "invalidProcedureType_c"
+							}
+						]
 					}
 				]
 			}

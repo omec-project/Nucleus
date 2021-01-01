@@ -358,6 +358,26 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
                 cb_p->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
             }
         }break;
+	case delete_bearer_request:
+        {
+            const struct db_req_Q_msg * dbr = (const struct db_req_Q_msg *) (msg_p->getDataPointer());
+            if (dbr->s11_mme_cp_teid == 0)
+            {
+                log_msg(LOG_INFO, "UE Index in DB Req message data is 0.\n");
+                return cb_p;
+            }
+
+            cb_p = SubsDataGroupManager::Instance()->findControlBlock(dbr->s11_mme_cp_teid);
+            if (cb_p == NULL)
+            {
+                log_msg(LOG_INFO, "Failed to find control block using index %d."
+                        " Allocate a temporary control block\n", dbr->s11_mme_cp_teid);
+
+                // Respond  with DB Resp from default DB Req event handler
+                cb_p = SubsDataGroupManager::Instance()->allocateCB();
+                cb_p->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+            }
+        }break;
         default:
         {
             log_msg(LOG_INFO, "Unhandled message type\n");

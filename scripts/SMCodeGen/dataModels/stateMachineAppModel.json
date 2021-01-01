@@ -84,6 +84,20 @@
                                     "HANDLE_PAGING_FAILURE"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"DELETE_BEARER_REQ_FROM_GW",
+                                "Actions":[
+                                    "DEFAULT_DELETE_BEARER_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+			    {
+                                "Name":"DETACH_FAILURE",
+                                "Actions":[
+                                    "HANDLE_DETACH_FAILURE"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -796,6 +810,21 @@
                                     "DEL_SESSION_REQ"
                                 ],
                                 "NextState":"ni_detach_wf_det_accpt_del_sess_resp"
+                            },
+                            {
+                                "Name":"PGW_INIT_DETACH",
+                                "Actions":[
+                                    "NI_DETACH_REQ_TO_UE"
+                                ],
+                                "NextState":"ni_detach_wf_detach_accept"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -815,6 +844,21 @@
                                     "PROCESS_DEL_SESSION_RESP"
                                 ],
                                 "NextState":"ni_detach_wf_detach_accept"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -828,6 +872,21 @@
                                     "SEND_S1_REL_CMD_TO_UE"
                                 ],
                                 "NextState":"ni_detach_wf_s1_rel_comp"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -841,6 +900,21 @@
                                     "SEND_S1_REL_CMD_TO_UE_FOR_DETACH"
                                 ],
                                 "NextState":"ni_detach_wf_s1_rel_comp"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -853,13 +927,27 @@
                                     "PROCESS_UE_CTXT_REL_COMP_FOR_DETACH"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
                 ],
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "disabled"
+                        "stateGuardTimerFeature" : "enabled"
                     }
                 ]
             },
@@ -1539,7 +1627,253 @@
                         "stateGuardTimerFeature" : "enabled"
                     }
                 ]
+            },
+            {
+                "Name": "DELETE_BEARER_PROCEDURE",
+                "States": [
+                    {
+                        "Name": "delete_bearer_start",
+                        "Events": [
+                            {
+                                "Name": "GW_CP_REQ_INIT_PAGING",
+                                "Actions": [],
+                                "NextState": "delete_bearer_wf_paging_complete"
+                            },
+                            {
+                                "Name": "START_DED_DEACTIVATION",
+                                "Actions": [
+                                    "INIT_DED_BEARER_DEACTIVATION"
+                                ],
+                                "NextState": "delete_bearer_wf_deact_complete"
+                            },
+                            {
+                                "Name": "START_UE_DETACH",
+                                "Actions": [
+                                    "INIT_UE_DETACH_PROCEDURE"
+                                ],
+                                "NextState": "delete_bearer_wf_deact_complete"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "SEND_DELETE_BEARER_RESPONSE",
+                                    "ABORT_DELETE_BEARER_PROCEDURE"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "delete_bearer_wf_paging_complete",
+                        "Events": [
+                            {
+                                "Name": "PAGING_COMPLETE",
+                                "Actions": [
+                                    "CHECK_AND_INIT_DEACTIVATION"
+                                ],
+                                "NextState": "delete_bearer_start"
+                            },
+                            {
+                                "Name": "PAGING_FAILURE",
+                                "Actions": [
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "SEND_DELETE_BEARER_RESPONSE",
+                                    "ABORT_DELETE_BEARER_PROCEDURE"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "delete_bearer_wf_deact_complete",
+                        "Events": [
+                            {
+                                "Name": "DED_DEACT_COMPLETE",
+                                "Actions": [
+                                    "HANDLE_DED_DEACT_CMP_IND",
+                                    "SEND_DELETE_BEARER_RESPONSE",
+                                    "DELETE_BEARER_PROC_COMPLETE"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "DETACH_COMPLETE",
+                                "Actions": [
+                                    "SEND_DELETE_BEARER_RESPONSE",
+                                    "DELETE_BEARER_PROC_COMPLETE"
+                                ],
+                                "NextState": "end_state"
+                            },
+			    {
+                                "Name":"DETACH_FAILURE",
+                                "Actions":[
+                                    "HANDLE_DETACH_FAILURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "SEND_DELETE_BEARER_RESPONSE",
+                                    "ABORT_DELETE_BEARER_PROCEDURE"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature": "enabled"
+                    }
+                ]
+            },
+            {
+                "Name": "DED_BEARER_DEACT_PROCEDURE",
+                "States": [
+                    {
+                        "Name": "ded_deact_start",
+                        "Events": [
+                            {
+                                "Name": "DED_BEARER_DEACT_START",
+                                "Actions": [
+                                    "SEND_ERAB_REL_CMD_AND_DEACT_EPS_BR_CTXT_REQ"
+				],
+                                "NextState": "ded_deact_wf_bearer_and_session_tearup"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "ABORT_DED_DEACTIVATION"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "ded_deact_wf_bearer_and_session_tearup",
+                        "Events": [
+                            {
+                                "Name": "ERAB_REL_RESP_FROM_ENB",
+                                "Actions": [
+                                    "PROCESS_ERAB_RELEASE_RESPONSE"
+                                ],
+                                "NextState": "ded_deact_wf_session_tearup"
+                            },
+                            {
+                                "Name": "DEACT_DED_BEARER_ACCEPT_FROM_UE",
+                                "Actions": [
+                                    "PROCESS_DEACT_DED_BEARER_ACCEPT"
+                                ],
+                                "NextState": "ded_deact_wf_bearer_tearup"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "ABORT_DED_DEACTIVATION"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "ded_deact_wf_session_tearup",
+                        "Events": [
+                            {
+                                "Name": "DEACT_DED_BEARER_ACCEPT_FROM_UE",
+                                "Actions": [
+                                    "PROCESS_DEACT_DED_BEARER_ACCEPT",
+                                    "DED_DEACT_COMPLETE"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "ABORT_DED_DEACTIVATION"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "ded_deact_wf_bearer_tearup",
+                        "Events": [
+                            {
+                                "Name": "ERAB_REL_RESP_FROM_ENB",
+                                "Actions": [
+                                    "PROCESS_ERAB_RELEASE_RESPONSE",
+                                    "DED_DEACT_COMPLETE"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "ABORT_DED_DEACTIVATION"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ]
+                    }
+                ],
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature": "enabled"
+                    }
+                ]
             }
-        ]
+	]
     }
 }

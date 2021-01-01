@@ -26,7 +26,7 @@ extern struct GtpV2Stack* gtpStack_gp;
 /*End : globals and externs*/
 
 int
-s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
+s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip, uint16_t src_port)
 {
     struct db_req_Q_msg dbr_info =
     { 0 };
@@ -34,6 +34,8 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
     dbr_info.s11_mme_cp_teid = hdr->teid;
     dbr_info.header.msg_type = delete_bearer_request;
     dbr_info.seq_no = hdr->sequenceNumber;
+    dbr_info.sgw_ip = sgw_ip;
+    dbr_info.source_port = src_port;
 
     DeleteBearerRequestMsgData msgData;
     memset(&msgData, 0, sizeof(DeleteBearerRequestMsgData));
@@ -55,6 +57,10 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
             dbr_info.eps_bearer_ids[i] = msgData.epsBearerIds[i].epsBearerId;
         }
     }
+    else
+    {
+        dbr_info.linked_bearer_id = msgData.linkedEpsBearerId.epsBearerId;
+    }
 
     if (msgData.causeIePresent)
     {
@@ -74,7 +80,7 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
     dbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
     dbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
-    /*Send CB request msg*/
+    /*Send DB request msg*/
     log_msg(LOG_INFO, "Send DB req to mme-app.\n");
     send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char*) &dbr_info,
             sizeof(struct db_req_Q_msg));

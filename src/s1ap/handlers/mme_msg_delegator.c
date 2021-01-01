@@ -102,6 +102,9 @@ handle_mmeapp_message(void * data)
 	case erab_setup_request:
 		erab_setup_req_handler(msg);
 		break;
+	case erab_release_command:
+		erab_release_command_handler(msg);
+		break;
 	default:
 		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
 		break;

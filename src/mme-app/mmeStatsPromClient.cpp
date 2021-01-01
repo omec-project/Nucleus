@@ -72,6 +72,7 @@ mme_msg_rx_nas_attach_complete(mme_msg_rx_family.Add({{"interface","nas"},{"msg_
 mme_msg_rx_nas_detach_request(mme_msg_rx_family.Add({{"interface","nas"},{"msg_type","detach_request"}})),
 mme_msg_rx_nas_act_ded_br_ctxt_acpt(mme_msg_rx_family.Add({{"interface","nas"},{"msg_type","act_ded_br_ctxt_acpt"}})),
 mme_msg_rx_nas_act_ded_br_ctxt_rjct(mme_msg_rx_family.Add({{"interface","nas"},{"msg_type","act_ded_br_ctxt_rjct"}})),
+mme_msg_rx_nas_deact_eps_br_ctxt_acpt(mme_msg_rx_family.Add({{"interface","nas"},{"msg_type","deact_eps_br_ctxt_acpt"}})),
 mme_msg_rx_s1ap_release_request(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","release_request"}})),
 mme_msg_rx_s1ap_release_complete(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","release_complete"}})),
 mme_msg_rx_s1ap_detach_accept(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","detach_accept"}})),
@@ -85,6 +86,7 @@ mme_msg_rx_s1ap_handover_cancel(mme_msg_rx_family.Add({{"interface","s1ap"},{"ms
 mme_msg_rx_s1ap_handover_failure(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","handover_failure"}})),
 mme_msg_rx_s1ap_erab_modification_indication(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","erab_modification_indication"}})),
 mme_msg_rx_s1ap_erab_setup_response(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","erab_setup_response"}})),
+mme_msg_rx_s1ap_erab_release_response(mme_msg_rx_family.Add({{"interface","s1ap"},{"msg_type","erab_release_response"}})),
 mme_msg_rx_s6a_authentication_information_answer(mme_msg_rx_family.Add({{"interface","s6a"},{"msg_type","authentication_information_answer"}})),
 mme_msg_rx_s6a_update_location_answer(mme_msg_rx_family.Add({{"interface","s6a"},{"msg_type","update_location_answer"}})),
 mme_msg_rx_s6a_purge_answer(mme_msg_rx_family.Add({{"interface","s6a"},{"msg_type","purge_answer"}})),
@@ -94,7 +96,8 @@ mme_msg_rx_s11_modify_bearer_response(mme_msg_rx_family.Add({{"interface","s11"}
 mme_msg_rx_s11_delete_session_response(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","delete_session_response"}})),
 mme_msg_rx_s11_release_bearer_response(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","release_bearer_response"}})),
 mme_msg_rx_s11_downlink_notification_indication(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","downlink_notification_indication"}})),
-mme_msg_rx_s11_create_bearer_request(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","create_bearer_request"}}))
+mme_msg_rx_s11_create_bearer_request(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","create_bearer_request"}})),
+mme_msg_rx_s11_delete_bearer_request(mme_msg_rx_family.Add({{"interface","s11"},{"msg_type","delete_bearer_request"}}))
 {
 }
 
@@ -118,6 +121,7 @@ mme_msg_tx_nas_attach_reject(mme_msg_tx_family.Add({{"interface","nas"},{"msg_ty
 mme_msg_tx_nas_service_reject(mme_msg_tx_family.Add({{"interface","nas"},{"msg_type","service_reject"}})),
 mme_msg_tx_nas_tau_response(mme_msg_tx_family.Add({{"interface","nas"},{"msg_type","tau_response"}})),
 mme_msg_tx_nas_act_ded_br_ctxt_request(mme_msg_tx_family.Add({{"interface","nas"},{"msg_type","act_ded_br_ctxt_request"}})),
+mme_msg_tx_nas_deact_eps_br_ctxt_request(mme_msg_tx_family.Add({{"interface","nas"},{"msg_type","deact_eps_br_ctxt_request"}})),
 mme_msg_tx_s1ap_erab_modification_indication(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","erab_modification_indication"}})),
 mme_msg_tx_nas_network_initiated_detach(mme_msg_tx_family.Add({{"interface","nas"},{"msg_type","network_initiated_detach"}})),
 mme_msg_tx_s1ap_s1_release_command(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","s1_release_command"}})),
@@ -130,12 +134,14 @@ mme_msg_tx_s1ap_paging_request(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg
 mme_msg_tx_s1ap_ics_request_paging(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","ics_request_paging"}})),
 mme_msg_tx_s1ap_detach_accept(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","detach_accept"}})),
 mme_msg_tx_s1ap_erab_setup_request(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","erab_setup_request"}})),
+mme_msg_tx_s1ap_erab_release_command(mme_msg_tx_family.Add({{"interface","s1ap"},{"msg_type","erab_release_command"}})),
 mme_msg_tx_s11_create_session_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","create_session_request"}})),
 mme_msg_tx_s11_modify_bearer_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","modify_bearer_request"}})),
 mme_msg_tx_s11_delete_session_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","delete_session_request"}})),
 mme_msg_tx_s11_downlink_data_notification_ack(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","downlink_data_notification_ack"}})),
 mme_msg_tx_s11_release_bearer_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","release_bearer_request"}})),
 mme_msg_tx_s11_create_bearer_response(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","create_bearer_response"}})),
+mme_msg_tx_s11_delete_bearer_response(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","delete_bearer_response"}})),
 mme_msg_tx_s6a_authentication_info_request(mme_msg_tx_family.Add({{"interface","s6a"},{"msg_type","authentication_info_request"}})),
 mme_msg_tx_s6a_update_location_request(mme_msg_tx_family.Add({{"interface","s6a"},{"msg_type","update_location_request"}})),
 mme_msg_tx_s6a_purge_request(mme_msg_tx_family.Add({{"interface","s6a"},{"msg_type","purge_request"}}))
@@ -180,9 +186,15 @@ mme_procedures_erab_mod_ind_proc_failure(mme_procedures_family.Add({{"procedure"
 mme_procedures_create_bearer_proc(mme_procedures_family.Add({{"procedure","CREATE_BEARER_PROC"}})),
 mme_procedures_create_bearer_proc_success(mme_procedures_family.Add({{"procedure","CREATE_BEARER_PROC"},{"proc_result","success"}})),
 mme_procedures_create_bearer_proc_failure(mme_procedures_family.Add({{"procedure","CREATE_BEARER_PROC"},{"proc_result","failure"}})),
+mme_procedures_delete_bearer_proc(mme_procedures_family.Add({{"procedure","DELETE_BEARER_PROC"}})),
+mme_procedures_delete_bearer_proc_success(mme_procedures_family.Add({{"procedure","DELETE_BEARER_PROC"},{"proc_result","success"}})),
+mme_procedures_delete_bearer_proc_failure(mme_procedures_family.Add({{"procedure","DELETE_BEARER_PROC"},{"proc_result","failure"}})),
 mme_procedures_ded_bearer_activation_proc(mme_procedures_family.Add({{"procedure","DED_BEARER_ACTIVATION_PROC"}})),
 mme_procedures_ded_bearer_activation_proc_success(mme_procedures_family.Add({{"procedure","DED_BEARER_ACTIVATION_PROC"},{"proc_result","success"}})),
-mme_procedures_ded_bearer_activation_proc_failure(mme_procedures_family.Add({{"procedure","DED_BEARER_ACTIVATION_PROC"},{"proc_result","failure"}}))
+mme_procedures_ded_bearer_activation_proc_failure(mme_procedures_family.Add({{"procedure","DED_BEARER_ACTIVATION_PROC"},{"proc_result","failure"}})),
+mme_procedures_ded_bearer_deactivation_proc(mme_procedures_family.Add({{"procedure","DED_BEARER_DEACTIVATION_PROC"}})),
+mme_procedures_ded_bearer_deactivation_proc_success(mme_procedures_family.Add({{"procedure","DED_BEARER_DEACTIVATION_PROC"},{"proc_result","success"}})),
+mme_procedures_ded_bearer_deactivation_proc_failure(mme_procedures_family.Add({{"procedure","DED_BEARER_DEACTIVATION_PROC"},{"proc_result","failure"}}))
 {
 }
 
@@ -911,6 +923,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		}
 		break;
 	}
+	case mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT:
+	{
+		mme_msg_rx_m->mme_msg_rx_nas_deact_eps_br_ctxt_acpt.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject1 *obj = static_cast<mme_msg_rx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject1 *obj = mme_msg_rx_m->add_dynamic1("interface","nas","msg_type","deact_eps_br_ctxt_acpt",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject2 *obj = static_cast<mme_msg_rx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject2 *obj = mme_msg_rx_m->add_dynamic2("interface","nas","msg_type","deact_eps_br_ctxt_acpt",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject3 *obj = static_cast<mme_msg_rx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject3 *obj = mme_msg_rx_m->add_dynamic3("interface","nas","msg_type","deact_eps_br_ctxt_acpt",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
 	case mmeStatsCounter::MME_MSG_RX_S1AP_RELEASE_REQUEST:
 	{
 		mme_msg_rx_m->mme_msg_rx_s1ap_release_request.Increment();
@@ -1574,6 +1637,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		}
 		break;
 	}
+	case mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE:
+	{
+		mme_msg_rx_m->mme_msg_rx_s1ap_erab_release_response.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject1 *obj = static_cast<mme_msg_rx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject1 *obj = mme_msg_rx_m->add_dynamic1("interface","s1ap","msg_type","erab_release_response",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject2 *obj = static_cast<mme_msg_rx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject2 *obj = mme_msg_rx_m->add_dynamic2("interface","s1ap","msg_type","erab_release_response",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject3 *obj = static_cast<mme_msg_rx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject3 *obj = mme_msg_rx_m->add_dynamic3("interface","s1ap","msg_type","erab_release_response",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
 	case mmeStatsCounter::MME_MSG_RX_S6A_AUTHENTICATION_INFORMATION_ANSWER:
 	{
 		mme_msg_rx_m->mme_msg_rx_s6a_authentication_information_answer.Increment();
@@ -2084,6 +2198,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		}
 		break;
 	}
+	case mmeStatsCounter::MME_MSG_RX_S11_DELETE_BEARER_REQUEST:
+	{
+		mme_msg_rx_m->mme_msg_rx_s11_delete_bearer_request.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject1 *obj = static_cast<mme_msg_rx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject1 *obj = mme_msg_rx_m->add_dynamic1("interface","s11","msg_type","delete_bearer_request",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject2 *obj = static_cast<mme_msg_rx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject2 *obj = mme_msg_rx_m->add_dynamic2("interface","s11","msg_type","delete_bearer_request",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_rx_DynamicMetricObject3 *obj = static_cast<mme_msg_rx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_rx_DynamicMetricObject3 *obj = mme_msg_rx_m->add_dynamic3("interface","s11","msg_type","delete_bearer_request",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
 	case mmeStatsCounter::MME_MSG_TX_NAS_IDENTITY_REQUEST:
 	{
 		mme_msg_tx_m->mme_msg_tx_nas_identity_request.Increment();
@@ -2587,6 +2752,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		    obj->counter.Increment();
 		} else {
 		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","nas","msg_type","act_ded_br_ctxt_request",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_MSG_TX_NAS_DEACT_EPS_BR_CTXT_REQUEST:
+	{
+		mme_msg_tx_m->mme_msg_tx_nas_deact_eps_br_ctxt_request.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject1 *obj = static_cast<mme_msg_tx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject1 *obj = mme_msg_tx_m->add_dynamic1("interface","nas","msg_type","deact_eps_br_ctxt_request",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject2 *obj = static_cast<mme_msg_tx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject2 *obj = mme_msg_tx_m->add_dynamic2("interface","nas","msg_type","deact_eps_br_ctxt_request",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject3 *obj = static_cast<mme_msg_tx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","nas","msg_type","deact_eps_br_ctxt_request",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
 		    auto p1 = std::make_pair(s1, obj);
 		    metrics_map.insert(p1);
 		    obj->counter.Increment();
@@ -3206,6 +3422,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		}
 		break;
 	}
+	case mmeStatsCounter::MME_MSG_TX_S1AP_ERAB_RELEASE_COMMAND:
+	{
+		mme_msg_tx_m->mme_msg_tx_s1ap_erab_release_command.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject1 *obj = static_cast<mme_msg_tx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject1 *obj = mme_msg_tx_m->add_dynamic1("interface","s1ap","msg_type","erab_release_command",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject2 *obj = static_cast<mme_msg_tx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject2 *obj = mme_msg_tx_m->add_dynamic2("interface","s1ap","msg_type","erab_release_command",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject3 *obj = static_cast<mme_msg_tx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","s1ap","msg_type","erab_release_command",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
 	case mmeStatsCounter::MME_MSG_TX_S11_CREATE_SESSION_REQUEST:
 	{
 		mme_msg_tx_m->mme_msg_tx_s11_create_session_request.Increment();
@@ -3505,6 +3772,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		    obj->counter.Increment();
 		} else {
 		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","s11","msg_type","create_bearer_response",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_MSG_TX_S11_DELETE_BEARER_RESPONSE:
+	{
+		mme_msg_tx_m->mme_msg_tx_s11_delete_bearer_response.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject1 *obj = static_cast<mme_msg_tx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject1 *obj = mme_msg_tx_m->add_dynamic1("interface","s11","msg_type","delete_bearer_response",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject2 *obj = static_cast<mme_msg_tx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject2 *obj = mme_msg_tx_m->add_dynamic2("interface","s11","msg_type","delete_bearer_response",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject3 *obj = static_cast<mme_msg_tx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","s11","msg_type","delete_bearer_response",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
 		    auto p1 = std::make_pair(s1, obj);
 		    metrics_map.insert(p1);
 		    obj->counter.Increment();
@@ -5093,6 +5411,159 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		}
 		break;
 	}
+	case mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC:
+	{
+		mme_procedures_m->mme_procedures_delete_bearer_proc.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DELETE_BEARER_PROC",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DELETE_BEARER_PROC",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DELETE_BEARER_PROC",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC_SUCCESS:
+	{
+		mme_procedures_m->mme_procedures_delete_bearer_proc_success.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DELETE_BEARER_PROC","proc_result","success",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DELETE_BEARER_PROC","proc_result","success",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DELETE_BEARER_PROC","proc_result","success",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC_FAILURE:
+	{
+		mme_procedures_m->mme_procedures_delete_bearer_proc_failure.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DELETE_BEARER_PROC","proc_result","failure",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DELETE_BEARER_PROC","proc_result","failure",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DELETE_BEARER_PROC","proc_result","failure",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
 	case mmeStatsCounter::MME_PROCEDURES_DED_BEARER_ACTIVATION_PROC:
 	{
 		mme_procedures_m->mme_procedures_ded_bearer_activation_proc.Increment();
@@ -5239,6 +5710,159 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		    obj->counter.Increment();
 		} else {
 		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DED_BEARER_ACTIVATION_PROC","proc_result","failure",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC:
+	{
+		mme_procedures_m->mme_procedures_ded_bearer_deactivation_proc.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DED_BEARER_DEACTIVATION_PROC",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DED_BEARER_DEACTIVATION_PROC",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DED_BEARER_DEACTIVATION_PROC",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_SUCCESS:
+	{
+		mme_procedures_m->mme_procedures_ded_bearer_deactivation_proc_success.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","success",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","success",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","success",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_FAILURE:
+	{
+		mme_procedures_m->mme_procedures_ded_bearer_deactivation_proc_failure.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject1 *obj = static_cast<mme_procedures_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject1 *obj = mme_procedures_m->add_dynamic1("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","failure",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject2 *obj = static_cast<mme_procedures_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject2 *obj = mme_procedures_m->add_dynamic2("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","failure",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_procedures_DynamicMetricObject3 *obj = static_cast<mme_procedures_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_procedures_DynamicMetricObject3 *obj = mme_procedures_m->add_dynamic3("procedure","DED_BEARER_DEACTIVATION_PROC","proc_result","failure",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
 		    auto p1 = std::make_pair(s1, obj);
 		    metrics_map.insert(p1);
 		    obj->counter.Increment();
