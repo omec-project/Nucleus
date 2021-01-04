@@ -204,6 +204,10 @@ handle_s11_message(void *message)
         	s11_DB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
         	break;
 
+    	case GTP_ECHO_REQ:
+    		s11_ECHO_req_resp_handler(msgBuf_p, &msgHeader, sgw_ip,src_port);
+    		break;
+
 	}
 
 	MsgBuffer_free(msgBuf_p);

@@ -93,6 +93,7 @@ gtpV2CodecOBJS := $(addprefix $(gtpV2CodecOBJDIR), \
 	ieClasses/arpIe.o \
 	ieClasses/throttlingIe.o \
 	ieClasses/pagingAndServiceInformationIe.o \
+	ieClasses/nodeFeaturesIe.o \
 	msgClasses/createSessionRequestMsg.o \
 	msgClasses/gtpV2MsgFactory.o \
 	gtpV2Stack.o \
@@ -111,6 +112,8 @@ gtpV2CodecOBJS := $(addprefix $(gtpV2CodecOBJDIR), \
 	msgClasses/downlinkDataNotificationMsg.o \
 	msgClasses/downlinkDataNotificationAcknowledgeMsg.o \
 	msgClasses/downlinkDataNotificationFailureIndicationMsg.o \
+	msgClasses/echoRequestMsg.o \
+	msgClasses/echoResponseMsg.o \
 	ieClasses/bearerContextsToBeModifiedInModifyBearerRequest.o \
 	ieClasses/bearerContextIe.o \
 	ieClasses/manual/gtpV2GroupedIe.o \
