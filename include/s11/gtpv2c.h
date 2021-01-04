@@ -18,6 +18,8 @@
 #define GTP_VERSION_GTPV2C                                   2
 
 /* GTP Message Types 29.274 - Table 6.1-1*/
+#define GTP_ECHO_REQ					      1
+#define GTP_ECHO_RSP					      2
 #define GTP_CREATE_SESSION_REQ                               32
 #define GTP_CREATE_SESSION_RSP                               33
 #define GTP_MODIFY_BEARER_REQ                                34

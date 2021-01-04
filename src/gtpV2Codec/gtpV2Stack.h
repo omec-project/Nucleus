@@ -48,6 +48,8 @@ public:
     DownlinkDataNotificationMsgData downlinkDataNotificationStackData;
     DownlinkDataNotificationAcknowledgeMsgData downlinkDataNotificationAcknowledgeStackData;
     DownlinkDataNotificationFailureIndicationMsgData downlinkDataNotificationFailureIndicationStackData;
+    EchoRequestMsgData echoRequestStackData;
+    EchoResponseMsgData echoResponseStackData;
 
     bool encodeMessage(GtpV2MessageHeader& msgHeader, MsgBuffer& buffer,
                  void* data_p = NULL);

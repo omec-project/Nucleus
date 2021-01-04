@@ -11,42 +11,41 @@
  * <TOP-DIR/scripts/GtpV2StackCodeGen/tts/ietemplate.cpp.tt>
  ******************************************************************************/
 
-#include "recoveryIe.h"
+#include "nodeFeaturesIe.h"
 #include "dataTypeCodecUtils.h"
 
-RecoveryIe::RecoveryIe() 
+NodeFeaturesIe::NodeFeaturesIe() 
 {
-    ieType = 3;
+    ieType = 152;
     // TODO
 
 }
 
-RecoveryIe::~RecoveryIe() {
+NodeFeaturesIe::~NodeFeaturesIe() {
     // TODO Auto-generated destructor stub
 }
 
-bool RecoveryIe::encodeRecoveryIe(MsgBuffer &buffer, RecoveryIeData const &data)
+bool NodeFeaturesIe::encodeNodeFeaturesIe(MsgBuffer &buffer, NodeFeaturesIeData const &data)
 {
-    if (!(DataTypeCodecUtils::encodeUint8Array32(buffer, data.restartCounter)))
+    if (!(buffer.writeUint8(data.supportedFeatures)))
     {
-    errorStream.add((char *)"Encoding of restartCounter failed\n");
-    return false;
+        errorStream.add((char *)"Encoding of supportedFeatures failed\n");
+        return false;
     }
 
     return true;
 }
 
-bool RecoveryIe::decodeRecoveryIe(MsgBuffer &buffer, RecoveryIeData &data, Uint16 length)
+bool NodeFeaturesIe::decodeNodeFeaturesIe(MsgBuffer &buffer, NodeFeaturesIeData &data, Uint16 length)
 {     
     // TODO optimize the length checks
     
     Uint16 ieBoundary = buffer.getCurrentIndex() + length;
 
-    Uint16 lengthLeft = length;
-    lengthLeft = ieBoundary - buffer.getCurrentIndex();
-    if (!(DataTypeCodecUtils::decodeUint8Array32(buffer, data.restartCounter, lengthLeft, 0)))
+    buffer.readUint8(data.supportedFeatures);
+    if (buffer.getCurrentIndex() > ieBoundary)
     {
-        errorStream.add((char *)"Failed to decode: restartCounter\n");
+        errorStream.add((char *)"Attempt to read beyond IE boundary: supportedFeatures\n");
         return false;
     }
 
@@ -59,20 +58,20 @@ bool RecoveryIe::decodeRecoveryIe(MsgBuffer &buffer, RecoveryIeData &data, Uint1
     }
     else
     {
-        errorStream.add((char *)"Unable to decode IE RecoveryIe\n");
+        errorStream.add((char *)"Unable to decode IE NodeFeaturesIe\n");
         return false;
     }
 }
-void RecoveryIe::displayRecoveryIe_v(RecoveryIeData const &data, Debug &stream)
+void NodeFeaturesIe::displayNodeFeaturesIe_v(NodeFeaturesIeData const &data, Debug &stream)
 {
     stream.incrIndent();
-    stream.add((char *)"RecoveryIeData:");
+    stream.add((char *)"NodeFeaturesIeData:");
     stream.incrIndent();
     stream.endOfLine();
   
-    stream.add((char *)"restartCounter:");
+    stream.add((char *)"supportedFeatures: ");
+    stream.add(data.supportedFeatures);
     stream.endOfLine();
-    DataTypeCodecUtils::displayUint8Array32_v(data.restartCounter, stream);
     stream.decrIndent();
     stream.decrIndent();
 }
