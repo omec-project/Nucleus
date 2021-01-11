@@ -37,20 +37,10 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside ni_detach_req_to_ue \n");
 	
 	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "ni_detach_req_to_ue: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
 	MmeDetachProcedureCtxt *procCtxt =  dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
-
-        if (procCtxt == NULL)
-        {
-                log_msg(LOG_DEBUG, "ni_detach_req_to_ue: procedure context is NULL\n");
-                return ActStatus::HALT;
-        }
+	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
 	ni_detach_request_Q_msg ni_detach_req;
 	
@@ -90,8 +80,7 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_NAS_NETWORK_INITIATED_DETACH);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
 	mmeIpcIf.dispatchIpcMsg((char *) &ni_detach_req, sizeof(ni_detach_req), destAddr);
-	
-	log_msg(LOG_DEBUG, "Leaving ni_detach_req_to_ue \n");
+;
 	ProcedureStats::num_of_detach_req_to_ue_sent ++;
 
 	return ActStatus::PROCEED;
@@ -102,16 +91,10 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 	log_msg(LOG_DEBUG, "Inside process_detach_accept_from_ue \n");
 		
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	
-	if (ue_ctxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "process_detach_accept_from_ue: ue context is NULL\n");
-		return ActStatus::HALT;
-	}
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 		
 	//ue_ctxt->getUeSecInfo().increment_uplink_count();
-	
-	log_msg(LOG_DEBUG, "Leaving process_detach_accept_from_ue \n");
+
 	ProcedureStats::num_of_detach_accept_from_ue ++;
 
 	return ActStatus::PROCEED;
@@ -125,11 +108,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
     log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_detach\n");
 
     UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-    if(ue_ctxt == NULL)
-    {
-            log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_detach: ue context is NULL \n");
-            return ActStatus::HALT;
-    }
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
     struct s1relcmd_info s1relcmd;
 
@@ -148,8 +127,6 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
-    log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue \n");
-
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
     return ActStatus::PROCEED;
 }
@@ -162,19 +139,12 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     log_msg(LOG_DEBUG, "Inside process_ue_ctxt_rel_comp_for_detach \n");
 
     UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ueCtxt, "Invalid UE\n");
     MmeDetachProcedureCtxt *procCtxt = dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
-    if (ueCtxt == NULL || procCtxt == NULL)
-    {
-    	log_msg(LOG_DEBUG, "UE context or  procedure context is NULL\n");
-    	return ActStatus::HALT;
-    }
+    VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
     MmContext* mmCtxt = ueCtxt->getMmContext();
-    if (mmCtxt == NULL)
-    {
-    	log_msg(LOG_DEBUG, "MM context is NULL \n");
-    	return ActStatus::HALT;
-    }
+    VERIFY_UE(cb, mmCtxt, "Invalid UE\n");
 
     if(procCtxt->getCancellationType() == SUBSCRIPTION_WITHDRAWAL)
     {
@@ -185,6 +155,12 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     	mmCtxt->setMmState( EpsDetached );
     	mmCtxt->setEcmState( ecmIdle_c );
     	ueCtxt->setS1apEnbUeId(0);
+    	if(procCtxt->getDetachType() == pgwInitDetach_c)
+    	{
+            SM::Event evt(DETACH_COMPLETE, NULL);
+            cb.qInternalEvent(evt);
+    	}
+
     	mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_DETACH_PROC_SUCCESS);
     	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
     }
@@ -193,8 +169,6 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     ProcedureStats::num_of_subscribers_detached ++;
     if (ProcedureStats::num_of_subscribers_attached > 0)
     	ProcedureStats::num_of_subscribers_attached --;
-
-    log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp_for_detach \n");
 
     return ActStatus::PROCEED;
 

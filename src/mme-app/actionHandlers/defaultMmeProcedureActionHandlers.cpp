@@ -428,18 +428,10 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 {
 	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ueCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "ue context is NULL \n");
-		return ActStatus::HALT;
-	}
+	VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL \n");
 
 	MmContext* mmCtxt = ueCtxt->getMmContext();
-	if (mmCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "mm context is NULL \n");
-		return ActStatus::HALT;
-	}
+    	VERIFY_UE(cb, mmCtxt, "CLR Hdlr: MmContext is NULL \n");
 	
 	ProcedureStats::num_of_clr_received ++;
 	ProcedureStats::num_of_cla_sent ++;
@@ -457,8 +449,11 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	        MmeContextManagerUtils::allocateDetachProcedureCtxt(cb, hssInitDetach_c);
 	if(prcdCtxt_p == NULL)
 	{
-		log_msg(LOG_ERROR, "Failed to allocate Procedure Ctxt\n");
-		return ActStatus::HALT;
+        	log_msg(LOG_ERROR,
+                	"Failed to allocate procedure context for detach cbIndex %d\n",
+                	cb.getCBIndex());
+        	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        	return ActStatus::PROCEED;
 	}
 	prcdCtxt_p->setCancellationType(SUBSCRIPTION_WITHDRAWAL);
 	prcdCtxt_p->setNasDetachType(reattachNotRequired);
@@ -753,12 +748,11 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
         {
             MmeSmCreateBearerProcCtxt *cbReqProc_p =
                     MmeContextManagerUtils::allocateCreateBearerRequestProcedureCtxt(
-                            cb);
+                            cb, cb_req->linked_eps_bearer_id);
 
             if (cbReqProc_p != NULL)
             {
                 cbReqProc_p->setCreateBearerReqEMsg(cb.getEventMessage());
-                cbReqProc_p->setBearerId(cb_req->linked_eps_bearer_id);
                 MmeSvcReqProcedureCtxt *srvReqProc_p = NULL;
                 srvReqProc_p =
                         dynamic_cast<MmeSvcReqProcedureCtxt*>(MmeContextManagerUtils::findProcedureCtxt(cb, serviceRequest_c));
@@ -867,6 +861,15 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 
             rc = ActStatus::ABORT;
         }
+	else if (procCtxt_p->getCtxtType() == dbReq_c)
+	{
+	    MmeSmDeleteBearerProcCtxt *dbReqProc_p =
+                    dynamic_cast<MmeSmDeleteBearerProcCtxt*>(procCtxt_p);
+
+            dbReqProc_p->setMmeErrorCause(PAGING_FAILED);
+
+            rc = ActStatus::ABORT;
+	}
         else if (procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
         {
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -877,3 +880,209 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 
     return rc;
 }
+
+/***************************************
+* Action handler : default_delete_bearer_req_handler
+***************************************/
+ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Entry \n");
+	
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    // Invalid buffer. Nothing to do, wait for gw to retry.
+    VERIFY(msgBuf, return ActStatus::PROCEED,
+            "Invalid delete bearer request msg buffer\n");
+
+    const db_req_Q_msg *db_req =
+            static_cast<const db_req_Q_msg*>(msgBuf->getDataPointer());
+    VERIFY(db_req, return ActStatus::PROCEED,
+            "Invalid delete bearer request data\n");
+
+    uint8_t gtpCause = 0;
+    int sgw_cp_teid = 0;
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        SessionContext* sessCtxt = NULL;
+        if (db_req->linked_bearer_id != 0)
+        {
+            sessCtxt = ueCtxt->findSessionContextByLinkedBearerId(db_req->linked_bearer_id);
+        }
+        else
+        {
+            sessCtxt = MmeContextManagerUtils::findSessionCtxtForEpsBrId(
+                    db_req->eps_bearer_ids[0], ueCtxt);
+        }
+        if (sessCtxt)
+        {
+            MmContext *mmCtxt = ueCtxt->getMmContext();
+            if (mmCtxt != NULL)
+            {
+                MmeSmDeleteBearerProcCtxt *dbReqProc_p =
+                        MmeContextManagerUtils::allocateDeleteBearerRequestProcedureCtxt(
+                                cb, sessCtxt->getLinkedBearerId());
+
+                if (dbReqProc_p != NULL)
+                {
+                    dbReqProc_p->setDeleteBearerReqEMsg(cb.getEventMessage());
+                    if (db_req->linked_bearer_id)
+                        dbReqProc_p->setLbiPresent(true);
+                    MmeSvcReqProcedureCtxt *srvReqProc_p = NULL;
+                    srvReqProc_p =
+                            dynamic_cast<MmeSvcReqProcedureCtxt*>(MmeContextManagerUtils::findProcedureCtxt(
+                                    cb, serviceRequest_c));
+                    if (srvReqProc_p != NULL)
+                    {
+                        // If a service request is already in progress, just set the paging flag,
+                        // so that at the end of service request procedure, DBReq procedure will
+                        // be informed and can proceed with the ded deactivation.
+                        srvReqProc_p->setPagingTriggerBit(pgwInit_c);
+
+                        SM::Event evt(GW_CP_REQ_INIT_PAGING, NULL);
+                        cb.qInternalEvent(evt);
+                    }
+                    else if (mmCtxt->getEcmState() == ecmIdle_c)
+                    {
+			log_msg(LOG_DEBUG,"UE is IDLE\n");
+                        if (db_req->linked_bearer_id == 0 && db_req->cause != GTPV2C_CAUSE_REACTIVATION_REQUESTED)
+                        {
+                            for (int i = 0; i < db_req->eps_bearer_ids_count; i++)
+                            {
+                                BearerContext *bearerCtxt_p =
+                                    MmeContextManagerUtils::findBearerContext(
+                                        db_req->eps_bearer_ids[i], ueCtxt, sessCtxt);
+
+                                if (bearerCtxt_p)
+                                {
+                                    MmeContextManagerUtils::deallocateBearerContext(cb,
+                                        bearerCtxt_p, sessCtxt, ueCtxt);
+
+                                    gtpCause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // If ECM state is ECM idle, allocate service request and set paging
+                            // trigger as pgwInit_c, so that at the end of service request procedure,
+                            // DBReq procedure will be informed and can proceed with the ded deactivation.
+			    log_msg(LOG_DEBUG,"In Idle\n");
+                            srvReqProc_p =
+                                MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
+                                        cb, pgwInit_c);
+                            if (srvReqProc_p != NULL)
+                            {
+                                SM::Event evt(GW_CP_REQ_INIT_PAGING, NULL);
+                                cb.qInternalEvent(evt);
+                            }
+                            else
+                            {
+                                log_msg(LOG_ERROR,
+                                    "Failed to allocate context for paging procedure.\n");
+                                gtpCause = GTPV2C_CAUSE_UNABLE_TO_PAGE_UE;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ((db_req->linked_bearer_id)
+                                && (ueCtxt->getSessionContextContainer().size()
+                                        == 1))
+                        {
+                            SM::Event evt(START_UE_DETACH, NULL);
+                            cb.qInternalEvent(evt);
+                        }
+                        else
+                        {
+                            SM::Event evt(START_DED_DEACTIVATION, NULL);
+                            cb.qInternalEvent(evt);
+                        }
+                    }
+                }
+                else
+                {
+                    log_msg(LOG_INFO,
+                            "Failed to allocate context for delete bearer procedure.\n");
+                    gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
+                }
+            }
+            else
+            {
+                log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL \n");
+                gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+            }
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Invalid UE Context. Session Context is NULL \n");
+            gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "UE Context is NULL \n");
+
+        gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (gtpCause != 0)
+    {
+        struct DB_RESP_Q_msg dbRsp;
+        memset(&dbRsp, 0, sizeof(dbRsp));
+        dbRsp.msg_type = delete_bearer_response;
+        dbRsp.ue_idx = db_req->s11_mme_cp_teid;
+        dbRsp.seq_no = db_req->seq_no;
+        dbRsp.cause = gtpCause;
+        /*Incase of unavailability of session/UE Contexts , s11_sgw_cp_teid will be set as 0 */
+        dbRsp.s11_sgw_c_fteid.header.teid_gre = sgw_cp_teid;
+        dbRsp.s11_sgw_c_fteid.ip.ipv4.s_addr = db_req->sgw_ip;
+        dbRsp.destination_port = db_req->source_port;
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s11AppInstanceNum_c;
+
+        mmeStats::Instance()->increment(
+                mmeStatsCounter::MME_MSG_TX_S11_DELETE_BEARER_RESPONSE);
+        FIND_COMPONENT(MmeIpcInterface, MmeIpcInterfaceCompId).
+        		dispatchIpcMsg((char*) &dbRsp, sizeof(dbRsp), destAddr);
+    }
+	
+    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Exit \n");
+	
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : handle_detach_failure
+***************************************/
+ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "handle_detach_failure: Entry \n");
+
+    ActStatus rc = ActStatus::PROCEED;
+
+    MmeProcedureCtxt *procCtxt_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if(procCtxt_p != NULL)
+    {
+        if(procCtxt_p->getCtxtType() == dbReq_c)
+        {
+            MmeSmDeleteBearerProcCtxt *dbReqProc_p =
+                    dynamic_cast<MmeSmDeleteBearerProcCtxt*>(procCtxt_p);
+
+            dbReqProc_p->setMmeErrorCause(DETACH_FAILED);
+
+            rc = ActStatus::ABORT;
+        }
+        else if(procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
+        {
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }
+    }
+    log_msg(LOG_DEBUG, "handle_detach_failure: Exit \n");
+
+    return rc;
+}
+

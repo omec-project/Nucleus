@@ -55,7 +55,7 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = db_resp_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
-    create_sock_addr(&sgw_ip, g_s11_cfg.egtp_def_port,
+    create_sock_addr(&sgw_ip, db_resp_msg->destination_port,
                     db_resp_msg->s11_sgw_c_fteid.ip.ipv4.s_addr);
 
 	DeleteBearerResponseMsgData msgData;
@@ -89,6 +89,11 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
                         db_resp_msg->bearer_ctxt_db_resp_list.bearer_ctxt[i].pco_from_ue_opt.pco_length);
             }
         }
+    }
+    else if(db_resp_msg->linked_bearer_id)
+    {
+        msgData.linkedEpsBearerIdIePresent = true;
+        msgData.linkedEpsBearerId.epsBearerId = db_resp_msg->linked_bearer_id;
     }
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dbRespMsgBuf_p, &gtpHeader, &msgData);

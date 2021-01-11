@@ -312,6 +312,18 @@ class BearerCtxtCBResp
                 bearer_ctxt_cb_resp_t bearer_ctxt_cb_resp_m;
 };
 
+class BearerCtxtDBResp
+{
+        public:
+                BearerCtxtDBResp();
+                ~BearerCtxtDBResp();
+                bool operator == ( const BearerCtxtDBResp& bearer_ctxt_db_resp_i )const;
+        public:
+                uint8_t eps_bearer_id;
+                struct gtp_cause cause;
+                struct pco pco_from_ue_opt;
+};
+
 class BearerStatusEMsg : public cmn::EventMessage
 {
 public:

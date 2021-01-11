@@ -423,6 +423,11 @@ typedef struct erab_su_resp_item {
         uint32_t gtp_teid;
 } erab_su_resp_item;
 
+typedef struct erab_su_resp_list {
+        int count ;
+        erab_su_resp_item erab_su_res_item[MAX_ERAB_SIZE];
+}erab_su_resp_list;
+
 struct ERAB_admitted_list{
         int count ;
         ERAB_admitted erab_admitted[MAX_ERAB_SIZE];
@@ -433,10 +438,22 @@ typedef struct erab_setup_list {
         erab_setup_item erab_su_item[MAX_ERAB_SIZE];
 }erab_setup_list;
 
-typedef struct erab_su_resp_list {
-        int count ;
-        erab_su_resp_item erab_su_res_item[MAX_ERAB_SIZE];
-}erab_su_resp_list;
+typedef struct erab_release_list
+{
+    uint8_t count;
+    uint8_t erab_id[MAX_ERAB_SIZE];
+}erab_release_list;
+
+/*36.413 v15.6.0- 9.2.1.36*/
+typedef struct erab_list_item {
+    uint8_t e_RAB_ID;
+    s1apCause_t cause;
+}erab_list_item;
+
+typedef struct erab_list {
+    uint8_t count;
+    erab_list_item erab_item[MAX_ERAB_SIZE];
+}erab_list;
 
 #define SECURITY_KEY_SIZE 32
 typedef struct proto_IE_data {
@@ -466,6 +483,8 @@ typedef struct proto_IE_data {
         struct src_target_transparent_containerIE targetToSrcTranspContainer;
     	struct enB_status_transfer_transparent_container_list enB_status_transfer_transparent_containerlist;
         struct ERAB_admitted_list erab_admittedlist;
+        erab_release_list erab_releaselist;
+        erab_list erab_failed_to_release_list;
     }val;
 }proto_IEs;
 

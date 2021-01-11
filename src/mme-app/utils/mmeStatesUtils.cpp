@@ -182,12 +182,61 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
                             }
                         }
                     }
-
                 }
             }
         }
     }
         break;
+    case ERAB_REL_RESP_FROM_ENB:
+        {
+            cmn::IpcEMsgShPtr eMsg =
+                    std::dynamic_pointer_cast<cmn::IpcEventMessage>(
+                            event.getEventData());
+            if (eMsg)
+            {
+                utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+                if (msgBuf != NULL)
+                {
+                    const s1_incoming_msg_data_t *msgData_p =
+                            (s1_incoming_msg_data_t*) (msgBuf->getDataPointer());
+
+                    if (msgData_p != NULL)
+                    {
+                        const struct erab_rel_resp_Q_msg &erabRelResp =
+                                (msgData_p->msg_data.erab_rel_resp_Q_msg_m);
+
+                        if (erabRelResp.erab_rel_list.count)
+                        {
+                            for (int i = 0; i < erabRelResp.erab_rel_list.count; i++)
+                            {
+                                if (erabRelResp.erab_rel_list.erab_id[i]
+                                        == smProc_p->getBearerId())
+                                {
+                                    rc = EventStatus::CONSUME_AND_FORWARD;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (erabRelResp.erab_failed_to_release_list.count)
+                        {
+                            for (int i = 0; i < erabRelResp.erab_failed_to_release_list.count;
+                                    i++)
+                            {
+                                if (erabRelResp.erab_failed_to_release_list.erab_item[i].e_RAB_ID
+                                        == smProc_p->getBearerId())
+                                {
+                                    rc = EventStatus::CONSUME_AND_FORWARD;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+            break;
     case ACT_DED_BEARER_ACCEPT_FROM_UE:
     {
         cmn::IpcEMsgShPtr eMsg =
@@ -240,9 +289,37 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
         }
     }
         break;
+    case DEACT_DED_BEARER_ACCEPT_FROM_UE:
+        {
+            cmn::IpcEMsgShPtr eMsg =
+                    std::dynamic_pointer_cast<cmn::IpcEventMessage>(
+                            event.getEventData());
+            if (eMsg)
+            {
+                utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
+                if (msgBuf != NULL)
+                {
+                    const s1_incoming_msg_data_t *msgData_p =
+                            (s1_incoming_msg_data_t*) (msgBuf->getDataPointer());
+                    if (msgData_p != NULL)
+                    {
+                        const struct deactivate_epsbearerctx_accept_Q_msg &deactBrAcpt =
+                                (msgData_p->msg_data.deactivate_epsbearerctx_accept_Q_msg_m);
+
+                        if (smProc_p->getBearerId() == deactBrAcpt.eps_bearer_id)
+                        {
+                            rc = EventStatus::CONSUME;
+                        }
+                    }
+                }
+            }
+        }
+            break;
     case GW_CP_REQ_INIT_PAGING:
     case GW_INIT_DED_BEARER_AND_SESSION_SETUP:
+    case DED_BEARER_DEACT_START:
     case PAGING_FAILURE:
+    case DETACH_FAILURE:
     {
         rc = EventStatus::CONSUME_AND_FORWARD;
     }

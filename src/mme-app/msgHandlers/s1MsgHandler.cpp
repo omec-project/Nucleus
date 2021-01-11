@@ -200,6 +200,15 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 			handleActDedBearerCtxtRejectMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
+		case msg_type_t::erab_release_response:
+                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE);
+                        handleErabRelResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
+                        break;
+
+                case msg_type_t::deactivate_eps_bearer_context_accept:
+                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
+                        handleDeActBearerCtxtAcceptMsg_v(std::move(eMsg), msgData_p->ue_idx);
+                        break;
 
 		default:
 			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
@@ -628,5 +637,43 @@ void S1MsgHandler::handleActDedBearerCtxtRejectMsg_v(IpcEMsgUnqPtr eMsg,
 
     // Fire activate_ded_bearer_ctxt_reject event, insert cb to procedure queue
     SM::Event evt(ACT_DED_BEARER_REJECT_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
+    controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleErabRelResponseMsg_v(IpcEMsgUnqPtr eMsg,
+        uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleErabRelResponseMsg_v\n");
+
+    SM::ControlBlock* controlBlk_p =
+            SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+    if(controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleErabRelResponseMsg_v: "
+                "Failed to find UE Context using idx %d\n", ueIdx);
+        return;
+    }
+
+    // Fire erab_rel_response event, insert cb to procedure queue
+    SM::Event evt(ERAB_REL_RESP_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
+    controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleDeActBearerCtxtAcceptMsg_v(IpcEMsgUnqPtr eMsg,
+        uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleDeActBearerCtxtAcceptMsg_v\n");
+
+    SM::ControlBlock* controlBlk_p =
+            SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+    if(controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleDeActBearerCtxtAcceptMsg_v: "
+                "Failed to find UE Context using idx %d\n", ueIdx);
+        return;
+    }
+
+    // Fire deactivate_eps_bearer_ctxt_acpt event, insert cb to procedure queue
+    SM::Event evt(DEACT_DED_BEARER_ACCEPT_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
 }

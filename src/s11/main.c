@@ -48,7 +48,7 @@ struct thread_pool *g_tpool_tipc_reader_s11;
 extern char processName[255];
 extern int pid;
 
-#define S11_IPC_MSG_BUF_LEN 1024
+#define S11_IPC_MSG_BUF_LEN 4096
 
 void
 handle_mmeapp_message_s11(void * data)

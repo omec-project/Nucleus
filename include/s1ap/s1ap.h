@@ -45,6 +45,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg, struct proto_IE* proto
 int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_ies);
 int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies);
+int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies);
 
 int
 s1_setup_handler(InitiatingMessage_t *msg, int enb_fd);
@@ -95,6 +96,9 @@ erab_mod_indication_handler(InitiatingMessage_t *msg);
 
 int
 erab_setup_response_handler(SuccessfulOutcome_t *msg);
+
+int
+erab_release_response_handler(SuccessfulOutcome_t *msg);
 
 int s1ap_mme_encode_ue_context_release_command(
         struct s1ap_common_req_Q_msg *s1apPDU,
@@ -164,6 +168,10 @@ int s1ap_mme_encode_erab_mod_confirmation(
 int s1ap_mme_encode_erab_setup_request(
   	struct erabsu_ctx_req_Q_msg *s1apPDU,
   	uint8_t **buffer, uint32_t *length);
+
+int s1ap_mme_encode_erab_release_command(
+    struct erab_release_command_Q_msg *s1apPDU,
+    uint8_t **buffer, uint32_t *length);
 
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd);

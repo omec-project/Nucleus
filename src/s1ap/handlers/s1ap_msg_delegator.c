@@ -323,6 +323,10 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 	case S1AP_ERAB_SETUP_CODE:
 		erab_setup_response_handler(msg);
 		break;
+
+    case S1AP_ERAB_RELEASE_CODE:
+        erab_release_response_handler(msg);
+        break;
 		
 	default:
 		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
@@ -2195,6 +2199,247 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                 proto_ies->data[i].IE_type = ie_p->id;
 		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
             }
+
+            }
+        }
+    }
+    return 0;
+}
+
+int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
+                                struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if(msg->value.present == SuccessfulOutcome__value_PR_E_RABReleaseResponse)
+    {
+        ProtocolIE_Container_129P17_t *protocolIes =
+                &msg->value.choice.E_RABReleaseResponse.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+
+        for (int i = 0; i < protocolIes->list.count; i++)
+        {
+            E_RABReleaseResponseIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id)
+            {
+                case ProtocolIE_ID_id_eNB_UE_S1AP_ID:
+                {
+                    ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                    if(E_RABReleaseResponseIEs__value_PR_ENB_UE_S1AP_ID
+                            == ie_p->value.present)
+                    {
+                        s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                    }
+
+                    if(s1apENBUES1APID_p != NULL)
+                    {
+                        proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                        memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                               s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                    }
+                    else
+                    {
+                        log_msg(LOG_ERROR,
+                                "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                        return -1;
+                    }
+                }
+                    break;
+                case ProtocolIE_ID_id_MME_UE_S1AP_ID:
+                {
+                    MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                    if(E_RABReleaseResponseIEs__value_PR_MME_UE_S1AP_ID
+                            == ie_p->value.present)
+                    {
+                        s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                    }
+
+                    if(s1apMMEUES1APID_p != NULL)
+                    {
+                        proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID;
+                        memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                               s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                    }
+                    else
+                    {
+                        log_msg(LOG_ERROR,
+                                "Decoding of IE MME_UE_S1AP_ID failed\n");
+                        return -1;
+                    }
+                }
+                    break;
+                case ProtocolIE_ID_id_E_RABReleaseListBearerRelComp:
+                {
+                    E_RABReleaseListBearerRelComp_t *e_RABReleaseList_p = NULL;
+                    if(E_RABReleaseResponseIEs__value_PR_E_RABReleaseListBearerRelComp
+                            == ie_p->value.present)
+                    {
+                        e_RABReleaseList_p =
+                                &ie_p->value.choice.E_RABReleaseListBearerRelComp;
+                    }
+
+                    if(e_RABReleaseList_p != NULL)
+                    {
+                        proto_ies->data[i].IE_type =
+                        S1AP_IE_E_RAB_RELEASE_LIST_BEARER_REL_COMP;
+                        proto_ies->data[i].val.erab_releaselist.count =
+                                e_RABReleaseList_p->list.count;
+
+                        for (int j = 0; j < e_RABReleaseList_p->list.count; j++)
+                        {
+                            E_RABReleaseItemBearerRelCompIEs_t *ie_p;
+                            ie_p =
+                                    (E_RABReleaseItemBearerRelCompIEs_t*) e_RABReleaseList_p->list.array[j];
+                            switch (ie_p->id)
+                            {
+                                case ProtocolIE_ID_id_E_RABReleaseItemBearerRelComp:
+                                {
+                                    E_RABReleaseItemBearerRelComp_t *eRabReleaseItem_p =
+                                    NULL;
+                                    if(E_RABReleaseItemBearerRelCompIEs__value_PR_E_RABReleaseItemBearerRelComp
+                                            == ie_p->value.present)
+                                    {
+                                        eRabReleaseItem_p =
+                                                &ie_p->value.choice.E_RABReleaseItemBearerRelComp;
+                                    }
+
+                                    if(eRabReleaseItem_p != NULL)
+                                    {
+                                        proto_ies->data[i].val.erab_releaselist.erab_id[j] =
+                                                (uint8_t) eRabReleaseItem_p->e_RAB_ID;
+                                    }
+                                    else
+                                    {
+                                        log_msg(LOG_ERROR,
+                                                "Decoding of IE E_RABReleaseItemBearerRelComp failed\n");
+                                        return -1;
+                                    }
+                                }
+                                    break;
+                                default:
+                                {
+                                    log_msg(LOG_WARNING,
+                                            "Unhandled List item %d", ie_p->id);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log_msg(LOG_ERROR,
+                                "Decoding of IE E_RABReleaseItemBearerRelComp failed\n");
+                        return -1;
+                    }
+                }
+                    break;
+                case ProtocolIE_ID_id_E_RABFailedToReleaseList:
+                {
+                    E_RABList_t *e_RABFailedToReleaseList_p = NULL;
+                    if(E_RABReleaseResponseIEs__value_PR_E_RABList
+                            == ie_p->value.present)
+                    {
+                        e_RABFailedToReleaseList_p =
+                                &ie_p->value.choice.E_RABList;
+                    }
+
+                    if(e_RABFailedToReleaseList_p != NULL)
+                    {
+                        proto_ies->data[i].IE_type =
+                        S1AP_IE_E_RAB_FAILED_TO_RELEASED_LIST;
+                        proto_ies->data[i].val.erab_failed_to_release_list.count =
+                                e_RABFailedToReleaseList_p->list.count;
+
+                        for (int j = 0;
+                                j < e_RABFailedToReleaseList_p->list.count; j++)
+                        {
+                            E_RABItemIEs_t *ie_p;
+                            ie_p =
+                                    (E_RABItemIEs_t*) e_RABFailedToReleaseList_p->list.array[j];
+                            switch (ie_p->id)
+                            {
+                                case ProtocolIE_ID_id_E_RABItem:
+                                {
+                                    E_RABItem_t *eRabFailedToReleaseItem_p =
+                                            NULL;
+                                    if(E_RABItemIEs__value_PR_E_RABItem
+                                            == ie_p->value.present)
+                                    {
+                                        eRabFailedToReleaseItem_p =
+                                                &ie_p->value.choice.E_RABItem;
+                                    }
+
+                                    if(eRabFailedToReleaseItem_p != NULL)
+                                    {
+                                        proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].e_RAB_ID =
+                                                (uint8_t) eRabFailedToReleaseItem_p->e_RAB_ID;
+
+                                        Cause_t *s1apCause_p =
+                                                &eRabFailedToReleaseItem_p->cause;
+                                        if(s1apCause_p != NULL)
+                                        {
+                                            proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].cause.present =
+                                                    s1apCause_p->present;
+                                            switch (s1apCause_p->present)
+                                            {
+                                                case Cause_PR_radioNetwork:
+                                                {
+                                                    log_msg(LOG_DEBUG,
+                                                            "RadioNetwork case : %d\n",
+                                                            s1apCause_p->choice.radioNetwork);
+                                                    proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].cause.choice.radioNetwork =
+                                                            s1apCause_p->choice.radioNetwork;
+                                                }
+                                                    break;
+                                                default:
+                                                    log_msg(LOG_WARNING,
+                                                            "Unknown cause %d\n",
+                                                            s1apCause_p->present);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            log_msg(LOG_ERROR,
+                                                    "Decoding of IE eRabFailedToReleaseItem->Cause failed\n");
+                                            return -1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        log_msg(LOG_ERROR,
+                                                "Decoding of IE eRabFailedToReleaseItem failed\n");
+                                        return -1;
+                                    }
+                                }
+                                    break;
+                                default:
+                                {
+                                    log_msg(LOG_WARNING,
+                                            "Unhandled List item %d \n",
+                                            ie_p->id);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log_msg(LOG_ERROR,
+                                "Decoding of IE eRabFailedToReleaseItem_p failed\n");
+                        return -1;
+                    }
+                }
+                    break;
+                default:
+                {
+                    proto_ies->data[i].IE_type = ie_p->id;
+                    log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                }
 
             }
         }

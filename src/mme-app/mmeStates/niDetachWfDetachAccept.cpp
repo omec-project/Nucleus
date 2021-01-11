@@ -29,7 +29,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(ni_detach_wf_detach_accept)
+NiDetachWfDetachAccept::NiDetachWfDetachAccept():State(ni_detach_wf_detach_accept, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -63,5 +63,16 @@ void NiDetachWfDetachAccept::initialize()
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue_for_detach);
                 actionTable.setNextState(NiDetachWfS1RelComp::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DETACH_ACCEPT_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_detach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

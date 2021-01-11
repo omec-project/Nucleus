@@ -20,7 +20,9 @@ namespace mme
 {
 	class S1HandoverProcedureContext;
 	class MmeSmCreateBearerProcCtxt;
+	class MmeSmDeleteBearerProcCtxt;
 	class UEContext;
+	class BearerContext;
 	class MmeS1MsgUtils
 	{
 	public:
@@ -31,6 +33,8 @@ namespace mme
 				S1HandoverProcedureContext& procCtxt, struct handover_command_Q_msg& hoCommand);
 		static bool populateErabSetupAndActDedBrReq(SM::ControlBlock& cb, UEContext& ueCtxt,
 				MmeSmCreateBearerProcCtxt& procCtxt, struct erabsu_ctx_req_Q_msg& erab_su_req);
+		static bool populateErabRelAndDeActDedBrReq(SM::ControlBlock &cb, UEContext &ueCtxt,
+				BearerContext &bearerCtxt, struct erab_release_command_Q_msg &erab_rel_cmd);
 
 	private:
 		MmeS1MsgUtils();

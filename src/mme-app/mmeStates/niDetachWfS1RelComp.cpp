@@ -28,7 +28,7 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfS1RelComp::NiDetachWfS1RelComp():State(ni_detach_wf_s1_rel_comp)
+NiDetachWfS1RelComp::NiDetachWfS1RelComp():State(ni_detach_wf_s1_rel_comp, defaultStateGuardTimerDuration_c)
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -60,5 +60,15 @@ void NiDetachWfS1RelComp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_ue_ctxt_rel_comp_for_detach);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(UE_CTXT_REL_COMP_FROM_ENB, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_detach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

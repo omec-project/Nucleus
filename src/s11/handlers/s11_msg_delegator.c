@@ -201,7 +201,7 @@ handle_s11_message(void *message)
         	break;
 				
     	case GTP_DELETE_BEARER_REQ:
-        	s11_DB_req_handler(msgBuf_p, &msgHeader, sgw_ip);
+        	s11_DB_req_handler(msgBuf_p, &msgHeader, sgw_ip ,src_port);
         	break;
 
     	case GTP_ECHO_REQ:

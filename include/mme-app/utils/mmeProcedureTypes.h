@@ -36,6 +36,8 @@ namespace mme
         erabModInd_c,
 	cbReq_c,
 	dedBrActivation_c,
+	dbReq_c,
+	dedBrDeActivation_c,
 
     	maxProcedureType_c
  };
@@ -47,6 +49,7 @@ namespace mme
     	mmeInitDetach_c,
     	hssInitDetach_c,
     	ueInitDetach_c,
+	pgwInitDetach_c,
 
     	maxDetachtype_c
  };
@@ -99,6 +102,14 @@ namespace mme
      bool operator()(const BearerCtxtCBResp& lhs)
      {
          if (lhs.bearer_ctxt_cb_resp_m.eps_bearer_id == bearerId)
+             return true;
+         else
+             return false;
+     }
+
+     bool operator()(const BearerCtxtDBResp& lhs)
+     {
+         if (lhs.eps_bearer_id == bearerId)
              return true;
          else
              return false;

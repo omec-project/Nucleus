@@ -104,6 +104,14 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEMsgUnqPtr eMsg)
 		}
 		break;
 
+		case msg_type_t::delete_bearer_request:
+                {
+                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_BEARER_REQUEST);
+                        const struct db_req_Q_msg * dbr = (const struct db_req_Q_msg *) (msgBuf->getDataPointer());
+                        handleDeleteBearerRequestMsg_v(std::move(eMsg), dbr->s11_mme_cp_teid);
+                }
+                break;
+
 		default:
 			log_msg(LOG_INFO, "Unhandled Gtp Message %d \n", msgData_p->msg_type);
 	}
@@ -217,5 +225,24 @@ void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t 
 
         // Fire CB Req from gw event, insert cb to procedure queue
         SM::Event evt(CREATE_BEARER_REQ_FROM_GW, cmn::IpcEMsgShPtr(std::move(eMsg)));
+        controlBlk_p->addEventToProcQ(evt);
+}
+
+void GtpMsgHandler::handleDeleteBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
+{
+        log_msg(LOG_INFO,"Inside handle Delete Bearer Request\n");
+
+        SM::ControlBlock* controlBlk_p =
+                MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
+        if(controlBlk_p == NULL)
+        {
+                log_msg(LOG_ERROR, "handleDeleteBearerRequestMsg_v: "
+                                                        "Failed to find UE context using idx %d\n",
+                                                        ueIdx);
+                return;
+        }
+
+        // Fire DB Req from gw event, insert cb to procedure queue
+        SM::Event evt(DELETE_BEARER_REQ_FROM_GW, cmn::IpcEMsgShPtr(std::move(eMsg)));
         controlBlk_p->addEventToProcQ(evt);
 }

@@ -34,6 +34,8 @@ namespace mme
 			MmeErabModIndProcedureCtxtManagerm_p = NULL;
 			MmeSmCreateBearerProcCtxtManagerm_p = NULL;
 			SmDedActProcCtxtManagerm_p = NULL;
+			MmeSmDeleteBearerProcCtxtManagerm_p = NULL;
+			SmDedDeActProcCtxtManagerm_p = NULL;
 
 			initialize();
 	}
@@ -57,6 +59,8 @@ namespace mme
 			delete MmeErabModIndProcedureCtxtManagerm_p;
 			delete MmeSmCreateBearerProcCtxtManagerm_p;
 			delete SmDedActProcCtxtManagerm_p;
+			delete MmeSmDeleteBearerProcCtxtManagerm_p;
+			delete SmDedDeActProcCtxtManagerm_p;
 	}
 	
 	/******************************************
@@ -80,6 +84,8 @@ namespace mme
 		MmeErabModIndProcedureCtxtManagerm_p = new MmeErabModIndProcedureCtxtManager(8000);
 		MmeSmCreateBearerProcCtxtManagerm_p = new MmeSmCreateBearerProcCtxtManager(8000);
 		SmDedActProcCtxtManagerm_p = new SmDedActProcCtxtManager(8000);
+		MmeSmDeleteBearerProcCtxtManagerm_p = new MmeSmDeleteBearerProcCtxtManager(8000);
+		SmDedDeActProcCtxtManagerm_p = new SmDedDeActProcCtxtManager(8000);
 	}
 	
 	/******************************************************************************
@@ -216,6 +222,24 @@ namespace mme
 	void SubsDataGroupManager::deleteSmDedActProcCtxt(SmDedActProcCtxt* SmDedActProcCtxtp )
 	{
 		SmDedActProcCtxtManagerm_p->deallocateSmDedActProcCtxt( SmDedActProcCtxtp );
+	}
+	MmeSmDeleteBearerProcCtxt* SubsDataGroupManager::getMmeSmDeleteBearerProcCtxt()
+	{
+		return MmeSmDeleteBearerProcCtxtManagerm_p->allocateMmeSmDeleteBearerProcCtxt();
+	}
+
+	void SubsDataGroupManager::deleteMmeSmDeleteBearerProcCtxt(MmeSmDeleteBearerProcCtxt* MmeSmDeleteBearerProcCtxtp )
+	{
+		MmeSmDeleteBearerProcCtxtManagerm_p->deallocateMmeSmDeleteBearerProcCtxt( MmeSmDeleteBearerProcCtxtp );
+	}
+	SmDedDeActProcCtxt* SubsDataGroupManager::getSmDedDeActProcCtxt()
+	{
+		return SmDedDeActProcCtxtManagerm_p->allocateSmDedDeActProcCtxt();
+	}
+
+	void SubsDataGroupManager::deleteSmDedDeActProcCtxt(SmDedDeActProcCtxt* SmDedDeActProcCtxtp )
+	{
+		SmDedDeActProcCtxtManagerm_p->deallocateSmDedDeActProcCtxt( SmDedDeActProcCtxtp );
 	}
 	
 	/******************************************
