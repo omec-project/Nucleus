@@ -25,14 +25,6 @@ extern int g_resp_fd;
 extern struct GtpV2Stack* gtpStack_gp;
 /*End : globals and externs*/
 
-uint64_t conv_uint8_arr_to_uint64(const uint8_t* bit_rate_array)
-{
-    uint64_t bit_rate_kbps = (*(bit_rate_array) << 32) | (*(bit_rate_array+1) << 24) | (*(bit_rate_array+2) << 16) | 
-	    			(*(bit_rate_array+3) << 8) | (*(bit_rate_array+4));
-    return bit_rate_kbps;
-}
-
-
 void build_bearer_qos(BearerQosIeData* s11_bearer_qos, bearer_qos_t* mme_bearer_qos)
 {
 	mme_bearer_qos->arp.prioLevel = s11_bearer_qos->pl;

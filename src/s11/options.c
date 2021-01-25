@@ -11,6 +11,13 @@
 #include <string.h>
 #include "log.h"
 
+uint64_t conv_uint8_arr_to_uint64(const uint8_t* bit_rate_array)
+{
+    uint64_t bit_rate_kbps = (*(bit_rate_array) << 32) | (*(bit_rate_array+1) << 24) | (*(bit_rate_array+2) << 16) | 
+	    			(*(bit_rate_array+3) << 8) | (*(bit_rate_array+4));
+    return bit_rate_kbps;
+}
+
 uint8_t create_sock_addr(
                 struct sockaddr_in *addr, 
                 uint16_t port, uint32_t val)

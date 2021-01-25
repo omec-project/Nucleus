@@ -77,8 +77,16 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	csr_info.pdn_addr.pdn_type = 1;
 	csr_info.pdn_addr.ip_type.ipv4.s_addr = msgData.pdnAddressAllocation.ipV4Address.ipValue;
 
+    csr_info.bearerQos.qci = msgData.bearerContextsCreated[0].bearerLevelQos.qci; 	
+    csr_info.bearerQos.arp.preEmptionVulnebility = msgData.bearerContextsCreated[0].bearerLevelQos.pvi;
+    csr_info.bearerQos.arp.prioLevel = msgData.bearerContextsCreated[0].bearerLevelQos.pl;
+    csr_info.bearerQos.arp.preEmptionCapab = msgData.bearerContextsCreated[0].bearerLevelQos.pci;
+    csr_info.bearerQos.mbr_ul = conv_uint8_arr_to_uint64(msgData.bearerContextsCreated[0].bearerLevelQos.maxBitRateUl.values);
+    csr_info.bearerQos.mbr_dl = conv_uint8_arr_to_uint64(msgData.bearerContextsCreated[0].bearerLevelQos.maxBitRateDl.values);
+    csr_info.bearerQos.gbr_ul = conv_uint8_arr_to_uint64(msgData.bearerContextsCreated[0].bearerLevelQos.guraranteedBitRateUl.values);
+    csr_info.bearerQos.gbr_dl = conv_uint8_arr_to_uint64(msgData.bearerContextsCreated[0].bearerLevelQos.guaranteedBitRateDl.values);
 	
-	csr_info.pco_length = 0;
+    csr_info.pco_length = 0;
 	if(msgData.protocolConfigurationOptionsIePresent == true)
 	{
 		csr_info.pco_length = msgData.protocolConfigurationOptions.pcoValue.count;

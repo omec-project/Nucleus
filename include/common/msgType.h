@@ -392,6 +392,10 @@ struct init_ctx_req_Q_msg {
 	unsigned char sec_key[32];
 	struct fteid gtp_teid;
 	unsigned char bearer_id;
+    uint8_t qci;
+    uint8_t pl;
+    uint8_t pvi;
+    uint8_t pci;
 	bool ho_restrict_list_presence;
 	ho_restriction_list ho_restrict_list;
 	uint8_t 	nasMsgBuf[300]; 
@@ -709,6 +713,7 @@ struct csr_Q_msg {
     struct fteid s1u_sgw_fteid;
     struct fteid s5s8_pgwu_fteid;
     struct PAA pdn_addr;
+    bearer_qos_t bearerQos;
     uint16_t pco_length;
     unsigned char pco_options[MAX_PCO_OPTION_SIZE];
     uint32_t apn_ambr_ul;

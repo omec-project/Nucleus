@@ -52,10 +52,10 @@ get_icsreq_protoie_value(struct proto_IE *value, struct init_ctx_req_Q_msg *g_ic
 	erab_setup_item *e_rab = &(value->data[ieCnt].val.erab_to_be_setup_item_ctxt_su_req);
 	/* TODO: Remove hardcoded values. */
 	e_rab->e_RAB_ID = 1;
-	e_rab->e_RAB_QoS_Params.qci = 9;
-	e_rab->e_RAB_QoS_Params.arPrio.prioLevel = 15;
-	e_rab->e_RAB_QoS_Params.arPrio.preEmptionCapab = 1;
-	e_rab->e_RAB_QoS_Params.arPrio.preEmptionVulnebility = 1;
+	e_rab->e_RAB_QoS_Params.qci = g_icsReqInfo->qci;
+	e_rab->e_RAB_QoS_Params.arPrio.prioLevel = g_icsReqInfo->pl;
+	e_rab->e_RAB_QoS_Params.arPrio.preEmptionCapab = g_icsReqInfo->pci;
+	e_rab->e_RAB_QoS_Params.arPrio.preEmptionVulnebility = g_icsReqInfo->pvi;
 
 	/*S1u information : transport layer addr and teid*/
 	e_rab->transportLayerAddress = htonl(g_icsReqInfo->gtp_teid.ip.ipv4.s_addr);

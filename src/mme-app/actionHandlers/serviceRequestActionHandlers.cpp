@@ -593,10 +593,15 @@ ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
     }
 
-    // Fire a page failure event, so that interested procedures
-    // can take appropriate actions.
+    /* Fire a page failure event, so that interested procedures
+    * can take appropriate actions.
+    * Commenting now. Causes deleting of UE context in case of 
+    * UE initiated Service request. Paging failure should be initiated
+    * only if Paging procedure had been initiated.
+    */
+    /*
     SM::Event evt(PAGING_FAILURE, NULL);
-    cb.qInternalEvent(evt);
+    cb.qInternalEvent(evt);*/
 
     log_msg(LOG_DEBUG,"abort_service_req_procedure : Exit \n");
 
