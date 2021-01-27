@@ -871,7 +871,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
-
+    bearerCtxt->setBearerQos(csr_info->bearerQos);
 	procedure_p->setPcoOptions(csr_info->pco_options,csr_info->pco_length);
 	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info->pco_options,csr_info->pco_length);
 	
@@ -951,6 +951,11 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
 	icr_msg.bearer_id = bearerCtxt->getBearerId();
+	icr_msg.qci = bearerCtxt->getBearerQos().qci;
+	icr_msg.pl = bearerCtxt->getBearerQos().arp.prioLevel;
+	icr_msg.pci = bearerCtxt->getBearerQos().arp.preEmptionCapab;
+	icr_msg.pvi = bearerCtxt->getBearerQos().arp.preEmptionVulnebility;
+
 
 	memcpy(&(icr_msg.gtp_teid), &(bearerCtxt->getS1uSgwUserFteid().fteid_m), sizeof(struct fteid));
 	memcpy(&(icr_msg.sec_key), &((ue_ctxt->getUeSecInfo().secinfo_m).kenb_key),
@@ -1043,11 +1048,11 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 			&(ue_ctxt->getTai().tai_m), sizeof(struct TAI));
 	
 	/* Fill ESM info */
-	nas.elements[3].pduElement.esm_msg.eps_bearer_id = 5; /* TODO: revisit */
+	nas.elements[3].pduElement.esm_msg.eps_bearer_id = bearerCtxt->getBearerId(); /* TODO: revisit */
 	nas.elements[3].pduElement.esm_msg.proto_discriminator = EPSSessionManagementMessage;
 	nas.elements[3].pduElement.esm_msg.procedure_trans_identity = sessionCtxt->getPti();
 	nas.elements[3].pduElement.esm_msg.session_management_msgs = ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
-	nas.elements[3].pduElement.esm_msg.eps_qos.qci = 9;
+	nas.elements[3].pduElement.esm_msg.eps_qos.qci = bearerCtxt->getBearerQos().qci;
 	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
 	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
     log_msg(LOG_DEBUG, "ESM apn length = %d \n",nas.elements[3].pduElement.esm_msg.apn.len);
