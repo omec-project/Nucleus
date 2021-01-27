@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -226,6 +227,8 @@ class MmeGrpcCliClient {
 	    cout << "num_of_abort_ded_activation	     " << reply.num_of_abort_ded_activation() << endl;
 	    cout << "num_of_ded_act_complete		     " << reply.num_of_ded_act_complete() << endl;
 	    cout << "num_of_create_bearer_proc_complete	     " << reply.num_of_create_bearer_proc_complete() << endl;
+	    cout << "num_of_req_sent_to_dns		     " << reply.num_of_req_sent_to_dns() << endl;
+	    cout << "num_of_processed_dns_response	     " << reply.num_of_processed_dns_response() << endl;
 
     } else {
       std::cout << status.error_code() << ": " << status.error_message()

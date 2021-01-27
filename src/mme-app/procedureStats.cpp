@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2019, Infosys Ltd.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -84,3 +85,5 @@ int ProcedureStats::num_of_ded_bearer_ctxt_reject_received = 0;
 int ProcedureStats::num_of_abort_ded_activation = 0;
 int ProcedureStats::num_of_ded_act_complete = 0;
 int ProcedureStats::num_of_create_bearer_proc_complete = 0;
+int ProcedureStats::num_of_req_sent_to_dns = 0;
+int ProcedureStats::num_of_processed_dns_response = 0;

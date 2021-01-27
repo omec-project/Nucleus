@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present, Infosys Limited.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -87,6 +88,8 @@ namespace mme
                 static int num_of_abort_ded_activation;
                 static int num_of_ded_act_complete;
                 static int num_of_create_bearer_proc_complete;
+                static int num_of_req_sent_to_dns;
+                static int num_of_processed_dns_response;
         };
 };
 #endif

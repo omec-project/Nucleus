@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Open Networking Foundation
  * Copyright (c) 2003-2018, Great Software Laboratory Pvt. Ltd.
  * Copyright (c) 2017 Intel Corporation
@@ -18,7 +19,6 @@ extern "C"{
 
 #include <stdbool.h>
 #include "s1ap_structs.h"
-#include "log.h"
 #include "s1ap_error.h"
 #include "defines.h"
 
@@ -36,6 +36,19 @@ typedef struct mme_feature_list {
         integrity_order : [ EIA1, EIA2, EIA0 ]
         ciphering_order : [ EEA0, EEA1, EEA2 ]
 */
+
+typedef struct dns_config
+{
+	unsigned int dns_flag;
+	unsigned int concurrent;
+	unsigned int percentage;
+	unsigned int interval_seconds;
+	unsigned int query_timeout_ms;
+	unsigned int query_tries;
+	char* dns_server;
+
+}dns_config_t;
+
 typedef struct mme_config
 {
 	unsigned int mme_ip_addr;
@@ -64,6 +77,7 @@ typedef struct mme_config
 	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
 	mme_feature_list feature_list; 
     	uint16_t prom_port;
+	dns_config_t dns_config;
 } mme_config_t;
 
 class apn_config

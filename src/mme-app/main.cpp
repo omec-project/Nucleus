@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2020-present Open Networking Foundation
  * Copyright (c) 2019, Infosys Ltd.
  *
@@ -10,6 +11,9 @@
 #include <thread>
 #include <string.h>
 #include <sys/stat.h>
+#include "epc/epctools.h"
+#include "epc/elogger.h"
+#include "epc/etypes.h"
 #include <blockingCircularFifo.h>
 #include <msgBuffer.h>
 #include "err_codes.h"
@@ -26,6 +30,7 @@
 #include "timeoutManager.h"
 #include <utils/mmeTimerUtils.h>
 #include "mmeStatsPromClient.h"
+#include <csignal>
 
 using namespace std;
 using namespace mme;
@@ -69,15 +74,57 @@ TimeoutManager* timeoutMgr_g = NULL;
 
 using namespace std::placeholders;
 
+void signalHandler( int signum ) {
+   std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+}
+
+static void
+init_signal_handler(void)
+{
+	{
+		sigset_t sigset;
+		/* mask SIGALRM in all threads by default */
+		sigemptyset(&sigset);
+		sigaddset(&sigset, SIGRTMIN);
+		sigaddset(&sigset, SIGUSR1);
+		sigprocmask(SIG_BLOCK, &sigset, NULL);
+	}
+
+	struct sigaction sa;
+
+	/* Setup the signal handler */
+	sa.sa_handler = signalHandler;
+	sa.sa_flags = SA_RESTART;
+	sigfillset(&sa.sa_mask);
+	if (sigaction(SIGINT, &sa, NULL) == -1) {}
+	if (sigaction(SIGTERM, &sa, NULL) == -1) {}
+}
+
 void setThreadName(std::thread* thread, const char* threadName)
 {
    	auto handle = thread->native_handle();
 	pthread_setname_np(handle,threadName);
 }
 
+int load_file()
+{
+	EGetOpt opt;
+	EString optfile;
+	try {
+		opt.loadFile("conf/log.json");
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << '\n';
+		return -1;
+	}
+	return 0;
+}
 
 int main(int argc, char *argv[])
 {
+	load_file();
+	init_signal_handler();
+
 	memcpy (processName, argv[0], strlen(argv[0]));
 
 	char *hp = getenv("MMERUNENV");
@@ -109,8 +156,8 @@ int main(int argc, char *argv[])
     std::thread prom(mmeStatsSetupPrometheusThread, mme_cfg->prom_port);
     prom.detach();
 
-    /* Lets apply logging setting */
-    set_logging_level(mme_cfg->logging);
+	/* Lets apply logging setting */
+	set_logging_level(mme_cfg->logging);
 
 	register_config_updates();
 

@@ -139,7 +139,11 @@
 							{
 								"Name": "bearerIdBitMap",
 								"Type": "uint16_t" 
-							}
+							},
+							{
+								"Name": "sgwCtrlIP",
+								"Type": "uint64_t"
+                            }
 						]
 					},
 					{

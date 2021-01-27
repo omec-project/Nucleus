@@ -393,9 +393,9 @@
                                 "Name":"ULA_FROM_HSS",
                                 "Actions":[
                                     "PROCESS_ULA",
-                                    "CS_REQ_TO_SGW"
+                                    "REQ_TO_DNS"
                                 ],
-                                "NextState":"attach_wf_cs_resp"
+                                "NextState":"attach_wf_dns_resp"
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
@@ -413,6 +413,19 @@
                                 ],
                                 "NextState":"end_state"
                              }
+                        ]
+                    },
+		    {
+                        "Name":"attach_wf_dns_resp",
+                        "Events":[
+                            {
+                                "Name": "DNS_RESPONSE",
+                                "Actions":[
+				    "PROCESS_DNS_RESP",
+                                    "CS_REQ_TO_SGW"
+                                ],
+                                "NextState":"attach_wf_cs_resp"
+                            }
                         ]
                     },
                     {
