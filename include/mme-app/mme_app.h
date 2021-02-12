@@ -113,13 +113,11 @@ class mmeConfig
             std::cout<<"Find APN *"<<apn<<"*  length = "<<apn.length()<<std::endl;
             for(it = apn_list.begin(); it != apn_list.end(); it++) {
                 temp = *it;
-                std::cout<<"Current APN "<<temp->get_apn()<<std::endl;
                 if(temp->get_apn().compare(apn) == 0)
                 {
-                    std::cout<<"Matched APN "<<temp->get_apn()<<std::endl;
                     return temp;
                 }
-                std::cout<<"Not matched APN "<<temp->get_apn()<<"length "<<temp->get_apn().length()<<std::endl;
+                std::cout<<"Not matched APN "<<temp->get_apn()<<", length "<<temp->get_apn().length()<<std::endl;
             }
             return nullptr;
         }

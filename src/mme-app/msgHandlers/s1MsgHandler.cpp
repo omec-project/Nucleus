@@ -62,11 +62,11 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 
 	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
 
-	struct nasPDU nas={0};
 	/* Below function should take care of decryption and integrity check */
 	/* Get the control block and pass it to below function */
 	if(msgData_p->msg_type == raw_nas_msg)
 	{
+	    struct nasPDU nas={0};
         uint8_t     nasMsgBuf[MAX_NAS_MSG_SIZE] = {'\0'};
         uint16_t    nasMsgSize = msgData_p->msg_data.rawMsg.nasMsgSize;
         memcpy(nasMsgBuf, msgData_p->msg_data.rawMsg.nasMsgBuf, nasMsgSize);
@@ -76,10 +76,12 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
                                     nasMsgBuf, 
                                     nasMsgSize, &nas))
         {
+            free(nas.elements);
             log_msg(LOG_ERROR,"NAS pdu parse failed.\n");
             return;
         }
 		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
+        free(nas.elements);
 	}
 
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);

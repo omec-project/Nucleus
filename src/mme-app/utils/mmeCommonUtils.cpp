@@ -192,7 +192,8 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				int cbIndex = SubsDataGroupManager::Instance()->findCBWithimsi(IMSIInfo);
 				if (cbIndex > 0)
 				{
-					log_msg(LOG_DEBUG, "existing cb for IMSI.\n");
+					log_msg(LOG_DEBUG, "existing cb for IMSI. %s \n",IMSIInfo.getDigitsArray());
+                    // why we have IMSI info but not cb ?
 					cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 				}
 				if (cb == NULL)
@@ -203,7 +204,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					cb = SubsDataGroupManager::Instance()->allocateCB();
 					if(cb == NULL) 
 					{
-						log_msg(LOG_DEBUG, "create new cb for IMSI failed.\n");
+						log_msg(LOG_DEBUG, "create new cb for IMSI failed. %s \n",IMSIInfo.getDigitsArray());
 						return nullptr;
 					}
 					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
@@ -298,7 +299,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		default:
 		{
-			log_msg(LOG_INFO, "Unhandled message is NULL .\n");
+			log_msg(LOG_INFO, "Unhandled message type %d \n", msgData_p->msg_type);
 		}
 	}
 
