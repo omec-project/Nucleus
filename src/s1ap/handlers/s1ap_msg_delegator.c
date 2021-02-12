@@ -133,13 +133,12 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 					} break;
 				case ProtocolIE_ID_id_RRC_Establishment_Cause:
 					{
-			            RRC_Establishment_Cause_t	 *s1apRRCEstCause_p;
+			            RRC_Establishment_Cause_t	 *s1apRRCEstCause_p = NULL;
                         if(InitialUEMessage_IEs__value_PR_RRC_Establishment_Cause == ie_p->value.present)
                         {
 						    s1apRRCEstCause_p = &ie_p->value.choice.RRC_Establishment_Cause;
                         }
-
-                        if (s1apRRCEstCause_p == NULL) {
+                        else {
 							log_msg (LOG_ERROR, "Decoding of IE RRC Cause failed\n");
 							return -1;
 						}
@@ -147,7 +146,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         log_msg(LOG_DEBUG, "RRC Cause decode Success\n");
                         proto_ies->data[i].IE_type = S1AP_IE_RRC_EST_CAUSE;
 						proto_ies->data[i].val.rrc_est_cause = (enum ie_RRC_est_cause) *s1apRRCEstCause_p;
-						s1apRRCEstCause_p = NULL;
 					} break;
 				case ProtocolIE_ID_id_S_TMSI:
 					{

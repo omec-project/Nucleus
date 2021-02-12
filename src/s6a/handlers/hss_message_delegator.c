@@ -49,8 +49,8 @@ hss_resp_handler(void *message)
 		log_msg(LOG_ERROR, "Unknown message received from HSS - %d\n",
 			msg->hdr);
 	}
-	return;
 
 	/*free allocated message buffer*/
 	free(message);
+	return;
 }

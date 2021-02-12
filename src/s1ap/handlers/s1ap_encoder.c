@@ -168,19 +168,22 @@ int s1ap_mme_encode_service_rej(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
         log_msg(LOG_ERROR, "Encoding of Service Rej failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO,"free allocated msgs");
     if(val[2].value.choice.NAS_PDU.buf)
     {
         free(val[2].value.choice.NAS_PDU.buf);
     }
     
     free(pdu.choice.initiatingMessage);
+    if(enc_error) {
+        return -1;
+    }
     
     *length = enc_ret;
     return enc_ret; 
@@ -251,10 +254,11 @@ int s1ap_mme_encode_tau_rej(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of TAU Rej failed\n");
-        return -1;
+        enc_error = true;
     }
 
     log_msg(LOG_INFO,"free allocated msgs");
@@ -265,6 +269,9 @@ int s1ap_mme_encode_tau_rej(
 
     free(pdu.choice.initiatingMessage);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -337,13 +344,13 @@ int s1ap_mme_encode_attach_rej(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
         log_msg(LOG_ERROR, "Encoding of Attach Reject failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO,"free allocated msgs\n");
     if(val[2].value.choice.NAS_PDU.buf)
     {
         free(val[2].value.choice.NAS_PDU.buf);
@@ -351,6 +358,9 @@ int s1ap_mme_encode_attach_rej(
     
     free(pdu.choice.initiatingMessage);
     
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret; 
 }
@@ -450,22 +460,23 @@ int s1ap_mme_encode_ue_context_release_command(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[1]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
         log_msg(LOG_ERROR, "Encoding of Ctx Release Cmd failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO,"free allocated msgs");
     if(ue_id_val.present == UE_S1AP_IDs_PR_uE_S1AP_ID_pair)
     {
-        log_msg(LOG_INFO,"free UE id pair");
         free(ue_id_val.choice.uE_S1AP_ID_pair);
     }
     
-    log_msg(LOG_INFO,"free initiating msg");
     free(pdu.choice.initiatingMessage);
     
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret; 
 }
@@ -601,13 +612,12 @@ int s1ap_mme_encode_initial_context_setup_request(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[4]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[5]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of Initial Context Setup Request failed\n");
-        return -1;
+        enc_error = true;
     }
-
-    log_msg(LOG_INFO,"free allocated messages\n");
 
     free(val[5].value.choice.SecurityKey.buf);
     free(val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf);
@@ -627,6 +637,9 @@ int s1ap_mme_encode_initial_context_setup_request(
     }
     free(erab_to_be_setup_item_list);
     free(pdu.choice.initiatingMessage);
+    if(enc_error) {
+        return -1;
+    }
 
     *length = enc_ret;
     return enc_ret;
@@ -760,13 +773,13 @@ int s1ap_mme_encode_paging_request(
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[2]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[3]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
         log_msg(LOG_ERROR, "Encoding of Paging failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO,"free allocated msgs");
     free(pdu.choice.initiatingMessage);
     free(UEIdentityIndexValue->buf);
     free(pagingId.choice.s_TMSI->mMEC.buf);
@@ -775,6 +788,9 @@ int s1ap_mme_encode_paging_request(
     free(tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf);
     free(tai_item.value.choice.TAIItem.tAI.tAC.buf);
     
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret; 
 }
@@ -844,15 +860,18 @@ int s1ap_mme_encode_s1_setup_failure(
     log_msg(LOG_INFO,"Add values to list.\n");
     ASN_SEQUENCE_ADD(&fail_msg->value.choice.S1SetupFailure.protocolIEs.list, &val[0]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of S1 setup failure failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO,"free unsucessful outcome  msg");
     free(pdu.choice.unsuccessfulOutcome);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -942,13 +961,21 @@ int s1ap_mme_encode_s1_setup_response(
     ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[1]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of S1 setup Response failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(pdu.choice.successfulOutcome);
+    free(val[2].value.choice.MMEname.buf);
+    free(plmn.buf);
+    free(group_id.buf);
+    free(mmecode.buf);
+    if(enc_error) {
+        return -1;
+    }
 
     *length = enc_ret;
     return enc_ret;
@@ -1152,11 +1179,12 @@ int s1ap_mme_encode_handover_request(
             &initiating_msg->value.choice.HandoverRequest.protocolIEs.list,
             &val[8]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of Handover Request failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(val[8].value.choice.GUMMEI.mME_Code.buf);
@@ -1170,6 +1198,10 @@ int s1ap_mme_encode_handover_request(
     free(val[3].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
     free(val[3].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
     free(pdu.choice.initiatingMessage);
+
+    if(enc_error) {
+        return -1;
+    }
 
     *length = enc_ret;
     return enc_ret;
@@ -1280,10 +1312,11 @@ int s1ap_mme_encode_handover_command(
             &successfulOutcome_msg->value.choice.HandoverCommand.protocolIEs.list,
             &val[4]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
         log_msg(LOG_ERROR, "Encoding of Handover Command failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(erab_data_forwarding_item->dL_transportLayerAddress->buf);
@@ -1292,6 +1325,9 @@ int s1ap_mme_encode_handover_command(
     free(erab_data_forwarding_item->dL_gTP_TEID);
     free(pdu.choice.successfulOutcome);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -1379,16 +1415,18 @@ int s1ap_mme_encode_handover_mme_status_transfer(
             &initiating_msg->value.choice.MMEStatusTransfer.protocolIEs.list,
             &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
         log_msg(LOG_ERROR, "Encoding of mme status transfer failed\n");
-        return -1;
+        enc_error = true;
     }
-
-    log_msg(LOG_INFO, "free allocated msgs");
 
     free(pdu.choice.initiatingMessage);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -1451,14 +1489,18 @@ int s1ap_mme_encode_handover_prep_failure(
             &UnsuccessfulOutcome_msg->value.choice.HandoverPreparationFailure.protocolIEs.list,
             &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
         log_msg(LOG_ERROR, "Encoding of Handover Preparation Failure failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(pdu.choice.unsuccessfulOutcome);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -1502,14 +1544,18 @@ int s1ap_mme_encode_handover_cancel_ack(
             &successfulOutcome_msg->value.choice.HandoverCancelAcknowledge.protocolIEs.list,
             &val[1]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
         log_msg(LOG_ERROR, "Encoding of Handover Cancel Acknowlegde failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(pdu.choice.successfulOutcome);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -1576,13 +1622,17 @@ int s1ap_mme_encode_erab_mod_confirmation(
             &successfulOutcome_msg->value.choice.E_RABModificationConfirm.protocolIEs.list,
             &val[2]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
         log_msg(LOG_ERROR, "Encoding of ERAB Modification Confirmation failed\n");
-        return -1;
+        enc_error = true;
     }
 
     free(pdu.choice.successfulOutcome);
+    if(enc_error) {
+        return -1;
+    }
 
     *length = enc_ret;
     return enc_ret;
@@ -1722,19 +1772,17 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
             &initiating_msg->value.choice.E_RABSetupRequest.protocolIEs.list,
             &val[3]);
 
+    bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of E_RAB Setup Request failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO, "free allocated messages\n");
 
-    free(
-            val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
-    free(
-            val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
+    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
+    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
 
     for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
     {
@@ -1751,6 +1799,9 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
 
     free(pdu.choice.initiatingMessage);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
@@ -1819,11 +1870,14 @@ int s1ap_mme_encode_erab_release_command(
     val[3].id = ProtocolIE_ID_id_E_RABToBeReleasedList;
     val[3].criticality = 0;
     val[3].value.present = E_RABReleaseCommandIEs__value_PR_E_RABList;
+    E_RABItemIEs_t *erab_to_be_released_list[15] = {0};
 
     for (int i = 0; i < s1apPDU->erab_to_be_released_list.count; i++)
     {
         E_RABItemIEs_t *erab_to_be_released_item = calloc(
                 1, sizeof(E_RABItemIEs_t));
+        erab_to_be_released_list[i] = erab_to_be_released_item;
+        
 
         E_RABItem_t *erab_to_be_released =
                 &(erab_to_be_released_item->value.choice.E_RABItem);
@@ -1896,19 +1950,26 @@ int s1ap_mme_encode_erab_release_command(
     ASN_SEQUENCE_ADD(
             &initiating_msg->value.choice.E_RABReleaseCommand.protocolIEs.list,
             &val[4]);
+    bool enc_error = false;
     if((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
                                             (void**) buffer)) < 0)
     {
         log_msg(LOG_ERROR, "Encoding of E_RAB Release command failed\n");
-        return -1;
+        enc_error = true;
     }
 
-    log_msg(LOG_INFO, "free allocated messages\n");
+    for (int i = 0; i < s1apPDU->erab_to_be_released_list.count; i++)
+    {
+        free(erab_to_be_released_list[i]);
+    }
     free(val[4].value.choice.NAS_PDU.buf);
     free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
     free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
     free(pdu.choice.initiatingMessage);
 
+    if(enc_error) {
+        return -1;
+    }
     *length = enc_ret;
     return enc_ret;
 }
