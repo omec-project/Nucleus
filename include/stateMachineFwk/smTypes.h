@@ -84,7 +84,6 @@ using ActionPointer = ActStatus(*)(ControlBlock&);
 using EventValidator = EventStatus(*)(ControlBlock&, TempDataBlock*, Event &event);
 using EventToActionTableMap = std::map <uint16_t, ActionTable>;
 using EventIdToStringMap = std::map <uint16_t, std::string>;
-using StateIdToStringMap = std::map <uint16_t, std::string>;
 
 class SmUtility
 {
@@ -106,32 +105,15 @@ public:
         return eventName;
     }
 
-    std::string convertStateToString(uint16_t stateId)
-    {
-        std::string stateName = " ";
-        auto itr = stateToStringMap.find(stateId);
-        if (itr != stateToStringMap.end())
-        {
-            stateName = itr->second;
-        }
-        return stateName;
-    }
-
     void addEventToStrEntry(uint16_t eventId, std::string eventName)
     {
         eventToStringMap.insert(
                 std::pair<uint16_t, std::string>(eventId, eventName));
     }
 
-    void addStateToStrEntry(uint16_t stateId, std::string stateName)
-    {
-        stateToStringMap.insert(
-                std::pair<uint16_t, std::string>(stateId, stateName));
-    }
-
 private:
     SmUtility() :
-            eventToStringMap(), stateToStringMap()
+            eventToStringMap()
     {
 
     }
@@ -142,8 +124,6 @@ private:
     }
 
     EventIdToStringMap eventToStringMap;
-    StateIdToStringMap stateToStringMap;
-
 };
 
 class StateMachineContext

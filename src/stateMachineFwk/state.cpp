@@ -26,25 +26,14 @@ using namespace std;
 
 namespace SM
 {
-    State::State(uint16_t sID)
-          :stateID(sID),
-           eventToActionsMap(),
+    State::State()
+          :eventToActionsMap(),
            stateEntryAction(NULL),
            stateExitAction(NULL),
            eventValidator(NULL),
            stateGuardTimeoutDuration_m(0)
     {
     }
-
-	State::State(uint16_t sID, uint32_t duration)
-	      :stateID(sID),
-	       eventToActionsMap(),
-	       stateEntryAction(NULL),
-	       stateExitAction(NULL),
-	       eventValidator(NULL),
-	       stateGuardTimeoutDuration_m(duration)
-	{
-	}
 
 	State::~State()
 	{
@@ -104,8 +93,13 @@ namespace SM
 
 	uint16_t State::getStateId()const
 	{
-	    return stateID;
+	    return 0;
 	}
+
+    const char* State::getStateName()const
+    {
+        return "";
+    }
 
 	ActStatus State::executeActions(uint16_t evt,ControlBlock& cb)
 	{

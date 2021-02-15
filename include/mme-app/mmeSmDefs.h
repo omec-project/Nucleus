@@ -22,66 +22,67 @@
 ******************************************/ 	 	
      
 const uint16_t attach_start = 1;     
-const uint16_t attach_wf_aia = 2;     
-const uint16_t attach_wf_att_cmp = 3;     
-const uint16_t attach_wf_auth_resp = 4;     
-const uint16_t attach_wf_auth_resp_validate = 5;     
-const uint16_t attach_wf_cs_resp = 6;     
-const uint16_t attach_wf_esm_info_check = 7;     
-const uint16_t attach_wf_esm_info_resp = 8;     
-const uint16_t attach_wf_identity_response = 9;     
-const uint16_t attach_wf_imsi_validate_action = 10;     
-const uint16_t attach_wf_init_ctxt_resp = 11;     
-const uint16_t attach_wf_init_ctxt_resp_att_cmp = 12;     
-const uint16_t attach_wf_mb_resp = 13;     
-const uint16_t attach_wf_sec_cmp = 14;     
-const uint16_t attach_wf_ula = 15;     
-const uint16_t create_bearer_start = 16;     
-const uint16_t create_bearer_wf_ded_act_complete = 17;     
-const uint16_t create_bearer_wf_paging_complete = 18;     
-const uint16_t ded_act_start = 19;     
-const uint16_t ded_act_wf_bearer_and_session_setup = 20;     
-const uint16_t ded_act_wf_bearer_setup = 21;     
-const uint16_t ded_act_wf_session_setup = 22;     
-const uint16_t ded_deact_start = 23;     
-const uint16_t ded_deact_wf_bearer_and_session_tearup = 24;     
-const uint16_t ded_deact_wf_bearer_tearup = 25;     
-const uint16_t ded_deact_wf_session_tearup = 26;     
-const uint16_t default_mme_state = 27;     
-const uint16_t delete_bearer_start = 28;     
-const uint16_t delete_bearer_wf_deact_complete = 29;     
-const uint16_t delete_bearer_wf_paging_complete = 30;     
-const uint16_t detach_start = 31;     
-const uint16_t detach_wf_del_session_resp = 32;     
-const uint16_t detach_wf_purge_resp = 33;     
-const uint16_t detach_wf_purge_resp_del_session_resp = 34;     
-const uint16_t erab_mod_ind_start = 35;     
-const uint16_t erab_mod_ind_wf_mb_resp = 36;     
-const uint16_t intra_s1_ho_start = 37;     
-const uint16_t ni_detach_start = 38;     
-const uint16_t ni_detach_wf_del_sess_resp = 39;     
-const uint16_t ni_detach_wf_det_accpt_del_sess_resp = 40;     
-const uint16_t ni_detach_wf_detach_accept = 41;     
-const uint16_t ni_detach_wf_s1_rel_comp = 42;     
-const uint16_t paging_start = 43;     
-const uint16_t paging_wf_service_req = 44;     
-const uint16_t s1_ho_wf_ho_notify = 45;     
-const uint16_t s1_ho_wf_ho_request_ack = 46;     
-const uint16_t s1_ho_wf_modify_bearer_response = 47;     
-const uint16_t s1_ho_wf_tau_check = 48;     
-const uint16_t s1_ho_wf_tau_request = 49;     
-const uint16_t s1_release_start = 50;     
-const uint16_t s1_release_wf_release_access_bearer_resp = 51;     
-const uint16_t s1_release_wf_ue_ctxt_release_comp = 52;     
-const uint16_t service_request_start = 53;     
-const uint16_t service_request_wf_aia = 54;     
-const uint16_t service_request_wf_auth_resp_validate = 55;     
-const uint16_t service_request_wf_auth_response = 56;     
-const uint16_t service_request_wf_init_ctxt_resp = 57;     
-const uint16_t service_request_wf_mb_resp = 58;     
-const uint16_t service_request_wf_sec_cmp = 59;     
-const uint16_t tau_start = 60;
-const uint16_t END_STATE = 61;
+const uint16_t attach_state = 2;     
+const uint16_t attach_wf_aia = 3;     
+const uint16_t attach_wf_att_cmp = 4;     
+const uint16_t attach_wf_auth_resp = 5;     
+const uint16_t attach_wf_auth_resp_validate = 6;     
+const uint16_t attach_wf_cs_resp = 7;     
+const uint16_t attach_wf_esm_info_check = 8;     
+const uint16_t attach_wf_esm_info_resp = 9;     
+const uint16_t attach_wf_identity_response = 10;     
+const uint16_t attach_wf_imsi_validate_action = 11;     
+const uint16_t attach_wf_init_ctxt_resp = 12;     
+const uint16_t attach_wf_init_ctxt_resp_att_cmp = 13;     
+const uint16_t attach_wf_mb_resp = 14;     
+const uint16_t attach_wf_sec_cmp = 15;     
+const uint16_t attach_wf_ula = 16;     
+const uint16_t create_bearer_start = 17;     
+const uint16_t create_bearer_wf_ded_act_complete = 18;     
+const uint16_t create_bearer_wf_paging_complete = 19;     
+const uint16_t ded_act_start = 20;     
+const uint16_t ded_act_wf_bearer_and_session_setup = 21;     
+const uint16_t ded_act_wf_bearer_setup = 22;     
+const uint16_t ded_act_wf_session_setup = 23;     
+const uint16_t ded_deact_start = 24;     
+const uint16_t ded_deact_wf_bearer_and_session_tearup = 25;     
+const uint16_t ded_deact_wf_bearer_tearup = 26;     
+const uint16_t ded_deact_wf_session_tearup = 27;     
+const uint16_t default_mme_state = 28;     
+const uint16_t delete_bearer_start = 29;     
+const uint16_t delete_bearer_wf_deact_complete = 30;     
+const uint16_t delete_bearer_wf_paging_complete = 31;     
+const uint16_t detach_start = 32;     
+const uint16_t detach_wf_del_session_resp = 33;     
+const uint16_t detach_wf_purge_resp = 34;     
+const uint16_t detach_wf_purge_resp_del_session_resp = 35;     
+const uint16_t erab_mod_ind_start = 36;     
+const uint16_t erab_mod_ind_wf_mb_resp = 37;     
+const uint16_t intra_s1_ho_start = 38;     
+const uint16_t ni_detach_start = 39;     
+const uint16_t ni_detach_wf_del_sess_resp = 40;     
+const uint16_t ni_detach_wf_det_accpt_del_sess_resp = 41;     
+const uint16_t ni_detach_wf_detach_accept = 42;     
+const uint16_t ni_detach_wf_s1_rel_comp = 43;     
+const uint16_t paging_start = 44;     
+const uint16_t paging_wf_service_req = 45;     
+const uint16_t s1_ho_wf_ho_notify = 46;     
+const uint16_t s1_ho_wf_ho_request_ack = 47;     
+const uint16_t s1_ho_wf_modify_bearer_response = 48;     
+const uint16_t s1_ho_wf_tau_check = 49;     
+const uint16_t s1_ho_wf_tau_request = 50;     
+const uint16_t s1_release_start = 51;     
+const uint16_t s1_release_wf_release_access_bearer_resp = 52;     
+const uint16_t s1_release_wf_ue_ctxt_release_comp = 53;     
+const uint16_t service_request_start = 54;     
+const uint16_t service_request_wf_aia = 55;     
+const uint16_t service_request_wf_auth_resp_validate = 56;     
+const uint16_t service_request_wf_auth_response = 57;     
+const uint16_t service_request_wf_init_ctxt_resp = 58;     
+const uint16_t service_request_wf_mb_resp = 59;     
+const uint16_t service_request_wf_sec_cmp = 60;     
+const uint16_t tau_start = 61;
+const uint16_t END_STATE = 62;
 
 /******************************************
 * MME-APP Specific Events - ID
@@ -155,10 +156,5 @@ const uint16_t END_EVENT = 163;
 * Maps Event Name to Event ID
 ******************************************/
 void populateEventStringMap();
-
-/******************************************
-* Maps State Name to State ID
-******************************************/
-void populateStateStringMap();
 
 #endif
