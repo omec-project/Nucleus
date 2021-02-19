@@ -79,20 +79,13 @@
                                 "NextState":"end_state"
                             },
                             {
-                                "Name":"PAGING_FAILURE",
-                                "Actions":[
-                                    "HANDLE_PAGING_FAILURE"
-                                ],
-                                "NextState":"end_state"
-                            },
-                            {
                                 "Name":"DELETE_BEARER_REQ_FROM_GW",
                                 "Actions":[
                                     "DEFAULT_DELETE_BEARER_REQ_HANDLER"
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"DETACH_FAILURE",
                                 "Actions":[
                                     "HANDLE_DETACH_FAILURE"
@@ -580,10 +573,10 @@
                                 ],
                                 "NextState":"detach_wf_purge_resp_del_session_resp"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
-				    "DETACH_ACCEPT_TO_UE",
+                                    "DETACH_ACCEPT_TO_UE",
                                     "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
@@ -614,10 +607,10 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
-				    "DETACH_ACCEPT_TO_UE",
+                                    "DETACH_ACCEPT_TO_UE",
                                     "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
@@ -642,7 +635,7 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "DETACH_ACCEPT_TO_UE",
@@ -670,7 +663,7 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "DETACH_ACCEPT_TO_UE",
@@ -761,7 +754,7 @@
                             {
                                 "Name":"UE_CTXT_REL_COMP_FROM_ENB",
                                 "Actions":[
-                                    "PROCESS_UE_CTXT_REL_COMP"
+                                    "S1_RELEASE_COMPLETE"
                                 ],
                                 "NextState":"end_state"
                             },
@@ -971,6 +964,13 @@
                                     "SEND_DDN_ACK_TO_SGW"
                                 ],
                                 "NextState":"paging_wf_service_req"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     },
@@ -987,6 +987,15 @@
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
+                                "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
+                                    "SEND_DDN_FAILURE_IND",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
@@ -1007,8 +1016,17 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1028,8 +1046,20 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1056,7 +1086,19 @@
                             {
                                 "Name":"AUTH_RESP_FAILURE",
                                 "Actions":[
+                                    "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1077,8 +1119,10 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1088,6 +1132,7 @@
                                 "Actions":[
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1108,8 +1153,20 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1130,8 +1187,20 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1152,8 +1221,10 @@
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
+                                    "SVC_REQ_STATE_GUARD_TIMEOUT",
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"
@@ -1163,6 +1234,7 @@
                                 "Actions":[
                                     "SEND_SERVICE_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
                                     "ABORT_SERVICE_REQ_PROCEDURE"
                                 ],
                                 "NextState":"end_state"

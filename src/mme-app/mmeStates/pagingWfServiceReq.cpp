@@ -66,7 +66,14 @@ void PagingWfServiceReq::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
+                actionTable.addAction(&ActionHandlers::send_ddn_failure_ind);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }
 }

@@ -401,6 +401,7 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		if(auth_resp.auts.len == 0)
 		{
 			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n");
+			procedure_p->setMmeErrorCause(S1AP_AUTH_FAILED);
 			SM::Event evt(AUTH_RESP_FAILURE,NULL);
         		controlBlk_p->qInternalEvent(evt);
 		}
@@ -432,6 +433,7 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
             log_msg(LOG_ERROR, "Invalid Auth response Comparing received result "
                     "from UE (%lu) with xres (%lu). Length %d", 
                     res, xres, auth_resp.res.len);
+            procedure_p->setMmeErrorCause(MME_AUTH_VALIDATION_FAILURE);
             return ActStatus::ABORT;
         }
 

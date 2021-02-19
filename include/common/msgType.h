@@ -91,6 +91,7 @@ typedef enum msg_type_t {
     cancel_location_answer,
     downlink_data_notification,
     ddn_acknowledgement,
+    ddn_failure_indication,
     paging_request,
     service_request,
     service_reject,
@@ -663,9 +664,9 @@ struct DDN_ACK_Q_msg{
 
 struct DDN_FAIL_Q_msg{
 	msg_type_t msg_type;
-	int ue_idx;
 	uint32_t seq_no;
 	uint8_t cause;
+	struct fteid s11_sgw_c_fteid;
 };
 #define S11_DDN_FAIL_BUF_SIZE sizeof(struct DDN_FAIL_Q_msg)
 

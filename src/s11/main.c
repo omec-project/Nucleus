@@ -74,6 +74,9 @@ handle_mmeapp_message_s11(void * data)
 	case ddn_acknowledgement:
 		ddn_ack_handler(msg);
 		break;
+	case ddn_failure_indication:
+		ddn_failure_ind_handler(msg);
+		break;
 	case create_bearer_response:
 		create_bearer_resp_handler(msg);
 		break;

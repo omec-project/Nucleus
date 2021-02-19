@@ -70,4 +70,9 @@ void PagingStart::initialize()
                 actionTable.setNextState(PagingWfServiceReq::Instance());
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(DDN_FROM_SGW, actionTable));
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
+        }
 }

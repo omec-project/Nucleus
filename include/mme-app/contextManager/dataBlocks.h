@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2020-present, Infosys Limited.
+ * Copyright 2021-present, Infosys Limited.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -401,7 +401,6 @@ namespace mme
 			****************************************/
 			std::list<SessionContext*>& getSessionContextContainer();
 
-
 		
 		private:
 		
@@ -692,7 +691,6 @@ namespace mme
 			*    get BearerContextContainer to SessionContext
 			****************************************/
 			std::list<BearerContext*>& getBearerContextContainer();
-
 
 		
 		private:
@@ -1716,7 +1714,6 @@ namespace mme
 			*    get bearerStatusContainer to MmeSmCreateBearerProcCtxt
 			****************************************/
 			std::list<BearerCtxtCBResp>& getBearerStatusContainer();
-
 			
 		
 		private:
@@ -1838,7 +1835,6 @@ namespace mme
 			*    get bearerStatusContainer to MmeSmDeleteBearerProcCtxt
 			****************************************/
 			std::list<BearerCtxtDBResp>& getBearerStatusContainer();
-
 			
 			/****************************************
 			* setLbiPresent
