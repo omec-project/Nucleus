@@ -215,7 +215,6 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				if (cbIndex > 0)
 				{
 					log_msg(LOG_DEBUG, "existing cb for IMSI. %s \n",IMSIInfo.getDigitsArray());
-                    // why we have IMSI info but not cb ?
 					cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 				}
 				if (cb == NULL)

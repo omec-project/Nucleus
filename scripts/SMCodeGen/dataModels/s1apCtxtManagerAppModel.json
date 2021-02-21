@@ -23,6 +23,11 @@
                                 "Key": "Yes"
                             },
                             {
+                                "Name": "restartCounter",
+                                "Type": "uint8_t",
+                                "Key": "No"
+                            },
+                            {
                                 "Name": "s1apEnbUeId",
                                 "Type": "int",
                                 "Key": "No"

@@ -255,12 +255,21 @@ accept_sctp(void *data)
 
 			if (FD_ISSET(sd, &readfds)) {
 				if ((valread = recv_sctp_msg(sd, buffer, SCTP_BUF_SIZE)) <= 0) {
-
                     struct EnbStruct temp = {0};
+                    int temp_cbIndex = findControlBlockWithEnbFd(sd);
+                    s1apEnbStatus_Msg_t s1Msg={0};
+                    s1Msg.header.msg_type = enb_status_msg; 
+                    s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
+                    s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+                    s1Msg.ver = 1;
+                    s1Msg.status = 0;
+                    s1Msg.context_id = temp_cbIndex;
+                    send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
+                    
                     clearControlBlockDetailsEnbFd(sd, &temp);
                     log_msg(LOG_ERROR, "enb fd = %d eNB %s - Tac %d - disconnected \n", sd, temp.eNbName, temp.tai_m.tac);
-					close(sd);
-					enb_socket[i] = 0;
+                    close(sd);
+                    enb_socket[i] = 0;
                     /* MME-app should get notificaiton that peer is down ? 
                      * what MME will do with existing subscribers with the
                      * same eNB ? */

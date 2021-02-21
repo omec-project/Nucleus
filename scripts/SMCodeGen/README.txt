@@ -9,6 +9,7 @@ Inputs:
 		generateItem.json - Defines path of templates, the class type to be generated(State/actionHandler/Enum), output directory to be produced.
 		stateMachineAppModel.json - Defines procedures, states for each procedure, event for each state, actions to be taken under each event and nextstate of the procedure.
 		ctxtManagerAppModel.json - Defines the data to be stored in various contexts maintained by the MME.
+		s1apCtxtManagerAppModel.json - Defines eNB context maintained by s1ap
 		
 		Existing actionHandler.h and attachActionHandlers.cpp,detachActionHandlers.cpp,s1ReleaseActionHandlers.cpp files from <top-dir>/include/mme-app/actionHandlers and <top-dir>/src/mme-app/actionHandlers respectively.
 		Place it in output directories as the output produced should be merged with existing file properly. 

@@ -23,6 +23,7 @@ enum class mmeStatsCounter {
 	MME_NUM_IDLE_SUBSCRIBERS,
 	MME_NUM_PDNS,
 	MME_NUM_BEARERS,
+	ENB_NUM_ACTIVE,
 	MME_MSG_RX_NAS_ATTACH_REQUEST,
 	MME_MSG_RX_NAS_IDENTITY_RESPONSE,
 	MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE,
@@ -261,6 +262,73 @@ class mme_num_gauges {
 
 	mme_num_DynamicMetricObject3* add_dynamic3(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2) {
 		return new mme_num_DynamicMetricObject3(mme_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2);
+ 	}
+};
+
+
+
+
+class enb_num_DynamicMetricObject1 : public DynamicMetricObject {
+	public:
+		enb_num_DynamicMetricObject1(Family<Gauge> &enb_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 gauge(enb_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}}))
+		{
+		}
+		~enb_num_DynamicMetricObject1()
+		{
+		}
+		Gauge &gauge;
+};
+
+
+
+
+class enb_num_DynamicMetricObject2 : public DynamicMetricObject {
+	public:
+		enb_num_DynamicMetricObject2(Family<Gauge> &enb_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 gauge(enb_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
+		{
+		}
+		~enb_num_DynamicMetricObject2()
+		{
+		}
+		Gauge &gauge;
+};
+
+
+class enb_num_DynamicMetricObject3 : public DynamicMetricObject {
+	public:
+
+
+		enb_num_DynamicMetricObject3(Family<Gauge> &enb_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 gauge(enb_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}, {dlabel_k2, dlabel_v2}}))
+		{
+		}
+		~enb_num_DynamicMetricObject3()
+		{
+		}
+		Gauge &gauge;
+};
+class enb_num_gauges {
+	public:
+	enb_num_gauges();
+	~enb_num_gauges();
+	Family<Gauge> &enb_num_family;
+	Gauge &current__Active;
+
+	enb_num_DynamicMetricObject1* add_dynamic1(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0) {
+		return new enb_num_DynamicMetricObject1(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0);
+ 	}
+
+	enb_num_DynamicMetricObject2* add_dynamic2(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new enb_num_DynamicMetricObject2(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	enb_num_DynamicMetricObject3* add_dynamic3(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2) {
+		return new enb_num_DynamicMetricObject3(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2);
  	}
 };
 
@@ -591,8 +659,10 @@ class mmeStats {
 		void mmeStatspromThreadSetup(void);
 		void increment(mmeStatsCounter name, std::map<std::string, std::string> labels={}); 
 		void decrement(mmeStatsCounter name, std::map<std::string, std::string> labels={}); 
+		void set(mmeStatsCounter name, double val, std::map<std::string, std::string> labels={}); 
 	 public:
 		mme_num_gauges *mme_num_m;
+		enb_num_gauges *enb_num_m;
 		mme_msg_rx_counters *mme_msg_rx_m;
 		mme_msg_tx_counters *mme_msg_tx_m;
 		mme_procedures_counters *mme_procedures_m;

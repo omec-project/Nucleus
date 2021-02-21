@@ -223,16 +223,20 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 			handleActDedBearerCtxtRejectMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
-        case msg_type_t::erab_release_response:
-            mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE);
-            handleErabRelResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-            break;
+		case msg_type_t::erab_release_response:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE);
+			handleErabRelResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
+			break;
 
-        case msg_type_t::deactivate_eps_bearer_context_accept:
-            mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
-            handleDeActBearerCtxtAcceptMsg_v(std::move(eMsg), msgData_p->ue_idx);
-            break;
+		case msg_type_t::deactivate_eps_bearer_context_accept:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
+			handleDeActBearerCtxtAcceptMsg_v(std::move(eMsg), msgData_p->ue_idx);
+			break;
 
+		case msg_type_t::enb_status_msg:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
+			handleS1apEnbStatusMsg_v(std::move(eMsg));
+			break;
 		default:
 			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
 	}
@@ -699,4 +703,38 @@ void S1MsgHandler::handleDeActBearerCtxtAcceptMsg_v(IpcEMsgUnqPtr eMsg,
     // Fire deactivate_eps_bearer_ctxt_acpt event, insert cb to procedure queue
     SM::Event evt(DEACT_DED_BEARER_ACCEPT_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
     controlBlk_p->addEventToProcQ(evt);
+}
+
+void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
+{
+    static s1apEnbStatus_Msg_t *enb_details[1024]; // TODO : how manhy eNBs we want to handle ?
+	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
+    assert(msgBuf != NULL);
+	s1apEnbStatus_Msg_t *enb = (s1apEnbStatus_Msg_t*)(msgBuf->getDataPointer());
+    log_msg(LOG_INFO, " Received enb Status message for %d \n",enb->context_id);
+    if(enb->context_id >= 1024) {
+        log_msg(LOG_INFO, " Supported only 1024 eNBs \n");
+        return;
+    }
+     // new enb found  
+     struct s1apEnbStatus_Msg *temp = NULL;
+     if(enb->status == 0) {
+         temp = enb_details[enb->context_id];
+     } else {
+         temp = (s1apEnbStatus_Msg_t *)calloc(1, sizeof(s1apEnbStatus_Msg_t));
+         memcpy(temp, enb, sizeof(*temp));
+         enb_details[enb->context_id] = temp;
+     }
+     std::stringstream enbname;
+     enbname<<temp->eNbName;
+     std::stringstream tac;
+     tac<<temp->tacid;
+     std::stringstream enbid;
+     enbid<<temp->enbId_m;
+     if(enb->status == 1)
+        mmeStats::Instance()->increment(mmeStatsCounter::ENB_NUM_ACTIVE, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
+     else
+        mmeStats::Instance()->decrement(mmeStatsCounter::ENB_NUM_ACTIVE, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
+    return;
+
 }

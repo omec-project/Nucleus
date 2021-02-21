@@ -95,6 +95,7 @@ typedef enum msg_type_t {
     activate_dedicated_eps_bearer_ctxt_reject,
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
+    enb_status_msg,
     max_msg_type
 } msg_type_t;
 
@@ -307,6 +308,17 @@ struct dedicatedBearerContextReject_Q_msg {
 }__attribute__ ((packed));
 typedef struct dedicatedBearerContextReject_Q_msg dedicatedBearerContextReject_Q_msg_t;
 
+struct s1apEnbStatus_Msg {
+    s1_incoming_msg_header_t header;
+    uint8_t ver;
+    uint8_t status; // 0 down, 1 : up
+    uint16_t restart_counter;
+    uint32_t context_id;
+    int enbId_m;
+    int tacid;
+    char eNbName[128];
+}__attribute__ ((packed));
+typedef struct s1apEnbStatus_Msg s1apEnbStatus_Msg_t;
 
 /*************************
  * Outgoing S1AP Messages

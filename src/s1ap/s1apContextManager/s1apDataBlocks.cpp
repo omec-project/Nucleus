@@ -27,6 +27,7 @@ namespace mme
 	EnbContext::EnbContext():           
             enbFd_m(0),
             enbId_m(0),
+            restartCounter_m(0),
             s1apEnbUeId_m(0),
             contextID_m(0),
             tai_m(),
@@ -74,6 +75,23 @@ namespace mme
         int EnbContext::getEnbId() const
         {
                 return enbId_m;
+        }
+
+	
+	/******************************************************************************
+	* sets restartCounter
+	******************************************************************************/
+	void EnbContext::setRestartCounter( uint8_t restartCounter_i )
+	{
+		restartCounter_m = restartCounter_i;
+	}
+	
+	/******************************************************************************
+	* returns restartCounter
+	******************************************************************************/	
+        uint8_t EnbContext::getRestartCounter() const
+        {
+                return restartCounter_m;
         }
 
 	
