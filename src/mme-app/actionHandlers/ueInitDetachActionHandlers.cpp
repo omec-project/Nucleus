@@ -256,3 +256,20 @@ ActStatus ActionHandlers::abort_detach(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
+/***************************************
+* Action handler : handle_s1_rel_req_during_detach
+***************************************/
+ActStatus ActionHandlers::handle_s1_rel_req_during_detach(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Recevied S1 Release Request during detach for cb %d\n", cb.getCBIndex());
+
+    MmeDetachProcedureCtxt *procedure_p =
+            static_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
+    if(procedure_p != NULL)
+    { 
+       procedure_p->setMmeErrorCause(DETACH_FAILED);
+    }
+
+    return ActStatus::ABORT;
+}
+

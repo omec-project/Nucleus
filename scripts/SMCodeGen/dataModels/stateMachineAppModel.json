@@ -645,7 +645,7 @@
                                 ],
                                 "NextState":"detach_wf_purge_resp_del_session_resp"
                             },
-			    {
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "DETACH_ACCEPT_TO_UE",
@@ -680,6 +680,13 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_DETACH"
+                                ],
+                                "NextState":"end_state"
+                            },                            
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "DETACH_ACCEPT_TO_UE",
@@ -704,6 +711,13 @@
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
                                     "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_DETACH"
                                 ],
                                 "NextState":"end_state"
                             },
@@ -735,7 +749,14 @@
                                 ],
                                 "NextState":"end_state"
                             },
-			    {
+                            {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_DETACH"
+                                ],
+                                "NextState":"end_state"
+                            },                            
+                            {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "DETACH_ACCEPT_TO_UE",

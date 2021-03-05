@@ -142,6 +142,11 @@ void DetachWfPurgeRespDelSessionResp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_s1_rel_req_during_detach);
+                eventToActionsMap[S1_REL_REQ_FROM_UE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_detach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
@@ -210,6 +215,11 @@ void DetachWfDelSessionResp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_s1_rel_req_during_detach);
+                eventToActionsMap[S1_REL_REQ_FROM_UE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_detach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
@@ -275,6 +285,11 @@ void DetachWfPurgeResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_s1_rel_req_during_detach);
+                eventToActionsMap[S1_REL_REQ_FROM_UE] = actionTable;
         }
         {
                 ActionTable actionTable;

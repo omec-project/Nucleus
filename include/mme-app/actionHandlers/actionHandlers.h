@@ -244,6 +244,11 @@ namespace mme
         static SM::ActStatus handle_s1_rel_req_during_attach(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_s1_rel_req_during_detach
+        ***********************************************/
+        static SM::ActStatus handle_s1_rel_req_during_detach(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_state_guard_timeouts
         ***********************************************/
         static SM::ActStatus handle_state_guard_timeouts(SM::ControlBlock& cb);                

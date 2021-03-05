@@ -182,9 +182,7 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
-
-        MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_FAILURE);
