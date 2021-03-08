@@ -12,6 +12,7 @@
 #include <msgBuffer.h>
 #include <interfaces/mmeIpcInterface.h>
 #include <mme_app.h>
+#include "log.h"
 
 #define DATA_BUF_SIZE 4096
 
@@ -42,6 +43,7 @@ public:
 				msgBuf->rewind();
 				if (!mmeIpcIngressFifo_g.push(ipcMsg))
 				{
+					log_msg(LOG_ERROR,"Failed to enqueue tipc message. Drop message");
 					delete ipcMsg;
 				}
 			}
