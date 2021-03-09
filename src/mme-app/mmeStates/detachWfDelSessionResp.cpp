@@ -69,6 +69,11 @@ void DetachWfDelSessionResp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_s1_rel_req_during_detach);
+                eventToActionsMap.insert(pair<uint16_t, ActionTable>(S1_REL_REQ_FROM_UE, actionTable));
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::detach_accept_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_detach);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));

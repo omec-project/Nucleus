@@ -359,6 +359,13 @@ bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, Mme
 {
     if (procedure_p == NULL)
     {
+        log_msg(LOG_DEBUG, "procedure_p is NULL \n");
+        return true;
+    }
+
+    if (procedure_p->getCtxtType() == defaultMmeProcedure_c)
+    {
+        log_msg(LOG_ERROR, "CB %d trying to delete default procedure context \n", cb_r.getCBIndex());
         return true;
     }
 
@@ -394,9 +401,7 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
         if (procedure_p->getCtxtType() != defaultMmeProcedure_c)
         {
             // stop state guard timer if any running
-            MmeTimerUtils::stopTimer(procedure_p->getStateGuardTimerCtxt());
-
-            rc = deleteProcedureCtxt(procedure_p);
+            deallocateProcedureCtxt(cb_r, procedure_p);
         }
 
         procedure_p = nextProcedure_p;

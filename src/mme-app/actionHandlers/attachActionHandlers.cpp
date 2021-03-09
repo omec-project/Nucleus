@@ -1396,14 +1396,13 @@ ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
+	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);
 
     if (errorCause == ABORT_DUE_TO_ATTACH_COLLISION)
     {
-    	MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-    	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
     }
     else
