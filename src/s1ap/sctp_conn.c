@@ -15,6 +15,7 @@
 #include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "log.h"
 #include "sctp_conn.h"
@@ -68,6 +69,12 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 		close(connSock);
 		return -1;
 	}
+	int mtu = 1000;
+	ret = setsockopt(connSock, SOL_SCTP, SCTP_MAXSEG,&mtu, sizeof(mtu));
+	if(ret == -1 )
+	{
+		log_msg(LOG_ERROR, "1 setsockopt() failed %s \n",strerror(errno));
+	}
 
 	ret = listen(connSock, MAX_PENDING_CONN);
 	if(ret == -1 )
@@ -101,14 +108,15 @@ int send_sctp_msg(int connSock, unsigned char *buffer, size_t len, uint16_t stre
 	int ret = sctp_sendmsg(enb_fd, (void *)buffer, len,
 			NULL, 0, htonl(ppid), 0, stream_no, 0, 0);
 	pthread_mutex_unlock(&sctp_sock_mutex);
-    return ret;
+	return ret;
 }
 
 int send_sctp_msg_with_fd(int connSock, unsigned char *buffer, size_t len, uint16_t stream_no)
 {
 	uint32_t ppid = S1AP_PPID;
-	return sctp_sendmsg(connSock, (void *)buffer, len,
+	int ret = sctp_sendmsg(connSock, (void *)buffer, len,
 			NULL, 0, htonl(ppid), 0, stream_no, 0, 0);
+	return ret;
 }
 
 int close_sctp_socket(int connSock)
