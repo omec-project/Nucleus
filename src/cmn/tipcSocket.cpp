@@ -84,7 +84,7 @@ void TipcSocket::sendMsgTo(void * buffer, uint32_t len, IpcAddress destAddress)
    }
    else
    {
-	   log_msg(LOG_INFO, "Message sent successfully\n");
+	   log_msg(LOG_INFO, "Message sent successfully to dest instance = %d \n",destAddress.u32);
    }
 }
 
