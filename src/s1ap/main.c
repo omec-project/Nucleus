@@ -202,6 +202,7 @@ accept_sctp(void *data)
 		memset (buffer, 0, BUFFER_LEN);
 		valread  = 0;
 
+		//TODO performance issue here
 		FD_ZERO(&readfds);
 		FD_SET(g_sctp_fd, &readfds);
 		max_sd = g_sctp_fd;
@@ -228,6 +229,12 @@ accept_sctp(void *data)
 
 			if ((new_socket = accept_sctp_socket(g_sctp_fd)) == -1) {
 				log_msg(LOG_ERROR, "Error in accept on sctp socket.\n");
+			}
+
+			int mtu = 1000;
+			int ret = setsockopt(new_socket, SOL_SCTP, SCTP_MAXSEG,&mtu, sizeof(mtu));
+			if(ret == -1 ) {
+				log_msg(LOG_ERROR, "1 setsockopt() failed %s \n",strerror(errno));
 			}
 
 			log_msg(LOG_INFO, "New Connection Established\n.");

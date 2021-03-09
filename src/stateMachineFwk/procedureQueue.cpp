@@ -62,6 +62,7 @@ bool ProcedureQueue::push(ControlBlock* cb)
 
 	if(PROC_QUE_MAX_SIZE == cbQ.size())
 	{
+		// TODO : PERFORMANCE number of blocks in the procq..else drop ..scary...no logs ?
 		return false;
 	}
 
