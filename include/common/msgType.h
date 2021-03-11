@@ -46,12 +46,6 @@ typedef enum nas_int_algo
     NAS_INT_ALGORITHMS_EIA7,
 }nas_int_algo_enum;
 
-typedef enum msg_data_t
-{
-    ue_data = 0,
-    session_data
-}msg_data_t;
-
 typedef enum msg_type_t {
     attach_request = 0,
     attach_reject,
@@ -806,12 +800,22 @@ typedef struct E_UTRAN_sec_vector {
     struct KASME kasme;
 } E_UTRAN_sec_vector;
 
+typedef struct s6_incoming_msg_data_t {
+	uint32_t destInstAddr;
+	uint32_t srcInstAddr;
+	msg_type_t msg_type;
+	int ue_idx;
+	unsigned char IMSI[16];
+}s6_incoming_msg_data_t;
+
 struct aia_Q_msg {
+    s6_incoming_msg_data_t header;
     int res;
     E_UTRAN_sec_vector sec;
 };
 
 struct ula_Q_msg {
+    s6_incoming_msg_data_t header;
     unsigned int access_restriction_data;
     int subscription_status;
     int net_access_mode;
@@ -831,9 +835,9 @@ struct ula_Q_msg {
 };
 
 struct purge_resp_Q_msg {
+    s6_incoming_msg_data_t header;
     int status;
 };
-
 
 enum CancellationType {
     MME_UPDATE_PROCEDURE = 0,
@@ -843,6 +847,7 @@ enum CancellationType {
 };
 
 struct clr_Q_msg {
+    s6_incoming_msg_data_t header;
     msg_type_t msg_type;
     char origin_host[18];
     char origin_realm[15];
@@ -850,24 +855,6 @@ struct clr_Q_msg {
     enum CancellationType c_type;
 };
 
-
-typedef union s6_incoming_msgs_t {
-    struct aia_Q_msg aia_Q_msg_m;
-    struct ula_Q_msg ula_Q_msg_m;
-    struct clr_Q_msg clr_Q_msg_m;	//NI Detach
-    struct purge_resp_Q_msg purge_resp_Q_msg_m;
-}s6_incoming_msgs_t;
-
-typedef struct s6_incoming_msg_data_t {
-	uint32_t destInstAddr;
-	uint32_t srcInstAddr;
-	msg_type_t msg_type;
-	int ue_idx;
-	unsigned char IMSI[16];
-	s6_incoming_msgs_t msg_data;
-}s6_incoming_msg_data_t;
-
-#define S6_READ_MSG_BUF_SIZE sizeof(s6_incoming_msg_data_t)
 #ifdef __cplusplus
 }
 #endif
