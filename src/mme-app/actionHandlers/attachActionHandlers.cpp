@@ -121,11 +121,10 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message\n")
 
-	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	VERIFY(s1_msg_data, return ActStatus::ABORT, "Invalid id response received\n")
+	const identityResp_Q_msg_t* id_resp = static_cast<const identityResp_Q_msg_t*>(msgBuf->getDataPointer());
+	VERIFY(id_resp, return ActStatus::ABORT, "Invalid id response received\n")
 
-	const struct identityResp_Q_msg &id_resp = s1_msg_data->msg_data.identityResp_Q_msg_m;
-	if(SUCCESS != id_resp.status)
+	if(SUCCESS != id_resp->status)
 	{
 		log_msg(LOG_DEBUG, "process_identity_response: ID Response Failure NULL \n");
 
@@ -133,7 +132,7 @@ ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 	}
 
 	uint8_t imsi[BINARY_IMSI_LEN] = {0};
-	memcpy( imsi, id_resp.IMSI, BINARY_IMSI_LEN );
+	memcpy( imsi, id_resp->IMSI, BINARY_IMSI_LEN );
 
 	// Only upper nibble of first octect in imsi need to be considered
 	// Changing the lower nibble to 0x0f for handling
@@ -248,9 +247,9 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
 
-	const s6_incoming_msg_data_t* msgData_p = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
+	const aia_Q_msg_t* msgData_p = static_cast<const aia_Q_msg_t *>(msgBuf->getDataPointer());
 
-	if (msgData_p->msg_data.aia_Q_msg_m.res == S6A_AIA_FAILED)
+	if (msgData_p->res == S6A_AIA_FAILED)
 	{	
 		/* send attach reject and release UE */
         	log_msg(LOG_INFO, "AIA failed. UE %d", ue_ctxt->getContextID());
@@ -258,7 +257,7 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
         	return ActStatus::ABORT;
 	}
 
-	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->msg_data.aia_Q_msg_m.sec));
+	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->sec));
 	
 	ProcedureStats::num_of_processed_aia ++;
 	log_msg(LOG_DEBUG, "Leaving handle_aia \n");
@@ -282,26 +281,25 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
 
-	const s6_incoming_msg_data_t* s6_msg_data = static_cast<const s6_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	const struct ula_Q_msg &ula_msg = s6_msg_data->msg_data.ula_Q_msg_m;
+	const ula_Q_msg_t *ula_msg = static_cast<const ula_Q_msg_t*>(msgBuf->getDataPointer());
 
-	sessionCtxt->setApnConfigProfileCtxId(ula_msg.apn_config_profile_ctx_id);
+	sessionCtxt->setApnConfigProfileCtxId(ula_msg->apn_config_profile_ctx_id);
 	DigitRegister15 ueMSISDN;
-	ueMSISDN.convertFromBcdArray( reinterpret_cast<const uint8_t*>( ula_msg.MSISDN ));
+	ueMSISDN.convertFromBcdArray( reinterpret_cast<const uint8_t*>( ula_msg->MSISDN ));
 	ue_ctxt->setMsisdn(ueMSISDN);
-	ue_ctxt->setRauTauTimer(ula_msg.RAU_TAU_timer);
-	ue_ctxt->setSubscriptionStatus(ula_msg.subscription_status);
-	ue_ctxt->setNetAccessMode(ula_msg.net_access_mode);
-	ue_ctxt->setAccessRestrictionData(ula_msg.access_restriction_data);
-	ue_ctxt->setSubscribedApn(Apn_name(ula_msg.selected_apn));
+	ue_ctxt->setRauTauTimer(ula_msg->RAU_TAU_timer);
+	ue_ctxt->setSubscriptionStatus(ula_msg->subscription_status);
+	ue_ctxt->setNetAccessMode(ula_msg->net_access_mode);
+	ue_ctxt->setAccessRestrictionData(ula_msg->access_restriction_data);
+	ue_ctxt->setSubscribedApn(Apn_name(ula_msg->selected_apn));
 
-    for (int i = 0; i < ula_msg.supp_features_list.count; i++)
+    for (int i = 0; i < ula_msg->supp_features_list.count; i++)
     {
-        if (ula_msg.supp_features_list.supp_features[i].feature_list_id == 2)
+        if (ula_msg->supp_features_list.supp_features[i].feature_list_id == 2)
         {
-            log_msg(LOG_DEBUG,"received feature_list_id2 from hss %u %u \n",ula_msg.supp_features_list.supp_features[i].feature_list_id, ula_msg.supp_features_list.supp_features[i].feature_list);
+            log_msg(LOG_DEBUG,"received feature_list_id2 from hss %u %u \n",ula_msg->supp_features_list.supp_features[i].feature_list_id, ula_msg->supp_features_list.supp_features[i].feature_list);
             ue_ctxt->setHssFeatList2(
-                    ula_msg.supp_features_list.supp_features[i]);
+                    ula_msg->supp_features_list.supp_features[i]);
             break;
         }
     }
@@ -312,19 +310,19 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	// Bitrate values beyond 4.2 Gbps will be set in extended AMBR fields.
 	// Extended AMBR fields can store bit rate values upto 4.2 Tbps.
 	struct AMBR ambr;
-	ambr.max_requested_bw_dl = ula_msg.max_requested_bw_dl;
-	ambr.max_requested_bw_ul = ula_msg.max_requested_bw_ul;
-	if(ula_msg.extended_max_requested_bw_dl > 0 || ula_msg.extended_max_requested_bw_ul > 0)
+	ambr.max_requested_bw_dl = ula_msg->max_requested_bw_dl;
+	ambr.max_requested_bw_ul = ula_msg->max_requested_bw_ul;
+	if(ula_msg->extended_max_requested_bw_dl > 0 || ula_msg->extended_max_requested_bw_ul > 0)
 	{
-	    ambr.ext_max_requested_bw_dl = ula_msg.extended_max_requested_bw_dl;
-	    ambr.ext_max_requested_bw_ul = ula_msg.extended_max_requested_bw_ul;
+	    ambr.ext_max_requested_bw_dl = ula_msg->extended_max_requested_bw_dl;
+	    ambr.ext_max_requested_bw_ul = ula_msg->extended_max_requested_bw_ul;
 	}
 
 	ue_ctxt->setAmbr(Ambr(ambr));
 	
 	struct PAA pdn_addr;
 	pdn_addr.pdn_type = 1;
-	pdn_addr.ip_type.ipv4.s_addr = ntohl(ula_msg.static_addr); // network byte order
+	pdn_addr.ip_type.ipv4.s_addr = ntohl(ula_msg->static_addr); // network byte order
 	
 	ue_ctxt->setPdnAddr(Paa(pdn_addr));
 	
@@ -392,13 +390,12 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
 
-	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());	
-	const struct authresp_Q_msg &auth_resp = s1_msg_data->msg_data.authresp_Q_msg_m;
+	const authresp_Q_msg_t *auth_resp = static_cast<const authresp_Q_msg_t*>(msgBuf->getDataPointer());	
 	
 	/*Check the state*/
-	if(SUCCESS != auth_resp.status) {
+	if(SUCCESS != auth_resp->status) {
 		log_msg(LOG_ERROR, "eNB authentication failure for UE-%d.\n", ue_ctxt->getContextID());
-		if(auth_resp.auts.len == 0)
+		if(auth_resp->auts.len == 0)
 		{
 			log_msg(LOG_ERROR,"No AUTS.Not Synch Failure\n");
 			procedure_p->setMmeErrorCause(S1AP_AUTH_FAILED);
@@ -408,8 +405,8 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 		else
 		{
 			log_msg(LOG_INFO,"AUTS recvd.  Synch failure. send AIR\n");
-			procedure_p->setAuthRespStatus(auth_resp.status);
-			procedure_p->setAuts(Auts(auth_resp.auts));
+			procedure_p->setAuthRespStatus(auth_resp->status);
+			procedure_p->setAuts(Auts(auth_resp->auts));
 			SM::Event evt(AUTH_RESP_SYNC_FAILURE,NULL);
             		controlBlk_p->qInternalEvent(evt);
 		}
@@ -422,17 +419,17 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
         memcpy(&xres, ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val,
                 sizeof(uint64_t));
         uint64_t res = 0;
-        memcpy(&res, auth_resp.res.val, sizeof(uint64_t));
+        memcpy(&res, auth_resp->res.val, sizeof(uint64_t));
         log_msg(LOG_DEBUG, "Auth response Comparing received result from UE " 
                 " (%lu) with xres (%lu). Length %d", res, 
-                xres, auth_resp.res.len);
+                xres, auth_resp->res.len);
 
         if(memcmp((ue_ctxt->getAiaSecInfo().AiaSecInfo_mp->xres.val),
-                  (auth_resp.res.val),
-                  auth_resp.res.len) != 0) {
+                  (auth_resp->res.val),
+                  auth_resp->res.len) != 0) {
             log_msg(LOG_ERROR, "Invalid Auth response Comparing received result "
                     "from UE (%lu) with xres (%lu). Length %d", 
-                    res, xres, auth_resp.res.len);
+                    res, xres, auth_resp->res.len);
             procedure_p->setMmeErrorCause(MME_AUTH_VALIDATION_FAILURE);
             return ActStatus::ABORT;
         }
@@ -474,7 +471,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	sec_mode_msg.enb_fd = ue_ctxt->getEnbFd();
 	sec_mode_msg.enb_s1ap_ue_id = ue_ctxt->getS1apEnbUeId();
 
-    	MmeNasUtils::select_sec_alg(ue_ctxt);
+    MmeNasUtils::select_sec_alg(ue_ctxt);
 	SecUtils::create_integrity_key(ue_ctxt->getUeSecInfo().getSelectIntAlg(), 
                                    secVect->kasme.val, secInfo.int_key);
 	
@@ -582,9 +579,8 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
 
-	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	const secmode_resp_Q_msg &secmode_resp = s1_msg_data->msg_data.secmode_resp_Q_msg_m;
-	if(SUCCESS == secmode_resp.status)
+	const secmode_resp_Q_msg_t* secmode_resp = static_cast<const secmode_resp_Q_msg_t*>(msgBuf->getDataPointer());
+	if(SUCCESS == secmode_resp->status)
 	{
 		log_msg(LOG_INFO, "Sec mode complete rcv. UE - %d.\n",
 				ue_ctxt->getContextID());
@@ -593,7 +589,7 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	else
 	{
 		log_msg(LOG_ERROR, "Sec mode failed. UE %d", ue_ctxt->getContextID());
-		procedure_p->setMmeErrorCause((ERROR_CODES)secmode_resp.status);
+		procedure_p->setMmeErrorCause((ERROR_CODES)secmode_resp->status);
 		return ActStatus::ABORT;
 	}
 
@@ -697,15 +693,13 @@ ActStatus ActionHandlers::process_esm_info_resp(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
 
-	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	const struct esm_resp_Q_msg &esm_res =s1_msg_data->msg_data.esm_resp_Q_msg_m;
-    
-    	if (esm_res.status != SUCCESS)
+	const esm_resp_Q_msg_t *esm_res = static_cast<const esm_resp_Q_msg_t *>(msgBuf->getDataPointer());
+    	if (esm_res->status != SUCCESS)
     	{
         	log_msg(LOG_ERROR, "ESM Response failed \n");
     	}
 
-	procedure_p->setRequestedApn(Apn_name(esm_res.apn));
+	procedure_p->setRequestedApn(Apn_name(esm_res->apn));
 
 	ProcedureStats::num_of_handled_esm_info_resp++;
 	return ActStatus::PROCEED;
@@ -1166,14 +1160,13 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n")
 
-	const s1_incoming_msg_data_t* s1_msg_data = static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-	const struct initctx_resp_Q_msg &ics_res =s1_msg_data->msg_data.initctx_resp_Q_msg_m;
+	const initctx_resp_Q_msg_t *ics_res = static_cast<const initctx_resp_Q_msg_t*>(msgBuf->getDataPointer());
 	
 	fteid S1uEnbUserFteid;
 	S1uEnbUserFteid.header.iface_type = 0;
 	S1uEnbUserFteid.header.v4 = 1;
-	S1uEnbUserFteid.header.teid_gre = ics_res.erab_setup_resp_list.erab_su_res_item[0].gtp_teid;
-	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res.erab_setup_resp_list.erab_su_res_item[0].transportLayerAddress;
+	S1uEnbUserFteid.header.teid_gre = ics_res->erab_setup_resp_list.erab_su_res_item[0].gtp_teid;
+	S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res->erab_setup_resp_list.erab_su_res_item[0].transportLayerAddress;
 	
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");

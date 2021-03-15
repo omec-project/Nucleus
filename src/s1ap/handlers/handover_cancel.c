@@ -19,7 +19,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 int s1_handover_cancel_handler(InitiatingMessage_t *msg)
 {
-    s1_incoming_msg_data_t ho_cancel = {0};
+    handover_cancel_Q_msg_t ho_cancel = {0};
     struct proto_IE ho_cancel_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover cancel message\n");
 
@@ -41,14 +41,14 @@ int s1_handover_cancel_handler(InitiatingMessage_t *msg)
         {
             log_msg(LOG_INFO, "handover cancel S1AP_IE_MME_UE_ID.\n");
 
-            ho_cancel.ue_idx = ho_cancel_ies.data[i].val.mme_ue_s1ap_id;
+            ho_cancel.header.ue_idx = ho_cancel_ies.data[i].val.mme_ue_s1ap_id;
         }
             break;
         case S1AP_IE_ENB_UE_ID:
         {
             log_msg(LOG_INFO,"handover cancel S1AP_IE_ENB_UE_ID.\n");
 
-            ho_cancel.s1ap_enb_ue_id = ho_cancel_ies.data[i].val.enb_ue_s1ap_id;
+            ho_cancel.header.s1ap_enb_ue_id = ho_cancel_ies.data[i].val.enb_ue_s1ap_id;
 
         }
             break;
@@ -56,7 +56,7 @@ int s1_handover_cancel_handler(InitiatingMessage_t *msg)
         {
             log_msg(LOG_INFO, "handover cancel S1AP_IE_CAUSE.\n");
 
-            memcpy(&ho_cancel.msg_data.handover_cancel_Q_msg_m.cause,
+            memcpy(&ho_cancel.cause,
                     &ho_cancel_ies.data[i].val.cause,
                     sizeof(struct s1apCause));
         }
@@ -66,13 +66,13 @@ int s1_handover_cancel_handler(InitiatingMessage_t *msg)
         }
     }
 
-    ho_cancel.msg_type = handover_cancel;
-    ho_cancel.destInstAddr = htonl(mmeAppInstanceNum_c);
-    ho_cancel.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    ho_cancel.header.msg_type = handover_cancel;
+    ho_cancel.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+    ho_cancel.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
     int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c,
             (char*) &ho_cancel,
-            S1_READ_MSG_BUF_SIZE);
+            sizeof(ho_cancel));
 
     if (i < 0)
     {

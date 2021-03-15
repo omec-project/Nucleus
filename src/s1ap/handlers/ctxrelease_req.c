@@ -30,7 +30,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_ctx_release_request_handler(InitiatingMessage_t *msg)
 {
-	s1_incoming_msg_data_t release_request= {0};
+	ue_context_rel_req_t release_request= {0};
 	struct proto_IE s1_ctx_rel_req_ies;
 	s1_ctx_rel_req_ies.data = NULL;
 
@@ -44,17 +44,17 @@ s1_ctx_release_request_handler(InitiatingMessage_t *msg)
 	}
 
 	/*TODO: Validate all eNB info*/
-     for(int i = 0; i < s1_ctx_rel_req_ies.no_of_IEs; i++)
+    for(int i = 0; i < s1_ctx_rel_req_ies.no_of_IEs; i++)
     {
         switch(s1_ctx_rel_req_ies.data[i].IE_type)
         {
             case S1AP_IE_MME_UE_ID:
                 {
-	                release_request.ue_idx = s1_ctx_rel_req_ies.data[i].val.mme_ue_s1ap_id;
+	                release_request.header.ue_idx = s1_ctx_rel_req_ies.data[i].val.mme_ue_s1ap_id;
                 }break;
             case S1AP_IE_ENB_UE_ID:
                 {
-	                release_request.s1ap_enb_ue_id 
+	                release_request.header.s1ap_enb_ue_id 
                         = s1_ctx_rel_req_ies.data[i].val.enb_ue_s1ap_id;
                 }break;
             default:
@@ -63,16 +63,15 @@ s1_ctx_release_request_handler(InitiatingMessage_t *msg)
     }
 
 	
-    release_request.msg_type = s1_release_request;
-	release_request.destInstAddr = htonl(mmeAppInstanceNum_c);
-	release_request.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    release_request.header.msg_type = s1_release_request;
+	release_request.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	release_request.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 	int i = 0;
 	i = send_tipc_message(ipc_S1ap_Hndl,mmeAppInstanceNum_c,
 				(char *)&release_request,
-				S1_READ_MSG_BUF_SIZE);
+				sizeof(release_request));
 				
 	if (i < 0) {
-
 		log_msg(LOG_ERROR,"Error To write in s1_ctx_release_request_handler\n");
 	}
 

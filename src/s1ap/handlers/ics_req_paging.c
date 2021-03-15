@@ -48,18 +48,17 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 {
 	log_msg(LOG_DEBUG,"Process Init Ctxt Req for service Request.");
 	uint32_t length = 0;
-    	uint8_t *buffer = NULL;
-	
-	Buffer g_ics_req_buffer = {0};
+	uint8_t *buffer = NULL;
+
 	struct s1ap_common_req_Q_msg req = {0};
-	
-        log_msg(LOG_DEBUG,"Inside ics_req_paging processing\n");	
-	
-    	req.IE_type = S1AP_INIT_CTXT_SETUP_REQ;
-    	req.ue_idx = g_icsreq->ue_idx;
+
+	log_msg(LOG_DEBUG,"Inside ics_req_paging processing\n");	
+
+	req.IE_type = S1AP_INIT_CTXT_SETUP_REQ;
+	req.ue_idx = g_icsreq->ue_idx;
 	req.enb_fd = g_icsreq->enb_fd;
 	req.enb_s1ap_ue_id = g_icsreq->enb_s1ap_ue_id;
-    	req.mme_s1ap_ue_id = g_icsreq->ue_idx;
+	req.mme_s1ap_ue_id = g_icsreq->ue_idx;
 	req.ueag_max_dl_bitrate = g_icsreq->ueag_max_dl_bitrate;
 	req.ueag_max_ul_bitrate = g_icsreq->ueag_max_ul_bitrate;
 	req.erab_su_list.count = g_icsreq->erab_su_list.count;
@@ -86,14 +85,16 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 
 	int ret = s1ap_mme_encode_initiating(&req, &buffer, &length);
 	log_msg(LOG_DEBUG,"Invoked s1ap_encoder\n");
-    	if(ret == -1)
-    	{
-        	log_msg(LOG_ERROR, "Encoding ics_req_paging failed.\n");
-        	return E_FAIL;
-    	}
+	if(ret == -1)
+	{
+		log_msg(LOG_ERROR, "Encoding ics_req_paging failed.\n");
+		return E_FAIL;
+	}
 
-	buffer_copy(&g_ics_req_buffer, buffer, length);
-	send_sctp_msg(g_icsreq->enb_fd, g_ics_req_buffer.buf, g_ics_req_buffer.pos,1);
+	send_sctp_msg(g_icsreq->enb_fd, buffer, length, 1);
+	if(buffer) {
+		free(buffer);
+	}
 	log_msg(LOG_INFO, "\n----ICS Req for paging sent to UE.---\n");
 	return SUCCESS;
 	

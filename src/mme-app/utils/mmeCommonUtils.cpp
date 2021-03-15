@@ -186,7 +186,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 {
 	SM::ControlBlock *cb = NULL;
 
-	const s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(buf->getDataPointer());
+	const s1_incoming_msg_header_t* msgData_p = (s1_incoming_msg_header_t*)(buf->getDataPointer());
 	if(msgData_p == NULL)
 	{
 		log_msg(LOG_INFO, "MsgData is NULL .\n");
@@ -197,13 +197,13 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 	{
 		case attach_request:
 		{
-			const struct ue_attach_info &ue_info = (msgData_p->msg_data.ue_attach_info_m);
-			if(UE_ID_IMSI(ue_info.flags))
+			const ue_attach_info_t *ue_info = (ue_attach_info_t *)(msgData_p);
+			if(UE_ID_IMSI(ue_info->flags))
 			{
 				log_msg(LOG_INFO, "IMSI attach received.\n");
 
 				uint8_t imsi[BINARY_IMSI_LEN] = {0};
-				memcpy( imsi, ue_info.IMSI, BINARY_IMSI_LEN );
+				memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
 
 				uint8_t first = imsi[0] >> 4;
 				imsi[0] = (uint8_t)(( first << 4 ) | 0x0f );
@@ -232,15 +232,15 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 				}
 			}
-			else if (UE_ID_GUTI(ue_info.flags))
+			else if (UE_ID_GUTI(ue_info->flags))
 			{
 				log_msg(LOG_INFO, "GUTI attach received.\n");
 
-				if (isLocalGuti(ue_info.mi_guti))
+				if (isLocalGuti(ue_info->mi_guti))
 				{
 					log_msg(LOG_INFO, "GUTI is local.\n");
 
-					int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(ue_info.mi_guti.m_TMSI);
+					int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(ue_info->mi_guti.m_TMSI);
 					if (cbIndex > 0)
 					{
 						cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
@@ -288,22 +288,22 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		case detach_request:
 		{
-			const struct detach_req_Q_msg &detach_Req = (msgData_p->msg_data.detachReq_Q_msg_m);
-			int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(detach_Req.ue_m_tmsi);
+			const detach_req_Q_msg_t *detach_Req = (const detach_req_Q_msg_t *)(msgData_p);
+			int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(detach_Req->ue_m_tmsi);
 			if (cbIndex > 0)
 			{
 				cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi. %d\n", detach_Req.ue_m_tmsi);
+				log_msg(LOG_INFO, "Failed to find control block with mTmsi. %d\n", detach_Req->ue_m_tmsi);
 			}
 			break;
 		}
 		case tau_request:
 		{
-			const struct tauReq_Q_msg &tau_Req = (msgData_p->msg_data.tauReq_Q_msg_m);
-			int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tau_Req.ue_m_tmsi);
+			const tauReq_Q_msg_t *tau_Req = (const tauReq_Q_msg_t *)(msgData_p);
+			int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tau_Req->ue_m_tmsi);
 			if (cbIndex > 0)
 			{
 				cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
@@ -311,7 +311,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			else
 			{
 				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
-                                              " Allocate a temporary control block\n", tau_Req.ue_m_tmsi);
+                                              " Allocate a temporary control block\n", tau_Req->ue_m_tmsi);
 				// Respond  with TAU Reject from default TAU event handler
 				cb = SubsDataGroupManager::Instance()->allocateCB();
 				cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());

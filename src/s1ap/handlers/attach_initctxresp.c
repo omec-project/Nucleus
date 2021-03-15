@@ -30,8 +30,8 @@ int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 {
 	struct proto_IE s1_ics_ies;
-	s1_incoming_msg_data_t ics_resp= {0};
 	s1_ics_ies.data = NULL;
+	struct initctx_resp_Q_msg ics_resp= {0};
 
 	/*****Message structure****/
 	log_msg(LOG_INFO, "Parse int ctx s1ap response message:--\n");
@@ -43,7 +43,6 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 		return E_FAIL;
 	}
     
-	ics_resp.msg_type = init_ctxt_response;
 	
 	for(int i = 0; i < s1_ics_ies.no_of_IEs; i++)
     {
@@ -51,19 +50,19 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
         {
             case S1AP_IE_MME_UE_ID:
                 {
-	                ics_resp.ue_idx = s1_ics_ies.data[i].val.mme_ue_s1ap_id;
+	                ics_resp.header.ue_idx = s1_ics_ies.data[i].val.mme_ue_s1ap_id;
                 }break;
             case S1AP_ERAB_SETUP_CTX_SUR:
                 {
-		    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.count = s1_ics_ies.data[i].val.erab.no_of_elements;
+		    ics_resp.erab_setup_resp_list.count = s1_ics_ies.data[i].val.erab.no_of_elements;
                     for(int j = 0; j < s1_ics_ies.data[i].val.erab.no_of_elements; j++)
                     {
                         /*TBD: Handle multiple erabs in ics rsp*/
-			    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].e_RAB_ID =
+			    ics_resp.erab_setup_resp_list.erab_su_res_item[j].e_RAB_ID =
 				    s1_ics_ies.data[i].val.erab.elements[j].su_res.eRAB_id;
-	                    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].transportLayerAddress =
+	                    ics_resp.erab_setup_resp_list.erab_su_res_item[j].transportLayerAddress =
 				    s1_ics_ies.data[i].val.erab.elements[j].su_res.transp_layer_addr;
-	                    ics_resp.msg_data.initctx_resp_Q_msg_m.erab_setup_resp_list.erab_su_res_item[j].gtp_teid =
+	                    ics_resp.erab_setup_resp_list.erab_su_res_item[j].gtp_teid =
 				    s1_ics_ies.data[i].val.erab.elements[j].su_res.gtp_teid;
                     }
                 }break;
@@ -73,15 +72,16 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
     }
 	
 	
-	ics_resp.destInstAddr = htonl(mmeAppInstanceNum_c);
-	ics_resp.srcInstAddr = htonl(s1apAppInstanceNum_c);
-	int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&ics_resp, S1_READ_MSG_BUF_SIZE);
+	ics_resp.header.msg_type = init_ctxt_response;
+	ics_resp.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	ics_resp.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
+	int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&ics_resp, sizeof(struct initctx_resp_Q_msg));
 
 	if (i < 0) {
 		log_msg(LOG_ERROR, "Error to write in s1_init_ctx_resp_handler\n");
 	}
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Init ctx resp send to mme-app stage7. Bytes send %d\n", i);
+	log_msg(LOG_INFO, "Init ctx resp send to mme-app stage7. Bytes send %d\n", sizeof(struct initctx_resp_Q_msg));
 
 	free(s1_ics_ies.data);
 	return SUCCESS;

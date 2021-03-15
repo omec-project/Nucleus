@@ -59,21 +59,17 @@ ActStatus ActionHandlers::process_erab_release_response(ControlBlock &cb)
             dedBrDeActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER); return ActStatus::ABORT,
             "process_erab_release_response : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    VERIFY(s1_msg_data,
+    const erab_rel_resp_Q_msg_t *erab_rel_resp = static_cast<const erab_rel_resp_Q_msg_t*>(msgBuf->getDataPointer());
+    VERIFY(erab_rel_resp,
             dedBrDeActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER); return ActStatus::ABORT,
             "process_erab_release_response : Invalid data buffer \n");
-
-    const struct erab_rel_resp_Q_msg &erab_rel_resp =
-            (s1_msg_data->msg_data.erab_rel_resp_Q_msg_m);
 
     ActStatus actStatus = ActStatus::PROCEED;
     bool bearerEntryFound = false;
 
-    for (int i = 0; i < erab_rel_resp.erab_rel_list.count; i++)
+    for (int i = 0; i < erab_rel_resp->erab_rel_list.count; i++)
     {
-        if (erab_rel_resp.erab_rel_list.erab_id[i]
+        if (erab_rel_resp->erab_rel_list.erab_id[i]
                 == dedBrDeActProc_p->getBearerId())
         {
             bearerEntryFound = true;
@@ -86,14 +82,14 @@ ActStatus ActionHandlers::process_erab_release_response(ControlBlock &cb)
         actStatus = ActStatus::ABORT;
         dedBrDeActProc_p->setMmeErrorCause(S1AP_FAILURE_IND);
 
-        for (int i = 0; i < erab_rel_resp.erab_failed_to_release_list.count;
+        for (int i = 0; i < erab_rel_resp->erab_failed_to_release_list.count;
                 i++)
         {
-            if (erab_rel_resp.erab_failed_to_release_list.erab_item[i].e_RAB_ID
+            if (erab_rel_resp->erab_failed_to_release_list.erab_item[i].e_RAB_ID
                     == dedBrDeActProc_p->getBearerId())
             {
                 dedBrDeActProc_p->setS1apCause(
-                        erab_rel_resp.erab_failed_to_release_list.erab_item[i].cause);
+                        erab_rel_resp->erab_failed_to_release_list.erab_item[i].cause);
                 bearerEntryFound = true;
             }
         }
@@ -123,14 +119,11 @@ ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
             dedBrDeActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER); return ActStatus::ABORT,
             "process_deact_ded_bearer_accept : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    VERIFY(s1_msg_data,
+    const deactivate_epsbearerctx_accept_Q_msg_t *dedBrDeActAcpt =
+            static_cast<const deactivate_epsbearerctx_accept_Q_msg*>(msgBuf->getDataPointer());
+    VERIFY(dedBrDeActAcpt,
             dedBrDeActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER); return ActStatus::ABORT,
             "process_deact_ded_bearer_accept : Invalid data buffer \n");
-
-    const struct deactivate_epsbearerctx_accept_Q_msg &dedBrDeActAcpt =
-            (s1_msg_data->msg_data.deactivate_epsbearerctx_accept_Q_msg_m);
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrDeActProc_p->getBearerId(), ueCtxt_p);
@@ -138,7 +131,7 @@ ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
             dedBrDeActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
             "Bearer Context is NULL \n");
 
-    if (dedBrDeActAcpt.pco_opt.pco_length > 0)
+    if (dedBrDeActAcpt->pco_opt.pco_length > 0)
     {
         if (dedBrDeActProc_p->getTriggerProc() == dbReq_c)
         {
@@ -153,11 +146,11 @@ ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
                         == dedBrDeActProc_p->getBearerId())
                 {
                     entry.pco_from_ue_opt.pco_length =
-                            dedBrDeActAcpt.pco_opt.pco_length;
+                            dedBrDeActAcpt->pco_opt.pco_length;
                     memcpy(
                             entry.pco_from_ue_opt.pco_options,
-                            dedBrDeActAcpt.pco_opt.pco_options,
-                            dedBrDeActAcpt.pco_opt.pco_length);
+                            dedBrDeActAcpt->pco_opt.pco_options,
+                            dedBrDeActAcpt->pco_opt.pco_length);
 
                     break;
                 }

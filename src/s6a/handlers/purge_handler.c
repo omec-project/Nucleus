@@ -32,7 +32,7 @@ extern int g_Q_mme_S6a_fd;
 /**global and externs end**/
 
 static
-void send_to_stage2(struct purge_resp_Q_msg *purge_rsp)
+void send_to_stage2(purge_resp_Q_msg_t *purge_rsp)
 {
 	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
 
@@ -40,7 +40,7 @@ void send_to_stage2(struct purge_resp_Q_msg *purge_rsp)
 	purge_rsp->header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)purge_rsp, sizeof(struct purge_resp_Q_msg));
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)purge_rsp, sizeof(purge_resp_Q_msg_t));
 }
 
 /**
@@ -55,7 +55,7 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 {
 	struct msg *resp = NULL;
 	struct avp *avp_ptr = NULL;
-	struct purge_resp_Q_msg purge_rsp = {0};
+	purge_resp_Q_msg_t purge_rsp = {0};
 	struct avp_hdr *avp_header = NULL;
 	unsigned int sess_id_len;
 	unsigned char *sess_id= NULL;
@@ -116,7 +116,7 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 void
 handle_perf_hss_purge_resp(int ue_idx)
 {
-	struct purge_resp_Q_msg purge_rsp = {0};
+	purge_resp_Q_msg_t purge_rsp = {0};
     
 	purge_rsp.header.msg_type = purge_answser;
 	purge_rsp.header.ue_idx = ue_idx;

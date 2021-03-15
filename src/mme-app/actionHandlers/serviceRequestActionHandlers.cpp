@@ -88,8 +88,8 @@ ActStatus ActionHandlers::send_paging_req_to_ue(ControlBlock& cb)
 ActStatus ActionHandlers::process_service_request(ControlBlock& cb)
 {
     log_msg(LOG_DEBUG, "Inside process_service_request \n");
-
-    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+	
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
     VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
 
     MmContext *mmCtxt = ue_ctxt->getMmContext();
@@ -99,23 +99,26 @@ ActStatus ActionHandlers::process_service_request(ControlBlock& cb)
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
 
+
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf,
             procCtxt->setMmeErrorCause(INVALID_MSG_BUFFER); return ActStatus::ABORT,
             "process_service_request : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t* msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+
+    const service_req_Q_msg_t* msgData_p =
+           static_cast<const service_req_Q_msg_t*>(msgBuf->getDataPointer());
+
     VERIFY(msgData_p,
             procCtxt->setMmeErrorCause(INVALID_DATA_BUFFER); return ActStatus::ABORT,
             "process_service_request : Invalid data buffer \n");
 
     mmCtxt->setEcmState(ecmConnected_c);
-    ue_ctxt->setS1apEnbUeId(msgData_p->s1ap_enb_ue_id);
-    log_msg(LOG_DEBUG, "Leaving process_service_request \n");
-    ProcedureStats::num_of_service_request_received++;
+	ue_ctxt->setS1apEnbUeId(msgData_p->header.s1ap_enb_ue_id);
+	log_msg(LOG_DEBUG, "Leaving process_service_request \n");
+	ProcedureStats::num_of_service_request_received ++;
 
-    return ActStatus::PROCEED;
+	return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -291,14 +294,13 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
             procCtxt->setMmeErrorCause(INVALID_MSG_BUFFER); return ActStatus::ABORT,
             "process_init_ctxt_resp_svc_req : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
+    const s1_incoming_msg_header_t *s1_msg_data =
+            static_cast<const s1_incoming_msg_header_t*>(msgBuf->getDataPointer());
     VERIFY(s1_msg_data,
             procCtxt->setMmeErrorCause(INVALID_DATA_BUFFER); return ActStatus::ABORT,
             "process_init_ctxt_resp_svc_req : Invalid data buffer \n");
 
-    const struct initctx_resp_Q_msg &ics_res =
-            s1_msg_data->msg_data.initctx_resp_Q_msg_m;
+    const initctx_resp_Q_msg_t *ics_res = static_cast<const initctx_resp_Q_msg_t*>(msgBuf->getDataPointer());
 
     auto &bearerCtxtCont = sessionCtxt->getBearerContextContainer();
     VERIFY(bearerCtxtCont.size() > 0,
@@ -309,18 +311,15 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
 
     for (auto &bearerCtxt : bearerCtxtCont)
     {
-        if ((bearerCtxt != NULL) && (i < ics_res.erab_setup_resp_list.count))
+        if ((bearerCtxt != NULL) && (i < ics_res->erab_setup_resp_list.count))
         {
             fteid S1uEnbUserFteid;
             S1uEnbUserFteid.header.iface_type = 0;
             S1uEnbUserFteid.header.v4 = 1;
-            S1uEnbUserFteid.header.teid_gre =
-                    ics_res.erab_setup_resp_list.erab_su_res_item[i].gtp_teid;
-            S1uEnbUserFteid.ip.ipv4 =
-                    *(struct in_addr*) &ics_res.erab_setup_resp_list.erab_su_res_item[i].transportLayerAddress;
+            S1uEnbUserFteid.header.teid_gre = ics_res->erab_setup_resp_list.erab_su_res_item[i].gtp_teid;
+            S1uEnbUserFteid.ip.ipv4 = *(struct in_addr*)&ics_res->erab_setup_resp_list.erab_su_res_item[i].transportLayerAddress;
 
-            if (bearerCtxt->getBearerId()
-                    == ics_res.erab_setup_resp_list.erab_su_res_item[i].e_RAB_ID)
+            if (bearerCtxt->getBearerId() == ics_res->erab_setup_resp_list.erab_su_res_item[i].e_RAB_ID)
             {
                 bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
             }

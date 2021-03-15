@@ -18,10 +18,10 @@
 
 extern ipc_handle ipc_S1ap_Hndl;
 
-void dumpHoRequired(struct handover_required_Q_msg *msg)
+void dumpHoRequired(handover_required_Q_msg_t *msg)
 {
     log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->s1ap_mme_ue_id);
-    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->s1ap_enb_ue_id);
+    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->header.s1ap_enb_ue_id);
     log_msg(LOG_INFO, "HO Type %d\n", msg->handoverType);
     log_msg(LOG_INFO, "S1AP Cause %d\n", msg->cause.choice.radioNetwork);
     log_msg(LOG_INFO, "Transp Cont Size %d\n",
@@ -39,7 +39,7 @@ void dumpHoRequired(struct handover_required_Q_msg *msg)
 
 int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 {
-    s1_incoming_msg_data_t ho_required = {0};
+    handover_required_Q_msg_t ho_required = {0};
     struct proto_IE ho_required_ies = {0};
     int enb_id = 0;
     log_msg(LOG_INFO, "Parse s1ap handover required message\n");
@@ -62,26 +62,26 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
         case S1AP_IE_MME_UE_ID:
         {
 
-            ho_required.ue_idx = ho_required_ies.data[i].val.mme_ue_s1ap_id;
-            ho_required.msg_data.handover_required_Q_msg_m.s1ap_mme_ue_id =
+            ho_required.header.ue_idx = ho_required_ies.data[i].val.mme_ue_s1ap_id;
+            ho_required.s1ap_mme_ue_id =
                     ho_required_ies.data[i].val.mme_ue_s1ap_id;
-            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID %u .\n",ho_required.ue_idx);
+            log_msg(LOG_INFO, "handover required S1AP_IE_MME_UE_ID %u .\n",ho_required.header.ue_idx);
         }
             break;
         case S1AP_IE_ENB_UE_ID:
         {
 
-            ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id =
+            ho_required.header.s1ap_enb_ue_id =
                     ho_required_ies.data[i].val.enb_ue_s1ap_id;
 
-            log_msg(LOG_INFO, "handover required S1AP_IE_ENB_UE_ID %u .\n",ho_required.msg_data.handover_required_Q_msg_m.s1ap_enb_ue_id);
+            log_msg(LOG_INFO, "handover required S1AP_IE_ENB_UE_ID %u .\n",ho_required.header.s1ap_enb_ue_id);
         }
             break;
         case S1AP_IE_HANDOVER_TYPE:
         {
             log_msg(LOG_INFO, "handover required S1AP_IE_HANDOVER_TYPE.\n");
 
-            ho_required.msg_data.handover_required_Q_msg_m.handoverType =
+            ho_required.handoverType =
                     ho_required_ies.data[i].val.handoverType;
         }
             break;
@@ -89,7 +89,7 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
         {
             log_msg(LOG_INFO, "handover required S1AP_IE_CAUSE.\n");
 
-            memcpy(&ho_required.msg_data.handover_required_Q_msg_m.cause,
+            memcpy(&ho_required.cause,
                     &ho_required_ies.data[i].val.cause,
                     sizeof(struct s1apCause));
         }
@@ -98,7 +98,7 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
         {
             log_msg(LOG_INFO, "handover required S1AP_IE_TARGET_ID.\n");
 
-            memcpy(&ho_required.msg_data.handover_required_Q_msg_m.target_id,
+            memcpy(&ho_required.target_id,
                     &ho_required_ies.data[i].val.target_id,
                     sizeof(struct targetId));
 
@@ -120,11 +120,11 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
             log_msg(LOG_INFO,
                     "handover required S1AP_IE_SOURCE_TOTARGET_TRANSPARENTCONTAINER.\n");
 
-            ho_required.msg_data.handover_required_Q_msg_m.srcToTargetTranspContainer.count =
+            ho_required.srcToTargetTranspContainer.count =
                     ho_required_ies.data[i].val.srcToTargetTranspContainer.size;
 
             memcpy(
-                    ho_required.msg_data.handover_required_Q_msg_m.srcToTargetTranspContainer.buffer,
+                    ho_required.srcToTargetTranspContainer.buffer,
                     ho_required_ies.data[i].val.srcToTargetTranspContainer.buffer_p,
                     ho_required_ies.data[i].val.srcToTargetTranspContainer.size);
         }
@@ -154,7 +154,8 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 
         return E_FAIL;
     }
-    ho_required.msg_data.handover_required_Q_msg_m.target_enb_context_id = cbIndex;
+    ho_required.target_enb_context_id = cbIndex;
+    log_msg(LOG_INFO, "target eNB context Id %u", cbIndex);
     cbIndex = findControlBlockWithEnbFd(enb_fd);
     if (cbIndex == INVALID_CB_INDEX)
     {
@@ -164,15 +165,15 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 	    return E_FAIL;
     }
     
-    ho_required.msg_data.handover_required_Q_msg_m.src_enb_context_id = cbIndex;
-
-    ho_required.msg_type = handover_required;
-    ho_required.destInstAddr = htonl(mmeAppInstanceNum_c);
-    ho_required.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    ho_required.src_enb_context_id = cbIndex;
+    log_msg(LOG_INFO, "source eNB context Id %u", cbIndex);
+    ho_required.header.msg_type = handover_required;
+    ho_required.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+    ho_required.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
     int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c,
             (char*) &ho_required,
-            S1_READ_MSG_BUF_SIZE);
+            sizeof(ho_required));
 
     if (i < 0)
     {

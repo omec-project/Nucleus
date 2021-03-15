@@ -29,7 +29,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg) 
 {
-	s1_incoming_msg_data_t release_complete= {0};
+	s1_incoming_msg_header_t release_complete= {0};
 	struct proto_IE s1_ctx_release_ies;
 	s1_ctx_release_ies.data = NULL;
 
@@ -61,7 +61,7 @@ s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg)
 	int i = 0;
 	i = send_tipc_message(ipc_S1ap_Hndl,mmeAppInstanceNum_c,
 				(char *)&release_complete,
-				S1_READ_MSG_BUF_SIZE);
+				sizeof(release_complete));
 	if (i < 0) {
 
 		log_msg(LOG_ERROR,"Error To write in s1_ctx_release_code_handler\n");

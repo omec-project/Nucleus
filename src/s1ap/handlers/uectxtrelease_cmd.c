@@ -33,7 +33,6 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
 	uint32_t length = 0;
 	uint8_t *buffer = NULL;
 
-	Buffer g_ctxrel_buffer = {0};
 	struct s1ap_common_req_Q_msg req = {0};
 
 	log_msg(LOG_DEBUG,"Inside relcmd processing\n");
@@ -56,9 +55,11 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
 	}
 
 
-	buffer_copy(&g_ctxrel_buffer, buffer, length);
-	send_sctp_msg(g_uectxtrelcmd->enb_fd, g_ctxrel_buffer.buf, g_ctxrel_buffer.pos,1);
-	log_msg(LOG_INFO, "\n-----S1 Release Command sent to UE. len %d ret %d---\n", length, ret);
+	send_sctp_msg(g_uectxtrelcmd->enb_fd, buffer, length, 1);
+	if(buffer != NULL) {
+		free(buffer);
+	}
+	log_msg(LOG_INFO, "-----S1 Release Command sent to UE. len %d ret %d---\n", length, ret);
 	return SUCCESS;
 
 }

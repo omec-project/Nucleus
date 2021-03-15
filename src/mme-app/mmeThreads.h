@@ -37,7 +37,8 @@ public:
 		{
 			if ((bytesRead = mmeIpcIf.reader()->recvMsgFrom(buf, DATA_BUF_SIZE, srcAddr)) > 0 )
 			{
-				cmn::IpcEventMessage *ipcMsg = new cmn::IpcEventMessage(bytesRead);
+                // allocating memory max size so that nas message can be expanded on same meory footprint 
+				cmn::IpcEventMessage *ipcMsg = new cmn::IpcEventMessage(DATA_BUF_SIZE); 
 				MsgBuffer *msgBuf = ipcMsg->getMsgBuffer();
 				msgBuf->writeBytes(buf, bytesRead);
 				msgBuf->rewind();

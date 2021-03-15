@@ -17,7 +17,7 @@
 static int
 handover_request_processing(struct handover_request_Q_msg *g_ho_req)
 {
-	log_msg(LOG_DEBUG,"Process Handover Request.\n");
+	log_msg(LOG_DEBUG,"Process Handover Request. %d\n",g_ho_req->target_enb_context_id);
 
 	uint32_t length = 0;
     uint8_t *buffer = NULL;
@@ -29,12 +29,15 @@ handover_request_processing(struct handover_request_Q_msg *g_ho_req)
         return E_FAIL;
     }
 
-	length = send_sctp_msg(g_ho_req->target_enb_context_id, buffer, length, 1);
+	send_sctp_msg(g_ho_req->target_enb_context_id, buffer, length, 1);
 
-	log_msg(LOG_INFO,
+	log_msg(LOG_DEBUG,
 	        "HO Request Sent. Num of bytes - %d, enb_fd - %d\n",
 	        length, g_ho_req->target_enb_context_id);
 	
+	if(buffer != NULL) {
+		free(buffer);
+	}
 	return SUCCESS;
 }
 

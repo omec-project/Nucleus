@@ -26,8 +26,8 @@ namespace mme
 	class MmeNasUtils
 	{
 		public:
-			static int parse_nas_pdu(s1_incoming_msg_data_t* msg_data, unsigned char *nas_msg,  int nas_msg_len, struct nasPDU *nas);
-			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_data_t *s1Msg);
+			static int parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char *nas_msg,  int nas_msg_len, struct nasPDU *nas);
+			static void copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t *s1Msg);
 			static void encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, Secinfo& secContext);
 			static void get_negotiated_qos_value(struct esm_qos *qos);
 			static void calculate_ext_apn_ambr(const uint64_t &ambr_Mbps, uint8_t &unit, uint16_t& conv_ambr);

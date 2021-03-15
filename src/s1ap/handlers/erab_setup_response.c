@@ -21,7 +21,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 void dump_erab_su_resp(struct erabSuResp_Q_msg *msg)
 {
    log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->s1ap_mme_ue_id);
-   log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->s1ap_enb_ue_id);
+   log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->header.s1ap_enb_ue_id);
    log_msg(LOG_INFO, "eRABSetupList_count %d\n", msg->erab_su_list.count);
    for(int i = 0; i < msg->erab_su_list.count; i++)
    {
@@ -43,7 +43,7 @@ void dump_erab_su_resp(struct erabSuResp_Q_msg *msg)
 
 int erab_setup_response_handler(SuccessfulOutcome_t *msg)
 {
-    s1_incoming_msg_data_t erab_su_resp = {0};
+    struct erabSuResp_Q_msg erab_su_resp = {0};
     struct proto_IE erab_su_resp_ies = {0};
 
     int decode_status = convertErabSetupRespToProtoIe(msg, &erab_su_resp_ies);
@@ -67,7 +67,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
                     "ERAB Setup Response S1AP_IE_MME_UE_ID %d\n", 
                 erab_su_resp_ies.data[i].val.mme_ue_s1ap_id);
 
-                erab_su_resp.ue_idx = erab_su_resp_ies.data[i].val.mme_ue_s1ap_id;
+                erab_su_resp.header.ue_idx = erab_su_resp_ies.data[i].val.mme_ue_s1ap_id;
             }
             break;
             case S1AP_IE_ENB_UE_ID:
@@ -76,7 +76,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
                     "ERAB Setup Response S1AP_IE_ENB_UE_ID %d\n",
                 erab_su_resp_ies.data[i].val.enb_ue_s1ap_id);
 
-                erab_su_resp.s1ap_enb_ue_id = erab_su_resp_ies.data[i].val.enb_ue_s1ap_id;
+                erab_su_resp.header.s1ap_enb_ue_id = erab_su_resp_ies.data[i].val.enb_ue_s1ap_id;
             }
             break;
             case S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES:
@@ -86,10 +86,10 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
 		             received with the count : %d\n", 
                      erab_su_resp_ies.data[i].val.erab_su_list.count);
 
-                erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_su_list.count =
+                erab_su_resp.erab_su_list.count =
                     erab_su_resp_ies.data[i].val.erab_su_list.count;
                 memcpy(
-                    &erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_su_list.erab_su_item,
+                    &erab_su_resp.erab_su_list.erab_su_item,
                     &erab_su_resp_ies.data[i].val.erab_su_list.erab_su_item,
                     sizeof(erab_su_resp_ies.data[i].val.erab_su_list.erab_su_item));
             }
@@ -101,10 +101,10 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
 		             received with the count : %d\n", 
                      erab_su_resp_ies.data[i].val.erab_fail_list.count);
 
-                erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_fail_list.count =
+                erab_su_resp.erab_fail_list.count =
                     erab_su_resp_ies.data[i].val.erab_fail_list.count;
                 memcpy(
-                    &erab_su_resp.msg_data.erabSuResp_Q_msg_m.erab_fail_list.erab_fail_item,
+                    &erab_su_resp.erab_fail_list.erab_fail_item,
                     &erab_su_resp_ies.data[i].val.erab_fail_list.erab_fail_item,
                     sizeof(erab_su_resp_ies.data[i].val.erab_fail_list.erab_fail_item));
             }
@@ -114,14 +114,14 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
         }
     }
 
-    erab_su_resp.msg_type = erab_setup_response;
-    erab_su_resp.destInstAddr = htonl(mmeAppInstanceNum_c);
-    erab_su_resp.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    erab_su_resp.header.msg_type = erab_setup_response;
+    erab_su_resp.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+    erab_su_resp.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
-    //dump_erab_su_resp(&erab_su_resp.msg_data.erabSuResp_Q_msg_m);
+    //dump_erab_su_resp(&erab_su_resp);
     int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c,
             (char*) &erab_su_resp,
-            S1_READ_MSG_BUF_SIZE);
+            sizeof(struct erabSuResp_Q_msg));
     if (i < 0)
     {
         log_msg(LOG_ERROR, "Error To write in erab_su_resp_handler %s\n", strerror(errno));

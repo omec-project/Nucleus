@@ -30,12 +30,15 @@ static int handover_preparation_failure_processing(
         return E_FAIL;
     }
 
-    length = send_sctp_msg(g_ho_prep_fail->src_enb_context_id, buffer, length, 1);
+    send_sctp_msg(g_ho_prep_fail->src_enb_context_id, buffer, length, 1);
 
-    log_msg(LOG_INFO,
+    log_msg(LOG_DEBUG,
             "HO Handover Preparation Failure Sent. Num of bytes - %d\n",
             length);
 
+	if(buffer != NULL) {
+		free(buffer);
+	}
     return SUCCESS;
 }
 

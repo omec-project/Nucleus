@@ -42,7 +42,7 @@ extern int g_Q_mme_S6a_fd;
  * @return int - error code
  */
 static int
-get_aia_sec_vector(struct avp *avp_data, struct aia_Q_msg *aia)
+get_aia_sec_vector(struct avp *avp_data, aia_Q_msg_t *aia)
 {
 	struct avp *sub_avp = NULL;
 	struct avp_hdr *element = NULL;
@@ -146,7 +146,7 @@ get_aia_sec_vector(struct avp *avp_data, struct aia_Q_msg *aia)
 }
 
 static
-void send_to_stage2(struct aia_Q_msg *aia_msg)
+void send_to_stage2(aia_Q_msg_t *aia_msg)
 {
 	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
 
@@ -154,7 +154,7 @@ void send_to_stage2(struct aia_Q_msg *aia_msg)
 	aia_msg->header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)aia_msg, sizeof(struct aia_Q_msg));
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)aia_msg, sizeof(aia_Q_msg_t));
 }
 
 int aia_resp_callback(struct msg **buf, struct avp *_avp,
@@ -165,7 +165,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	struct msg *resp = *buf;
 	struct avp *avp_ptr = NULL;
 	unsigned char *sess_id= NULL;
-    struct aia_Q_msg aia_msg = {0};
+    aia_Q_msg_t aia_msg = {0};
 	struct avp_hdr *avp_hdr = NULL;
 	struct avp *sub_avp = NULL;
 	struct avp_hdr *element = NULL;
@@ -272,7 +272,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 void
 handle_perf_hss_aia(int ue_idx, struct hss_aia_msg *aia)
 {
-    struct aia_Q_msg aia_msg = {0};
+    aia_Q_msg_t aia_msg = {0};
 
 	aia_msg.header.ue_idx = ue_idx;
 	aia_msg.header.msg_type = auth_info_answer;

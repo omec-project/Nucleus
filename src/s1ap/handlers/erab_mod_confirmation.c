@@ -30,10 +30,13 @@ erab_mod_confirm_processing(struct erab_mod_confirm *g_erab_mod_conf)
 		return E_FAIL;
 	}
 
-	length = send_sctp_msg(
+	send_sctp_msg(
 	        g_erab_mod_conf->enb_context_id, buffer, length, 1);
 
 	log_msg(LOG_DEBUG, "E-RAB Modification Confirmation sent. No. of bytes %d\n", length);
+	if(buffer != NULL) {
+		free(buffer);
+	}
 
 	return SUCCESS;
 }

@@ -45,7 +45,7 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 {
 	struct msg *resp = NULL;
 	struct avp *avp_ptr = NULL;
-	struct clr_Q_msg clr_msg = {0};
+	clr_Q_msg_t clr_msg = {0};
 	struct avp_hdr *avp_header = NULL;
 	unsigned int sess_id_len;
 	unsigned char *sess_id= NULL;
@@ -114,7 +114,7 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	clr_msg.header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-    send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&clr_msg, sizeof(struct clr_Q_msg));
+    send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&clr_msg, sizeof(clr_Q_msg_t));
 	
 	return SUCCESS;
 }
@@ -123,11 +123,11 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 void
 handle_perf_hss_clr(int ue_idx, struct hss_clr_msg *clr)
 {
-	struct clr_Q_msg clr_msg = {0};
+	clr_Q_msg_t clr_msg = {0};
     
 	clr_msg.header.msg_type = cancel_location_request;
 	clr_msg.header.ue_idx = ue_idx;
 	memcpy(&(clr_msg.c_type), &(clr->cancellation_type), sizeof(clr->cancellation_type));
 	/*Send to stage2 queue*/
-	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&clr_msg, sizeof(struct clr_Q_msg));
+	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&clr_msg, sizeof(clr_Q_msg_t));
 }

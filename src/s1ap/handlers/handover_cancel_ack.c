@@ -30,10 +30,13 @@ static int handover_cancel_ack_processing(
         return E_FAIL;
     }
 
-    length = send_sctp_msg(g_ho_cancel_ack->src_enb_context_id, buffer, length, 1);
+    send_sctp_msg(g_ho_cancel_ack->src_enb_context_id, buffer, length, 1);
 
-    log_msg(LOG_INFO,
+    log_msg(LOG_DEBUG,
             "HO Handover Cancel Acknowledge Sent. Num of bytes - %d\n", length);
+	if(buffer != NULL) {
+		free(buffer);
+	}
 
     return SUCCESS;
 }

@@ -32,7 +32,7 @@ handle_mmeapp_message(void * data)
 	msg_type_t* msg_type = (msg_type_t*)(msg);
 
 	switch(*msg_type)		
-	{	 
+	{
     case id_request:
         idreq_handler(msg);
         break;
@@ -67,8 +67,8 @@ handle_mmeapp_message(void * data)
 		tau_response_handler(msg);
 		break;
 	case tau_reject:
-                s1ap_reject_handler(msg);
-                break;
+		s1ap_reject_handler(msg);
+		break;
 	case attach_reject:
 		s1ap_reject_handler(msg);
 		break;
