@@ -32,10 +32,16 @@ s1_ctx_release_request_handler(InitiatingMessage_t *msg)
 {
 	s1_incoming_msg_data_t release_request= {0};
 	struct proto_IE s1_ctx_rel_req_ies;
+	s1_ctx_rel_req_ies.data = NULL;
 
 	log_msg(LOG_INFO, "Parse s1ap context release request message:--\n");
 
-	convertUeCtxRelReqToProtoIe(msg, &s1_ctx_rel_req_ies);
+	int decode_status = convertUeCtxRelReqToProtoIe(msg, &s1_ctx_rel_req_ies);
+	if(decode_status < 0) {
+		free(s1_ctx_rel_req_ies.data);
+		log_msg(LOG_ERROR, "Failed to decode s1ap message\n");
+		return E_FAIL;
+	}
 
 	/*TODO: Validate all eNB info*/
      for(int i = 0; i < s1_ctx_rel_req_ies.no_of_IEs; i++)
@@ -73,6 +79,6 @@ s1_ctx_release_request_handler(InitiatingMessage_t *msg)
 	log_msg(LOG_INFO, "Ctx Release request sent to mme-app."
 				"Bytes send %d\n", i);
 
-	//TODO: free IEs
+	free(s1_ctx_rel_req_ies.data);
 	return SUCCESS;
 }

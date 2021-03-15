@@ -27,15 +27,20 @@
 extern ipc_handle ipc_S1ap_Hndl;
 
 int
-s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg) /* TODO : nobody is calling this ??*/
+s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg) 
 {
 	s1_incoming_msg_data_t release_complete= {0};
 	struct proto_IE s1_ctx_release_ies;
+	s1_ctx_release_ies.data = NULL;
 
 	log_msg(LOG_INFO, "Parse s1ap context release complete message:--\n");
 
-	 convertUeCtxRelComplToProtoIe(msg, &s1_ctx_release_ies);
-
+	int decode_status = convertUeCtxRelComplToProtoIe(msg, &s1_ctx_release_ies);
+	if(decode_status < 0) {
+		log_msg(LOG_ERROR, "Failed to decode s1ap message\n");
+		free(s1_ctx_release_ies.data);
+		return E_FAIL;
+	}
 	/*TODO: Validate all eNB info*/
      for(int i = 0; i < s1_ctx_release_ies.no_of_IEs; i++)
     {
@@ -65,7 +70,7 @@ s1_ctx_release_resp_handler(SuccessfulOutcome_t *msg) /* TODO : nobody is callin
 	log_msg(LOG_INFO, "Ctx Release complete sent to mme-app."
 				"Bytes sent %d\n", i);
 
-	//TODO: free IEs
+    free(s1_ctx_release_ies.data);
 	return SUCCESS;
 }
 
