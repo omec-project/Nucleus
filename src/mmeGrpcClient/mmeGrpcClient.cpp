@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0

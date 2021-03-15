@@ -28,6 +28,7 @@
 #include "msgType.h"
 #include "contextManager/subsDataGroupManager.h"
 #include "procedureStats.h"
+#include "log.h"
 #include "secUtils.h"
 #include "state.h"
 #include <string.h>
