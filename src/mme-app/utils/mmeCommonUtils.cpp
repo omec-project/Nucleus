@@ -106,6 +106,28 @@ void MmeCommonUtils::formatS1apPlmnId(struct PLMN* plmn_p)
 
 }
 
+void MmeCommonUtils::getS1apPlmnIdFroms11(struct PLMN* plmn_p)
+{
+	/* we have on s11/nas/s6a - 216354 */
+    /*              s1ap need : 214365 */
+
+	unsigned char plmn_byte2 = plmn_p->idx[1];
+	unsigned char plmn_byte3 = plmn_p->idx[2];
+	unsigned char mnc3 = plmn_byte2 >> 4; //  mnc3
+	unsigned char mnc2 = plmn_byte3 >> 4; // mnc2
+	unsigned char mnc1 = plmn_byte3 & 0xf; // mnc1
+	unsigned char mcc3  = plmn_byte2 & 0xf; //mcc3
+	// First byte we are not changing mcc2 mcc1
+	if(mnc1 != 0x0F)
+	{
+		plmn_byte2 = (mnc1 << 4) | mcc3;
+		plmn_byte3 = (mnc3 << 4) | mnc2;
+		plmn_p->idx[1] = plmn_byte2;
+        plmn_p->idx[2] = plmn_byte3;
+	}
+
+}
+
 AttachType MmeCommonUtils::getAttachType(UEContext* ueContext_p,
 		const struct ue_attach_info& ue_info)
 {
