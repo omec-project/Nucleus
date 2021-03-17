@@ -31,11 +31,17 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 {
 	struct proto_IE s1_ics_ies;
 	s1_incoming_msg_data_t ics_resp= {0};
+	s1_ics_ies.data = NULL;
 
 	/*****Message structure****/
 	log_msg(LOG_INFO, "Parse int ctx s1ap response message:--\n");
 	/*parse_IEs(msg+2, &s1_ics_ies, S1AP_INITIAL_CTX_RESP_CODE);*/
-	convertInitCtxRspToProtoIe(msg, &s1_ics_ies);
+	int decode_status = convertInitCtxRspToProtoIe(msg, &s1_ics_ies);
+	if(decode_status < 0) {
+		free(s1_ics_ies.data);
+		log_msg(LOG_ERROR, "Failed to decode s1ap message\n");
+		return E_FAIL;
+	}
     
 	ics_resp.msg_type = init_ctxt_response;
 	
@@ -77,6 +83,6 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 	/*Send S1Setup response*/
 	log_msg(LOG_INFO, "Init ctx resp send to mme-app stage7. Bytes send %d\n", i);
 
-	//TODO: free IEs
+	free(s1_ics_ies.data);
 	return SUCCESS;
 }

@@ -204,8 +204,9 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies, &s1Msg);
     if(decode_result < 0 )
     {
-	  log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
-      return E_FAIL;
+		log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
+		free(proto_ies.data);
+		return E_FAIL;
     }
 	s1Msg.msg_type = raw_nas_msg; 
 	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
@@ -215,7 +216,6 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 
 	/*Send S1Setup response*/
 	free(proto_ies.data);
-	//TODO: free IEs
 	return SUCCESS;
 }
 
@@ -240,8 +240,9 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 
     if(decode_result < 0 )
     {
-	  log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
-      return E_FAIL;
+	  	log_msg(LOG_ERROR, "S1ap message decode failed. Dropping message");
+		free(proto_ies.data);
+		return E_FAIL;
     }
 	s1Msg.msg_type = raw_nas_msg;
 	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
@@ -250,7 +251,6 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
 
 
-	//TODO: free IEs
 	free(proto_ies.data);
 	return SUCCESS;
 }
@@ -389,7 +389,7 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 		s1_handover_cancel_handler(initiating_p);
 		break;
         
-        case S1AP_ERAB_MODIFICATION_INDICATION_CODE:
+	case S1AP_ERAB_MODIFICATION_INDICATION_CODE:
 		erab_mod_indication_handler(initiating_p);
 		break;
 
