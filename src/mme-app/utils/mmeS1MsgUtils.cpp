@@ -106,17 +106,19 @@ void MmeS1MsgUtils::populateHoCommand(SM::ControlBlock& cb,
 	hoCommand.target_to_src_transparent_container =
 	        procCtxt.getTargetToSrcTransContainer();
 
-	hoCommand.erabs_Subject_to_Forwarding_List.count = 1;
+    if(0) {
+	    hoCommand.erabs_Subject_to_Forwarding_List.count = 1;
 
-	ERABs_Subject_to_Forwarding *erabsSubjectToFwding =
-	        &(hoCommand.erabs_Subject_to_Forwarding_List.eRABs_Subject_to_Forwarding[0]);
+	    ERABs_Subject_to_Forwarding *erabsSubjectToFwding =
+	            &(hoCommand.erabs_Subject_to_Forwarding_List.eRABs_Subject_to_Forwarding[0]);
 
-	erabsSubjectToFwding->e_RAB_ID =
-	        procCtxt.getErabAdmittedItem().e_RAB_ID;
-	erabsSubjectToFwding->dL_gtp_teid =
-	        procCtxt.getErabAdmittedItem().dL_gtp_teid;
-	erabsSubjectToFwding->dL_transportLayerAddress =
-	        procCtxt.getErabAdmittedItem().dL_transportLayerAddress;
+	    erabsSubjectToFwding->e_RAB_ID =
+	            procCtxt.getErabAdmittedItem().e_RAB_ID;
+	    erabsSubjectToFwding->dL_gtp_teid =
+	            procCtxt.getErabAdmittedItem().dL_gtp_teid;
+	    erabsSubjectToFwding->dL_transportLayerAddress =
+	            procCtxt.getErabAdmittedItem().dL_transportLayerAddress;
+    }
 
 }
 
