@@ -19,6 +19,7 @@
 #include "mmeStatsPromClient.h"
 #include "secUtils.h"
 #include "gtpCauseTypes.h"
+#include <utils/mmeCommonUtils.h>
 
 using namespace mme;
 
@@ -72,8 +73,10 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
 
     hoReq.gummei.mme_code = mme_cfg->mme_code;
     hoReq.gummei.mme_grp_id = mme_cfg->mme_group_id;
-    memcpy(hoReq.gummei.plmn_id.idx, mme_cfg->plmns[1].idx, 3);
-
+    const Tai &temp = ueCtxt.getTai();
+    TAI tai = temp.tai_m;
+    MmeCommonUtils::getS1apPlmnIdFroms11(&tai.plmn_id);
+    memcpy(hoReq.gummei.plmn_id.idx, tai.plmn_id.idx, 3);
     secinfo& secInfo = const_cast<secinfo&>(ueCtxt.getUeSecInfo().secinfo_m);
     secInfo.next_hop_chaining_count = secInfo.next_hop_chaining_count + 1 ;
     hoReq.security_context.next_hop_chaining_count = secInfo.next_hop_chaining_count;
