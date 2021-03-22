@@ -66,8 +66,10 @@ void ServiceRequestWfSecCmp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(STATE_GUARD_TIMEOUT, actionTable));
         }
@@ -75,6 +77,7 @@ void ServiceRequestWfSecCmp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(ABORT_EVENT, actionTable));
         }

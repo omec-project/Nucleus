@@ -58,7 +58,7 @@ void S1ReleaseWfUeCtxtReleaseComp::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_ue_ctxt_rel_comp);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 eventToActionsMap.insert(pair<uint16_t, ActionTable>(UE_CTXT_REL_COMP_FROM_ENB, actionTable));
         }
         {

@@ -87,6 +87,7 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_S11_MODIFY_BEARER_REQUEST,
 	MME_MSG_TX_S11_DELETE_SESSION_REQUEST,
 	MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_ACK,
+	MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_FAILURE_IND,
 	MME_MSG_TX_S11_RELEASE_BEARER_REQUEST,
 	MME_MSG_TX_S11_CREATE_BEARER_RESPONSE,
 	MME_MSG_TX_S11_DELETE_BEARER_RESPONSE,
@@ -436,6 +437,7 @@ class mme_msg_tx_counters {
 	Counter &mme_msg_tx_s11_modify_bearer_request;
 	Counter &mme_msg_tx_s11_delete_session_request;
 	Counter &mme_msg_tx_s11_downlink_data_notification_ack;
+	Counter &mme_msg_tx_s11_downlink_data_notification_failure_ind;
 	Counter &mme_msg_tx_s11_release_bearer_request;
 	Counter &mme_msg_tx_s11_create_bearer_response;
 	Counter &mme_msg_tx_s11_delete_bearer_response;

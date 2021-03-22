@@ -911,6 +911,19 @@
                 {"sgw_addr" : "sgw address of s11 connection "}
             ]
         },
+        {
+            "name" : "s11_downlink_data_notification_failure_ind",
+            "help" : "number of DDN Failure Indication sent by MME",
+            "label_0": [
+                { "interface":"s11"}
+            ],
+            "label_1": [
+                {"msg_type": "downlink_data_notification_failure_ind"}
+            ],
+            "dynamic_label_0": [
+                {"sgw_addr" : "sgw address of s11 connection "}
+            ]
+        },
         { 
             "name" : "s11_release_bearer_request",
             "help" : "number of RAB request sent by MME",

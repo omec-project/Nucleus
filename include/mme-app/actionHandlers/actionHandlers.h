@@ -419,11 +419,6 @@ namespace mme
         static SM::ActStatus process_tau_request(SM::ControlBlock& cb);                
 
         /**********************************************
-        * Action handler : process_ue_ctxt_rel_comp
-        ***********************************************/
-        static SM::ActStatus process_ue_ctxt_rel_comp(SM::ControlBlock& cb);                
-
-        /**********************************************
         * Action handler : process_ue_ctxt_rel_comp_for_detach
         ***********************************************/
         static SM::ActStatus process_ue_ctxt_rel_comp_for_detach(SM::ControlBlock& cb);                
@@ -437,6 +432,11 @@ namespace mme
         * Action handler : purge_req
         ***********************************************/
         static SM::ActStatus purge_req(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : s1_release_complete
+        ***********************************************/
+        static SM::ActStatus s1_release_complete(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : sec_mode_cmd_to_ue
@@ -472,6 +472,11 @@ namespace mme
         * Action handler : send_ddn_ack_to_sgw
         ***********************************************/
         static SM::ActStatus send_ddn_ack_to_sgw(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_ddn_failure_ind
+        ***********************************************/
+        static SM::ActStatus send_ddn_failure_ind(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_delete_bearer_response
@@ -597,6 +602,11 @@ namespace mme
         * Action handler : service_request_complete
         ***********************************************/
         static SM::ActStatus service_request_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : svc_req_state_guard_timeout
+        ***********************************************/
+        static SM::ActStatus svc_req_state_guard_timeout(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : validate_imsi_in_ue_context
