@@ -873,7 +873,7 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL \n");
 
-    bearerCtxt->setBearerQos(csr_info->bearerQos);
+	bearerCtxt->setBearerQos(csr_info->bearerQos);
 	procedure_p->setPcoOptions(csr_info->pco_options,csr_info->pco_length);
 	log_msg(LOG_DEBUG, "Process CSRsp - PCO length %d\n", csr_info->pco_options,csr_info->pco_length);
 	
@@ -1392,27 +1392,57 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 
 ActStatus ActionHandlers::abort_attach(ControlBlock& cb)
 {
-    ERROR_CODES errorCause = SUCCESS;
+    UEContext* ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
 
-    MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    ERROR_CODES errorCause = SUCCESS;
+    uint16_t stateId = 0;
+
+    MmeProcedureCtxt *procCtxt =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
+        stateId = procCtxt->getCurrentState()->getStateId();
+
+        log_msg(LOG_INFO,
+                "Abort ongoing Attach for subscriber %s. "
+                "Current State %s, Error Cause %d\n, ",
+                ueCtxt_p->getImsi().getDigitsArray(),
+                procCtxt->getCurrentState()->getStateName(), errorCause);
+
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
     }
 
-    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);
+    mmeStats::Instance()->increment(
+            mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE);
 
-    if (errorCause == ABORT_DUE_TO_ATTACH_COLLISION)
+    switch (errorCause)
     {
-        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
+        case ABORT_DUE_TO_ATTACH_COLLISION:
+        {
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex(), false); // retain control block
+        }break;
+        case ABORT_DUE_TO_S1_REL_COLLISION:
+        {
+            /* We intend to start a normal s1 release after the MME sends out init_ctxt_setup_req,
+             * since the attach has already been accepted by the MME by this stage.
+             * In all other cases, reject the attach, fire s1 release command,
+             * and delete the UE Context*/
+            if ((stateId != attach_wf_mb_resp) &&
+                    (stateId != attach_wf_att_cmp) &&
+                    (stateId != attach_wf_init_ctxt_resp) &&
+                    (stateId != attach_wf_init_ctxt_resp_att_cmp))
+            {
+                MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+            }
+        }break;
+        default:
+        {
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }break;
     }
-    else
-    {
-        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
-    }
-
-	return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 }
 
 /***************************************
@@ -1459,4 +1489,24 @@ ActStatus ActionHandlers::handle_state_guard_timeouts_for_csreq_ind(ControlBlock
     mme_tables->invalidate_dns();
     mme_tables->initiate_spgw_resolution();
     return ActStatus::ABORT;
+}
+
+/***************************************
+* Action handler : handle_s1_rel_req_during_attach
+***************************************/
+ActStatus ActionHandlers::handle_s1_rel_req_during_attach(ControlBlock& cb)
+{
+    MmeProcedureCtxt *procCtxt =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt != NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "S1 Release Collision during Attach. Current State %s\n",
+                procCtxt->getCurrentState()->getStateName());
+
+        // Set appropriate error cause for aborting the procedure
+        procCtxt->setMmeErrorCause(ABORT_DUE_TO_S1_REL_COLLISION);
+    }
+
+    return ActStatus::PROCEED;
 }

@@ -1,10 +1,8 @@
 [%- genericEventsList = [ 'DEFAULT_EVENT' 'ABORT_EVENT' 'STATE_GUARD_TIMEOUT' ] %]
-[%- stateList = [] %]
 [%- eventList = [] %]
 [%- FOREACH ProcedureList = TemplateInputVar %]
     [%- FOREACH Procedure = ProcedureList %]
         [%- FOREACH State = Procedure.States %]
-                [%- stateList.push(State.Name) %]
             [%- FOREACH Event = State.Events %]
                 [%- eventList.push(Event.Name) %]
             [%- END %]
@@ -12,7 +10,6 @@
     [%- END %]
 [%- END %]
 [%- eventList = eventList.merge(genericEventsList) %]
-[%- stateList = stateList.unique.sort %]
 [%- eventList = eventList.unique.sort %]
 /*
  * Copyright 2019-present, Infosys Limited.
@@ -39,13 +36,5 @@ void populateEventStringMap()
 {
     [%- FOREACH event = eventList %]
     smUtil->addEventToStrEntry([% event %],"[% event %]");      
-    [%- END %]
-}
-
-void populateStateStringMap()
-{
-    smUtil->addStateToStrEntry(default_state,"default_state");
-    [%- FOREACH state = stateList %]
-    smUtil->addStateToStrEntry([% state %],"[% state %]");
     [%- END %]
 }

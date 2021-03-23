@@ -239,6 +239,11 @@ namespace mme
         static SM::ActStatus handle_paging_failure(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_s1_rel_req_during_attach
+        ***********************************************/
+        static SM::ActStatus handle_s1_rel_req_during_attach(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_s1_rel_req_during_detach
         ***********************************************/
         static SM::ActStatus handle_s1_rel_req_during_detach(SM::ControlBlock& cb);                

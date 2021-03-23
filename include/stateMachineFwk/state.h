@@ -19,9 +19,7 @@ namespace SM
 	class State
 	{
   	public:
-	        State(uint16_t sID);
-
-	        State(uint16_t sID, uint32_t duration);
+	        State();
 
       		virtual ~State();
 
@@ -29,7 +27,9 @@ namespace SM
 
 	      	ActStatus executeActions(uint16_t evtId,ControlBlock& cb);
 
-	      	uint16_t getStateId() const;
+	      	virtual uint16_t getStateId() const;
+
+	      	virtual const char* getStateName() const;
 
 	      	// Sets the action to be executed when a state is set
 	      	void setEntryAction(ActionPointer entryAction);
@@ -56,7 +56,6 @@ namespace SM
 	      	bool isEventHandled(uint16_t eventId);
 
    	protected:
-      		uint16_t stateID;
 	      	EventToActionTableMap eventToActionsMap;
 
 	      	ActionPointer stateEntryAction;

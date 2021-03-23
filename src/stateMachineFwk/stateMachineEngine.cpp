@@ -61,11 +61,11 @@ ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock &cb,
     log_msg(LOG_DEBUG,
             "################ Executing actions for event: %s and State: %s #################\n",
             util->convertEventToString(smCtxt.evt.getEventId()).c_str(),
-            util->convertStateToString(currentState_p->getStateId()).c_str());
+            currentState_p->getStateName());
 
     time_t mytime = time(NULL);
     debugEventInfo dEventInfo(smCtxt.evt.getEventId(),
-            currentState_p->getStateId(), mytime);
+            currentState_p->getStateName(), mytime);
     cb.addDebugInfo(dEventInfo);
 
     return currentState_p->executeActions(smCtxt.evt.getEventId(), cb);

@@ -98,7 +98,36 @@
             },
             {
                 "Name":"_ATTACH",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled",
+                        "defaultState" : "attach_state"
+                    }
+                ],
                 "States":[
+                    {
+                        "Name":"attach_state",
+                        "_comment1": "Default state for Attach procedure. Provides a default behavior for the events",
+                        "_comment2": "Events handled in this state gets automatically added to the other states defined for attach procedure.", 
+                        "_comment3": "In case an event handling needs to be overridden for a specific state, re-define the event in the corresponding state with new behavior.",
+                        "Events":[
+                            {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout" : "0"
+                            }
+                        ]
+                    },
                     {
                         "Name":"attach_start",
                         "Events":[
@@ -433,6 +462,15 @@
                                 "NextState":"attach_wf_init_ctxt_resp"
                             },
                             {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "ABORT_ATTACH",
+                                    "DEFAULT_S1_RELEASE_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
                                     "HANDLE_STATE_GUARD_TIMEOUTS"
@@ -463,6 +501,15 @@
                                 "NextState":"attach_wf_mb_resp"
                             },
                             {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "ABORT_ATTACH",
+                                    "DEFAULT_S1_RELEASE_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
                                     "HANDLE_STATE_GUARD_TIMEOUTS"
@@ -491,6 +538,15 @@
                                     "SEND_MB_REQ_TO_SGW"
                                 ],
                                 "NextState":"attach_wf_mb_resp"
+                            },
+                            {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "ABORT_ATTACH",
+                                    "DEFAULT_S1_RELEASE_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
@@ -534,6 +590,15 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"S1_REL_REQ_FROM_UE",
+                                "Actions":[
+                                    "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "ABORT_ATTACH",
+                                    "DEFAULT_S1_RELEASE_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"STATE_GUARD_TIMEOUT",
                                 "Actions":[
                                     "HANDLE_STATE_GUARD_TIMEOUTS"
@@ -552,15 +617,15 @@
                              }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"UE_INIT_DETACH",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"detach_start",
@@ -621,7 +686,7 @@
                                     "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
-                            }
+                           }
                         ]
                     },
                     {
@@ -656,7 +721,7 @@
                                     "ABORT_DETACH"
                                 ],
                                 "NextState":"end_state"
-                            }
+                           }
                         ]
                     },
                     {
@@ -694,15 +759,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"S1_RELEASE",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"s1_release_start",
@@ -796,15 +861,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"NETWORK_INIT_DETACH",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"ni_detach_start",
@@ -958,15 +1023,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"SERVICE_REQUEST",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"paging_start",
@@ -1262,15 +1327,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"_TAU",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"tau_start",
@@ -1284,15 +1349,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "disabled"
-                    }
                 ]
             },
             {
                 "Name":"S1_HANDOVER",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"intra_s1_ho_start",
@@ -1428,15 +1493,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "disabled"
-                    }
                 ]
             },
             {
 	        "Name":"ERAB_MOD_INDICATION",
+                "Properties":[
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"erab_mod_ind_start",
@@ -1479,15 +1544,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties":[
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"CREATE_BEARER_PROCEDURE",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"create_bearer_start",
@@ -1589,15 +1654,15 @@
                             }
                 	]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name":"DED_BEARER_ACT_PROCEDURE",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
                 "States":[
                     {
                         "Name":"ded_act_start",
@@ -1714,15 +1779,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature" : "enabled"
-                    }
                 ]
             },
             {
                 "Name": "DELETE_BEARER_PROCEDURE",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature": "enabled"
+                    }
+                ],
                 "States": [
                     {
                         "Name": "delete_bearer_start",
@@ -1815,7 +1880,7 @@
                                 ],
                                 "NextState": "end_state"
                             },
-			    {
+                            {
                                 "Name":"DETACH_FAILURE",
                                 "Actions":[
                                     "HANDLE_DETACH_FAILURE"
@@ -1844,15 +1909,15 @@
                             }
                         ]
                     }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature": "enabled"
-                    }
                 ]
             },
             {
                 "Name": "DED_BEARER_DEACT_PROCEDURE",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature": "enabled"
+                    }
+                ],
                 "States": [
                     {
                         "Name": "ded_deact_start",
@@ -1861,7 +1926,7 @@
                                 "Name": "DED_BEARER_DEACT_START",
                                 "Actions": [
                                     "SEND_ERAB_REL_CMD_AND_DEACT_EPS_BR_CTXT_REQ"
-				],
+                                ],
                                 "NextState": "ded_deact_wf_bearer_and_session_tearup"
                             },
                             {
@@ -1959,11 +2024,6 @@
                                 "NextState": "end_state"
                             }
                         ]
-                    }
-                ],
-                "Properties": [
-                    {
-                        "stateGuardTimerFeature": "enabled"
                     }
                 ]
             }

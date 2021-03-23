@@ -5,7 +5,7 @@
  */
 
 #include <utils/defaultMmeProcedureCtxt.h>
-#include <mmeStates/defaultMmeState.h>
+#include <mmeStates/defaultMmeProcedureStates.h>
 
 using namespace mme;
 

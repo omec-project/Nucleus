@@ -219,7 +219,7 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         		EventInfoRespBuf_EventInfoBuf* EvtInfo = reply->add_eventinfo();
 	                string strEvent = SM::SmUtility::Instance()->convertEventToString(it->event);
         	        EvtInfo->set_event(strEvent);
-                	string strState = SM::SmUtility::Instance()->convertStateToString(it->state);
+			string strState = it->state;
 	                EvtInfo->set_state(strState);
         	        EvtInfo->set_time(ctime(&(it->evt_time)));
         	}

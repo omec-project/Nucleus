@@ -68,9 +68,4 @@ const uint16_t END_EVENT = [% id %];
 ******************************************/
 void populateEventStringMap();
 
-/******************************************
-* Maps State Name to State ID
-******************************************/
-void populateStateStringMap();
-
 #endif

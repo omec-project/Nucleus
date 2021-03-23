@@ -4,21 +4,22 @@
 			"AppModel": "dataModels/stateMachineAppModel.json",
 			"genCode": [
 				{
-					"appModelKeyword": "States",
+					"appModelKeyword": "Procedures",
 					"appModelValueDepth": 2,
 					"templateFile": "templates/stateMachineTmpls/state.h.tt",
 					"outputPath": "../../include/mme-app/mmeStates",
-					"outputFile": "",
+					"outputFile": "States",
 					"outputFileKey": "Name",
 					"outputFileExt": ".h",
 					"mode": "overwrite"
 				},
 				{
-					"appModelKeyword": "States",
+					"appModelKeyword": "Procedures",
 					"appModelValueDepth": 2,
 					"templateFile": "templates/stateMachineTmpls/state.cpp.tt",
+					"includes" : "mmeSmDefs.h,utils/mmeStatesUtils.h,utils/mmeTimerTypes.h",
 					"outputPath": "../../src/mme-app/mmeStates",
-					"outputFile": "",
+					"outputFile": "States",
 					"outputFileKey": "Name",
 					"outputFileExt": ".cpp",
 					"mode": "overwrite"
@@ -64,7 +65,7 @@
 					"mode": "append"
 				},
 				{
-					"appModelKeyword": "States",
+					"appModelKeyword": "Procedures",
 					"appModelValueDepth": 0,
 					"templateFile": "templates/stateMachineTmpls/stateFactory.cpp.tt",
 					"outputPath": "../../src/mme-app/mmeStates",
@@ -74,7 +75,7 @@
 					"mode": "overwrite"
 				},
 				{
-					"appModelKeyword": "States",
+					"appModelKeyword": "Procedures",
 					"appModelValueDepth": 0,
 					"templateFile": "templates/stateMachineTmpls/stateFactory.h.tt",
 					"outputPath": "../../include/mme-app/mmeStates",

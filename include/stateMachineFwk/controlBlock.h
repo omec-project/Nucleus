@@ -27,10 +27,10 @@ namespace SM
 	typedef struct debugEventInfo
 	{
 		uint16_t event;
-		uint16_t state;
+		std::string state;
         	time_t evt_time;
 
-        	debugEventInfo(uint16_t evt, uint16_t st, time_t t)
+		debugEventInfo(uint16_t evt, std::string st, time_t t)
         	{
         		event = evt;
         		state = st;
