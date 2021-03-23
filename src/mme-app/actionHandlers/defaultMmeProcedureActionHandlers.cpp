@@ -860,18 +860,14 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 
             rc = ActStatus::ABORT;
         }
-	else if (procCtxt_p->getCtxtType() == dbReq_c)
-	{
-	    MmeSmDeleteBearerProcCtxt *dbReqProc_p =
+        else if (procCtxt_p->getCtxtType() == dbReq_c)
+        {
+            MmeSmDeleteBearerProcCtxt *dbReqProc_p =
                     dynamic_cast<MmeSmDeleteBearerProcCtxt*>(procCtxt_p);
 
             dbReqProc_p->setMmeErrorCause(PAGING_FAILED);
 
             rc = ActStatus::ABORT;
-	}
-        else if (procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
-        {
-            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         }
     }
 
@@ -943,7 +939,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                     }
                     else if (mmCtxt->getEcmState() == ecmIdle_c)
                     {
-			log_msg(LOG_DEBUG,"UE is IDLE\n");
+                        log_msg(LOG_DEBUG,"UE is IDLE\n");
                         if (db_req->linked_bearer_id == 0 && db_req->cause != GTPV2C_CAUSE_REACTIVATION_REQUESTED)
                         {
                             for (int i = 0; i < db_req->eps_bearer_ids_count; i++)
@@ -966,7 +962,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                             // If ECM state is ECM idle, allocate service request and set paging
                             // trigger as pgwInit_c, so that at the end of service request procedure,
                             // DBReq procedure will be informed and can proceed with the ded deactivation.
-			    log_msg(LOG_DEBUG,"In Idle\n");
+                            log_msg(LOG_DEBUG,"In Idle\n");
                             srvReqProc_p =
                                 MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
                                         cb, pgwInit_c);

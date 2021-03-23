@@ -139,6 +139,7 @@ mme_msg_tx_s11_create_session_request(mme_msg_tx_family.Add({{"interface","s11"}
 mme_msg_tx_s11_modify_bearer_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","modify_bearer_request"}})),
 mme_msg_tx_s11_delete_session_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","delete_session_request"}})),
 mme_msg_tx_s11_downlink_data_notification_ack(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","downlink_data_notification_ack"}})),
+mme_msg_tx_s11_downlink_data_notification_failure_ind(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","downlink_data_notification_failure_ind"}})),
 mme_msg_tx_s11_release_bearer_request(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","release_bearer_request"}})),
 mme_msg_tx_s11_create_bearer_response(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","create_bearer_response"}})),
 mme_msg_tx_s11_delete_bearer_response(mme_msg_tx_family.Add({{"interface","s11"},{"msg_type","delete_bearer_response"}})),
@@ -3670,6 +3671,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		    obj->counter.Increment();
 		} else {
 		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","s11","msg_type","downlink_data_notification_ack",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_FAILURE_IND:
+	{
+		mme_msg_tx_m->mme_msg_tx_s11_downlink_data_notification_failure_ind.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject1 *obj = static_cast<mme_msg_tx_DynamicMetricObject1 *>(it1->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject1 *obj = mme_msg_tx_m->add_dynamic1("interface","s11","msg_type","downlink_data_notification_failure_ind",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject2 *obj = static_cast<mme_msg_tx_DynamicMetricObject2 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject2 *obj = mme_msg_tx_m->add_dynamic2("interface","s11","msg_type","downlink_data_notification_failure_ind",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->counter.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it2++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_msg_tx_DynamicMetricObject3 *obj = static_cast<mme_msg_tx_DynamicMetricObject3 *>(itf->second);
+		    obj->counter.Increment();
+		} else {
+		    mme_msg_tx_DynamicMetricObject3 *obj = mme_msg_tx_m->add_dynamic3("interface","s11","msg_type","downlink_data_notification_failure_ind",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
 		    auto p1 = std::make_pair(s1, obj);
 		    metrics_map.insert(p1);
 		    obj->counter.Increment();

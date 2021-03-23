@@ -72,6 +72,11 @@ void PagingStart::initialize()
                 actionTable.setNextState(PagingWfServiceReq::Instance());
                 eventToActionsMap[DDN_FROM_SGW] = actionTable;
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
+        }
 }
 
 /******************************************************************************
@@ -132,8 +137,15 @@ void PagingWfServiceReq::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
+                actionTable.addAction(&ActionHandlers::send_ddn_failure_ind);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -193,10 +205,17 @@ void ServiceRequestStart::initialize()
         }
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::send_service_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -257,10 +276,20 @@ void ServiceRequestWfAuthResponse::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -327,9 +356,19 @@ void ServiceRequestWfAuthRespValidate::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[AUTH_RESP_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -391,8 +430,10 @@ void ServiceRequestWfSecCmp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
         }
@@ -400,6 +441,7 @@ void ServiceRequestWfSecCmp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -463,10 +505,20 @@ void ServiceRequestWfAia::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -528,10 +580,20 @@ void ServiceRequestWfInitCtxtResp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
         }
 }
 
@@ -592,8 +654,10 @@ void ServiceRequestWfMbResp::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
         }
@@ -601,6 +665,7 @@ void ServiceRequestWfMbResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_service_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
                 actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }

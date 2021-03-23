@@ -75,7 +75,7 @@ S1apCause MmeCauseUtils::convertToS1apCause(ERROR_CODES mmeErrorCause)
         }
         case SESSION_CONTAINER_EMPTY:
         case SESSION_CONTEXT_NOT_FOUND:
-        case BEARERC_CONTAINER_EMPTY:
+        case BEARER_CONTAINER_EMPTY:
         case BEARER_CONTEXT_NOT_FOUND:
         case NETWORK_TIMEOUT:
         {

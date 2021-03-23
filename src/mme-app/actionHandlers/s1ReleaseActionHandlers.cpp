@@ -146,31 +146,6 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	return ActStatus::PROCEED;
 }
 
-ActStatus ActionHandlers:: process_ue_ctxt_rel_comp(SM::ControlBlock& cb)
-{
-	log_msg(LOG_DEBUG, "Inside handle_ctxt_rel_comp \n");
-
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
-
-	MmContext* mmCtxt = ue_ctxt->getMmContext();
-	VERIFY(mmCtxt, return ActStatus::ABORT, "MM Context is NULL \n");
-
-        mmCtxt->setEcmState(ecmIdle_c);
-
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
-
-        MmeProcedureCtxt* procedure_p = static_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
-        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
-
-        ue_ctxt->setS1apEnbUeId(0);
-        ProcedureStats::num_of_s1_rel_comp_received++;
-
-    	log_msg(LOG_DEBUG, "Leaving process_ue_ctxt_rel_comp \n");
-
-    	return ActStatus::PROCEED;
-}
-
 /***************************************
 * Action handler : abort_s1_release
 ***************************************/
@@ -182,7 +157,7 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     if (procCtxt != NULL)
     {
         errorCause = procCtxt->getMmeErrorCause();
-	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procCtxt);
     }
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC_FAILURE);
@@ -194,6 +169,39 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
     {
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
     }
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : s1_release_complete
+***************************************/
+ActStatus ActionHandlers::s1_release_complete(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Insidei s1_release_complete \n");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+
+    MmContext *mmCtxt = ue_ctxt->getMmContext();
+    VERIFY_UE(cb, mmCtxt, "Invalid MM Context\n");
+
+    mmCtxt->setEcmState(ecmIdle_c);
+
+    mmeStats::Instance()->increment(
+            mmeStatsCounter::MME_PROCEDURES_S1_RELEASE_PROC);
+
+    MmeS1RelProcedureCtxt *procedure_p =
+            dynamic_cast<MmeS1RelProcedureCtxt*>(cb.getTempDataBlock());
+    if (procedure_p != NULL)
+    {
+        MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p);
+    }
+
+    ue_ctxt->setS1apEnbUeId(0);
+    ProcedureStats::num_of_s1_rel_comp_received++;
+
+    log_msg(LOG_DEBUG, "Leaving s1_release_complete \n");
+
     return ActStatus::PROCEED;
 }
 

@@ -111,11 +111,6 @@ void DefaultMmeState::initialize()
         }
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::handle_paging_failure);
-                eventToActionsMap[PAGING_FAILURE] = actionTable;
-        }
-        {
-                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_delete_bearer_req_handler);
                 eventToActionsMap[DELETE_BEARER_REQ_FROM_GW] = actionTable;
         }
