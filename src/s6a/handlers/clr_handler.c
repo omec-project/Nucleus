@@ -45,7 +45,7 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 {
 	struct msg *resp = NULL;
 	struct avp *avp_ptr = NULL;
-	struct s6_incoming_msg_data_t s6_incoming_msgs;
+	clr_Q_msg_t clr_msg = {0};
 	struct avp_hdr *avp_header = NULL;
 	unsigned int sess_id_len;
 	unsigned char *sess_id= NULL;
@@ -65,25 +65,25 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	fd_msg_search_avp(resp, g_fd_dict_objs.cancellation_type, &avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		s6_incoming_msgs.msg_data.clr_Q_msg_m.c_type = avp_header->avp_value->i32;
+		clr_msg.c_type = avp_header->avp_value->i32;
 	}
 	
 	fd_msg_search_avp(resp,g_fd_dict_objs.org_host, &avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_host,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_host));
+		memcpy(clr_msg.origin_host,avp_header->avp_value->os.data,sizeof(clr_msg.origin_host));
     }
 
 	fd_msg_search_avp(resp, g_fd_dict_objs.org_realm, &avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_realm,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.origin_realm));
+		memcpy(clr_msg.origin_realm,avp_header->avp_value->os.data,sizeof(clr_msg.origin_realm));
     }
          
 	fd_msg_search_avp(resp, g_fd_dict_objs.user_name,&avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(s6_incoming_msgs.msg_data.clr_Q_msg_m.imsi,avp_header->avp_value->os.data,sizeof(s6_incoming_msgs.msg_data.clr_Q_msg_m.imsi));
+		memcpy(clr_msg.imsi,avp_header->avp_value->os.data,sizeof(clr_msg.imsi));
     }
        
     /*CLA Processing*/
@@ -108,13 +108,13 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 
 	*buf = NULL;
 	
-	s6_incoming_msgs.msg_type = cancel_location_request;
+	clr_msg.header.msg_type = cancel_location_request;
 
-	s6_incoming_msgs.destInstAddr = htonl(mmeAppInstanceNum_c);
-	s6_incoming_msgs.srcInstAddr = htonl(s6AppInstanceNum_c);
+	clr_msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	clr_msg.header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-    send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&s6_incoming_msgs, S6_READ_MSG_BUF_SIZE);
+    send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&clr_msg, sizeof(clr_Q_msg_t));
 	
 	return SUCCESS;
 }
@@ -123,11 +123,11 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 void
 handle_perf_hss_clr(int ue_idx, struct hss_clr_msg *clr)
 {
-	struct s6_incoming_msg_data_t msg;
+	clr_Q_msg_t clr_msg = {0};
     
-	msg.msg_type = cancel_location_request;
-	msg.ue_idx = ue_idx;
-	memcpy(&(msg.msg_data.clr_Q_msg_m.c_type), &(clr->cancellation_type), sizeof(clr->cancellation_type));
+	clr_msg.header.msg_type = cancel_location_request;
+	clr_msg.header.ue_idx = ue_idx;
+	memcpy(&(clr_msg.c_type), &(clr->cancellation_type), sizeof(clr->cancellation_type));
 	/*Send to stage2 queue*/
-	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&msg, S6_READ_MSG_BUF_SIZE);
+	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&clr_msg, sizeof(clr_Q_msg_t));
 }

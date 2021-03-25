@@ -114,19 +114,10 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
         return ActStatus::HALT;
     }
 
-    const s1_incoming_msg_data_t *msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
+    const handover_req_acknowledge_Q_msg_t *ho_request_ack = static_cast<const handover_req_acknowledge_Q_msg_t*>(msgBuf->getDataPointer());
 
-    const struct handover_req_acknowledge_Q_msg &ho_request_ack =
-            (msgData_p->msg_data.handover_req_acknowledge_Q_msg_m);
-
-    ho_ctxt->setTargetS1apEnbUeId(ho_request_ack.s1ap_enb_ue_id);
-    if (ho_request_ack.erab_admitted_list.count == 0)
+    ho_ctxt->setTargetS1apEnbUeId(ho_request_ack->header.s1ap_enb_ue_id);
+    if (ho_request_ack->erab_admitted_list.count == 0)
     {
         log_msg(LOG_INFO, "HO Request ACK does not contain any eRAB Admitted Items.");
 
@@ -138,9 +129,9 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
         return ActStatus::ABORT;
     }
     ho_ctxt->setTargetToSrcTransContainer(
-            ho_request_ack.targetToSrcTranspContainer);
+            ho_request_ack->targetToSrcTranspContainer);
     ho_ctxt->setErabAdmittedItem(
-            ho_request_ack.erab_admitted_list.erab_admitted[0]);
+            ho_request_ack->erab_admitted_list.erab_admitted[0]);
 
     ProcedureStats::num_of_ho_request_ack_received++;
 
@@ -215,18 +206,9 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
         return ActStatus::HALT;
     }
 
-    const s1_incoming_msg_data_t *msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
+    const enb_status_transfer_Q_msg_t  *enb_status_trans = static_cast<const enb_status_transfer_Q_msg_t*>(msgBuf->getDataPointer());
 
-    const struct enb_status_transfer_Q_msg & enb_status_trans =
-            (msgData_p->msg_data.enb_status_transfer_Q_msg_m);
-
-    struct mme_status_transfer_Q_msg mme_status_trans;
+    mme_status_transfer_Q_msg_t mme_status_trans;
     memset(&mme_status_trans, 0, sizeof(struct mme_status_transfer_Q_msg));
 
     mme_status_trans.msg_type = mme_status_transfer;
@@ -234,9 +216,9 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
     mme_status_trans.s1ap_enb_ue_id = ho_ctxt->getTargetS1apEnbUeId();
     mme_status_trans.s1ap_mme_ue_id = ue_ctxt->getContextID();
     mme_status_trans.enB_status_transfer_transparent_containerlist.count =
-    	enb_status_trans.enB_status_transfer_transparent_containerlist.count;
+    	enb_status_trans->enB_status_transfer_transparent_containerlist.count;
     memcpy(&(mme_status_trans.enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container) ,
-    	&(enb_status_trans.enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container),
+    	&(enb_status_trans->enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container),
 	sizeof(struct enB_status_transfer_transparent_container));
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_MME_STATUS_TRANSFER);
@@ -274,16 +256,7 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
         return ActStatus::HALT;
     }
 
-    const s1_incoming_msg_data_t *msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
-
-    const struct handover_notify_Q_msg &ho_notify =
-            (msgData_p->msg_data.handover_notify_Q_msg_m);
+    const handover_notify_Q_msg_t *ho_notify = static_cast<const handover_notify_Q_msg_t*>(msgBuf->getDataPointer());
 
     // The UE has synced to target cell. Set the current enb
     // to target enb.
@@ -293,10 +266,10 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
     // Wait till TAU complete to overwrite TAI?
     //TAI and CGI obtained from s1ap ies.
     //Convert the PLMN in s1ap format to nas format before storing in procedure context.
-    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify.tai.plmn_id));
-    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify.utran_cgi.plmn_id));
-    ho_ctxt->setTargetTai(Tai(ho_notify.tai));
-    ho_ctxt->setTargetCgi(Cgi(ho_notify.utran_cgi));
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify->tai.plmn_id));
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify->utran_cgi.plmn_id));
+    ho_ctxt->setTargetTai(Tai(ho_notify->tai));
+    ho_ctxt->setTargetCgi(Cgi(ho_notify->utran_cgi));
 
     ProcedureStats::num_of_ho_notify_received++;
     log_msg(LOG_DEBUG, "Leaving process_ho_notify\n");
@@ -433,34 +406,25 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
-    const s1_incoming_msg_data_t* msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
+    const tauReq_Q_msg_t *tauReq = static_cast<const tauReq_Q_msg_t*>(msgBuf->getDataPointer());
 
-    const struct tauReq_Q_msg &tauReq = (msgData_p->msg_data.tauReq_Q_msg_m);
-
-    if(tauReq.ue_net_capab.len > 0)
+    if(tauReq->ue_net_capab.len > 0)
     {
-	ue_ctxt->setUeNetCapab(Ue_net_capab(tauReq.ue_net_capab));
+	    ue_ctxt->setUeNetCapab(Ue_net_capab(tauReq->ue_net_capab));
     }
-    if(tauReq.ue_add_sec_cap_present)
+    if(tauReq->ue_add_sec_cap_present)
     {
-	ue_ctxt->setUeAddSecCapabPres(tauReq.ue_add_sec_cap_present);
-	ue_ctxt->setUeAddSecCapab(tauReq.ue_add_sec_capab);
+	    ue_ctxt->setUeAddSecCapabPres(tauReq->ue_add_sec_cap_present);
+	    ue_ctxt->setUeAddSecCapab(tauReq->ue_add_sec_capab);
     }
-
     //TAI and CGI obtained from s1ap ies.
     //Convert the plmn in s1ap format to nas format
     //before storing in ue context/sending in tai list of tau response.
-    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq.tai.plmn_id));
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq->tai.plmn_id));
     MmeCommonUtils::formatS1apPlmnId(
-            const_cast<PLMN*>(&tauReq.eUtran_cgi.plmn_id));
-    s1HoPrCtxt->setTargetTai(Tai(tauReq.tai));
-    s1HoPrCtxt->setTargetCgi(Cgi(tauReq.eUtran_cgi));
+            const_cast<PLMN*>(&tauReq->eUtran_cgi.plmn_id));
+    s1HoPrCtxt->setTargetTai(Tai(tauReq->tai));
+    s1HoPrCtxt->setTargetCgi(Cgi(tauReq->eUtran_cgi));
 
     return ActStatus::PROCEED;
 }
@@ -540,17 +504,9 @@ ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
         log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
         return ActStatus::HALT;
     }
-    const s1_incoming_msg_data_t *msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
 
-    const struct handover_failure_Q_msg &ho_failure =
-            (msgData_p->msg_data.handover_failure_Q_msg_m);
-    ho_ctxt->setS1HoCause(S1apCause(ho_failure.cause));
+    const handover_failure_Q_msg_t *ho_failure = static_cast<const handover_failure_Q_msg_t*> (msgBuf->getDataPointer());
+    ho_ctxt->setS1HoCause(S1apCause(ho_failure->cause));
 
     ProcedureStats::num_of_ho_failure_received++;
 
@@ -679,17 +635,9 @@ ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
         log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
         return ActStatus::HALT;
     }
-    const s1_incoming_msg_data_t *msgData_p =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    if (msgData_p == NULL)
-    {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
-        return ActStatus::HALT;
-    }
 
-    const struct handover_cancel_Q_msg &ho_cancel =
-            (msgData_p->msg_data.handover_cancel_Q_msg_m);
-    ho_ctxt->setS1HoCause(S1apCause(ho_cancel.cause));
+    const struct handover_cancel_Q_msg *ho_cancel = static_cast<const handover_cancel_Q_msg_t *> (msgBuf->getDataPointer());
+    ho_ctxt->setS1HoCause(S1apCause(ho_cancel->cause));
 
     ProcedureStats::num_of_ho_cancel_received++;
 

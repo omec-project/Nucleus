@@ -166,7 +166,7 @@ ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 	
 	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
-	//struct purge_resp_Q_msg *purge_msg = nullptr;
+	//purge_resp_Q_msg_t *purge_msg = nullptr;
 	
 	/*Nothing is been done. Only takes the UE Index
 	 * increment the stats counter and changes the state*/
@@ -184,7 +184,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
   
 	log_msg(LOG_DEBUG, "%s - Inside send_detach_accept %u \n", __FUNCTION__,ue_ctxt->getContextID());
   
-  mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
+	mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();

@@ -30,10 +30,13 @@ handover_command_processing(struct handover_command_Q_msg *g_ho_cmd)
 		return E_FAIL;
 	}
 
-	length = send_sctp_msg(
+	send_sctp_msg(
 	        g_ho_cmd->src_enb_context_id, buffer, length, 1);
 
 	log_msg(LOG_DEBUG, "HO Command sent. No. of bytes %d\n", length);
+	if(buffer != NULL) {
+		free(buffer);
+	}
 
 	return SUCCESS;
 }

@@ -19,7 +19,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 int s1_handover_notify_handler(InitiatingMessage_t *msg)
 {
-    s1_incoming_msg_data_t notify = {0};
+    handover_notify_Q_msg_t notify = {0};
     struct proto_IE ho_notify_ies = {0};
     log_msg(LOG_INFO, "Parse s1ap handover notify message\n");
 
@@ -41,29 +41,29 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
         case S1AP_IE_MME_UE_ID:
         {
             log_msg(LOG_INFO, "handover notify S1AP_IE_MME_UE_ID.\n");
-            notify.ue_idx = ho_notify_ies.data[i].val.mme_ue_s1ap_id;
-            notify.msg_data.handover_notify_Q_msg_m.s1ap_mme_ue_id =
+            notify.header.ue_idx = ho_notify_ies.data[i].val.mme_ue_s1ap_id;
+            notify.s1ap_mme_ue_id =
                     ho_notify_ies.data[i].val.mme_ue_s1ap_id;
         }
             break;
         case S1AP_IE_ENB_UE_ID:
         {
             log_msg(LOG_INFO, "handover notify S1AP_IE_ENB_UE_ID.\n");
-            notify.msg_data.handover_notify_Q_msg_m.s1ap_enb_ue_id =
+            notify.header.s1ap_enb_ue_id =
                     ho_notify_ies.data[i].val.enb_ue_s1ap_id;
         }
             break;
         case S1AP_IE_UTRAN_CGI:
         {
             log_msg(LOG_INFO, "handover notify S1AP_IE_UTRAN_CGI.\n");
-            memcpy(&notify.msg_data.handover_notify_Q_msg_m.utran_cgi,
+            memcpy(&notify.utran_cgi,
                     &ho_notify_ies.data[i].val.utran_cgi, sizeof(struct CGI));
         }
             break;
         case S1AP_IE_TAI:
         {
             log_msg(LOG_INFO, "handover notify S1AP_IE_TAI.\n");
-            memcpy(&notify.msg_data.handover_notify_Q_msg_m.tai,
+            memcpy(&notify.tai,
                     &ho_notify_ies.data[i].val.tai, sizeof(struct TAI));
         }
             break;
@@ -73,12 +73,12 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
         }
     }
 
-    notify.msg_type = handover_notify;
-    notify.destInstAddr = htonl(mmeAppInstanceNum_c);
-    notify.srcInstAddr = htonl(s1apAppInstanceNum_c);
+    notify.header.msg_type = handover_notify;
+    notify.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+    notify.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
     int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c,
             (char*) &notify,
-            S1_READ_MSG_BUF_SIZE);
+            sizeof(notify));
     if (i < 0)
     {
         log_msg(LOG_ERROR, "Error To write in s1_handover_notify_handler\n");

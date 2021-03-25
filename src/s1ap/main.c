@@ -266,9 +266,7 @@ accept_sctp(void *data)
                      * same eNB ? */
 
 				} else {
-
-					unsigned char *tmpBuf = (unsigned char *)
-					malloc(sizeof(char) * valread + (2*sizeof(int)) );
+					unsigned char *tmpBuf = (unsigned char *) malloc(sizeof(char) * valread + (2*sizeof(int)) );
 					memcpy(tmpBuf, &sd, sizeof(sd));
 					memcpy(tmpBuf + sizeof(int), &valread, sizeof(int));
 					memcpy(tmpBuf + (2*sizeof(int)), buffer, valread);

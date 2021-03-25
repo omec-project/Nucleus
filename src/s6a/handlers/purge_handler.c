@@ -32,15 +32,15 @@ extern int g_Q_mme_S6a_fd;
 /**global and externs end**/
 
 static
-void send_to_stage2(struct s6_incoming_msg_data_t *incoming_msg_p)
+void send_to_stage2(purge_resp_Q_msg_t *purge_rsp)
 {
 	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
 
-	incoming_msg_p->destInstAddr = htonl(mmeAppInstanceNum_c);
-	incoming_msg_p->srcInstAddr = htonl(s6AppInstanceNum_c);
+	purge_rsp->header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	purge_rsp->header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)incoming_msg_p, S6_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)purge_rsp, sizeof(purge_resp_Q_msg_t));
 }
 
 /**
@@ -55,7 +55,7 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 {
 	struct msg *resp = NULL;
 	struct avp *avp_ptr = NULL;
-	struct s6_incoming_msg_data_t s6_incoming_msgs;
+	purge_resp_Q_msg_t purge_rsp = {0};
 	struct avp_hdr *avp_header = NULL;
 	unsigned int sess_id_len;
 	unsigned char *sess_id= NULL;
@@ -69,8 +69,8 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 			return S6A_FD_ERROR);
 	log_msg(LOG_INFO, "\nPurge callback ----- >session id=%s \n",sess_id);
     
-	s6_incoming_msgs.msg_type = purge_answser;
-	s6_incoming_msgs.ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
+	purge_rsp.header.msg_type = purge_answser;
+	purge_rsp.header.ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
 
 	/*AVP: Result-Code*/
 	avp_ptr = NULL;
@@ -78,10 +78,10 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status = avp_header->avp_value->u32;
+		purge_rsp.status = avp_header->avp_value->u32;
 
-		if (SUCCESS != s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status) {
-			s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status = S6A_FD_ERROR;
+		if (SUCCESS != purge_rsp.status) {
+			purge_rsp.status = S6A_FD_ERROR;
 		}
 	} else {
 		struct fd_result res;
@@ -91,18 +91,18 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 			&avp_ptr);
 
 		if (NULL != avp_ptr) {
-			s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status = S6A_FD_ERROR;
+			purge_rsp.status = S6A_FD_ERROR;
 		}
 
 		if (parse_fd_result(avp_ptr, &res) != SUCCESS) {
-			s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status = S6A_FD_ERROR;
+			purge_rsp.status = S6A_FD_ERROR;
 		}
-		s6_incoming_msgs.msg_data.purge_resp_Q_msg_m.status =res.result_code;
+		purge_rsp.status = res.result_code;
 	}
 
 	
 	/*Inform response to mme-app*/
-	send_to_stage2(&s6_incoming_msgs);
+	send_to_stage2(&purge_rsp);
 
 	/*Do cleanup for freediameter*/
 	fd_msg_free(*buf);
@@ -116,11 +116,11 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 void
 handle_perf_hss_purge_resp(int ue_idx)
 {
-	struct s6_incoming_msg_data_t resp;
+	purge_resp_Q_msg_t purge_rsp = {0};
     
-	resp.msg_type = purge_answser;
-	resp.ue_idx = ue_idx;
-	resp.msg_data.purge_resp_Q_msg_m.status = 0;
+	purge_rsp.header.msg_type = purge_answser;
+	purge_rsp.header.ue_idx = ue_idx;
+	purge_rsp.status = 0;
 
-	send_to_stage2(&resp);
+	send_to_stage2(&purge_rsp);
 }

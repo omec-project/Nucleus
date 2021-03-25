@@ -57,13 +57,10 @@ ActStatus ActionHandlers::process_erab_setup_response(ControlBlock &cb)
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
     	return ActStatus::ABORT, "process_erab_setup_response : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-                static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    VERIFY(s1_msg_data, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
+    const erabSuResp_Q_msg_t *erab_su_resp =
+                static_cast<const erabSuResp_Q_msg_t*>(msgBuf->getDataPointer());
+    VERIFY(erab_su_resp, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
     	return ActStatus::ABORT, "process_erab_setup_response : Invalid data buffer \n");
-
-    const struct erabSuResp_Q_msg &erab_su_resp =
-                (s1_msg_data->msg_data.erabSuResp_Q_msg_m);
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
@@ -73,18 +70,18 @@ ActStatus ActionHandlers::process_erab_setup_response(ControlBlock &cb)
     ActStatus actStatus = ActStatus::PROCEED;
     bool bearerEntryFound = false;
 
-    for (int i = 0; i < erab_su_resp.erab_su_list.count; i++)
+    for (int i = 0; i < erab_su_resp->erab_su_list.count; i++)
     {
-        if (erab_su_resp.erab_su_list.erab_su_item[i].e_RAB_ID ==
+        if (erab_su_resp->erab_su_list.erab_su_item[i].e_RAB_ID ==
                 bearerCtxt_p->getBearerId())
         {
             fteid S1uEnbUserFteid;
             S1uEnbUserFteid.header.iface_type = 0;
             S1uEnbUserFteid.header.v4 = 1;
             S1uEnbUserFteid.header.teid_gre =
-                    erab_su_resp.erab_su_list.erab_su_item[i].gtp_teid;
+                    erab_su_resp->erab_su_list.erab_su_item[i].gtp_teid;
             S1uEnbUserFteid.ip.ipv4.s_addr =
-                    erab_su_resp.erab_su_list.erab_su_item[i].transportLayerAddress;
+                    erab_su_resp->erab_su_list.erab_su_item[i].transportLayerAddress;
 
             bearerCtxt_p->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
 
@@ -98,13 +95,13 @@ ActStatus ActionHandlers::process_erab_setup_response(ControlBlock &cb)
         actStatus = ActStatus::ABORT;
         dedBrActProc_p->setMmeErrorCause(S1AP_FAILURE_IND);
 
-        for (int i = 0; i < erab_su_resp.erab_fail_list.count; i++)
+        for (int i = 0; i < erab_su_resp->erab_fail_list.count; i++)
         {
-            if (erab_su_resp.erab_fail_list.erab_fail_item[i].e_RAB_ID
+            if (erab_su_resp->erab_fail_list.erab_fail_item[i].e_RAB_ID
                     == bearerCtxt_p->getBearerId())
             {
                 dedBrActProc_p->setS1apCause(
-                                erab_su_resp.erab_fail_list.erab_fail_item[i].cause);
+                                erab_su_resp->erab_fail_list.erab_fail_item[i].cause);
                 bearerEntryFound = true;
             }
         }
@@ -131,20 +128,17 @@ ActStatus ActionHandlers::process_act_ded_bearer_accept(ControlBlock &cb)
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
     	return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-            static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    VERIFY(s1_msg_data, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
+    const dedicatedBearerContextAccept_Q_msg_t *dedBrAcpt =
+            static_cast<const dedicatedBearerContextAccept_Q_msg_t*>(msgBuf->getDataPointer());
+    VERIFY(dedBrAcpt, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
     		return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid data buffer \n");
-
-    const struct dedicatedBearerContextAccept_Q_msg &dedBrAcpt =
-            (s1_msg_data->msg_data.dedBearerContextAccept_Q_msg_m);
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
     VERIFY(bearerCtxt_p, dedBrActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);
                 return ActStatus::ABORT, "Bearer Context is NULL \n");
 
-    if (dedBrAcpt.pco_opt.pco_length > 0)
+    if (dedBrAcpt->pco_opt.pco_length > 0)
     {
         if (dedBrActProc_p->getTriggerProc() == cbReq_c)
         {
@@ -158,11 +152,11 @@ ActStatus ActionHandlers::process_act_ded_bearer_accept(ControlBlock &cb)
                 if (entry.bearer_ctxt_cb_resp_m.eps_bearer_id == dedBrActProc_p->getBearerId())
                 {
                     entry.bearer_ctxt_cb_resp_m.pco_from_ue_opt.pco_length =
-                            dedBrAcpt.pco_opt.pco_length;
+                            dedBrAcpt->pco_opt.pco_length;
                     memcpy(
                             entry.bearer_ctxt_cb_resp_m.pco_from_ue_opt.pco_options,
-                            dedBrAcpt.pco_opt.pco_options,
-                            dedBrAcpt.pco_opt.pco_length);
+                            dedBrAcpt->pco_opt.pco_options,
+                            dedBrAcpt->pco_opt.pco_length);
 
                     break;
                 }
@@ -194,13 +188,10 @@ ActStatus ActionHandlers::process_act_ded_bearer_reject(ControlBlock &cb)
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
     	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid message buffer \n");
 
-    const s1_incoming_msg_data_t *s1_msg_data =
-                static_cast<const s1_incoming_msg_data_t*>(msgBuf->getDataPointer());
-    VERIFY(s1_msg_data, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
+    const dedicatedBearerContextReject_Q_msg_t *dedBrReject =
+                static_cast<const dedicatedBearerContextReject_Q_msg_t*>(msgBuf->getDataPointer());
+    VERIFY(dedBrReject, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
     	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid data buffer \n");
-
-    const struct dedicatedBearerContextReject_Q_msg &dedBrReject =
-            (s1_msg_data->msg_data.dedBearerContextReject_Q_msg_m);
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
@@ -208,7 +199,7 @@ ActStatus ActionHandlers::process_act_ded_bearer_reject(ControlBlock &cb)
                 return ActStatus::ABORT, "Bearer Context is NULL \n");
 
     dedBrActProc_p->setMmeErrorCause(NAS_ESM_FAILURE_IND);
-    dedBrActProc_p->setEsmCause(dedBrReject.esm_cause);
+    dedBrActProc_p->setEsmCause(dedBrReject->esm_cause);
 
     ProcedureStats::num_of_ded_bearer_ctxt_reject_received++;
 

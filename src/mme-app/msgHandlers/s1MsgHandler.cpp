@@ -52,27 +52,48 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 	}
 
 	log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
-	if (msgBuf->getLength() < sizeof (s1_incoming_msg_data_t))
+	if (msgBuf->getLength() < sizeof (s1_incoming_msg_header_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
 	            "Received %d but should be %d\n", msgBuf->getLength(),
-	            sizeof (s1_incoming_msg_data_t));
+	            sizeof (s1_incoming_msg_header_t));
 	    return;
 	}
 
-	s1_incoming_msg_data_t* msgData_p = (s1_incoming_msg_data_t*)(msgBuf->getDataPointer());
+	s1_incoming_msg_header_t* msgData_p = (s1_incoming_msg_header_t*)(msgBuf->getDataPointer());
+	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 
 	/* Below function should take care of decryption and integrity check */
 	/* Get the control block and pass it to below function */
-	if(msgData_p->msg_type == raw_nas_msg)
-	{
+    do {
 	    struct nasPDU nas={0};
         uint8_t     nasMsgBuf[MAX_NAS_MSG_SIZE] = {'\0'};
-        uint16_t    nasMsgSize = msgData_p->msg_data.rawMsg.nasMsgSize;
-        memcpy(nasMsgBuf, msgData_p->msg_data.rawMsg.nasMsgBuf, nasMsgSize);
-        memset(msgData_p->msg_data.rawMsg.nasMsgBuf, 0, nasMsgSize);
+        uint16_t    nasMsgSize;
+        uint8_t     *startNasPtr;
+	    switch(msgData_p->msg_type) {
+            case S1AP_INITIAL_UE_MSG_CODE: { 
+	            initial_ue_msg_t *initMsg = (initial_ue_msg_t*)(msgBuf->getDataPointer());
+                startNasPtr = initMsg->nasMsg.nasMsgBuf;
+                nasMsgSize = initMsg->nasMsg.nasMsgSize;
+                break;
+            }
+            case S1AP_UL_NAS_TX_MSG_CODE: { 
+	            uplink_nas_t *ulMsg = (uplink_nas_t*)(msgBuf->getDataPointer());
+                startNasPtr = ulMsg->nasMsg.nasMsgBuf;
+                nasMsgSize = ulMsg->nasMsg.nasMsgSize;
+                break;
+            }
+            default:
+                startNasPtr = NULL;
+                break;
+        }
+        if(startNasPtr == NULL)
+            break;
 
-		if(E_FAIL == MmeNasUtils::parse_nas_pdu(msgData_p,
+        assert(MAX_NAS_MSG_SIZE > nasMsgSize);
+        memcpy(nasMsgBuf, startNasPtr, nasMsgSize);
+
+	    if(E_FAIL == MmeNasUtils::parse_nas_pdu(msgData_p,
                                     nasMsgBuf, 
                                     nasMsgSize, &nas))
         {
@@ -80,9 +101,9 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
             log_msg(LOG_ERROR,"NAS pdu parse failed.\n");
             return;
         }
-		MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
+	    MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
         free(nas.elements);
-	}
+    } while(0);
 
 	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
@@ -202,15 +223,15 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 			handleActDedBearerCtxtRejectMsg_v(std::move(eMsg), msgData_p->ue_idx);
 			break;
 
-		case msg_type_t::erab_release_response:
-                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE);
-                        handleErabRelResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
-                        break;
+        case msg_type_t::erab_release_response:
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE);
+            handleErabRelResponseMsg_v(std::move(eMsg), msgData_p->ue_idx);
+            break;
 
-                case msg_type_t::deactivate_eps_bearer_context_accept:
-                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
-                        handleDeActBearerCtxtAcceptMsg_v(std::move(eMsg), msgData_p->ue_idx);
-                        break;
+        case msg_type_t::deactivate_eps_bearer_context_accept:
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
+            handleDeActBearerCtxtAcceptMsg_v(std::move(eMsg), msgData_p->ue_idx);
+            break;
 
 		default:
 			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);

@@ -31,8 +31,8 @@ typedef struct s1ap_instance
 int
 s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg);
 
-int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
-int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg);
+int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, initial_ue_msg_t* s1Msg);
+int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, uplink_nas_t *s1Msg);
 
 int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies);
 int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_ies);

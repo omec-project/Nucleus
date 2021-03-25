@@ -37,7 +37,7 @@ extern struct fd_dict_data g_fd_dict_data;
  * @return void
  */
 static void
-parse_ula_subscription_data(struct avp *avp_ptr, struct ula_Q_msg *ula)
+parse_ula_subscription_data(struct avp *avp_ptr, ula_Q_msg_t *ula)
 {
 	struct avp *next = NULL;
 	struct avp_hdr *element = NULL;
@@ -237,7 +237,7 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 {
 	int sess_id_len, ue_idx;
 	unsigned char *sess_id= NULL;
-	struct s6_incoming_msg_data_t s6_incoming_msgs = {0};
+    ula_Q_msg_t ula_msg = {0};
 	struct avp *avp = NULL;
 
 	CHECK_FCT_DO(fd_sess_getsid(sess, &sess_id, (size_t*)&sess_id_len),
@@ -245,7 +245,7 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 
 	log_msg(LOG_INFO, "\nCallback ----- >session id=%s \n", sess_id);
 
-	s6_incoming_msgs.msg_data.ula_Q_msg_m.res = SUCCESS;
+	ula_msg.res = SUCCESS;
 	ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
 
 	CHECK_FCT_DO(fd_msg_browse(*buf, MSG_BRW_FIRST_CHILD, &avp, NULL), return S6A_FD_ERROR);
@@ -257,11 +257,11 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
                 {
                     case SUB_DATA_AVP_CODE:
                     {
-                        parse_ula_subscription_data(avp, &s6_incoming_msgs.msg_data.ula_Q_msg_m);
+                        parse_ula_subscription_data(avp, &ula_msg);
                     } break;
                     case SUPP_FEAT_AVP_CODE:
                     {
-                        supported_features_list *supp_features_list = &s6_incoming_msgs.msg_data.ula_Q_msg_m.supp_features_list;
+                        supported_features_list *supp_features_list = &ula_msg.supp_features_list;
                         log_msg(LOG_DEBUG, "Found SUPP_FEAT_AVP_CODE\n");
                         if(supp_features_list->count < 2) {
                             int ret = parse_supported_features_avp(avp, &supp_features_list->supp_features[supp_features_list->count]);
@@ -281,14 +281,14 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 	fd_msg_free(*buf);
 	*buf = NULL;
     
-	s6_incoming_msgs.msg_type = update_loc_answer;
-	s6_incoming_msgs.ue_idx = ue_idx;
+	ula_msg.header.msg_type = update_loc_answer;
+	ula_msg.header.ue_idx = ue_idx;
 
-	s6_incoming_msgs.destInstAddr = htonl(mmeAppInstanceNum_c);
-	s6_incoming_msgs.srcInstAddr = htonl(s6AppInstanceNum_c);
+	ula_msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	ula_msg.header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&s6_incoming_msgs, S6_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)&ula_msg, sizeof(ula_Q_msg_t));
 
 	return SUCCESS;
 }
@@ -297,11 +297,11 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 void
 handle_perf_hss_ula(int ue_idx, struct hss_ula_msg *ula)
 {
-	struct s6_incoming_msg_data_t msg;
+	ula_Q_msg_t ula_msg = {0};
     
-	msg.msg_type = update_loc_answer;
-	msg.ue_idx = ue_idx;
-	msg.msg_data.ula_Q_msg_m.res = ula->subscription_state;
+	ula_msg.header.msg_type = update_loc_answer;
+	ula_msg.header.ue_idx = ue_idx;
+	ula_msg.res = ula->subscription_state;
 	/*Send to stage2 queue*/
-	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&msg, S6_READ_MSG_BUF_SIZE);
+	write_ipc_channel(g_Q_mme_S6a_fd, (char*)&ula_msg, sizeof(ula_Q_msg_t));
 }

@@ -45,13 +45,13 @@ void S6MsgHandler::handleS6Message_v(IpcEMsgUnqPtr eMsg)
         return;
     }
 
-    if (msgBuf->getLength() < sizeof(s6_incoming_msg_data_t))
+    if (msgBuf->getLength() < sizeof(s6_incoming_msg_header_t))
     {
         log_msg(LOG_INFO, "Not enough bytes in s6 message \n");
         return;
     }
 
-	const s6_incoming_msg_data_t* msgData_p = (s6_incoming_msg_data_t*)(msgBuf->getDataPointer());
+	const s6_incoming_msg_header_t* msgData_p = (s6_incoming_msg_header_t*)(msgBuf->getDataPointer());
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::auth_info_answer:
@@ -139,10 +139,10 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
         
 	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
 	void* buf = msgData_p->getDataPointer();
-	const s6_incoming_msg_data_t* msgInfo_p = (s6_incoming_msg_data_t*)(buf);
+	const clr_Q_msg_t* msgInfo_p = (clr_Q_msg_t *)(buf);
 
 	DigitRegister15 IMSI;
-	IMSI.setImsiDigits((unsigned char *)msgInfo_p->msg_data.clr_Q_msg_m.imsi);
+	IMSI.setImsiDigits((unsigned char *)msgInfo_p->imsi);
       
 	int ue_idx =  SubsDataGroupManager::Instance()->findCBWithimsi(IMSI);
 	log_msg(LOG_INFO, "UE_IDX found from map : %d \n", ue_idx);

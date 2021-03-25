@@ -12,8 +12,8 @@ extern "C"{
 
 
 /****S1AP Procedude codes****/
-#define S1AP_SETUP_REQUEST_CODE 17
 #define S1AP_INITIAL_UE_MSG_CODE 12
+#define S1AP_SETUP_REQUEST_CODE 17
 #define S1AP_UE_CONTEXT_RELEASE_REQUEST_CODE 18
 #define S1AP_UE_CONTEXT_RELEASE_CODE 23
 /*uplink NAS Transport*/

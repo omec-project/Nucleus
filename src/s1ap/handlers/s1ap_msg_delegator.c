@@ -28,12 +28,12 @@
 
 extern ipc_handle ipc_S1ap_Hndl;
 
-int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg)
+int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, initial_ue_msg_t *s1Msg)
 {
     proto_ies->procedureCode = msg->procedureCode;
     proto_ies->criticality = msg->criticality;
 
-	s1Msg->msg_data.ue_attach_info_m.criticality = msg->criticality; 
+	s1Msg->criticality = msg->criticality; 
 
     if(msg->value.present == InitiatingMessage__value_PR_InitialUEMessage)
     {
@@ -65,8 +65,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
                         log_msg(LOG_DEBUG, "ENB UE S1ap ID decode Success = %u \n",proto_ies->data[i].val.enb_ue_s1ap_id);
-						s1Msg->s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
-						s1Msg->msg_data.rawMsg.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+						s1Msg->header.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
 					} break;
 				case ProtocolIE_ID_id_NAS_PDU:
 					{
@@ -82,8 +81,8 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU;
-						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
-						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
+						memcpy(s1Msg->nasMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
+						s1Msg->nasMsg.nasMsgSize = s1apNASPDU_p->size;
 					} break;
 				case ProtocolIE_ID_id_TAI:
 					{
@@ -104,8 +103,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx,
                                 s1apTAI_p->pLMNidentity.buf, s1apTAI_p->pLMNidentity.size);
 						s1apTAI_p = NULL;
-                    	memcpy(&(s1Msg->msg_data.rawMsg.tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
-
+                    	memcpy(&(s1Msg->tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
 					} break;
 				case ProtocolIE_ID_id_EUTRAN_CGI:
 					{
@@ -127,7 +125,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						memcpy(proto_ies->data[i].val.utran_cgi.plmn_id.idx,
                                 s1apCGI_p->pLMNidentity.buf, s1apCGI_p->pLMNidentity.size);
 						s1apCGI_p = NULL;
-                        memcpy(&(s1Msg->msg_data.rawMsg.utran_cgi), &(proto_ies->data[i].val.utran_cgi),
+                        memcpy(&(s1Msg->utran_cgi), &(proto_ies->data[i].val.utran_cgi),
                            sizeof(struct CGI));
 
 					} break;
@@ -166,8 +164,8 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                                s1apStmsi_p->mMEC.buf, sizeof(uint8_t));
 						memcpy(&proto_ies->data[i].val.s_tmsi.m_TMSI,
                                 s1apStmsi_p->m_TMSI.buf, sizeof(uint32_t));
-                        memcpy(&s1Msg->msg_data.rawMsg.s_tmsi.mme_code, s1apStmsi_p->mMEC.buf, sizeof(uint8_t)); 
-                        memcpy(&s1Msg->msg_data.rawMsg.s_tmsi.m_TMSI, s1apStmsi_p->m_TMSI.buf, sizeof(uint32_t));
+                        memcpy(&s1Msg->s_tmsi.mme_code, s1apStmsi_p->mMEC.buf, sizeof(uint8_t)); 
+                        memcpy(&s1Msg->s_tmsi.m_TMSI, s1apStmsi_p->m_TMSI.buf, sizeof(uint32_t));
 					} break;
                 default:
                     {
@@ -198,8 +196,8 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
         log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
         return E_FAIL;
     }
-	s1_incoming_msg_data_t s1Msg={0};
-	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
+	initial_ue_msg_t s1Msg={0};
+	s1Msg.enodeb_fd = cbIndex;
 
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies, &s1Msg);
     if(decode_result < 0 )
@@ -208,11 +206,11 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		free(proto_ies.data);
 		return E_FAIL;
     }
-	s1Msg.msg_type = raw_nas_msg; 
-	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
-	s1Msg.srcInstAddr = htonl(s1apAppInstanceNum_c);
+	s1Msg.header.msg_type = S1AP_INITIAL_UE_MSG_CODE; 
+	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
-	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
+	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1Msg));
 
 	/*Send S1Setup response*/
 	free(proto_ies.data);
@@ -234,8 +232,8 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
         return E_FAIL;
     }
 
-	s1_incoming_msg_data_t s1Msg={0};
-	s1Msg.msg_data.rawMsg.enodeb_fd = cbIndex;
+	uplink_nas_t s1Msg={0};
+	s1Msg.enodeb_fd = cbIndex;
     int decode_result = convertUplinkNasToProtoIe(msg, &proto_ies, &s1Msg);
 
     if(decode_result < 0 )
@@ -244,11 +242,11 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		free(proto_ies.data);
 		return E_FAIL;
     }
-	s1Msg.msg_type = raw_nas_msg;
-	s1Msg.destInstAddr = htonl(mmeAppInstanceNum_c);
-	s1Msg.srcInstAddr = htonl(s1apAppInstanceNum_c);
+	s1Msg.header.msg_type = S1AP_UL_NAS_TX_MSG_CODE;
+	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
-	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, S1_READ_MSG_BUF_SIZE);
+	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1Msg));
 
 
 	free(proto_ies.data);
@@ -402,7 +400,7 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 	return 0;
 }
 
-int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, s1_incoming_msg_data_t *s1Msg)
+int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies, uplink_nas_t *s1Msg)
 {
     proto_ies->procedureCode = msg->procedureCode;
     proto_ies->criticality = msg->criticality;
@@ -439,8 +437,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID; 
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
-						s1Msg->s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
-						s1Msg->msg_data.rawMsg.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
+						s1Msg->header.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
 					} break;
 				case ProtocolIE_ID_id_MME_UE_S1AP_ID:
 					{
@@ -457,7 +454,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 
                         proto_ies->data[i].IE_type = S1AP_IE_MME_UE_ID; 
 						memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id, s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
-						s1Msg->ue_idx = proto_ies->data[i].val.mme_ue_s1ap_id;
+						s1Msg->header.ue_idx = proto_ies->data[i].val.mme_ue_s1ap_id;
 					} break;
 				case ProtocolIE_ID_id_NAS_PDU:
 					{
@@ -473,8 +470,8 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU; 
-						memcpy(s1Msg->msg_data.rawMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
-						s1Msg->msg_data.rawMsg.nasMsgSize = s1apNASPDU_p->size;
+						memcpy(s1Msg->nasMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
+						s1Msg->nasMsg.nasMsgSize = s1apNASPDU_p->size;
 
 					} break;
 				case ProtocolIE_ID_id_TAI:
@@ -494,7 +491,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 						memcpy(&proto_ies->data[i].val.tai.tac, s1apTAI_p->tAC.buf, s1apTAI_p->tAC.size);
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx, 
                                 s1apTAI_p->pLMNidentity.buf, s1apTAI_p->pLMNidentity.size);
-                        memcpy(&(s1Msg->msg_data.rawMsg.tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
+                        memcpy(&(s1Msg->tai), &(proto_ies->data[i].val.tai), sizeof(struct TAI));
 					} break;
 				case ProtocolIE_ID_id_EUTRAN_CGI:
 					{
@@ -514,7 +511,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                                s1apCGI_p->cell_ID.buf, s1apCGI_p->cell_ID.size);
 						memcpy(proto_ies->data[i].val.utran_cgi.plmn_id.idx, 
                                 s1apCGI_p->pLMNidentity.buf, s1apCGI_p->pLMNidentity.size);
-                        memcpy(&(s1Msg->msg_data.rawMsg.utran_cgi), &(proto_ies->data[i].val.utran_cgi), sizeof(struct CGI));
+                        memcpy(&(s1Msg->utran_cgi), &(proto_ies->data[i].val.utran_cgi), sizeof(struct CGI));
 					} break;
                 default:
                     {

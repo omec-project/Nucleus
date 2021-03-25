@@ -30,11 +30,14 @@ static int erab_release_command_processing(
         return E_FAIL;
     }
 
-    length = send_sctp_msg(g_erab_rel_cmd->enb_context_id, buffer, length, 1);
+    send_sctp_msg(g_erab_rel_cmd->enb_context_id, buffer, length, 1);
 
     log_msg(LOG_DEBUG,
             "E-RAB release command sent. No. of bytes %d on enb_context_id %d\n",
             length, g_erab_rel_cmd->enb_context_id);
+    if(buffer != NULL) {
+        free(buffer);
+    }
 
     return SUCCESS;
 }

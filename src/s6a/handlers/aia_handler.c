@@ -42,7 +42,7 @@ extern int g_Q_mme_S6a_fd;
  * @return int - error code
  */
 static int
-get_aia_sec_vector(struct avp *avp_data, struct aia_Q_msg *aia)
+get_aia_sec_vector(struct avp *avp_data, aia_Q_msg_t *aia)
 {
 	struct avp *sub_avp = NULL;
 	struct avp_hdr *element = NULL;
@@ -146,15 +146,15 @@ get_aia_sec_vector(struct avp *avp_data, struct aia_Q_msg *aia)
 }
 
 static
-void send_to_stage2(struct s6_incoming_msg_data_t *incoming_msg_p)
+void send_to_stage2(aia_Q_msg_t *aia_msg)
 {
 	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
 
-	incoming_msg_p->destInstAddr = htonl(mmeAppInstanceNum_c);
-	incoming_msg_p->srcInstAddr = htonl(s6AppInstanceNum_c);
+	aia_msg->header.destInstAddr = htonl(mmeAppInstanceNum_c);
+	aia_msg->header.srcInstAddr = htonl(s6AppInstanceNum_c);
 
 	/*Send to stage2 queue*/
-	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)incoming_msg_p, S6_READ_MSG_BUF_SIZE);
+	send_tipc_message(g_Q_mme_S6a_fd, mmeAppInstanceNum_c, (char*)aia_msg, sizeof(aia_Q_msg_t));
 }
 
 int aia_resp_callback(struct msg **buf, struct avp *_avp,
@@ -165,7 +165,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	struct msg *resp = *buf;
 	struct avp *avp_ptr = NULL;
 	unsigned char *sess_id= NULL;
-	struct s6_incoming_msg_data_t s6_incoming_msgs;
+    aia_Q_msg_t aia_msg = {0};
 	struct avp_hdr *avp_hdr = NULL;
 	struct avp *sub_avp = NULL;
 	struct avp_hdr *element = NULL;
@@ -187,9 +187,9 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 
 	log_msg(LOG_INFO, "\nCallback ----- >session id=%s \n",sess_id);
     
-	s6_incoming_msgs.msg_type = auth_info_answer;
+	aia_msg.header.msg_type = auth_info_answer;
 	/*Retrieve UE index embedded in to session ID string at AIR time*/
-	s6_incoming_msgs.ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
+	aia_msg.header.ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
 
 	/*AVP: Result-Code(268)*/
 	fd_msg_search_avp(resp, g_fd_dict_objs.res_code, &avp_ptr);
@@ -222,7 +222,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 			&avp_ptr);
 
 		if (NULL != avp_ptr) {
-			if (get_aia_sec_vector(avp_ptr, &s6_incoming_msgs.msg_data.aia_Q_msg_m) != SUCCESS)
+			if (get_aia_sec_vector(avp_ptr, &aia_msg) != SUCCESS)
 				res = S6A_FD_ERROR;
 		} else {
 			res = S6A_FD_ERROR;
@@ -243,7 +243,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 			g_fd_dict_data.auth_info.avp_code)) {
 			select_auth --;
 			if(select_auth == 0) {
-				if (get_aia_sec_vector(sub_avp, &s6_incoming_msgs.msg_data.aia_Q_msg_m) != SUCCESS) {
+				if (get_aia_sec_vector(sub_avp, &aia_msg) != SUCCESS) {
 					res = S6A_FD_ERROR;
 				} else {
 					break; // Success case 
@@ -262,9 +262,9 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 
 	*buf = NULL;
 
-	if (DIAMETER_SUCCESS != res) s6_incoming_msgs.msg_data.aia_Q_msg_m.res = S6A_AIA_FAILED;
+	if (DIAMETER_SUCCESS != res) aia_msg.res = S6A_AIA_FAILED;
 
-	send_to_stage2(&s6_incoming_msgs);
+	send_to_stage2(&aia_msg);
 
 	return SUCCESS;
 }
@@ -272,15 +272,15 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 void
 handle_perf_hss_aia(int ue_idx, struct hss_aia_msg *aia)
 {
-    struct s6_incoming_msg_data_t msg;
+    aia_Q_msg_t aia_msg = {0};
 
-	msg.ue_idx = ue_idx;
-	msg.msg_type = auth_info_answer;
-	msg.msg_data.aia_Q_msg_m.res= 0;
-	memcpy(&(msg.msg_data.aia_Q_msg_m.sec.rand), &(aia->rand), sizeof(RAND));
-	memcpy(&(msg.msg_data.aia_Q_msg_m.sec.xres), &(aia->xres), sizeof(XRES));
-	memcpy(&(msg.msg_data.aia_Q_msg_m.sec.autn), &(aia->autn), sizeof(AUTN));
-	memcpy(&(msg.msg_data.aia_Q_msg_m.sec.kasme), &(aia->kasme), sizeof(KASME));
+	aia_msg.header.ue_idx = ue_idx;
+	aia_msg.header.msg_type = auth_info_answer;
+	aia_msg.res= 0;
+	memcpy(&(aia_msg.sec.rand), &(aia->rand), sizeof(RAND));
+	memcpy(&(aia_msg.sec.xres), &(aia->xres), sizeof(XRES));
+	memcpy(&(aia_msg.sec.autn), &(aia->autn), sizeof(AUTN));
+	memcpy(&(aia_msg.sec.kasme), &(aia->kasme), sizeof(KASME));
 
-	send_to_stage2(&msg);/*handle diameter error*/
+	send_to_stage2(&aia_msg);/*handle diameter error*/
 }
