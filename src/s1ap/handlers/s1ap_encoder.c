@@ -1218,6 +1218,7 @@ int s1ap_mme_encode_handover_command(
     S1AP_PDU_t *pdu_p = &pdu;
     int enc_ret = -1;
     memset((void*) pdu_p, 0, sizeof(S1AP_PDU_t));
+    E_RABDataForwardingItem_t *erab_data_forwarding_item = NULL;
 
     pdu.present = S1AP_PDU_PR_successfulOutcome;
     pdu.choice.successfulOutcome = calloc(sizeof(SuccessfulOutcome_t), sizeof(uint8_t));
@@ -1245,41 +1246,43 @@ int s1ap_mme_encode_handover_command(
     val[2].value.present = HandoverCommandIEs__value_PR_HandoverType;
     val[2].value.choice.HandoverType = s1apPDU->handoverType;
 
-    val[3].id = ProtocolIE_ID_id_E_RABSubjecttoDataForwardingList;
-    val[3].criticality = 0;
-    val[3].value.present = HandoverCommandIEs__value_PR_E_RABSubjecttoDataForwardingList;
+    if(s1apPDU->erabs_Subject_to_Forwarding_List.count != 0) {
+        val[3].id = ProtocolIE_ID_id_E_RABSubjecttoDataForwardingList;
+        val[3].criticality = 0;
+        val[3].value.present = HandoverCommandIEs__value_PR_E_RABSubjecttoDataForwardingList;
 
-    // ERABs Subject to Forwarding msg data
-    ERABs_Subject_to_Forwarding *erabs_subject_to_forwarding =
-            &(s1apPDU->erabs_Subject_to_Forwarding_List.eRABs_Subject_to_Forwarding[0]);
+        // ERABs Subject to Forwarding msg data
+        ERABs_Subject_to_Forwarding *erabs_subject_to_forwarding =
+                &(s1apPDU->erabs_Subject_to_Forwarding_List.eRABs_Subject_to_Forwarding[0]);
 
-    E_RABDataForwardingItemIEs_t erab_data_forwarding_item_ies;
-    memset(&erab_data_forwarding_item_ies, 0, sizeof(E_RABDataForwardingItemIEs_t));
+        E_RABDataForwardingItemIEs_t erab_data_forwarding_item_ies;
+        memset(&erab_data_forwarding_item_ies, 0, sizeof(E_RABDataForwardingItemIEs_t));
 
-    E_RABDataForwardingItem_t *erab_data_forwarding_item =
-            &(erab_data_forwarding_item_ies.value.choice.E_RABDataForwardingItem);
+        erab_data_forwarding_item =
+                &(erab_data_forwarding_item_ies.value.choice.E_RABDataForwardingItem);
 
-    erab_data_forwarding_item_ies.id = ProtocolIE_ID_id_E_RABDataForwardingItem;
-    erab_data_forwarding_item_ies.criticality = 0;
-    erab_data_forwarding_item_ies.value.present = E_RABDataForwardingItemIEs__value_PR_E_RABDataForwardingItem;
+        erab_data_forwarding_item_ies.id = ProtocolIE_ID_id_E_RABDataForwardingItem;
+        erab_data_forwarding_item_ies.criticality = 0;
+        erab_data_forwarding_item_ies.value.present = E_RABDataForwardingItemIEs__value_PR_E_RABDataForwardingItem;
 
-    erab_data_forwarding_item->e_RAB_ID = 5;
+        erab_data_forwarding_item->e_RAB_ID = 5;
 
-    erab_data_forwarding_item->dL_transportLayerAddress = calloc(sizeof(TransportLayerAddress_t), sizeof(uint8_t));
-    erab_data_forwarding_item->dL_transportLayerAddress->size = 4;
-    erab_data_forwarding_item->dL_transportLayerAddress->buf = calloc(4, sizeof(uint8_t));
-    uint32_t dL_transport_layer_address = htonl(erabs_subject_to_forwarding->dL_transportLayerAddress);
-    memcpy(erab_data_forwarding_item->dL_transportLayerAddress->buf, &dL_transport_layer_address, 4);
+        erab_data_forwarding_item->dL_transportLayerAddress = calloc(sizeof(TransportLayerAddress_t), sizeof(uint8_t));
+        erab_data_forwarding_item->dL_transportLayerAddress->size = 4;
+        erab_data_forwarding_item->dL_transportLayerAddress->buf = calloc(4, sizeof(uint8_t));
+        uint32_t dL_transport_layer_address = htonl(erabs_subject_to_forwarding->dL_transportLayerAddress);
+        memcpy(erab_data_forwarding_item->dL_transportLayerAddress->buf, &dL_transport_layer_address, 4);
 
-    erab_data_forwarding_item->dL_gTP_TEID = calloc(sizeof(GTP_TEID_t), sizeof(uint8_t));
-    erab_data_forwarding_item->dL_gTP_TEID->size = 4;
-    erab_data_forwarding_item->dL_gTP_TEID->buf = calloc(4, sizeof(uint8_t));
-    uint32_t dL_teid = htonl(erabs_subject_to_forwarding->dL_gtp_teid);
-    memcpy(erab_data_forwarding_item->dL_gTP_TEID->buf, &dL_teid, 4);
+        erab_data_forwarding_item->dL_gTP_TEID = calloc(sizeof(GTP_TEID_t), sizeof(uint8_t));
+        erab_data_forwarding_item->dL_gTP_TEID->size = 4;
+        erab_data_forwarding_item->dL_gTP_TEID->buf = calloc(4, sizeof(uint8_t));
+        uint32_t dL_teid = htonl(erabs_subject_to_forwarding->dL_gtp_teid);
+        memcpy(erab_data_forwarding_item->dL_gTP_TEID->buf, &dL_teid, 4);
 
-    ASN_SEQUENCE_ADD(
-            &(val[3].value.choice.E_RABSubjecttoDataForwardingList.list),
-            &erab_data_forwarding_item_ies);
+        ASN_SEQUENCE_ADD(
+                &(val[3].value.choice.E_RABSubjecttoDataForwardingList.list),
+                &erab_data_forwarding_item_ies);
+    }
 
     val[4].id = ProtocolIE_ID_id_Target_ToSource_TransparentContainer;
     val[4].criticality = 0;
@@ -1290,12 +1293,6 @@ int s1ap_mme_encode_handover_command(
     val[4].value.choice.Target_ToSource_TransparentContainer.buf =
             s1apPDU->target_to_src_transparent_container.buffer;
 
-    /*val[4].value.choice.Target_ToSource_TransparentContainer.buf =
-            calloc(s1apPDU->target_to_src_transparent_container.count, sizeof(uint8_t));
-    memcpy(val[4].value.choice.Target_ToSource_TransparentContainer.buf,
-           s1apPDU->target_to_src_transparent_container.buffer,
-           s1apPDU->target_to_src_transparent_container.count);*/
-
     ASN_SEQUENCE_ADD(
             &successfulOutcome_msg->value.choice.HandoverCommand.protocolIEs.list,
             &val[0]);
@@ -1305,10 +1302,13 @@ int s1ap_mme_encode_handover_command(
     ASN_SEQUENCE_ADD(
             &successfulOutcome_msg->value.choice.HandoverCommand.protocolIEs.list,
             &val[2]);
-   ASN_SEQUENCE_ADD(
+
+    if(s1apPDU->erabs_Subject_to_Forwarding_List.count != 0) {
+        ASN_SEQUENCE_ADD(
             &successfulOutcome_msg->value.choice.HandoverCommand.protocolIEs.list,
             &val[3]);
-   ASN_SEQUENCE_ADD(
+    }
+    ASN_SEQUENCE_ADD(
             &successfulOutcome_msg->value.choice.HandoverCommand.protocolIEs.list,
             &val[4]);
 
@@ -1319,10 +1319,12 @@ int s1ap_mme_encode_handover_command(
         enc_error = true;
     }
 
-    free(erab_data_forwarding_item->dL_transportLayerAddress->buf);
-    free(erab_data_forwarding_item->dL_gTP_TEID->buf);
-    free(erab_data_forwarding_item->dL_transportLayerAddress);
-    free(erab_data_forwarding_item->dL_gTP_TEID);
+    if(erab_data_forwarding_item != NULL) {
+        free(erab_data_forwarding_item->dL_transportLayerAddress->buf);
+        free(erab_data_forwarding_item->dL_gTP_TEID->buf);
+        free(erab_data_forwarding_item->dL_transportLayerAddress);
+        free(erab_data_forwarding_item->dL_gTP_TEID);
+    }
     free(pdu.choice.successfulOutcome);
 
     if(enc_error) {
