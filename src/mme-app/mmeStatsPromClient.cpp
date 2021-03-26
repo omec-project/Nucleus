@@ -32,6 +32,7 @@ void mmeStatsSetupPrometheusThread(uint16_t port)
 mmeStats::mmeStats()
 {
 	 mme_num_m = new mme_num_gauges;
+	 enb_num_m = new enb_num_gauges;
 	 mme_msg_rx_m = new mme_msg_rx_counters;
 	 mme_msg_tx_m = new mme_msg_tx_counters;
 	 mme_procedures_m = new mme_procedures_counters;
@@ -54,6 +55,20 @@ current__bearers(mme_num_family.Add({{"level","bearers"}}))
 
 
 mme_num_gauges::~mme_num_gauges()
+{
+}
+
+
+
+
+enb_num_gauges::enb_num_gauges():
+enb_num_family(BuildGauge().Name("mme_number_of_enb_attached").Help("Number of eNB attached at MME").Labels({{"mme","num_enb"}}).Register(*registry)),
+current__Active(enb_num_family.Add({{"enb_state","Active"}}))
+{
+}
+
+
+enb_num_gauges::~enb_num_gauges()
 {
 }
 
@@ -246,7 +261,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -297,7 +312,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -348,7 +363,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -399,7 +414,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -407,6 +422,57 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		    obj->gauge.Increment();
 		} else {
 		    mme_num_DynamicMetricObject3 *obj = mme_num_m->add_dynamic3("level","bearers",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Increment();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::ENB_NUM_ACTIVE:
+	{
+		enb_num_m->current__Active.Increment();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    enb_num_DynamicMetricObject1 *obj = static_cast<enb_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Increment();
+		} else {
+		    enb_num_DynamicMetricObject1 *obj = enb_num_m->add_dynamic1("enb_state","Active",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Increment();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject2 *obj = static_cast<enb_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Increment();
+		} else {
+		    enb_num_DynamicMetricObject2 *obj = enb_num_m->add_dynamic2("enb_state","Active",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Increment();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject3 *obj = static_cast<enb_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Increment();
+		} else {
+		    enb_num_DynamicMetricObject3 *obj = enb_num_m->add_dynamic3("enb_state","Active",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
 		    auto p1 = std::make_pair(s1, obj);
 		    metrics_map.insert(p1);
 		    obj->gauge.Increment();
@@ -450,7 +516,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -501,7 +567,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -552,7 +618,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -603,7 +669,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -654,7 +720,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -705,7 +771,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -756,7 +822,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -807,7 +873,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -858,7 +924,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -909,7 +975,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -960,7 +1026,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1011,7 +1077,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1062,7 +1128,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1113,7 +1179,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1164,7 +1230,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1215,7 +1281,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1266,7 +1332,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1317,7 +1383,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1368,7 +1434,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1419,7 +1485,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1470,7 +1536,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1521,7 +1587,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1572,7 +1638,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1623,7 +1689,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1674,7 +1740,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1725,7 +1791,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1776,7 +1842,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1827,7 +1893,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1878,7 +1944,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1929,7 +1995,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -1980,7 +2046,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2031,7 +2097,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2082,7 +2148,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2133,7 +2199,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2184,7 +2250,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2235,7 +2301,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2286,7 +2352,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2337,7 +2403,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2388,7 +2454,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2439,7 +2505,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2490,7 +2556,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2541,7 +2607,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2592,7 +2658,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2643,7 +2709,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2694,7 +2760,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2745,7 +2811,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2796,7 +2862,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2847,7 +2913,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2898,7 +2964,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -2949,7 +3015,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3000,7 +3066,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3051,7 +3117,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3102,7 +3168,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3153,7 +3219,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3204,7 +3270,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3255,7 +3321,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3306,7 +3372,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3357,7 +3423,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3408,7 +3474,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3459,7 +3525,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3510,7 +3576,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3561,7 +3627,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3612,7 +3678,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3663,7 +3729,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3765,7 +3831,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3816,7 +3882,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3867,7 +3933,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3918,7 +3984,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -3969,7 +4035,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4020,7 +4086,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4071,7 +4137,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4122,7 +4188,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4173,7 +4239,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4224,7 +4290,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4275,7 +4341,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4326,7 +4392,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4377,7 +4443,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4428,7 +4494,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4479,7 +4545,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4530,7 +4596,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4581,7 +4647,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4632,7 +4698,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4683,7 +4749,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4734,7 +4800,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4785,7 +4851,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4836,7 +4902,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4887,7 +4953,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4938,7 +5004,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -4989,7 +5055,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5040,7 +5106,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5091,7 +5157,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5142,7 +5208,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5193,7 +5259,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5244,7 +5310,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5295,7 +5361,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5346,7 +5412,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5397,7 +5463,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5448,7 +5514,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5499,7 +5565,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5550,7 +5616,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5601,7 +5667,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5652,7 +5718,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5703,7 +5769,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5754,7 +5820,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5805,7 +5871,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5856,7 +5922,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5907,7 +5973,7 @@ void mmeStats::increment(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5959,7 +6025,7 @@ void mmeStats::decrement(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -5995,7 +6061,7 @@ void mmeStats::decrement(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -6031,7 +6097,7 @@ void mmeStats::decrement(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
@@ -6067,12 +6133,314 @@ void mmeStats::decrement(mmeStatsCounter name,std::map<std::string,std::string> 
 		} else if (labels.size() == 3) {
 		auto it1 = labels. begin();
 		auto it2 = it1++;
-		auto it3 = it2++;
+		auto it3 = it1++;
 		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
 		auto itf = metrics_map.find(s1);
 		if(itf != metrics_map.end()) {
 		    mme_num_DynamicMetricObject3 *obj = static_cast<mme_num_DynamicMetricObject3 *>(itf->second);
 		    obj->gauge.Decrement();
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::ENB_NUM_ACTIVE:
+	{
+		enb_num_m->current__Active.Decrement();
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    enb_num_DynamicMetricObject1 *obj = static_cast<enb_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Decrement();
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it1->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject2 *obj = static_cast<enb_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Decrement();
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject3 *obj = static_cast<enb_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Decrement();
+		}
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+
+
+
+void mmeStats::set(mmeStatsCounter name, double val, std::map<std::string,std::string> labels)
+{
+	switch(name) {
+	case mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS:
+	{
+		mme_num_m->current__Active_subscribers.Set(val);
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_num_DynamicMetricObject1 *obj = static_cast<mme_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject1 *obj = mme_num_m->add_dynamic1("sub_state","Active","level","subscribers",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject2 *obj = static_cast<mme_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject2 *obj = mme_num_m->add_dynamic2("sub_state","Active","level","subscribers",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject3 *obj = static_cast<mme_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject3 *obj = mme_num_m->add_dynamic3("sub_state","Active","level","subscribers",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_NUM_IDLE_SUBSCRIBERS:
+	{
+		mme_num_m->current__Idle_subscribers.Set(val);
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_num_DynamicMetricObject1 *obj = static_cast<mme_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject1 *obj = mme_num_m->add_dynamic1("sub_state","Idle","level","subscribers",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject2 *obj = static_cast<mme_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject2 *obj = mme_num_m->add_dynamic2("sub_state","Idle","level","subscribers",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject3 *obj = static_cast<mme_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject3 *obj = mme_num_m->add_dynamic3("sub_state","Idle","level","subscribers",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_NUM_PDNS:
+	{
+		mme_num_m->current__pdns.Set(val);
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_num_DynamicMetricObject1 *obj = static_cast<mme_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject1 *obj = mme_num_m->add_dynamic1("level","pdns",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject2 *obj = static_cast<mme_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject2 *obj = mme_num_m->add_dynamic2("level","pdns",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject3 *obj = static_cast<mme_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject3 *obj = mme_num_m->add_dynamic3("level","pdns",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::MME_NUM_BEARERS:
+	{
+		mme_num_m->current__bearers.Set(val);
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    mme_num_DynamicMetricObject1 *obj = static_cast<mme_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject1 *obj = mme_num_m->add_dynamic1("level","bearers",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject2 *obj = static_cast<mme_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject2 *obj = mme_num_m->add_dynamic2("level","bearers",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    mme_num_DynamicMetricObject3 *obj = static_cast<mme_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    mme_num_DynamicMetricObject3 *obj = mme_num_m->add_dynamic3("level","bearers",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		}
+		break;
+	}
+	case mmeStatsCounter::ENB_NUM_ACTIVE:
+	{
+		enb_num_m->current__Active.Set(val);
+		if(labels.size() == 0) {
+		break;
+		}
+		if(labels.size() == 1) {
+		auto it = labels. begin();
+		struct Node s1 = {name, it->first, it->second};
+		auto it1 = metrics_map.find(s1);
+		if(it1 != metrics_map.end()) {
+		    enb_num_DynamicMetricObject1 *obj = static_cast<enb_num_DynamicMetricObject1 *>(it1->second);
+		    obj->gauge.Set(val);
+		} else {
+		    enb_num_DynamicMetricObject1 *obj = enb_num_m->add_dynamic1("enb_state","Active",it->first, it->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		}
+		} else if (labels.size() == 2) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		struct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject2 *obj = static_cast<enb_num_DynamicMetricObject2 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    enb_num_DynamicMetricObject2 *obj = enb_num_m->add_dynamic2("enb_state","Active",it1->first, it1->second, it2->first, it2->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
+		} 
+		} else if (labels.size() == 3) {
+		auto it1 = labels. begin();
+		auto it2 = it1++;
+		auto it3 = it1++;
+		struct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};
+		auto itf = metrics_map.find(s1);
+		if(itf != metrics_map.end()) {
+		    enb_num_DynamicMetricObject3 *obj = static_cast<enb_num_DynamicMetricObject3 *>(itf->second);
+		    obj->gauge.Set(val);
+		} else {
+		    enb_num_DynamicMetricObject3 *obj = enb_num_m->add_dynamic3("enb_state","Active",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);
+		    auto p1 = std::make_pair(s1, obj);
+		    metrics_map.insert(p1);
+		    obj->gauge.Set(val);
 		}
 		}
 		break;

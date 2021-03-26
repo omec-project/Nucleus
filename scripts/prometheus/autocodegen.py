@@ -652,6 +652,7 @@ def add_module_stats_class_declaration(fh):
     fh.write("\t\tvoid " + module_name + "promThreadSetup(void);\n")
     fh.write("\t\tvoid increment("+module_name+"Counter name, std::map<std::string, std::string> labels={}); \n")
     fh.write("\t\tvoid decrement("+module_name+"Counter name, std::map<std::string, std::string> labels={}); \n")
+    fh.write("\t\tvoid set("+module_name+"Counter name, double val, std::map<std::string, std::string> labels={}); \n")
     fh.write("\t public:\n")
     for gauge in gauges_family_object_list:
       fh.write("\t\t" + gauge.classname + " *" + gauge.moduleStatsMember + ";\n")
@@ -825,7 +826,7 @@ def add_increment_api(fh):
         fh.write("\t\t} else if (labels.size() == 3) {\n")
         fh.write("\t\tauto it1 = labels. begin();\n")
         fh.write("\t\tauto it2 = it1++;\n")
-        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tauto it3 = it1++;\n")
         fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
         fh.write("\t\tauto itf = metrics_map.find(s1);\n")
         fh.write("\t\tif(itf != metrics_map.end()) {\n")
@@ -889,7 +890,7 @@ def add_increment_api(fh):
         fh.write("\t\t} else if (labels.size() == 3) {\n")
         fh.write("\t\tauto it1 = labels. begin();\n")
         fh.write("\t\tauto it2 = it1++;\n")
-        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tauto it3 = it1++;\n")
         fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
         fh.write("\t\tauto itf = metrics_map.find(s1);\n")
         fh.write("\t\tif(itf != metrics_map.end()) {\n")
@@ -909,7 +910,7 @@ def add_increment_api(fh):
     fh.write("\t}\n")
     fh.write("}\n")
     fh.write("\n\n")
-      
+
 def add_decrement_api(fh):
     fh.write("\n\n")
     fh.write("void " + module_name + "::" + "decrement("+module_name+"Counter name,std::map<std::string,std::string> labels)\n") 
@@ -953,7 +954,7 @@ def add_decrement_api(fh):
         fh.write("\t\t} else if (labels.size() == 3) {\n")
         fh.write("\t\tauto it1 = labels. begin();\n")
         fh.write("\t\tauto it2 = it1++;\n")
-        fh.write("\t\tauto it3 = it2++;\n")
+        fh.write("\t\tauto it3 = it1++;\n")
         fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
         fh.write("\t\tauto itf = metrics_map.find(s1);\n")
         fh.write("\t\tif(itf != metrics_map.end()) {\n")
@@ -969,7 +970,83 @@ def add_decrement_api(fh):
     fh.write("\t}\n")
     fh.write("}\n")
     fh.write("\n\n")
- 
+
+def add_set_api(fh):
+    fh.write("\n\n")
+    fh.write("void " + module_name + "::" + "set("+module_name+"Counter name, double val, std::map<std::string,std::string> labels)\n") 
+    fh.write("{\n")
+    fh.write("\tswitch(name) {\n")
+    for gauge in gauges_family_object_list:
+      for metric in gauge.gaugeMetricList:
+        labels = ""
+        index = 0
+        for l in metric.labeldict:
+          if index != 0:
+            labels += ","
+          for k in l:
+             v = l[k]
+             labels += "\"" + k + "\"" + ",\"" + v + "\"" 
+          index += 1
+
+        fh.write("\tcase "+module_name+"Counter::" + metric.enum_name + ":\n")
+        fh.write("\t{\n")
+        fh.write("\t\t" + gauge.moduleStatsMember + "->" + metric.gauge_name + ".Set(val);\n")
+        fh.write("\t\tif(labels.size() == 0) {\n")
+        fh.write("\t\tbreak;\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\tif(labels.size() == 1) {\n")
+        fh.write("\t\tauto it = labels. begin();\n")
+        fh.write("\t\tstruct Node s1 = {name, it->first, it->second};\n")
+        fh.write("\t\tauto it1 = metrics_map.find(s1);\n")
+        fh.write("\t\tif(it1 != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject1 *obj = static_cast<"+gauge.family+"_DynamicMetricObject1 *>(it1->second);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject1 *obj = " + gauge.moduleStatsMember + "->add_dynamic1(" + labels + ",it->first, it->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\t} else if (labels.size() == 2) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject2 *obj = static_cast<"+gauge.family+"_DynamicMetricObject2 *>(itf->second);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject2 *obj = " + gauge.moduleStatsMember + "->add_dynamic2(" + labels + ",it1->first, it1->second, it2->first, it2->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t} \n")
+        fh.write("\t\t} else if (labels.size() == 3) {\n")
+        fh.write("\t\tauto it1 = labels. begin();\n")
+        fh.write("\t\tauto it2 = it1++;\n")
+        fh.write("\t\tauto it3 = it1++;\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first+it3->first, it1->second+it2->second+it3->second};\n")
+        fh.write("\t\tauto itf = metrics_map.find(s1);\n")
+        fh.write("\t\tif(itf != metrics_map.end()) {\n")
+        fh.write("\t\t    "+gauge.family +"_DynamicMetricObject3 *obj = static_cast<"+gauge.family+"_DynamicMetricObject3 *>(itf->second);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t} else {\n")
+        fh.write("\t\t    "+gauge.family+"_DynamicMetricObject3 *obj = " + gauge.moduleStatsMember + "->add_dynamic3(" + labels + ",it1->first, it1->second, it2->first, it2->second, it3->first, it3->second);\n")
+        fh.write("\t\t    auto p1 = std::make_pair(s1, obj);\n")
+        fh.write("\t\t    metrics_map.insert(p1);\n")
+        fh.write("\t\t    obj->gauge.Set(val);\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\t}\n")
+        fh.write("\t\tbreak;\n")
+        fh.write("\t}\n")
+
+    fh.write("\tdefault:\n");
+    fh.write("\t\tbreak;\n");
+    fh.write("\t}\n")
+    fh.write("}\n")
+    fh.write("\n\n")
+
+     
 def add_test_main_function(fh):
     fh.write("#ifdef TEST_PROMETHEUS \n")
     fh.write("#include <unistd.h>\n")
@@ -996,6 +1073,7 @@ def create_cpp_file():
     add_counter_class_defination(cpp_file)
     add_increment_api(cpp_file)
     add_decrement_api(cpp_file)
+    add_set_api(cpp_file)
     add_test_main_function(cpp_file)    
 
 def add_c_counter_enum(fh):
@@ -1028,10 +1106,188 @@ def create_c_enum_file():
     h = "#endif /* _INCLUDE_"+module_name+"_ENUM_H__ */\n"
     header_file.write(h)
 
-
+def create_markdown_file():
+    fname = module_name + "KPI.md"
+    fh = open(fname, 'w')
+    fh.write("#License & Copyright\n\n")
+    fh.write("#SPDX-FileCopyrightText: 2020 Open Networking Foundation <info@opennetworking.org>\n\n")
+    fh.write("#SPDX-License-Identifier: LicenseRef-ONF-Member-Only-1.0\n\n")
+    print("sys.argv {}".format(sys.argv))
+    file = None
+    if(len(sys.argv) == 2):
+        file_name = sys.argv[1]
+    with open(file_name) as f:
+        data = json.load(f)
+    families = data.keys()
+    for key in families:
+        family = data[key]
+        family_name = key 
+        section = "\n\n# "+key+"\n\n"
+        fh.write(section)
+        table_header = "|Family type|" + "Family Name|" + "Counter Name| " + "Counter Help|" + "Static Labels|" + "Dynamic Labels|\n"
+        fh.write(table_header)
+        table_header = "|----------:|:--------------:|:------------:|:-----:|:-------:|-------:|\n"
+        fh.write(table_header)
+        print("*********family {} Type - {} *********".format(family_name, family['type']))
+        nameStr = family["name"] 
+        helpStr = family["help"] 
+        print("family_labels {}".format(family['family_labels']))
+        flabel_dict = family['family_labels']
+        if family['type'] == "Gauge":
+          family_row = "|Gauge|"+family["name"]+"|"
+          gaugeFamilyObj = GaugeFamily(family_name, nameStr, helpStr, flabel_dict) 
+          gauges_family_object_list.append(gaugeFamilyObj)
+          metrics = family['gauges']
+          for metric in metrics:
+            metric_row = family_row + metric["name"] +  "|" + metric["help"] + "|"
+            d_labels = []
+            d_label_0_dict = metric.get("dynamic_label_0")
+            print("d_label_0_dict {}".format(d_label_0_dict))
+            if d_label_0_dict != None:
+                for l0 in d_label_0_dict:
+                    d = []
+                    print("*********{}******** and keys {} ".format(l0, l0.keys()))
+                    for k in l0.keys():
+                       d.append(k)
+                    d_label_1_dict = metric.get("dynamic_label_1")
+                    if d_label_1_dict != None:
+                      for l1 in d_label_1_dict:
+                          print("\t*********{}********".format(l1))
+                          for k in l1.keys():
+                            d.append(k)
+                          d_label_2_dict = metric.get("dynamic_label_2")
+                          if d_label_2_dict != None:
+                            for l2 in d_label_2_dict.keys():
+                              print("\t\t*********{}********".format(l2))
+                              for k in l2.keys():
+                                d.append(k)
+                              d_labels.append(d)
+                          else:
+                              d_labels.append(d)
+                    else:
+                       d_labels.append(d)
+            print("dynamic labels = {} >>>>>> ".format(d_labels))
+            label_0_dict = metric["label_0"]
+            for zero_label in label_0_dict:
+               final_label_dict = []
+               zero_label_dict = []
+               for temp_zero in zero_label.keys():
+                  zero_label_dict = [{temp_zero: zero_label[temp_zero]}]
+                  final_label_dict = copy.deepcopy(zero_label_dict)
+                  if(metric.get("label_1")):
+                    label_1_dict = metric["label_1"]
+                    for one_label in label_1_dict:
+                       one_label_dict = copy.deepcopy(zero_label_dict)
+                       for temp_one in one_label.keys():
+                          one_label_dict.append({temp_one: one_label[temp_one]})
+                          final_label_dict = copy.deepcopy(one_label_dict)
+                          if(metric.get("label_2")):
+                            label_2_dict = metric["label_2"]
+                            for two_label in label_2_dict:
+                               two_label_dict = copy.deepcopy(one_label_dict)
+                               for temp_two in two_label.keys():
+                                  two_label_dict.append({temp_two: two_label[temp_two]})
+                                  final_label_dict = copy.deepcopy(two_label_dict)
+                                  print("labels = {}".format(final_label_dict))
+                                  label2_row = metric_row + str(final_label_dict) + "|"
+                                  for dy in d_labels:
+                                    final_row = label2_row + str(dy) + "|\n"
+                                    fh.write(final_row)
+                                  gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+                          else:
+                            print("labels = {}".format(final_label_dict))
+                            label1_row = metric_row + str(final_label_dict) + "|"
+                            for dy in d_labels:
+                                final_row = label1_row + str(dy) + "|\n"
+                                fh.write(final_row)
+                            gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+                  else:
+                    print("labels = {}".format(final_label_dict))
+                    label0_row = metric_row + str(final_label_dict) + "|"
+                    for dy in d_labels:
+                        final_row = label0_row + str(dy) + "|\n"
+                        fh.write(final_row)
+                    gaugeFamilyObj.add_gauge(family_name, final_label_dict)
+        else:
+          family_row = "|Counter|"+family["name"]+"|"
+          counterFamilyObj = CounterFamily(family_name, nameStr, helpStr, flabel_dict) 
+          counter_family_object_list.append(counterFamilyObj)
+          metrics = family['counters']
+          for metric in metrics:
+            metric_row = family_row + metric["name"] +  "|" + metric["help"] + "|"
+            d_labels = []
+            d_label_0_dict = metric.get("dynamic_label_0")
+            print("d_label_0_dict {}".format(d_label_0_dict))
+            if d_label_0_dict != None:
+                for l0 in d_label_0_dict:
+                    d = []
+                    print("*********{}******** and keys {} ".format(l0, l0.keys()))
+                    for k in l0.keys():
+                       d.append(k)
+                    d_label_1_dict = metric.get("dynamic_label_1")
+                    if d_label_1_dict != None:
+                      for l1 in d_label_1_dict:
+                          print("\t*********{}********".format(l1))
+                          for k in l1.keys():
+                            d.append(k)
+                          d_label_2_dict = metric.get("dynamic_label_2")
+                          if d_label_2_dict != None:
+                            for l2 in d_label_2_dict:
+                              print("\t\t*********{}********".format(l2))
+                              for k in l2.keys():
+                                d.append(k)
+                              d_labels.append(d)
+                          else:
+                              d_labels.append(d)
+                    else:
+                       d_labels.append(d)
+            print("dynamic labels = {} >>>>>> ".format(d_labels))
+            label_0_dict = metric["label_0"]
+            for zero_label in label_0_dict:
+               final_label_dict = []
+               zero_label_dict = []
+               for temp_zero in zero_label.keys():
+                  zero_label_dict = [{temp_zero: zero_label[temp_zero]}]
+                  final_label_dict = copy.deepcopy(zero_label_dict)
+                  if(metric.get("label_1")):
+                    label_1_dict = metric["label_1"]
+                    for one_label in label_1_dict:
+                       one_label_dict = copy.deepcopy(zero_label_dict)
+                       for temp_one in one_label.keys():
+                          one_label_dict.append({temp_one: one_label[temp_one]})
+                          final_label_dict = copy.deepcopy(one_label_dict)
+                          if(metric.get("label_2")):
+                            label_2_dict = metric["label_2"]
+                            for two_label in label_2_dict:
+                               two_label_dict = copy.deepcopy(one_label_dict)
+                               for temp_two in two_label.keys():
+                                  two_label_dict.append({temp_two: two_label[temp_two]})
+                                  final_label_dict = copy.deepcopy(two_label_dict)
+                                  print("labels = {}".format(final_label_dict))
+                                  label2_row = metric_row + str(final_label_dict) + "|"
+                                  for dy in d_labels:
+                                    final_row = label2_row + str(dy) + "|\n"
+                                    fh.write(final_row)
+                                  counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
+                          else:
+                            print("labels = {}".format(final_label_dict))
+                            label1_row = metric_row + str(final_label_dict) + "|"
+                            for dy in d_labels:
+                                final_row = label1_row + str(dy) + "|\n"
+                                fh.write(final_row)
+                            counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
+                  else:
+                    print("labels = {}".format(final_label_dict))
+                    label0_row = metric_row + str(final_label_dict) + "|"
+                    for dy in d_labels:
+                        final_row = label0_row + str(dy) + "|\n"
+                        fh.write(final_row)
+                    counterFamilyObj.add_counter(family_name, metric['name'], final_label_dict)
 
 parse_json_file()
 create_header_file()
 create_cpp_file()
 create_c_enum_file()
+print("********\n")
+create_markdown_file()
 

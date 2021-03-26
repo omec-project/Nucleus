@@ -62,6 +62,18 @@ namespace mme
 			int getEnbId()const;			
 			
 			/****************************************
+			* setRestartCounter
+			*    set restartCounter to EnbContext
+			****************************************/
+			void setRestartCounter(uint8_t restartCounter_i);
+			
+			/****************************************
+			* getRestartCounter
+			*    get restartCounter from EnbContext
+			****************************************/
+			uint8_t getRestartCounter()const;			
+			
+			/****************************************
 			* setS1apEnbUeId
 			*    set s1apEnbUeId to EnbContext
 			****************************************/
@@ -123,6 +135,9 @@ namespace mme
 			
 			// DataName
 			int enbId_m;
+			
+			// DataName
+			uint8_t restartCounter_m;
 			
 			// DataName
 			int s1apEnbUeId_m;

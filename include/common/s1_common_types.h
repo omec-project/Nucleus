@@ -20,6 +20,7 @@ struct EnbStruct
     int s1apEnbUeId_m;
     struct TAI tai_m;
     char eNbName[128];
+    uint16_t restart_counter; // increment everytime, we find old context & eNB is reconnecting
 };
 
 #endif

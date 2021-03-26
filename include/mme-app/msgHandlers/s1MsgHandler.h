@@ -46,6 +46,7 @@ private:
     void handleActDedBearerCtxtRejectMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
     void handleErabRelResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
     void handleDeActBearerCtxtAcceptMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+    void handleS1apEnbStatusMsg_v(cmn::IpcEMsgUnqPtr eMsg);
 };
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_S1MSGHANDLER_H_ */

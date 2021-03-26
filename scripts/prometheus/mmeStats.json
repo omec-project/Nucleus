@@ -43,6 +43,28 @@
         }
         ]
     },
+    "enb_num" : {
+        "name": "mme_number_of_enb_attached",
+        "help": "Number of eNB attached at MME",
+        "type": "Gauge",
+        "family_labels": [
+            { "mme": "num_enb" }
+        ],
+        "gauges": [
+        {
+            "name": "number_of_enbs",
+            "help": "number of enodeb in mme ",
+            "label_0": [
+                {"enb_state":"Active"}
+            ],
+            "dynamic_label_0": [
+                { "tac" : "eNB attached TAC value" },
+                { "enb-name" : "eNB attached enb name value" },
+                { "enb-id" : "eNB attached Id value" }
+            ]
+        }
+        ]
+    },
     "mme_msg_rx": {
         "name": "number_of_messages_received",
         "help": "Number of messages recceived by mme ",

@@ -184,7 +184,6 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
   
 	log_msg(LOG_DEBUG, "%s - Inside send_detach_accept %u \n", __FUNCTION__,ue_ctxt->getContextID());
   
-	mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
 	detach_accpt.enb_fd = ue_ctxt->getEnbFd();
@@ -226,6 +225,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 
 	mmCtxt->setMmState(EpsDetached);
 	mmCtxt->setEcmState(ecmIdle_c);
+	mmeStats::Instance()->decrement(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 
 	ue_ctxt->setS1apEnbUeId(0);
 	ProcedureStats::num_of_detach_accept_to_ue_sent ++;

@@ -28,6 +28,7 @@
 #include "SupportedTAs-Item.h"
 #include "TAC.h"
 
+extern ipc_handle ipc_S1ap_Hndl;
 /******************************************************
   S1_SETUP_RESPONSE handling
 ******************************************************/
@@ -241,12 +242,13 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
                 log_msg(LOG_ERROR,"CB creation failed.");
                 return E_FAIL;
             }
-
+            log_msg(LOG_DEBUG, "New ctx block %d allocated for found for enb id %d.\n", cbIndex, enbStruct.enbId_m);
             setValuesForEnbCtx(cbIndex, &enbStruct, false);
         }
         else
         {
             log_msg(LOG_DEBUG, "ENB Ctx found for enb id %d. Update values.\n",enbStruct.enbId_m);
+            enbStruct.restart_counter++;
             cbIndex = setValuesForEnbCtx(cbIndex, &enbStruct, true);
             if(INVALID_CB_INDEX == cbIndex)
             {
@@ -274,6 +276,18 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 
 	/*Create S1Setup response*/
     s1_setup_response(enb_fd, &matched_plmn);
+	s1apEnbStatus_Msg_t s1Msg = {0};
+	s1Msg.header.msg_type = enb_status_msg; 
+	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
+	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
+    uint32_t temp_cbIndex = findControlBlockWithEnbFd(enb_fd);
+    s1Msg.ver = 1;
+    s1Msg.status = 1;
+    s1Msg.context_id = temp_cbIndex;
+    s1Msg.enbId_m = enbStruct.enbId_m;
+    s1Msg.restart_counter = enbStruct.restart_counter;
+    strncpy(s1Msg.eNbName, enbStruct.eNbName, 128);
+	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
 
 	return SUCCESS;
 }
