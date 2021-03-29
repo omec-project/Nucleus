@@ -287,6 +287,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
     s1Msg.enbId_m = enbStruct.enbId_m;
     s1Msg.restart_counter = enbStruct.restart_counter;
     strncpy(s1Msg.eNbName, enbStruct.eNbName, 128);
+    log_msg(LOG_INFO, "Send eNB setup message to mme-app %s", s1Msg.eNbName);
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
 
 	return SUCCESS;

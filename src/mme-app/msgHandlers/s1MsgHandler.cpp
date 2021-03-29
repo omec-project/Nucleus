@@ -720,6 +720,10 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
      struct s1apEnbStatus_Msg *temp = NULL;
      if(enb->status == 0) {
          temp = enb_details[enb->context_id];
+         if(temp == NULL) {
+            log_msg(LOG_ERROR, " Received enb Status down message for unknown eNB. Ignore messsage ");
+            return;
+         }
      } else {
          temp = (s1apEnbStatus_Msg_t *)calloc(1, sizeof(s1apEnbStatus_Msg_t));
          memcpy(temp, enb, sizeof(*temp));
