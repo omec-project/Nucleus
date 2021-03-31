@@ -25,6 +25,7 @@
 #include "s11_config.h"
 #include <gtpV2StackWrappers.h>
 #include "gtp_cpp_wrapper.h"
+#include "s11.h"
 
 /************************************************************************
 Current file : Stage 5 handler.
@@ -46,7 +47,6 @@ extern struct sockaddr_in g_s11_cp_addr;
 extern socklen_t g_s11_serv_size;
 
 extern s11_config_t g_s11_cfg;
-volatile uint32_t g_s11_sequence = 1;
 
 /****Global and externs end***/
 struct CS_Q_msg *g_csReqInfo;
@@ -102,7 +102,9 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
     	struct sockaddr_in sgw_addr = {0};
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
-	gtpHeader.sequenceNumber = g_s11_sequence;
+    uint32_t seq = 0;
+	get_sequence(&seq);
+	gtpHeader.sequenceNumber = seq;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = 0; 
 
@@ -113,8 +115,6 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
     } else {
         sgw_addr = g_s11_cp_addr; 
     }
-	
-	g_s11_sequence++;
 	
 	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
 
@@ -244,8 +244,6 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
 
-    uint32_t seq = g_s11_sequence;
- 
 	int res = sendto (
 			g_s11_fd,
 			MsgBuffer_getDataPointer(csReqMsgBuf_p),

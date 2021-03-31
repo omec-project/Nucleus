@@ -47,6 +47,8 @@ struct thread_pool *g_tpool_tipc_reader_s11;
 
 extern char processName[255];
 extern int pid;
+uint32_t gtp_seq;
+pthread_mutex_t seq_lock;
 
 #define S11_IPC_MSG_BUF_LEN 4096
 
@@ -218,6 +220,17 @@ s11_reader()
 	}
 }
 
+void get_sequence(uint32_t *seq)
+{
+    pthread_mutex_lock(&seq_lock);
+    gtp_seq = gtp_seq + 1;
+    if(gtp_seq == 0xffffff) {
+        gtp_seq = 0;
+    }
+    *seq = gtp_seq;
+    pthread_mutex_unlock(&seq_lock);
+    return;
+}
 
 int
 main(int argc, char **argv)
@@ -235,6 +248,9 @@ main(int argc, char **argv)
 		init_logging("hostbased","/tmp/s11logs.txt" );
 	}
 
+    if (pthread_mutex_init(&seq_lock, NULL) != 0) {
+        log_msg(LOG_ERROR,"mutex initialization failed");
+    }
     init_cpp_gtp_tables();
 
 	init_parser("conf/s11.json");

@@ -23,6 +23,7 @@
 #include "s11_options.h"
 #include <gtpV2StackWrappers.h>
 #include "gtp_cpp_wrapper.h"
+#include "s11.h"
 /************************************************************************
 Current file : Stage 1 handler.
 ATTACH stages :
@@ -36,14 +37,10 @@ extern int g_s11_fd;
 extern struct sockaddr_in g_s11_cp_addr;
 extern s11_config_t g_s11_cfg;
 extern socklen_t g_s11_serv_size;
-extern volatile uint32_t g_s11_sequence;
 
 struct thread_pool *g_tpool;
 
 extern struct GtpV2Stack* gtpStack_gp;
-extern volatile uint32_t g_s11_sequence;
-
-/****Global and externs end***/
 
 /**
 * Stage specific message processing.
@@ -59,7 +56,9 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	}
 	GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_DELETE_SESSION_REQ;
-	gtpHeader.sequenceNumber = g_s11_sequence;
+    uint32_t seq = 0;
+	get_sequence(&seq);
+	gtpHeader.sequenceNumber = seq;
 	gtpHeader.teidPresent = true;
 	gtpHeader.teid = ds_msg->s11_sgw_c_fteid.header.teid_gre;
     struct sockaddr_in sgw_ip = {0};
@@ -77,7 +76,6 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 
     add_gtp_transaction(gtpHeader.sequenceNumber, ds_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, dsReqMsgBuf_p, &gtpHeader, &msgData);
-	g_s11_sequence++;
 
 	sendto(g_s11_fd,
 			MsgBuffer_getDataPointer(dsReqMsgBuf_p),
