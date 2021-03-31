@@ -60,6 +60,7 @@ int s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sg
 int s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s11_ECHO_req_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip_val, uint16_t src_port);
+void get_sequence(uint32_t *seq);
 
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len);

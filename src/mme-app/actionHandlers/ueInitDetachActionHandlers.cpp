@@ -78,6 +78,10 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 
             status = true; // delete session sent success
         }
+        else
+        {
+            log_msg(LOG_DEBUG, "%s session context does not exist \n", __FUNCTION__);
+        }
     }
 
     ActStatus rc = ActStatus::PROCEED;
@@ -87,6 +91,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
     // so that abort can continue.
     if(!status)
     {
+        log_msg(LOG_DEBUG, "%s failure in handling dsreq event \n", __FUNCTION__);
         MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 
         if(procCtxt != NULL)
@@ -97,8 +102,10 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
                 {
                     // Action invoked as part of detach success path, return abort as
                     // we failed to send out delete session request to gw
+                    log_msg(LOG_DEBUG, "%s failure in handling dsreq event for detach_c procedure \n", __FUNCTION__);
                     if(procCtxt->getMmeErrorCause() == SUCCESS)
                     {
+                        log_msg(LOG_DEBUG, "%s failure in handling dsreq event. return abort \n", __FUNCTION__);
                         rc = ActStatus::ABORT;
                     }
 
