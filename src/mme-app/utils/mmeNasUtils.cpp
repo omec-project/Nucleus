@@ -11,6 +11,8 @@
 #include <openssl/rand.h>
 #include <openssl/cmac.h>
 #include <mutex>
+#include <mmeSmDefs.h>
+#include <eventMessage.h>
 
 using namespace SM;
 using namespace mme;
@@ -946,8 +948,11 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                         if(memcmp(nas->header.short_mac, 
                                   short_mac_local, SHORT_MAC_SIZE))
                         {
-                            log_msg(LOG_ERROR,"Service Request :  MAC not matching. Fail msg.\n");
-                            return E_FAIL;
+                            log_msg(LOG_ERROR,
+                                    "Service Request :  MAC Failure for UE with IMSI %s \n",
+                                    ueCtxt_p->getImsi().getDigitsArray());
+
+                            return MAC_MISMATCH;
                         }
 
                         log_msg(LOG_DEBUG, "MAC matched for service req.\n");
@@ -956,13 +961,15 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                     }
                     else
                     {
-                        log_msg(LOG_DEBUG, "No Ue context.\n");
+                        log_msg(LOG_DEBUG, "No UE context found for the CB Index %d\n", cbIndex);
                         return E_FAIL;
                     }
                 }
                 else
                 {
-                    log_msg(LOG_ERROR,"Control block not found\n");
+                    log_msg(LOG_ERROR,"Failed to find Control block with mTMSI %d\n", tmsi);
+                    // Deleting stale mTmsi -> cbIdx mapping.
+                    SubsDataGroupManager::Instance()->deletemTmsikey(tmsi);
                     return SUCCESS;
                 }
             }
@@ -1006,17 +1013,19 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                         log_buffer_free(&bufflog);
                         if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
                         {
-                            log_msg(LOG_ERROR,"MAC not matching. Fail msg.\n");
-                            return E_FAIL;
+                            log_msg(LOG_ERROR,
+                                    "MAC Failure in msg type %d for UE with IMSI %s \n",
+                                    nas->header.message_type, ueCtxt_p->getImsi().getDigitsArray());
+                            return MAC_MISMATCH;
                         }
-                            
+
                         log_msg(LOG_DEBUG, "MAC matched.\n");
                         secContext.increment_uplink_count();
                     }
                 }
                 else
                 {
-                    log_msg(LOG_ERROR,"Control block not found\n");
+                    log_msg(LOG_ERROR,"Control block not found for the CB Index %d\n", msg_data->ue_idx);
                 }
             }
         }

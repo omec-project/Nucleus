@@ -25,6 +25,7 @@
 #include "monitorSubscriber.h"
 #include "timeoutManager.h"
 #include <utils/mmeTimerUtils.h>
+#include <utils/mmeStatesUtils.h>
 #include "mmeStatsPromClient.h"
 
 using namespace std;
@@ -145,6 +146,9 @@ int main(int argc, char *argv[])
         log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
         return -E_FAIL_INIT;
     }
+
+	SM::StateMachineEngine::Instance()->registerSMExceptionCb(
+	        &mme::MmeStatesUtils::handle_sm_exception);
 
 	while(1)
 	{

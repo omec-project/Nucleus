@@ -80,10 +80,14 @@ const uint16_t STATE_GUARD_TIMEOUT = 2;
 //Generic States 
 const uint16_t default_state = 0;
 
+//SM specific Error Codes
+const uint8_t CURRENT_STATE_NULL = 0;
+
 using ActionPointer = ActStatus(*)(ControlBlock&);
 using EventValidator = EventStatus(*)(ControlBlock&, TempDataBlock*, Event &event);
 using EventToActionTableMap = std::map <uint16_t, ActionTable>;
 using EventIdToStringMap = std::map <uint16_t, std::string>;
+using StateMachineExceptionCallbk = void(*)(ControlBlock&, uint8_t);
 
 class SmUtility
 {

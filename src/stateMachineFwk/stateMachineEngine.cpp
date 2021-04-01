@@ -71,6 +71,16 @@ ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock &cb,
     return currentState_p->executeActions(smCtxt.evt.getEventId(), cb);
 }
 
+void StateMachineEngine::registerSMExceptionCb(StateMachineExceptionCallbk smExceptionCb)
+{
+    smExceptionCb_m = smExceptionCb;
+}
+
+void StateMachineEngine::handleSMExceptionCb(ControlBlock& cb, uint8_t err_code)
+{
+    smExceptionCb_m(cb, err_code);
+}
+
 void StateMachineEngine::run()
 {
 
@@ -105,8 +115,7 @@ void StateMachineEngine::run()
             State *currentState_p = tempData_p->getCurrentState();
             if (currentState_p == NULL)
             {
-                log_msg(LOG_ERROR, "Current state is NULL"
-                        " for control block idx %d\n", cb->getCBIndex());
+                handleSMExceptionCb(*cb, CURRENT_STATE_NULL);
                 break;
             }
 

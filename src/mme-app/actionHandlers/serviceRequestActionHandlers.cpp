@@ -37,6 +37,7 @@
 #include <stateMachineEngine.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeNasUtils.h"
+#include <utils/mmeCauseUtils.h>
 #include "mmeStatsPromClient.h"
 
 using namespace mme;
@@ -514,7 +515,17 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
     service_rej.ue_idx = ue_ctxt->getContextID();
     service_rej.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
     service_rej.enb_fd = ue_ctxt->getEnbFd();
-    service_rej.cause = emmCause_ue_id_not_derived_by_network;
+
+    MmeProcedureCtxt* srPrcdCtxt_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if(srPrcdCtxt_p != NULL)
+    {
+        service_rej.cause = MmeCauseUtils::convertToNasEmmCause(srPrcdCtxt_p->getMmeErrorCause());
+    }
+    else
+    {
+        service_rej.cause = emmCause_network_failure;
+    }
 
     struct Buffer nasBuffer;
     struct nasPDU nas = { 0 };
@@ -525,7 +536,8 @@ ActStatus ActionHandlers::send_service_reject(ControlBlock& cb)
     nas.header.security_header_type = Plain;
     nas.header.proto_discriminator = EPSMobilityManagementMessages;
     nas.header.message_type = ServiceReject;
-    nas.elements[0].pduElement.attach_res = 0x09;
+    //Removed the hard-coded value "0x09", to set the appropriate EMM Cause
+    nas.elements[0].pduElement.attach_res = service_rej.cause;
     MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
     memcpy(&service_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
     service_rej.nasMsgSize = nasBuffer.pos;

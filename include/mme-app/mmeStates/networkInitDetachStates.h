@@ -19,7 +19,47 @@
  #include "state.h"
 
  namespace mme {
-	class NiDetachStart : public SM::State
+	class NiDetachState : public SM::State
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static NiDetachState* Instance();
+
+			/****************************************
+			* NiDetachState
+			*    Destructor
+			****************************************/
+			~NiDetachState();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* NiDetachState
+			*    Protected constructor
+			****************************************/
+			NiDetachState();  
+	};
+	
+	class NiDetachStart : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -59,7 +99,7 @@
 			NiDetachStart();  
 	};
 	
-	class NiDetachWfDetAccptDelSessResp : public SM::State
+	class NiDetachWfDetAccptDelSessResp : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -99,7 +139,7 @@
 			NiDetachWfDetAccptDelSessResp();  
 	};
 	
-	class NiDetachWfDelSessResp : public SM::State
+	class NiDetachWfDelSessResp : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -139,7 +179,7 @@
 			NiDetachWfDelSessResp();  
 	};
 	
-	class NiDetachWfDetachAccept : public SM::State
+	class NiDetachWfDetachAccept : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -179,7 +219,7 @@
 			NiDetachWfDetachAccept();  
 	};
 	
-	class NiDetachWfS1RelComp : public SM::State
+	class NiDetachWfS1RelComp : public NiDetachState
 	{
 		public:
 			/******************************************

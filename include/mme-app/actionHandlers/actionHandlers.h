@@ -234,6 +234,11 @@ namespace mme
         static SM::ActStatus handle_detach_failure(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_nas_pdu_parse_failure
+        ***********************************************/
+        static SM::ActStatus handle_nas_pdu_parse_failure(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_paging_failure
         ***********************************************/
         static SM::ActStatus handle_paging_failure(SM::ControlBlock& cb);                

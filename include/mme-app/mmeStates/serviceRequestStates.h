@@ -19,7 +19,47 @@
  #include "state.h"
 
  namespace mme {
-	class PagingStart : public SM::State
+	class ServiceRequestState : public SM::State
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static ServiceRequestState* Instance();
+
+			/****************************************
+			* ServiceRequestState
+			*    Destructor
+			****************************************/
+			~ServiceRequestState();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* ServiceRequestState
+			*    Protected constructor
+			****************************************/
+			ServiceRequestState();  
+	};
+	
+	class PagingStart : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -59,7 +99,7 @@
 			PagingStart();  
 	};
 	
-	class PagingWfServiceReq : public SM::State
+	class PagingWfServiceReq : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -99,7 +139,7 @@
 			PagingWfServiceReq();  
 	};
 	
-	class ServiceRequestStart : public SM::State
+	class ServiceRequestStart : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -139,7 +179,7 @@
 			ServiceRequestStart();  
 	};
 	
-	class ServiceRequestWfAuthResponse : public SM::State
+	class ServiceRequestWfAuthResponse : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -179,7 +219,7 @@
 			ServiceRequestWfAuthResponse();  
 	};
 	
-	class ServiceRequestWfAuthRespValidate : public SM::State
+	class ServiceRequestWfAuthRespValidate : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -219,7 +259,7 @@
 			ServiceRequestWfAuthRespValidate();  
 	};
 	
-	class ServiceRequestWfSecCmp : public SM::State
+	class ServiceRequestWfSecCmp : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -259,7 +299,7 @@
 			ServiceRequestWfSecCmp();  
 	};
 	
-	class ServiceRequestWfAia : public SM::State
+	class ServiceRequestWfAia : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -299,7 +339,7 @@
 			ServiceRequestWfAia();  
 	};
 	
-	class ServiceRequestWfInitCtxtResp : public SM::State
+	class ServiceRequestWfInitCtxtResp : public ServiceRequestState
 	{
 		public:
 			/******************************************
@@ -339,7 +379,7 @@
 			ServiceRequestWfInitCtxtResp();  
 	};
 	
-	class ServiceRequestWfMbResp : public SM::State
+	class ServiceRequestWfMbResp : public ServiceRequestState
 	{
 		public:
 			/******************************************

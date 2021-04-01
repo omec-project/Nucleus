@@ -8,6 +8,7 @@
 #include <contextManager/dataBlocks.h>
 #include <err_codes.h>
 #include <gtpCauseTypes.h>
+#include <log.h>
 #include <mmeSmDefs.h>
 #include <state.h>
 #include <timeoutManager.h>
@@ -311,3 +312,15 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
     return rc;
 }
 
+/**********************************************
+* MmeStatesUtils : handle_sm_exception
+***********************************************/
+void MmeStatesUtils::handle_sm_exception(SM::ControlBlock& cb, uint8_t err_code)
+{
+
+    log_msg(LOG_ERROR,"CB with index %d has encountered a "
+            "SM Exception with error code : %d", cb.getCBIndex(), err_code);
+
+    //Cleaning up the UE Context
+    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+}

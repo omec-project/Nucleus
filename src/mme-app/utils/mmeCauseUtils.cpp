@@ -26,7 +26,9 @@ uint32_t MmeCauseUtils::convertToNasEmmCause(ERROR_CODES mmeErrorCause)
 		case S6A_AIA_FAILED:
 			nasEmmCause = emmCause_ue_id_not_derived_by_network;
 			break;
-
+		case MAC_MISMATCH:
+			nasEmmCause = emmCause_mac_failure;
+			break;
 		default:
 			nasEmmCause = emmCause_network_failure;
 			break;
@@ -100,6 +102,12 @@ S1apCause MmeCauseUtils::convertToS1apCause(ERROR_CODES mmeErrorCause)
         {
             s1apCause.s1apCause_m.present = s1apCause_PR_radioNetwork;
             s1apCause.s1apCause_m.choice.radioNetwork = s1apCauseRadioNetwork_unknown_E_RAB_ID;
+            break;
+        }
+        case MAC_MISMATCH:
+        {
+            s1apCause.s1apCause_m.present = s1apCause_PR_nas;
+            s1apCause.s1apCause_m.choice.nas = s1apCauseNas_authentication_failure;
             break;
         }
         default:

@@ -98,6 +98,7 @@ void StateFactory::initialize()
 	ErabModIndWfMbResp::Instance()->initialize();
 	IntraS1HoStart::Instance()->initialize();
 	NiDetachStart::Instance()->initialize();
+	NiDetachState::Instance()->initialize();
 	NiDetachWfDelSessResp::Instance()->initialize();
 	NiDetachWfDetAccptDelSessResp::Instance()->initialize();
 	NiDetachWfDetachAccept::Instance()->initialize();
@@ -113,6 +114,7 @@ void StateFactory::initialize()
 	S1ReleaseWfReleaseAccessBearerResp::Instance()->initialize();
 	S1ReleaseWfUeCtxtReleaseComp::Instance()->initialize();
 	ServiceRequestStart::Instance()->initialize();
+	ServiceRequestState::Instance()->initialize();
 	ServiceRequestWfAia::Instance()->initialize();
 	ServiceRequestWfAuthRespValidate::Instance()->initialize();
 	ServiceRequestWfAuthResponse::Instance()->initialize();

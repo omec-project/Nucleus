@@ -219,6 +219,9 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				}
 				if (cb == NULL)
 				{
+					//Deleting the IMSI key, since there is no cb associated with it.
+					SubsDataGroupManager::Instance()->deleteimsikey(IMSIInfo);
+
 					log_msg(LOG_INFO, "create new cb for IMSI %s.\n",
 							IMSIInfo.getDigitsArray());
 
@@ -243,6 +246,13 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					if (cbIndex > 0)
 					{
 						cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+						if(cb == NULL)
+						{
+						    log_msg(LOG_INFO, "Failed to find control block with mTmsi %d\n", 
+								    ue_info->mi_guti.m_TMSI);
+						    // Deleting stale mTmsi -> cbIdx mapping.
+						    SubsDataGroupManager::Instance()->deletemTmsikey(ue_info->mi_guti.m_TMSI);
+						}
 					}
 					else
 					{
@@ -270,12 +280,14 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi.\n");
+				log_msg(LOG_INFO, "Failed to find control block with mTmsi %d\n", msgData_p->ue_idx);
 			}
 
 			if (cb == NULL)
 			{
-				log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
+			    // Deleting stale mTmsi -> cbIdx mapping.
+			    SubsDataGroupManager::Instance()->deletemTmsikey(msgData_p->ue_idx);
+			    log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
 						" Allocate a temporary control block\n", msgData_p->ue_idx);
 			    
 			    // Respond  with Service Reject from default Service Request event handler
@@ -292,6 +304,12 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			if (cbIndex > 0)
 			{
 				cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+				if(cb == NULL)
+				{
+				    log_msg(LOG_INFO,"No CB found for UE with mTMSI %d\n", detach_Req->ue_m_tmsi);
+				    // Deleting stale mTmsi -> cbIdx mapping.
+				    SubsDataGroupManager::Instance()->deletemTmsikey(detach_Req->ue_m_tmsi);
+				}
 			}
 			else
 			{
@@ -309,11 +327,19 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
-                                              " Allocate a temporary control block\n", tau_Req->ue_m_tmsi);
-				// Respond  with TAU Reject from default TAU event handler
-				cb = SubsDataGroupManager::Instance()->allocateCB();
-				cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+				log_msg(LOG_INFO, "Failed to find control block with mTmsi %d\n", tau_Req->ue_m_tmsi);
+			}
+
+			if (cb == NULL)
+			{
+			    // Deleting stale mTmsi -> cbIdx mapping.
+			    SubsDataGroupManager::Instance()->deletemTmsikey(tau_Req->ue_m_tmsi);
+			    log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
+					    " Allocate a temporary control block\n", tau_Req->ue_m_tmsi);
+
+			    // Respond  with TAU Reject from default TAU Request event handler
+			    cb = SubsDataGroupManager::Instance()->allocateCB();
+			    cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 			}
 
 			break;
