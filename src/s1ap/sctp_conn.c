@@ -100,11 +100,10 @@ int recv_sctp_msg(int connSock, unsigned char *buffer, size_t len)
 }
 
 pthread_mutex_t sctp_sock_mutex;	/* protection to sctp_sock */
-int send_sctp_msg(int connSock, unsigned char *buffer, size_t len, uint16_t stream_no)
+int send_sctp_msg(int cbIndex, unsigned char *buffer, size_t len, uint16_t stream_no)
 {
 	uint32_t ppid = S1AP_PPID;
-    uint32_t enb_fd = getEnbFdWithCbIndex(connSock);
-    assert(enb_fd <= 100);
+    uint32_t enb_fd = getEnbFdWithCbIndex(cbIndex);
 	pthread_mutex_lock(&sctp_sock_mutex);
 	int ret = sctp_sendmsg(enb_fd, (void *)buffer, len,
 			NULL, 0, htonl(ppid), 0, stream_no, 0, 0);
