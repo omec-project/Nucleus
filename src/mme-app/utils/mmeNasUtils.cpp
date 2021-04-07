@@ -204,8 +204,6 @@ calculate_s3g_mac(uint8_t *int_key, uint32_t seq_no, uint8_t direction,
     std::unique_lock<std::mutex> lock(mutex_m);
     log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d \n", seq_no, bearer, direction, data_len);
     f9(int_key, seq_no, bearer, direction, data, data_len * 8, mac);
-    mutex_m.unlock();
-
     return;
 }
 
