@@ -353,6 +353,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
                     MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(cb, none_c);
             if (srvReqProc_p != NULL)
             {
+                log_msg(LOG_ERROR, "Allocated service request procedure context \n");
                 mmCtxt->setEcmState(ecmConnected_c);
                 ueCtxt->setS1apEnbUeId(serviceReq->header.s1ap_enb_ue_id);
 
@@ -368,7 +369,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
         }
         else
         {
-            log_msg(LOG_ERROR, "Invalid UE Context \n");
+            log_msg(LOG_ERROR, "Invalid UE Context in service request handling\n");
 
             emmCause = emmCause_ue_id_not_derived_by_network;
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -376,7 +377,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL \n");
+        log_msg(LOG_ERROR, "UE Context is NULL in service request handling\n");
 
         emmCause = emmCause_ue_id_not_derived_by_network;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -384,6 +385,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 
     if (emmCause != 0)
     {
+        log_msg(LOG_INFO, "Send service request reject for enb context %u \n", serviceReq->enb_fd);
         struct commonRej_info serviceRej =
         {
                 service_reject,

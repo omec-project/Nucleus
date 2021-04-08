@@ -182,10 +182,8 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 static int
 init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 {
-	//TODO: use static instead of synamic for perf.
 	struct proto_IE proto_ies={0};
-
-	log_msg(LOG_INFO, "S1AP_INITIAL_UE_MSG msg: \n");
+	initial_ue_msg_t s1Msg={0};
 
     /* TODO : Error handling. Bad message will lead crash. 
      * Preferably reject the message, increment stats.
@@ -196,8 +194,6 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
         log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
         return E_FAIL;
     }
-	initial_ue_msg_t s1Msg={0};
-	s1Msg.enodeb_fd = cbIndex;
 
 	int decode_result = convertToInitUeProtoIe(msg, &proto_ies, &s1Msg);
     if(decode_result < 0 )
@@ -206,10 +202,12 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		free(proto_ies.data);
 		return E_FAIL;
     }
+	s1Msg.enodeb_fd = cbIndex;
 	s1Msg.header.msg_type = S1AP_INITIAL_UE_MSG_CODE; 
 	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
+	log_msg(LOG_INFO, "sending S1AP_INITIAL_UE_MSG msg: context_id = %u tmsi = %u \n", cbIndex, s1Msg.s_tmsi.m_TMSI);
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1Msg));
 
 	/*Send S1Setup response*/

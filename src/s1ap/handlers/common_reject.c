@@ -132,19 +132,16 @@ s1ap_reject_handler(void *data)
 	{
 	case attach_reject:
 	{
-	    log_msg(LOG_INFO, "Send Attach Reject.\n");
         process_attach_rej(nasReject);
 	    break;
 	}
 	case service_reject:
 	{
-	    log_msg(LOG_INFO, "Send Service Reject.\n");
         process_service_rej(nasReject);
 	    break;
 	}
 	case tau_reject:
 	{
-	    log_msg(LOG_INFO, "Send TAU Reject.\n");
 	    process_tau_rej(nasReject);
 	    break;
 	}
