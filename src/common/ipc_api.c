@@ -29,7 +29,7 @@ int
 create_ipc_channel(char *name)
 {
 	if (mkfifo (name, IPC_MODE) == -1) {
-		log_msg(LOG_ERROR, "Error in create_ipc_channel %s\n", name);
+		log_msg(LOG_ERROR, "Error in create_ipc_channel %s", name);
 		perror("Error:");
 		return -1;
 	}
@@ -47,7 +47,7 @@ open_ipc_channel(char *name, enum ipc_access_mode access_mode)
 		mode = O_WRONLY;
 
 	if ((fd = open(name, mode)) == -1) {
-		log_msg(LOG_ERROR, "Error in create_ipc_channel %s\n",name);
+		log_msg(LOG_ERROR, "Error in create_ipc_channel %s",name);
 		perror("Error:");
 		return -E_FAIL;
 	}
@@ -73,7 +73,7 @@ read_ipc_channel(ipc_handle fd, char *buffer, size_t size)
             // case -1 means pipe is empty and errono
             // set EAGAIN
 		if (errno == EAGAIN) {
-		log_msg(LOG_ERROR, "pipe empty \n");
+		log_msg(LOG_ERROR, "pipe empty ");
                 usleep(5);
                 return -1;
             }
@@ -83,7 +83,7 @@ read_ipc_channel(ipc_handle fd, char *buffer, size_t size)
 
         // case 0 means all bytes are read and EOF(end of conv.)
         case 0:
-            log_msg(LOG_ERROR, "End of conversation\n");
+            log_msg(LOG_ERROR, "End of conversation");
 
             // read link
             //close(p[0]);
@@ -139,12 +139,12 @@ bind_tipc_socket(int sockFd, uint32_t instanceNum)
     int rc = 1;
     if (0 != bind(sockFd, (void *)&server, sizeof(server)))
     {
-        log_msg(LOG_ERROR, "Server: failed to bind port name %s\n", strerror(errno));
+        log_msg(LOG_ERROR, "Server: failed to bind port name %s", strerror(errno));
         rc = -1;
     }
     else
     {
-	log_msg(LOG_INFO, "Server: Success %s %d\n", strerror(errno), rc);
+	log_msg(LOG_INFO, "Server: Success %s %d", strerror(errno), rc);
     }
     return rc;
 }
@@ -163,7 +163,7 @@ send_tipc_message(int sd, uint32_t destAddr, void * buf, int len)
     int rc = 0;
     if (0 > sendto(sd, buf, len, 0, (void*)&server, sizeof(server)))
     {
-    	log_msg(LOG_ERROR, "FAILED TO SENT TIPC MESSAGE %s\n", strerror(errno));
+    	log_msg(LOG_ERROR, "FAILED TO SENT TIPC MESSAGE %s", strerror(errno));
     } else {
     	rc = 1;
     }
@@ -178,7 +178,7 @@ read_tipc_msg(int sockFd, void * buf, int len)
 
     if ((bytesRead = recv(sockFd, buf, len, 0)) <= 0)
     {
-    	log_msg(LOG_ERROR, "FAILED TO READ TIPC MESSAGE %s\n", strerror(errno));
+    	log_msg(LOG_ERROR, "FAILED TO READ TIPC MESSAGE %s", strerror(errno));
     }
     return bytesRead;
 }

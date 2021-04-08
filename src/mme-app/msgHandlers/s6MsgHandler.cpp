@@ -41,13 +41,13 @@ void S6MsgHandler::handleS6Message_v(IpcEMsgUnqPtr eMsg)
     utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
     {
-        log_msg(LOG_INFO, "S6 Message Buffer is empty \n");
+        log_msg(LOG_INFO, "S6 Message Buffer is empty ");
         return;
     }
 
     if (msgBuf->getLength() < sizeof(s6_incoming_msg_header_t))
     {
-        log_msg(LOG_INFO, "Not enough bytes in s6 message \n");
+        log_msg(LOG_INFO, "Not enough bytes in s6 message ");
         return;
     }
 
@@ -75,20 +75,20 @@ void S6MsgHandler::handleS6Message_v(IpcEMsgUnqPtr eMsg)
 			break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled S6 Message %d \n", msgData_p->msg_type);
+			log_msg(LOG_INFO, "Unhandled S6 Message %d ", msgData_p->msg_type);
 	}
 
 }
 
 void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "Inside handleAuthInfoAnswer_v \n");
+	log_msg(LOG_INFO, "Inside handleAuthInfoAnswer_v ");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleAuthInfoAnswer_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -100,13 +100,13 @@ void S6MsgHandler::handleAuthInfoAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueId
 
 void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "Inside handleUpdateLocationAnswer_v \n");
+	log_msg(LOG_INFO, "Inside handleUpdateLocationAnswer_v ");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleUpdateLocationAnswer_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -117,13 +117,13 @@ void S6MsgHandler::handleUpdateLocationAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_
 
 void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "Inside handlePurgeAnswer_v \n");
+	log_msg(LOG_INFO, "Inside handlePurgeAnswer_v ");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handlePurgeAnswer_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -135,7 +135,7 @@ void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 {
-	log_msg(LOG_INFO, "Inside handleCancelLocationRequest \n");
+	log_msg(LOG_INFO, "Inside handleCancelLocationRequest ");
         
 	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
 	void* buf = msgData_p->getDataPointer();
@@ -145,11 +145,11 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 	IMSI.setImsiDigits((unsigned char *)msgInfo_p->imsi);
       
 	int ue_idx =  SubsDataGroupManager::Instance()->findCBWithimsi(IMSI);
-	log_msg(LOG_INFO, "UE_IDX found from map : %d \n", ue_idx);
+	log_msg(LOG_INFO, "UE_IDX found from map : %d ", ue_idx);
 
 	if (ue_idx < 1)
 	{
-		log_msg(LOG_ERROR, "Failed to find ue index using IMSI : %d\n", ue_idx);
+		log_msg(LOG_ERROR, "Failed to find ue index using IMSI : %d", ue_idx);
 		return;
 	}
 
@@ -157,7 +157,7 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleCancelLocationRequest_v: "
-				   "Failed to find UE Context using IMSI in CLR\n");
+				   "Failed to find UE Context using IMSI in CLR");
 		return;
 	}
 	//Fire CLR event, insert CB to Procedure Queue

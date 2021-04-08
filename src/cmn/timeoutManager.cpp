@@ -42,11 +42,11 @@ void TimeoutManager::Timer::initTimer()
     fd_m = timerfd_create(CLOCK_MONOTONIC, 0);
     if (fd_m <= 0)
     {
-        log_msg(LOG_ERROR, "Failed to create timer\n");	    
+        log_msg(LOG_ERROR, "Failed to create timer");
     }
     else
     {
-        log_msg(LOG_DEBUG, "Timer created successfully\n");
+        log_msg(LOG_DEBUG, "Timer created successfully");
     }	
 }
 
@@ -58,7 +58,7 @@ bool TimeoutManager::Timer::startTimer()
     {
         if (timerfd_settime(fd_m, 0, &tspec_m, NULL) == -1)
         {
-            log_msg(LOG_ERROR, "Failed to set timeout duration\n");
+            log_msg(LOG_ERROR, "Failed to set timeout duration");
 
             rc = false;
 
@@ -84,7 +84,7 @@ bool TimeoutManager::Timer::stopTimer()
 
         if (timerfd_settime(fd_m, 0, &next_timeout, NULL) == -1)
         {
-            log_msg(LOG_ERROR,"Failed to set timeout duration\n");
+            log_msg(LOG_ERROR,"Failed to set timeout duration");
             rc = false;
 
             // thread abort.
@@ -124,7 +124,7 @@ uint32_t TimeoutManager::cancelTimer(TimerContext* timer_p)
 
 void TimeoutManager::run()
 {
-    log_msg(LOG_DEBUG, "Run TimeoutManager\n");
+    log_msg(LOG_DEBUG, "Run TimeoutManager");
 
     timer_m.startTimer();
 

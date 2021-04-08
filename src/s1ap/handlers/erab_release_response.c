@@ -20,23 +20,23 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 void dump_erab_rel_resp(struct erab_rel_resp_Q_msg *msg)
 {
-    log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->header.ue_idx);
-    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->header.s1ap_enb_ue_id);
-    log_msg(LOG_INFO, "erab_release_list_count %d\n",
+    log_msg(LOG_INFO, "MME-UE-S1AP-ID %d", msg->header.ue_idx);
+    log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d", msg->header.s1ap_enb_ue_id);
+    log_msg(LOG_INFO, "erab_release_list_count %d",
             msg->erab_rel_list.count);
     for (int i = 0; i < msg->erab_rel_list.count; i++)
     {
-        log_msg(LOG_INFO, "erab_release item %d::erab_id = %d\n", i,
+        log_msg(LOG_INFO, "erab_release item %d::erab_id = %d", i,
                 msg->erab_rel_list.erab_id[i]);
     }
-    log_msg(LOG_INFO, "erab_failed_to_release_list count %d\n",
+    log_msg(LOG_INFO, "erab_failed_to_release_list count %d",
             msg->erab_failed_to_release_list.count);
     for (int i = 0; i < msg->erab_failed_to_release_list.count; i++)
     {
-        log_msg(LOG_INFO, "erab_failed_to_release item [%d]::erab_id = %d\n", i,
+        log_msg(LOG_INFO, "erab_failed_to_release item [%d]::erab_id = %d", i,
                 msg->erab_failed_to_release_list.erab_item[i].e_RAB_ID);
-        log_msg(LOG_INFO, "erab_failed_to_release item [%d]::Cause = %d\n", i,
-                msg->erab_failed_to_release_list.erab_item[i].cause);
+        log_msg(LOG_INFO, "erab_failed_to_release item [%d]::Cause = %lu", i,
+                msg->erab_failed_to_release_list.erab_item[i].cause.choice.misc);
     }
 
 }
@@ -49,7 +49,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
     int decode_status = convertErabRelRespToProtoIe(msg, &erab_rel_resp_ies);
     if(decode_status < 0)
     {
-        log_msg(LOG_ERROR, "Failed to decode ERAB Release Response\n");
+        log_msg(LOG_ERROR, "Failed to decode ERAB Release Response");
 
         if(erab_rel_resp_ies.data != NULL)
             free(erab_rel_resp_ies.data);
@@ -64,7 +64,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
             case S1AP_IE_MME_UE_ID:
             {
                 log_msg(LOG_INFO,
-                        "ERAB Release Response S1AP_IE_MME_UE_ID %d\n",
+                        "ERAB Release Response S1AP_IE_MME_UE_ID %lu",
                         erab_rel_resp_ies.data[i].val.mme_ue_s1ap_id);
 
                 erab_rel_resp.header.ue_idx =
@@ -74,7 +74,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
             case S1AP_IE_ENB_UE_ID:
             {
                 log_msg(LOG_INFO,
-                        "ERAB Release Response S1AP_IE_ENB_UE_ID %d\n",
+                        "ERAB Release Response S1AP_IE_ENB_UE_ID %lu",
                         erab_rel_resp_ies.data[i].val.enb_ue_s1ap_id);
 
                 erab_rel_resp.header.s1ap_enb_ue_id =
@@ -85,7 +85,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
             {
                 log_msg(LOG_INFO,
                         "ERAB Release Response S1AP_IE_E_RAB_TO_BE_RELEASED_LIST \
-                     received with the count : %d\n",
+                     received with the count : %d",
                         erab_rel_resp_ies.data[i].val.erab_releaselist.count);
 
                 erab_rel_resp.erab_rel_list.count =
@@ -99,7 +99,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
             {
                 log_msg(LOG_INFO,
                         "ERAB Release Response S1AP_IE_E_RAB_FAILED_TO_RELEASED_LIST \
-                     received with the count : %d\n",
+                     received with the count : %d",
                         erab_rel_resp_ies.data[i].val.erab_failed_to_release_list.count);
 
                 erab_rel_resp.erab_failed_to_release_list.count =
@@ -110,7 +110,7 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
             }
                 break;
             default:
-                log_msg(LOG_WARNING, "Unhandled IE %d\n",
+                log_msg(LOG_WARNING, "Unhandled IE %d",
                         erab_rel_resp_ies.data[i].IE_type);
         }
     }
@@ -125,11 +125,11 @@ int erab_release_response_handler(SuccessfulOutcome_t *msg)
                               sizeof(struct erab_rel_resp_Q_msg));
     if(i < 0)
     {
-        log_msg(LOG_ERROR, "Error To write in erab_rel_resp_handler %s\n",
+        log_msg(LOG_ERROR, "Error To write in erab_rel_resp_handler %s",
                 strerror(errno));
     }
 
-    log_msg(LOG_INFO, "ERAB Release Response sent to mme-app. Bytes sent %d\n",
+    log_msg(LOG_INFO, "ERAB Release Response sent to mme-app. Bytes sent %d",
             i);
 
     if(erab_rel_resp_ies.data != NULL)

@@ -51,7 +51,7 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 	struct MsgBuffer*  dsReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(dsReqMsgBuf_p == NULL)
 	{
-	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
             return -1;
 	}
 	GtpV2MessageHeader gtpHeader;
@@ -81,7 +81,7 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 			MsgBuffer_getDataPointer(dsReqMsgBuf_p),
 			MsgBuffer_getBufLen(dsReqMsgBuf_p), 0,
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
-	log_msg(LOG_INFO, "Send delete session request\n");
+	log_msg(LOG_INFO, "Send delete session request");
 
 	MsgBuffer_free(dsReqMsgBuf_p);
 
@@ -95,7 +95,7 @@ delete_session_processing(struct DS_Q_msg *ds_msg)
 void*
 delete_session_handler(void *data)
 {
-	log_msg(LOG_INFO, "Delete session handler initialized\n");
+	log_msg(LOG_INFO, "Delete session handler initialized");
 
         delete_session_processing((struct DS_Q_msg *)data);
 	return NULL;

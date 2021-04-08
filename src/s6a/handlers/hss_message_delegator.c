@@ -27,7 +27,7 @@ hss_resp_handler(void *message)
 {
 	struct hss_resp_msg *msg = (struct hss_resp_msg*)message;
 
-	log_msg(LOG_INFO, "HSS response msg handler for ue_idx %d\n",
+	log_msg(LOG_INFO, "HSS response msg handler for ue_idx %d",
 			msg->ue_idx);
 
 	switch(msg->hdr){
@@ -46,7 +46,7 @@ hss_resp_handler(void *message)
 		break;
 
 	default:
-		log_msg(LOG_ERROR, "Unknown message received from HSS - %d\n",
+		log_msg(LOG_ERROR, "Unknown message received from HSS - %d",
 			msg->hdr);
 	}
 

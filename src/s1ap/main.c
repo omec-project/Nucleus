@@ -187,7 +187,7 @@ init_s1ap_workers()
 void *
 accept_sctp(void *data)
 {
-	log_msg(LOG_INFO, "accept connection on sctp sock\n");
+	log_msg(LOG_INFO, "accept connection on sctp sock");
 	int new_socket = 0;
 	int activity = 0;
 	int i = 0;
@@ -222,22 +222,22 @@ accept_sctp(void *data)
 		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
 		if ((activity < 0) && (errno != EINTR)) {
-			log_msg(LOG_ERROR, "select error.\n");
+			log_msg(LOG_ERROR, "select error.");
 		 }
 
 		if (FD_ISSET(g_sctp_fd, &readfds)) {
 
 			if ((new_socket = accept_sctp_socket(g_sctp_fd)) == -1) {
-				log_msg(LOG_ERROR, "Error in accept on sctp socket.\n");
+				log_msg(LOG_ERROR, "Error in accept on sctp socket.");
 			}
 
 			int mtu = 1000;
 			int ret = setsockopt(new_socket, SOL_SCTP, SCTP_MAXSEG,&mtu, sizeof(mtu));
 			if(ret == -1 ) {
-				log_msg(LOG_ERROR, "1 setsockopt() failed %s \n",strerror(errno));
+				log_msg(LOG_ERROR, "1 setsockopt() failed %s ",strerror(errno));
 			}
 
-			log_msg(LOG_INFO, "New Connection Established\n.");
+			log_msg(LOG_INFO, "New Connection Established.");
 
 			for (i = 0; i < MAX_ENB; i++) {
 
@@ -267,7 +267,7 @@ accept_sctp(void *data)
                     send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
                     
                     clearControlBlockDetailsEnbFd(sd, &temp);
-                    log_msg(LOG_ERROR, "enb fd = %d eNB %s - Tac %d - disconnected \n", sd, temp.eNbName, temp.tai_m.tac);
+                    log_msg(LOG_ERROR, "enb fd = %d eNB %s - Tac %d - disconnected ", sd, temp.eNbName, temp.tai_m.tac);
                     close(sd);
                     enb_socket[i] = 0;
                     /* MME-app should get notificaiton that peer is down ? 
@@ -314,14 +314,14 @@ init_sctp()
 {
 	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 	
-	log_msg(LOG_INFO, "Create sctp sock, ip:%d, port:%d\n",
+	log_msg(LOG_INFO, "Create sctp sock, ip:%d, port:%d",
 			s1ap_cfg->s1ap_local_ip, s1ap_cfg->sctp_port);
 	/*Create MME sctp listned socket*/
 	g_sctp_fd = create_sctp_socket(s1ap_cfg->s1ap_local_ip,
 					s1ap_cfg->sctp_port);
 
 	if (g_sctp_fd == -1) {
-		log_msg(LOG_ERROR, "Error in creating sctp socket. \n");
+		log_msg(LOG_ERROR, "Error in creating sctp socket. ");
 		return -E_FAIL;
 	}
 
@@ -333,7 +333,7 @@ init_sctp()
 
 	int ret = pthread_create(&acceptSctp_t, &attr,&accept_sctp, NULL);
 	if(ret < 0) {
-		log_msg(LOG_ERROR,"SCTP ACCEPTS THREAD FAILED\n");
+		log_msg(LOG_ERROR,"SCTP ACCEPTS THREAD FAILED");
 		return -E_FAIL;
 	}
 
@@ -352,7 +352,7 @@ init_writer_ipc()
 	if ((ipc_S1ap_Hndl  = create_tipc_socket()) <= 0)
 		return -E_FAIL;
 
-	log_msg(LOG_INFO, "Writer IPCs initialized\n");
+	log_msg(LOG_INFO, "Writer IPCs initialized");
 
 	return SUCCESS;
 }
@@ -366,12 +366,12 @@ start_mme_resp_handlers()
 {
 	if ((ipc_tipc_reader = create_tipc_socket()) <= 0)
 	{
-		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket \n");
+		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket ");
 		return -E_FAIL;
 	}
 	if ( bind_tipc_socket(ipc_tipc_reader, s1apAppInstanceNum_c) != 1)
 	{
-		log_msg(LOG_ERROR, "Failed to bind IPC Reader tipc socket \n");
+		log_msg(LOG_ERROR, "Failed to bind IPC Reader tipc socket ");
 		return -E_FAIL;
 	}
 
@@ -379,11 +379,11 @@ start_mme_resp_handlers()
 	g_tpool_tipc_reader = thread_pool_new(5);
 
 	if (g_tpool_tipc_reader == NULL) {
-		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		log_msg(LOG_ERROR, "Error in creating thread pool. ");
 		return -E_FAIL_INIT;
 	}
 
-	log_msg(LOG_INFO, "S1AP Listener theadpool initalized.\n");
+	log_msg(LOG_INFO, "S1AP Listener theadpool initalized.");
 
 	// thread to read incoming ipc messages from tipc socket
 	pthread_attr_t attr;
@@ -429,7 +429,7 @@ start_sctp_threads()
 	res = pthread_create(&sctp_writer, &attr,
 			sctp_write, NULL);
 	if (res != 0) {
-		log_msg(LOG_ERROR, "Error in creating sctp writer thread.\n");
+		log_msg(LOG_ERROR, "Error in creating sctp writer thread.");
 		pthread_attr_destroy(&attr);
 		return -E_FAIL;
 	}
@@ -466,12 +466,12 @@ main(int argc, char **argv)
 	s1ap_parse_config(s1ap_inst->s1ap_config);
 
 	if (init_writer_ipc() != SUCCESS) {
-		log_msg(LOG_ERROR, "Error in initializing writer ipc.\n");
+		log_msg(LOG_ERROR, "Error in initializing writer ipc.");
 		return -E_FAIL_INIT;
 	}
 
 	if (start_mme_resp_handlers() != SUCCESS) {
-			log_msg(LOG_ERROR, "Error in starting mme response handlers.\n");
+			log_msg(LOG_ERROR, "Error in starting mme response handlers.");
 			return -E_FAIL_INIT;
 	}
 
@@ -479,23 +479,23 @@ main(int argc, char **argv)
 	g_tpool = thread_pool_new(THREADPOOL_SIZE);
 
 	if (g_tpool == NULL) {
-		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		log_msg(LOG_ERROR, "Error in creating thread pool. ");
 		return -E_FAIL_INIT;
 	}
-	log_msg(LOG_INFO, "S1AP Listener theadpool initalized.\n");
+	log_msg(LOG_INFO, "S1AP Listener theadpool initalized.");
 
 
 	if (init_sctp() != SUCCESS) {
-		log_msg(LOG_ERROR, "Error in initializing sctp server.\n");
+		log_msg(LOG_ERROR, "Error in initializing sctp server.");
 		return -E_FAIL_INIT;
 	}
-	log_msg(LOG_INFO, "SCTP socket open - success \n");
+	log_msg(LOG_INFO, "SCTP socket open - success ");
 
 	if (start_sctp_threads() != SUCCESS) {
-		log_msg(LOG_ERROR, "Error in creating sctp reader/writer thread.\n");
+		log_msg(LOG_ERROR, "Error in creating sctp reader/writer thread.");
 		return -E_FAIL_INIT;
 	}
-	log_msg(LOG_INFO, "sctp reader/writer thread started.\n");
+	log_msg(LOG_INFO, "sctp reader/writer thread started.");
 
 	register_config_updates();
 

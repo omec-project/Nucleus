@@ -48,14 +48,14 @@ using namespace SM;
  ***************************************/
 ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
 {
-    log_msg(LOG_INFO, "Inside send_ho_request_to_target_enb\n");
+    log_msg(LOG_INFO, "Inside send_ho_request_to_target_enb");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
 
     if (ueCtxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_request_to_target_enb: ue context is NULL\n");
+                "send_ho_request_to_target_enb: ue context is NULL");
         return ActStatus::HALT;
     }
 
@@ -64,7 +64,7 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
     if (hoProcCtxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_request_to_target_enb: MmeS1HandoverProcedureCtxt is NULL\n");
+                "send_ho_request_to_target_enb: MmeS1HandoverProcedureCtxt is NULL");
         return ActStatus::HALT;
     }
 
@@ -79,7 +79,7 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
 
-    log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb \n");
+    log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb ");
 
     ProcedureStats::num_of_ho_request_to_target_enb_sent++;
     return ActStatus::PROCEED;
@@ -90,12 +90,12 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside process_ho_request_ack\n");
+    log_msg(LOG_DEBUG, "Inside process_ho_request_ack");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_request_ack: ue ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_request_ack: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -103,14 +103,14 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_request_ack: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_request_ack: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -135,7 +135,7 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_request_ack_received++;
 
-    log_msg(LOG_DEBUG, "Leaving process_ho_request_ack\n");
+    log_msg(LOG_DEBUG, "Leaving process_ho_request_ack");
     return ActStatus::PROCEED;
 }
 
@@ -144,12 +144,12 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_ho_command_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Inside send_ho_command_to_src_enb");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_ho_command_to_src_enb: ue ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_ho_command_to_src_enb: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -158,7 +158,7 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
     if (ho_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_command_to_src_enb: procedure ctxt is NULL \n");
+                "send_ho_command_to_src_enb: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -173,7 +173,7 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &ho_command, sizeof(ho_command), destAddr);
 
     ProcedureStats::num_of_ho_command_to_src_enb_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_command_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Leaving send_ho_command_to_src_enb");
 
     return ActStatus::PROCEED;
 }
@@ -183,11 +183,11 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
 ***************************************/
 ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_mme_status_tranfer_to_target_enb\n");
+    log_msg(LOG_DEBUG, "Inside send_mme_status_tranfer_to_target_enb");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_mme_status_tranfer_to_target_enb: ue ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_mme_status_tranfer_to_target_enb: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -195,14 +195,14 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_mme_status_tranfer_to_target_enb: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_mme_status_tranfer_to_target_enb: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -233,11 +233,11 @@ ActStatus ActionHandlers::send_mme_status_tranfer_to_target_enb(ControlBlock& cb
  ***************************************/
 ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside process_ho_notify\n");
+    log_msg(LOG_DEBUG, "Inside process_ho_notify");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_notify: ue ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_notify: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -245,14 +245,14 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -272,7 +272,7 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
     ho_ctxt->setTargetCgi(Cgi(ho_notify->utran_cgi));
 
     ProcedureStats::num_of_ho_notify_received++;
-    log_msg(LOG_DEBUG, "Leaving process_ho_notify\n");
+    log_msg(LOG_DEBUG, "Leaving process_ho_notify");
 
     return ActStatus::PROCEED;
 }
@@ -282,13 +282,13 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
  ********************************************/
 ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_mb_req_to_sgw_for_ho \n");
+    log_msg(LOG_DEBUG, "Inside send_mb_req_to_sgw_for_ho ");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_mb_req_to_sgw_for_ho: ue context or procedure ctxt is NULL \n");
+                "send_mb_req_to_sgw_for_ho: ue context or procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -296,13 +296,13 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
     auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
     if(sessionCtxtContainer.size() < 1)
     {
-	log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho:Session context list empty\n");
+	log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho:Session context list empty");
 	return ActStatus::HALT;
     }
 
@@ -319,7 +319,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_ho \n");
+    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_ho ");
     return ActStatus::PROCEED;
 }
 
@@ -328,7 +328,7 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
 ***************************************/
 ActStatus ActionHandlers::process_mb_resp_for_ho(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside process_mb_resp_for_ho \n");
+    log_msg(LOG_DEBUG, "Inside process_mb_resp_for_ho ");
 
     ProcedureStats::num_of_processed_mb_resp ++;
     return ActStatus::PROCEED;
@@ -339,11 +339,11 @@ ActStatus ActionHandlers::process_mb_resp_for_ho(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_ho\n");
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_ho");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if(ue_ctxt == NULL)
     {
-    	log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: ue context is NULL \n");
+    	log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: ue context is NULL ");
     	return ActStatus::HALT;
     }
 
@@ -351,7 +351,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
     struct s1relcmd_info s1relcmd;
@@ -371,7 +371,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
-    log_msg(LOG_DEBUG,"Leaving send_s1ap_ue_ctxt_rel_command_to_src_enb \n");
+    log_msg(LOG_DEBUG,"Leaving send_s1ap_ue_ctxt_rel_command_to_src_enb ");
     return ActStatus::PROCEED;
 }
 
@@ -380,12 +380,12 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
  ***************************************/
 ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
 {
-    log_msg(LOG_INFO, "Inside process_tau_request\n");
+    log_msg(LOG_INFO, "Inside process_tau_request");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_ERROR, "process_tau_request: ue context is NULL\n",
+        log_msg(LOG_ERROR, "process_tau_request: ue context is NULL",
                 cb.getCBIndex());
         return ActStatus::HALT;
     }
@@ -395,14 +395,14 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
     if (s1HoPrCtxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "process_tau_request: S1HandoverProcedureContext is NULL\n");
+                "process_tau_request: S1HandoverProcedureContext is NULL");
         return ActStatus::HALT;
     }
 
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL \n");
+        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL ");
         return ActStatus::HALT;
     }
 
@@ -434,7 +434,7 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
  ***************************************/
 ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
 {
-    log_msg(LOG_INFO, "Inside ho_complete\n");
+    log_msg(LOG_INFO, "Inside ho_complete");
 
     ProcedureStats::num_of_ho_complete++;
 
@@ -451,11 +451,11 @@ ActStatus ActionHandlers::ho_complete(ControlBlock &cb)
 ***************************************/
 ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
 {
-    log_msg(LOG_INFO, "Inside is_tau_required\n");
+    log_msg(LOG_INFO, "Inside is_tau_required");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_ERROR, "is_tau_required: ue context is NULL\n",
+        log_msg(LOG_ERROR, "is_tau_required: ue context is NULL",
                 cb.getCBIndex());
         return ActStatus::HALT;
     }
@@ -465,19 +465,19 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
     if (s1HoPrcdCtxt_p == NULL)
     {
         log_msg(LOG_DEBUG,
-                "is_tau_required: S1HandoverProcedureContext is NULL\n");
+                "is_tau_required: S1HandoverProcedureContext is NULL");
         return ActStatus::HALT;
     }
 
     if (ue_ctxt->getTai() == s1HoPrcdCtxt_p->getTargetTai())
     {
-        log_msg(LOG_DEBUG, "TAI is same, TAU not Required\n");
+        log_msg(LOG_DEBUG, "TAI is same, TAU not Required");
         SM::Event evt(TAU_NOT_REQUIRED, NULL);
         cb.qInternalEvent(evt);
     }
     else
     {
-        log_msg(LOG_DEBUG, "TAI is not same, TAU Required\n");
+        log_msg(LOG_DEBUG, "TAI is not same, TAU Required");
         SM::Event evt(TAU_REQUIRED, NULL);
         cb.qInternalEvent(evt);
     }
@@ -494,14 +494,14 @@ ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_failure: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_failure: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -510,7 +510,7 @@ ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_failure_received++;
 
-    log_msg(LOG_INFO, "Leaving process_ho_failure\n");
+    log_msg(LOG_INFO, "Leaving process_ho_failure");
     return ActStatus::PROCEED;
 }
 
@@ -519,13 +519,13 @@ ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_ho_prep_failure_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Inside send_ho_prep_failure_to_src_enb");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_prep_failure_to_src_enb: ue ctxt is NULL \n");
+                "send_ho_prep_failure_to_src_enb: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -534,7 +534,7 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
     if (ho_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_prep_failure_to_src_enb: procedure ctxt is NULL \n");
+                "send_ho_prep_failure_to_src_enb: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -553,7 +553,7 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
     mmeIpcIf.dispatchIpcMsg((char *) &ho_prep_failure, sizeof(ho_prep_failure), destAddr);
     ProcedureStats::num_of_ho_prep_failure_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_prep_failure_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Leaving send_ho_prep_failure_to_src_enb");
 
     return ActStatus::PROCEED;
 }
@@ -581,7 +581,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
     if (ue_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_s1_rel_cmd_to_target_enb: ue context is NULL \n");
+                "send_s1_rel_cmd_to_target_enb: ue context is NULL ");
         return ActStatus::HALT;
     }
 
@@ -590,11 +590,11 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
     if (ho_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_s1_rel_cmd_to_target_enb: procedure ctxt is NULL \n");
+                "send_s1_rel_cmd_to_target_enb: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
    
-    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_target_enb %u \n",ue_ctxt->getContextID());
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_target_enb %u ",ue_ctxt->getContextID());
     struct s1relcmd_info s1relcmd;
     s1relcmd.msg_type = s1_release_command;
     s1relcmd.ue_idx = ue_ctxt->getContextID();
@@ -612,7 +612,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_s1_rel_cmd_to_target_enb \n");
+    log_msg(LOG_DEBUG, "Leaving send_s1_rel_cmd_to_target_enb ");
     return ActStatus::PROCEED;
 }
 
@@ -625,14 +625,14 @@ ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
             dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
     if (ho_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "process_ho_cancel_req: procedure ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "process_ho_cancel_req: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -641,7 +641,7 @@ ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_cancel_received++;
 
-    log_msg(LOG_INFO, "Leaving process_ho_cancel_req\n");
+    log_msg(LOG_INFO, "Leaving process_ho_cancel_req");
     return ActStatus::PROCEED;
 }
 
@@ -650,12 +650,12 @@ ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_ho_cancel_ack_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Inside send_ho_cancel_ack_to_src_enb");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_ho_cancel_ack_to_src_enb: ue ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_ho_cancel_ack_to_src_enb: ue ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -664,7 +664,7 @@ ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
     if (ho_ctxt == NULL)
     {
         log_msg(LOG_DEBUG,
-                "send_ho_cancel_ack_to_src_enb: procedure ctxt is NULL \n");
+                "send_ho_cancel_ack_to_src_enb: procedure ctxt is NULL ");
         return ActStatus::HALT;
     }
 
@@ -682,7 +682,7 @@ ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
     mmeIpcIf.dispatchIpcMsg((char *) &ho_cancel_ack, sizeof(ho_cancel_ack), destAddr);
     ProcedureStats::num_of_ho_cancel_ack_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_cancel_ack_to_src_enb\n");
+    log_msg(LOG_DEBUG, "Leaving send_ho_cancel_ack_to_src_enb");
 
     return ActStatus::PROCEED;
 }

@@ -31,11 +31,11 @@ int
 mmeConfig::getIntAlgOrder(char *alg_list, uint8_t* alg_order)
 {
     char *subString;
-    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    log_msg(LOG_DEBUG, "alg_list : %s", alg_list); 
     subString = strtok(alg_list,"[]");
-    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    log_msg(LOG_DEBUG, "substring : %s", subString); 
     //subString = strtok(NULL,"]");
-    //log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    //log_msg(LOG_DEBUG, "substring : %s", subString); 
 
     char token[] = ",";
     char *saved_comma=NULL;
@@ -46,7 +46,7 @@ mmeConfig::getIntAlgOrder(char *alg_list, uint8_t* alg_order)
 
     for(int i = 0;i < 3; i++)
     {
-        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        log_msg(LOG_DEBUG, "algs : %s", alg[i]);
         if(alg[i] != NULL)
         {
             if(!strcmp(alg[i],"EIA0"))
@@ -81,9 +81,9 @@ int
 mmeConfig::getSecAlgOrder(char *alg_list, uint8_t* alg_order)
 {
     char *subString;
-    log_msg(LOG_DEBUG, "alg_list : %s\n", alg_list); 
+    log_msg(LOG_DEBUG, "alg_list : %s", alg_list); 
     subString = strtok(alg_list,"[]");
-    log_msg(LOG_DEBUG, "substring : %s\n", subString); 
+    log_msg(LOG_DEBUG, "substring : %s", subString); 
 
     char token[] = ",";
     char *saved_comma=NULL;
@@ -95,7 +95,7 @@ mmeConfig::getSecAlgOrder(char *alg_list, uint8_t* alg_order)
 
     for(int i = 0;i < 3; i++)
     {
-        log_msg(LOG_DEBUG, "algs : %s\n", alg[i]);
+        log_msg(LOG_DEBUG, "algs : %s", alg[i]);
         if(alg[i] != NULL)
         {
             if(!strcmp(alg[i],"EEA0"))
@@ -248,7 +248,7 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 mmeConfig::get_mcc_mnc(plmn, &mcc_i, &mnc_i, &mnc_digits);
                 config->plmn_mcc_mnc[count-1].mcc = mcc_i;
                 config->plmn_mcc_mnc[count-1].mnc = mnc_i;
-                log_msg(LOG_INFO, "Parsed plmn mcc - %d mnc - %d \n", mcc_i, mnc_i);
+                log_msg(LOG_INFO, "Parsed plmn mcc - %d mnc - %d ", mcc_i, mnc_i);
                 unsigned char mcc_dig_1 = mcc_i / 100; 
                 unsigned char mcc_dig_2 = (mcc_i / 10) % 10; 
                 unsigned char mcc_dig_3 = mcc_i % 10; 
@@ -270,7 +270,7 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 config->plmns[count-1].idx[1] = (mnc_dig_1 << 4) | (mcc_dig_3);
                 config->plmns[count-1].idx[2] = (mnc_dig_3 << 4) | (mnc_dig_2);
                 config->plmns[count-1].mnc_digits = mnc_digits;
-                log_msg(LOG_INFO, "Configured plmn %x %x %x \n", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
+                log_msg(LOG_INFO, "Configured plmn %x %x %x ", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
             }
         }
         if(mmeSection.HasMember("security"))
@@ -318,8 +318,8 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 std::string apn = apnitr->name.GetString();
                 std::string spgw = apnitr->value.GetString();
 
-                log_msg(LOG_INFO, "Configured service %s\n", spgw.c_str());
-                log_msg(LOG_INFO, "Configured apn %s \n", apn.c_str()); 
+                log_msg(LOG_INFO, "Configured service %s", spgw.c_str());
+                log_msg(LOG_INFO, "Configured apn %s ", apn.c_str()); 
                 // add apn==>{ spgw service,  address, failures }  in the map 
                 apn_config *ap1 = new apn_config(apn, spgw);
                 mme_tables->add_apn(ap1);
@@ -327,15 +327,15 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
         }
     }
     /* Print parsed configuraton */
-    log_msg(LOG_DEBUG,"mme_name : %s \n", config->mme_name);
-    log_msg(LOG_DEBUG,"mme_groupid : %d \n", config->mme_group_id);
-    log_msg(LOG_DEBUG,"mme_code : %d \n", config->mme_code);
-    log_msg(LOG_DEBUG,"logging  : %s \n", config->logging);
-    log_msg(LOG_DEBUG,"MCC :    %d %d %d \n", config->mcc_dig1, config->mcc_dig2, config->mcc_dig3);
-    log_msg(LOG_DEBUG,"MNC :    %d %d %d \n", config->mnc_dig1, config->mnc_dig2, config->mnc_dig3);
+    log_msg(LOG_DEBUG,"mme_name : %s ", config->mme_name);
+    log_msg(LOG_DEBUG,"mme_groupid : %d ", config->mme_group_id);
+    log_msg(LOG_DEBUG,"mme_code : %d ", config->mme_code);
+    log_msg(LOG_DEBUG,"logging  : %s ", config->logging);
+    log_msg(LOG_DEBUG,"MCC :    %d %d %d ", config->mcc_dig1, config->mcc_dig2, config->mcc_dig3);
+    log_msg(LOG_DEBUG,"MNC :    %d %d %d ", config->mnc_dig1, config->mnc_dig2, config->mnc_dig3);
     for(int i=0; i<config->num_plmns;i++)
     {
-        log_msg(LOG_DEBUG,"PLMN(%d) :    %d %d %d \n", i, config->plmns[i].idx[0], config->plmns[i].idx[1], config->plmns[i].idx[2]);
+        log_msg(LOG_DEBUG,"PLMN(%d) :    %d %d %d ", i, config->plmns[i].idx[0], config->plmns[i].idx[1], config->plmns[i].idx[2]);
     }
     mme_tables->initiate_spgw_resolution();
     return ;
@@ -390,7 +390,7 @@ void mmeConfig::initiate_spgw_resolution()
         {
             // Keep trying ...May be SGW is not yet deployed 
             // We shall be doing this once timer library is integrated 
-            log_msg(LOG_ERROR, "%s - getaddr info failed %s\n",temp->get_spgw_srv().c_str(), gai_strerror(err));
+            log_msg(LOG_ERROR, "%s - getaddr info failed %s",temp->get_spgw_srv().c_str(), gai_strerror(err));
             if(started == false)
               MmeTimerUtils::startTimer(10000, 1 /* ue_index */, mmeConfigDnsResolve_c, 1 /*timer type*/);
             started = true;
@@ -402,7 +402,7 @@ void mmeConfig::initiate_spgw_resolution()
                 if(rp->ai_family == AF_INET)
                 {
                     struct sockaddr_in *addrV4 = (struct sockaddr_in *)rp->ai_addr;
-                    log_msg(LOG_INFO, "gw address received from DNS response %s\n", inet_ntoa(addrV4->sin_addr));
+                    log_msg(LOG_INFO, "gw address received from DNS response %s", inet_ntoa(addrV4->sin_addr));
                     temp->set_pgw_ip(addrV4->sin_addr.s_addr);
                     temp->set_sgw_ip(addrV4->sin_addr.s_addr);
                     temp->set_dns_resolved();

@@ -107,7 +107,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 			sizeof(protocolIe_criticality));
 
 
-	log_msg(LOG_INFO, "Received Security Command  has nas message %d \n",g_secReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received Security Command  has nas message %d ",g_secReqInfo->nasMsgSize);
 	datalen = g_secReqInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_sec_value_buffer, &datalen,
@@ -150,7 +150,7 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 void*
 secreq_handler(void *data)
 {
-	log_msg(LOG_INFO, "SecReq handler ready.\n");
+	log_msg(LOG_INFO, "SecReq handler ready.");
 
 	secreq_processing((struct sec_mode_Q_msg *)data);
 

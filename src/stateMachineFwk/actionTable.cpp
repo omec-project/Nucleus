@@ -74,7 +74,7 @@ namespace SM
 	{
 		if(NULL != nextStatep)
 		{
-			log_msg(LOG_DEBUG,"\nnext State : - %d \n",nextStatep->getStateId());
+			log_msg(LOG_DEBUG,"next State : - %d ",nextStatep->getStateId());
 		}
 	}
 }	

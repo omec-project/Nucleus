@@ -132,7 +132,7 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 		    sizeof(protocolIe_criticality));
 
 
-	log_msg(LOG_INFO, "Received EMM information request has nas message %d \n",g_ueEmmInfoMsg->nasMsgSize);
+	log_msg(LOG_INFO, "Received EMM information request has nas message %d ",g_ueEmmInfoMsg->nasMsgSize);
 	datalen = g_ueEmmInfoMsg->nasMsgSize + 1; 
 	buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
 	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));
@@ -145,10 +145,10 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
     buffer_copy(&g_buffer, &g_s1ap_buffer.buf[0], g_s1ap_buffer.pos);
     /* Now s1ap header + s1ap buffer is attached */
     
-    log_msg(LOG_INFO, "EMM info request sent on fd = %u , enb-id %u mmeid %u EMM \n",g_ueEmmInfoMsg->enb_fd, 
+    log_msg(LOG_INFO, "EMM info request sent on fd = %u , enb-id %u mmeid %u EMM ",g_ueEmmInfoMsg->enb_fd, 
 		    g_ueEmmInfoMsg->enb_s1ap_ue_id, g_ueEmmInfoMsg->mme_s1ap_ue_id);
 
-    log_msg(LOG_INFO, "EMM info request : Buffer size %d g_ueEmmInfoMsg = %p \n", g_buffer.pos,g_ueEmmInfoMsg);
+    log_msg(LOG_INFO, "EMM info request : Buffer size %lu g_ueEmmInfoMsg = %p ", g_buffer.pos,g_ueEmmInfoMsg);
 
     send_sctp_msg(g_ueEmmInfoMsg->enb_fd, g_buffer.buf, g_buffer.pos, 1);
     
@@ -158,7 +158,7 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 void*
 emm_info_req_handler(void *data)
 {
-    log_msg(LOG_INFO, "emm_info_req_handler ready.\n");
+    log_msg(LOG_INFO, "emm_info_req_handler ready.");
     
     emm_info_request_processing((struct ue_emm_info *) data);
     

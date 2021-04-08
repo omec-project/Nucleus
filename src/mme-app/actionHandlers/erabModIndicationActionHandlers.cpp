@@ -42,12 +42,12 @@ using namespace cmn::utils;
  ***************************************/
 ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_erab_mod_conf_to_enb \n");
+    log_msg(LOG_DEBUG, "Inside send_erab_mod_conf_to_enb ");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_INFO, "send_erab_mod_conf_to_enb: ue context is NULL \n");
+        log_msg(LOG_INFO, "send_erab_mod_conf_to_enb: ue context is NULL ");
 
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         return ActStatus::HALT;
@@ -87,11 +87,11 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
     }
     else
     {
-        log_msg(LOG_INFO, "Procedure Context is NULL \n");
+        log_msg(LOG_INFO, "Procedure Context is NULL ");
         actStatus = ActStatus::HALT;
     }
 
-    log_msg(LOG_DEBUG, "Leaving send_erab_mod_conf_to_enb \n");
+    log_msg(LOG_DEBUG, "Leaving send_erab_mod_conf_to_enb ");
 
     return actStatus;
 }
@@ -101,7 +101,7 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside erab_mod_ind_complete\n");
+    log_msg(LOG_DEBUG, "Inside erab_mod_ind_complete");
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS);
 
@@ -117,7 +117,7 @@ ActStatus ActionHandlers::erab_mod_ind_complete(ControlBlock &cb)
 ActStatus ActionHandlers::handle_state_guard_timeouts_for_erab_mod_ind(
         ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside handle_state_guard_timeout_erab_mod_ind_proc \n");
+    log_msg(LOG_DEBUG, "Inside handle_state_guard_timeout_erab_mod_ind_proc ");
 
     ActStatus actStatus = ActStatus::PROCEED;
 
@@ -132,7 +132,7 @@ ActStatus ActionHandlers::handle_state_guard_timeouts_for_erab_mod_ind(
     {
         log_msg(LOG_DEBUG,
                 "State Guard Timer Expiry for ERAB MOD IND: "
-                "Procedure context is NULL\n");
+                "Procedure context is NULL");
         actStatus = ActStatus::HALT;
     }
 
@@ -144,7 +144,7 @@ ActStatus ActionHandlers::handle_state_guard_timeouts_for_erab_mod_ind(
  ***********************************************/
 ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "Inside abort_erab_mod_indication \n");
+    log_msg(LOG_DEBUG, "Inside abort_erab_mod_indication ");
 
     ActStatus actStatus = ActStatus::PROCEED;
 
@@ -169,7 +169,7 @@ ActStatus ActionHandlers::abort_erab_mod_indication(SM::ControlBlock &cb)
     else
     {
         log_msg(LOG_ERROR, "Failed to allocate Detach procedure context"
-                " for abort_erab_mod_indication cbIndex %d\n", cb.getCBIndex());
+                " for abort_erab_mod_indication cbIndex %d", cb.getCBIndex());
         actStatus = ActStatus::HALT;
     }
 

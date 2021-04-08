@@ -33,7 +33,7 @@ PermDataBlock::~PermDataBlock()
 void PermDataBlock::display()
 {
 	// Display all data fields
-	log_msg(LOG_DEBUG,"\nContext ID - %d \n",contextID);
+	log_msg(LOG_DEBUG,"Context ID - %d ",contextID);
 }
 }
 

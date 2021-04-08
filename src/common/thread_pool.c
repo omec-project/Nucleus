@@ -21,7 +21,7 @@ struct Job *create_job(JobFunction function, void *arg)
 	job = (struct Job *)malloc(sizeof(struct Job));
 	if(job == NULL) {
 #ifdef DEBUG
-		log_msg(LOG_ERROR, "failed to allocate memory\n");
+		log_msg(LOG_ERROR, "failed to allocate memory");
 #endif
 		return NULL;
 	}
@@ -125,7 +125,7 @@ struct thread_pool *thread_pool_new(int count)
 	pool = (struct thread_pool *)malloc(sizeof(struct thread_pool));
 	if(pool == NULL) {
 #ifdef DEBUG
-		log_msg(LOG_ERROR, "failed to allocate memory\n");
+		log_msg(LOG_ERROR, "failed to allocate memory");
 #endif
 		errno = ENOMEM;
 		return NULL;
@@ -140,7 +140,7 @@ struct thread_pool *thread_pool_new(int count)
 	status = pthread_create(&thread, NULL, dispatch_if_idle, pool);
 	if(status < 0) {
 #ifdef DEBUG
-		log_msg(LOG_ERROR, "failed to spawn dispatch thread, stopping\n");
+		log_msg(LOG_ERROR, "failed to spawn dispatch thread, stopping");
 #endif
 		return NULL;
 	}

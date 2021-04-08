@@ -37,38 +37,38 @@ int s1ap_mme_encode_initiating(
   uint8_t **buffer,
   uint32_t *length)
 {
-	log_msg(LOG_INFO, "MME initiating msg Encode.\n");
+	log_msg(LOG_INFO, "MME initiating msg Encode.");
 	switch (message_p->IE_type) {
 		case S1AP_CTX_REL_CMD:
-			log_msg(LOG_INFO, "Ue Context release Command Encode.\n");
+			log_msg(LOG_INFO, "Ue Context release Command Encode.");
 			return s1ap_mme_encode_ue_context_release_command(
 					message_p, buffer, length);
 		case S1AP_PAGING_REQ:
-			log_msg(LOG_INFO, "Paging req Encode.\n");
+			log_msg(LOG_INFO, "Paging req Encode.");
 			return s1ap_mme_encode_paging_request(
 					message_p, buffer, length);
 
 		case S1AP_INIT_CTXT_SETUP_REQ:
-			log_msg(LOG_INFO, "Init context setup req encode\n");
+			log_msg(LOG_INFO, "Init context setup req encode");
 			return s1ap_mme_encode_initial_context_setup_request(
 					message_p, buffer, length); 
 
 		case S1AP_ATTACH_REJ:
-			log_msg(LOG_INFO, "Attach Reject encode\n");
+			log_msg(LOG_INFO, "Attach Reject encode");
 			return s1ap_mme_encode_attach_rej(
 					message_p, buffer, length); 
 		case S1AP_SERVICE_REJ:
-			log_msg(LOG_INFO, "Service Reject encode\n");
+			log_msg(LOG_INFO, "Service Reject encode");
 			return s1ap_mme_encode_service_rej(
 					message_p, buffer, length); 
 		case S1AP_TAU_REJ:
-			log_msg(LOG_INFO, "TAU Reject encode\n");
+			log_msg(LOG_INFO, "TAU Reject encode");
 			return s1ap_mme_encode_tau_rej(
 					message_p, buffer, length);
 		default:
 			log_msg(
 					LOG_WARNING,
-					"Unknown procedure ID (%d) for initiating message_p\n",
+					"Unknown procedure ID (%d) for initiating message_p",
 					(int) message_p->IE_type);
 	}
 
@@ -80,20 +80,20 @@ int s1ap_mme_encode_outcome(
   uint8_t **buffer,
   uint32_t *length)
 {
-    log_msg(LOG_INFO, "MME Outcome Message Encode.\n");
+    log_msg(LOG_INFO, "MME Outcome Message Encode.");
     switch (message_p->IE_type) {
         case S1AP_SETUP_RESPONSE:
-            log_msg(LOG_INFO, "S1 Setup Response Encode.\n");
+            log_msg(LOG_INFO, "S1 Setup Response Encode.");
             return s1ap_mme_encode_s1_setup_response(
                       message_p, buffer, length);
         case S1AP_SETUP_FAILURE:
-            log_msg(LOG_INFO, "S1 Setup failure Encode.\n");
+            log_msg(LOG_INFO, "S1 Setup failure Encode.");
             return s1ap_mme_encode_s1_setup_failure(
                       message_p, buffer, length);
         default:
             log_msg(
                   LOG_WARNING,
-                  "Unknown procedure ID (%d) for Outcome msg\n",
+                  "Unknown procedure ID (%d) for Outcome msg",
                   (int) message_p->IE_type);
       }
 
@@ -163,7 +163,7 @@ int s1ap_mme_encode_service_rej(
         memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
                 val[2].value.choice.NAS_PDU.size);
     }
-    log_msg(LOG_INFO,"Add values to list.\n");
+    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
@@ -171,7 +171,7 @@ int s1ap_mme_encode_service_rej(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
-        log_msg(LOG_ERROR, "Encoding of Service Rej failed\n");
+        log_msg(LOG_ERROR, "Encoding of Service Rej failed");
         enc_error = true;
     }
 
@@ -249,7 +249,7 @@ int s1ap_mme_encode_tau_rej(
 		memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf,
 				val[2].value.choice.NAS_PDU.size);
 	}
-	log_msg(LOG_INFO,"Add values to list.\n");
+	log_msg(LOG_INFO,"Add values to list.");
 	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
 	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
 	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
@@ -257,7 +257,7 @@ int s1ap_mme_encode_tau_rej(
 	bool enc_error = false;
 	if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
 	{
-		log_msg(LOG_ERROR, "Encoding of TAU Rej failed\n");
+		log_msg(LOG_ERROR, "Encoding of TAU Rej failed");
 		enc_error = true;
 	}
 
@@ -287,7 +287,7 @@ int s1ap_mme_encode_attach_rej(
 	int                                     enc_ret = -1;
 	memset ((void *)pdu_p, 0, sizeof (S1AP_PDU_t));
 
-    log_msg(LOG_DEBUG, "Encode Attach Reject\n");
+    log_msg(LOG_DEBUG, "Encode Attach Reject");
     pdu.present = S1AP_PDU_PR_initiatingMessage;
     pdu.choice.initiatingMessage = calloc(sizeof(InitiatingMessage_t), sizeof(uint8_t));
 
@@ -303,13 +303,13 @@ int s1ap_mme_encode_attach_rej(
     val[0].criticality = 0;
     val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
     val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
-    log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d\n",s1apPDU->mme_s1ap_ue_id);
+    log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
 
     val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
     val[1].criticality = 0;
     val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
     val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
-    log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d\n",s1apPDU->enb_s1ap_ue_id);
+    log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
     val[2].id = ProtocolIE_ID_id_NAS_PDU;
     val[2].criticality = 0;
@@ -339,7 +339,7 @@ int s1ap_mme_encode_attach_rej(
         memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
                 val[2].value.choice.NAS_PDU.size);
     }
-    log_msg(LOG_INFO,"Add values to list.\n");
+    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
@@ -347,7 +347,7 @@ int s1ap_mme_encode_attach_rej(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
-        log_msg(LOG_ERROR, "Encoding of Attach Reject failed\n");
+        log_msg(LOG_ERROR, "Encoding of Attach Reject failed");
         enc_error = true;
     }
 
@@ -370,7 +370,7 @@ int s1ap_mme_encode_ue_context_release_command(
   uint8_t **buffer,
   uint32_t *length)
 {
-	log_msg(LOG_DEBUG,"Inside s1ap_encoder\n");
+	log_msg(LOG_DEBUG,"Inside s1ap_encoder");
 
 	S1AP_PDU_t                              pdu = {(S1AP_PDU_PR_NOTHING)};
     InitiatingMessage_t *initiating_msg = NULL;
@@ -396,14 +396,14 @@ int s1ap_mme_encode_ue_context_release_command(
     if((s1apPDU->mme_s1ap_ue_id != 0xFFFFFFFF) 
         && (s1apPDU->enb_s1ap_ue_id != 0xFFFFFFFF))
     {
-        log_msg(LOG_INFO,"S1ap Id pair.\n");
+        log_msg(LOG_INFO,"S1ap Id pair.");
         ue_id_val.present = UE_S1AP_IDs_PR_uE_S1AP_ID_pair;
         s1apId_pair.eNB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
         s1apId_pair.mME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
         ue_id_val.choice.uE_S1AP_ID_pair = calloc(sizeof(struct UE_S1AP_ID_pair), 1);
         if(ue_id_val.choice.uE_S1AP_ID_pair == NULL)
         {
-            log_msg(LOG_ERROR,"calloc failed.\n");
+            log_msg(LOG_ERROR,"calloc failed.");
             free(pdu.choice.initiatingMessage);
             return -1;
         }
@@ -453,17 +453,17 @@ int s1ap_mme_encode_ue_context_release_command(
         break;
         case Cause_PR_NOTHING:
         default:
-            log_msg(LOG_WARNING,"Unknown Cause type:%d\n",s1apPDU->cause.present);
+            log_msg(LOG_WARNING,"Unknown Cause type:%d",s1apPDU->cause.present);
     }
 
-    log_msg(LOG_INFO,"Add values to list.\n");
+    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[1]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
-        log_msg(LOG_ERROR, "Encoding of Ctx Release Cmd failed\n");
+        log_msg(LOG_ERROR, "Encoding of Ctx Release Cmd failed");
         enc_error = true;
     }
 
@@ -615,7 +615,7 @@ int s1ap_mme_encode_initial_context_setup_request(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of Initial Context Setup Request failed\n");
+        log_msg(LOG_ERROR, "Encoding of Initial Context Setup Request failed");
         enc_error = true;
     }
 
@@ -652,7 +652,7 @@ int s1ap_mme_encode_paging_request(
 {
 	s1ap_config_t *s1ap_cfg = get_s1ap_config();
 
-    log_msg(LOG_DEBUG,"Entered s1ap_encoder->s1ap_mme_encode_paging_request\n");
+    log_msg(LOG_DEBUG,"Entered s1ap_encoder->s1ap_mme_encode_paging_request");
 
     S1AP_PDU_t pdu = {(S1AP_PDU_PR_NOTHING)};
     InitiatingMessage_t *initiating_msg = NULL;
@@ -695,7 +695,7 @@ int s1ap_mme_encode_paging_request(
     UEIdentityIndexValue->buf[1] = (index_value & 0x3) << 6;
     UEIdentityIndexValue->bits_unused = 6;
 
-    log_msg(LOG_DEBUG,"Encoding STMSI\n");
+    log_msg(LOG_DEBUG,"Encoding STMSI");
 
     val[1].id = ProtocolIE_ID_id_UEPagingID;
     val[1].criticality = 0;
@@ -716,14 +716,14 @@ int s1ap_mme_encode_paging_request(
     pagingId.choice.s_TMSI->m_TMSI.size = sizeof(uint32_t);
     memcpy(&val[1].value.choice.UEPagingID, &pagingId, sizeof(UEPagingID_t));
 
-    log_msg(LOG_INFO, "Encoding CNDomain\n");
+    log_msg(LOG_INFO, "Encoding CNDomain");
 
     val[2].id = ProtocolIE_ID_id_CNDomain;
     val[2].criticality = 0;
     val[2].value.present = PagingIEs__value_PR_CNDomain;
     val[2].value.choice.CNDomain = s1apPDU->cn_domain;
     
-    log_msg(LOG_DEBUG,"Encoding TAI List\n");
+    log_msg(LOG_DEBUG,"Encoding TAI List");
 	
     val[3].id = ProtocolIE_ID_id_TAIList;
     val[3].criticality = 0;
@@ -736,7 +736,7 @@ int s1ap_mme_encode_paging_request(
     tai_item.criticality = 0;
     tai_item.value.present = TAIItemIEs__value_PR_TAIItem;
 
-    log_msg(LOG_DEBUG,"TAI List - Encode PLMN ID\n");
+    log_msg(LOG_DEBUG,"TAI List - Encode PLMN ID");
     tai_item.value.choice.TAIItem.tAI.pLMNidentity.size = 3;
     tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf = calloc(3, sizeof(uint8_t));
 
@@ -760,14 +760,14 @@ int s1ap_mme_encode_paging_request(
     }
     memcpy(tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf, &s1apPDU->tai.plmn_id.idx, 3);
 
-    log_msg(LOG_DEBUG,"TAI List - Encode TAC\n");
+    log_msg(LOG_DEBUG,"TAI List - Encode TAC");
     tai_item.value.choice.TAIItem.tAI.tAC.size = 2;
     tai_item.value.choice.TAIItem.tAI.tAC.buf = calloc(2, sizeof(uint8_t));
     memcpy(tai_item.value.choice.TAIItem.tAI.tAC.buf, &s1apPDU->tai.tac, 2);
 
     ASN_SEQUENCE_ADD(&val[3].value.choice.TAIList.list, &tai_item);
 
-    log_msg(LOG_INFO,"Add values to list.\n");
+    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[2]);
@@ -776,7 +776,7 @@ int s1ap_mme_encode_paging_request(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
     {
-        log_msg(LOG_ERROR, "Encoding of Paging failed\n");
+        log_msg(LOG_ERROR, "Encoding of Paging failed");
         enc_error = true;
     }
 
@@ -800,7 +800,7 @@ int s1ap_mme_encode_s1_setup_failure(
   uint8_t **buffer,
   uint32_t *length)
 {
-    log_msg(LOG_DEBUG,"Inside s1ap_mme_encode_s1_setup_failure\n");
+    log_msg(LOG_DEBUG,"Inside s1ap_mme_encode_s1_setup_failure");
 
     S1AP_PDU_t                              pdu = {(S1AP_PDU_PR_NOTHING)};
     UnsuccessfulOutcome_t *fail_msg = NULL;
@@ -812,7 +812,7 @@ int s1ap_mme_encode_s1_setup_failure(
     pdu.choice.unsuccessfulOutcome = calloc(sizeof(UnsuccessfulOutcome_t), sizeof(uint8_t));
     if(pdu.choice.unsuccessfulOutcome == NULL)
     {
-        log_msg(LOG_ERROR,"calloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.");
         return -1;
     }
 
@@ -854,16 +854,16 @@ int s1ap_mme_encode_s1_setup_failure(
         break;
         case Cause_PR_NOTHING:
         default:
-            log_msg(LOG_WARNING,"Unknown Cause type:%d\n",s1apPDU->cause.present);
+            log_msg(LOG_WARNING,"Unknown Cause type:%d",s1apPDU->cause.present);
     }
 
-    log_msg(LOG_INFO,"Add values to list.\n");
+    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&fail_msg->value.choice.S1SetupFailure.protocolIEs.list, &val[0]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of S1 setup failure failed\n");
+        log_msg(LOG_ERROR, "Encoding of S1 setup failure failed");
         enc_error = true;
     }
 
@@ -881,7 +881,7 @@ int s1ap_mme_encode_s1_setup_response(
   uint8_t **buffer,
   uint32_t *length)
 {
-    log_msg(LOG_DEBUG,"Inside s1ap_mme_encode_s1_setup_response\n");
+    log_msg(LOG_DEBUG,"Inside s1ap_mme_encode_s1_setup_response");
 
     S1AP_PDU_t                              pdu = {(S1AP_PDU_PR_NOTHING)};
     SuccessfulOutcome_t *rsp_msg = NULL;
@@ -893,7 +893,7 @@ int s1ap_mme_encode_s1_setup_response(
     pdu.choice.successfulOutcome = calloc(sizeof(SuccessfulOutcome_t), sizeof(uint8_t));
     if(pdu.choice.successfulOutcome == NULL)
     {
-        log_msg(LOG_ERROR,"calloc failed.\n");
+        log_msg(LOG_ERROR,"calloc failed.");
         return -1;
     }
 
@@ -964,7 +964,7 @@ int s1ap_mme_encode_s1_setup_response(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of S1 setup Response failed\n");
+        log_msg(LOG_ERROR, "Encoding of S1 setup Response failed");
         enc_error = true;
     }
 
@@ -1026,7 +1026,7 @@ int s1ap_mme_encode_handover_request(
                 s1apPDU->cause.choice.radioNetwork;
         break;
     default:
-        log_msg(LOG_WARNING, "Unknown Cause type:%d\n",
+        log_msg(LOG_WARNING, "Unknown Cause type:%d",
                 s1apPDU->cause.present);
     }
 
@@ -1183,7 +1183,7 @@ int s1ap_mme_encode_handover_request(
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of Handover Request failed\n");
+        log_msg(LOG_ERROR, "Encoding of Handover Request failed");
         enc_error = true;
     }
 
@@ -1315,7 +1315,7 @@ int s1ap_mme_encode_handover_command(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
-        log_msg(LOG_ERROR, "Encoding of Handover Command failed\n");
+        log_msg(LOG_ERROR, "Encoding of Handover Command failed");
         enc_error = true;
     }
 
@@ -1420,7 +1420,7 @@ int s1ap_mme_encode_handover_mme_status_transfer(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
-        log_msg(LOG_ERROR, "Encoding of mme status transfer failed\n");
+        log_msg(LOG_ERROR, "Encoding of mme status transfer failed");
         enc_error = true;
     }
 
@@ -1477,7 +1477,7 @@ int s1ap_mme_encode_handover_prep_failure(
                     s1apPDU->cause.choice.radioNetwork;
             break;
         default:
-            log_msg(LOG_WARNING, "Unknown Cause type:%d\n",
+            log_msg(LOG_WARNING, "Unknown Cause type:%d",
                     s1apPDU->cause.present);
     }
 
@@ -1494,7 +1494,7 @@ int s1ap_mme_encode_handover_prep_failure(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
-        log_msg(LOG_ERROR, "Encoding of Handover Preparation Failure failed\n");
+        log_msg(LOG_ERROR, "Encoding of Handover Preparation Failure failed");
         enc_error = true;
     }
 
@@ -1549,7 +1549,7 @@ int s1ap_mme_encode_handover_cancel_ack(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
-        log_msg(LOG_ERROR, "Encoding of Handover Cancel Acknowlegde failed\n");
+        log_msg(LOG_ERROR, "Encoding of Handover Cancel Acknowlegde failed");
         enc_error = true;
     }
 
@@ -1627,7 +1627,7 @@ int s1ap_mme_encode_erab_mod_confirmation(
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0) {
-        log_msg(LOG_ERROR, "Encoding of ERAB Modification Confirmation failed\n");
+        log_msg(LOG_ERROR, "Encoding of ERAB Modification Confirmation failed");
         enc_error = true;
     }
 
@@ -1778,7 +1778,7 @@ int s1ap_mme_encode_erab_setup_request(struct erabsu_ctx_req_Q_msg *s1apPDU,
     if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
             (void**) buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of E_RAB Setup Request failed\n");
+        log_msg(LOG_ERROR, "Encoding of E_RAB Setup Request failed");
         enc_error = true;
     }
 
@@ -1918,7 +1918,7 @@ int s1ap_mme_encode_erab_release_command(
                 break;
             case Cause_PR_NOTHING:
             default:
-                log_msg(LOG_WARNING, "Unknown Cause type:%d\n",
+                log_msg(LOG_WARNING, "Unknown Cause type:%d",
                         s1apPDU->erab_to_be_released_list.erab_item[i].cause.present);
         }
         ASN_SEQUENCE_ADD(&(val[3].value.choice.E_RABList.list),
@@ -1956,7 +1956,7 @@ int s1ap_mme_encode_erab_release_command(
     if((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
                                             (void**) buffer)) < 0)
     {
-        log_msg(LOG_ERROR, "Encoding of E_RAB Release command failed\n");
+        log_msg(LOG_ERROR, "Encoding of E_RAB Release command failed");
         enc_error = true;
     }
 

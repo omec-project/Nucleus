@@ -12,24 +12,62 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <time.h>
 
+#define __file__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+extern FILE *log_fp;
+extern uint8_t logging_level;
 enum log_levels{
-    LOG_NEVER,
 	LOG_ERROR,
 	LOG_WARNING,
 	LOG_INFO,
-	LOG_DEBUG
+	LOG_DEBUG,
+    LOG_NEVER,
 };
 
-void log_message(int l, const char *file, int line, const char *fmt, ...);
-//#define log_msg(LOG_LEVEL, ARGS) set_log(#LOG_LEVEL, __FILE__, __LINE__, __VA_ARGS__)
-#define log_msg(LOG_LEVEL, ...) log_message( LOG_LEVEL, __FILE__, __LINE__,  __VA_ARGS__)
-//#define log_msg(LOG_LEVEL, ...) ;
-void enable_logs();
-void disable_logs();
-void set_logging_level(char *level);
+static const char *log_level_name[] = { "ERROR", "WARN", "INFO", "DEBUG", "NEVER"};
+
 void init_logging(char *env, char *file);
 void init_backtrace(char *binary);
+
+#define log_msg(prio, msg, ...) do {\
+	if(prio<=logging_level) { \
+        char _s[30]; \
+        time_t _t = time(NULL); \
+        struct tm * _p = localtime(&_t);\
+        strftime(_s, 30, "%Y-%m-%d %H:%M:%S", _p);\
+		fprintf(log_fp, "[%s] %s : %s : %s : %u : " msg " \n", log_level_name[prio], _s, __file__ , __func__, __LINE__, ##__VA_ARGS__);\
+	}\
+} while (0) 
+
+static inline void set_logging_level(char *log_level)
+{
+    if(strcmp(log_level, "debug") == 0)
+    {
+        logging_level = LOG_DEBUG;
+    }
+    else if(strcmp(log_level, "info") == 0)
+    {
+        logging_level= LOG_INFO;
+    }
+    else if(strcmp(log_level, "warn") == 0)
+    {
+        logging_level = LOG_WARNING;
+    }
+    else if(strcmp(log_level, "error") == 0)
+    {
+        logging_level = LOG_ERROR;
+    }
+    else
+    {
+	    log_msg(LOG_INFO, "logging disabled ");
+        logging_level = LOG_NEVER;
+    }
+}
 
 #ifdef __cplusplus
 }

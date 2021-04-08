@@ -119,10 +119,10 @@ send_rpc_purge(struct s6a_Q_msg *pur_msg, char imsi[])
 	strncpy(msg.data.pur.imsi, imsi, IMSI_STR_LEN);
 
 	if (write(g_our_hss_fd, &msg, HSS_REQ_MSG_SIZE) < 0) {
-		log_msg(LOG_ERROR, "HSS PUR msg send failed.\n");
+		log_msg(LOG_ERROR, "HSS PUR msg send failed.");
 		perror("writing on stream socket");
 	}
-	log_msg(LOG_INFO, "PUR msg send to hss\n");
+	log_msg(LOG_INFO, "PUR msg send to hss");
 }
 
 /**
@@ -132,11 +132,11 @@ static int
 detach_processing(struct s6a_Q_msg * purge_msg)
 {
 	/*Parse and validate  the buffer*/
-	log_msg(LOG_INFO, "IMSI recvd - %s\n",purge_msg-> imsi);
+	log_msg(LOG_INFO, "IMSI recvd - %s",purge_msg-> imsi);
 	if (HSS_FD == g_s6a_cfg.hss_type)
 		send_purge(purge_msg, (char *)purge_msg-> imsi);
 	else {
-		log_msg(LOG_INFO, "Sending over IPC \n");
+		log_msg(LOG_INFO, "Sending over IPC ");
 		send_rpc_purge(purge_msg, (char *)purge_msg-> imsi);
 	}
 
@@ -150,7 +150,7 @@ void*
 detach_handler(void *data)
 {
 
-	log_msg(LOG_INFO, "Detach Q handler ready.\n");
+	log_msg(LOG_INFO, "Detach Q handler ready.");
 
 	detach_processing((struct s6a_Q_msg *) data);
 

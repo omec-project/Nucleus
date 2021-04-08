@@ -36,7 +36,7 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 
 	/*****Message structure***
 	*/
-	log_msg(LOG_INFO, "Parse S11 MB resp message\n");
+	log_msg(LOG_INFO, "Parse S11 MB resp message");
 
 	//TODO : check cause foor the result verification
 	
@@ -47,7 +47,7 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
     }
     else
     {
-        log_msg(LOG_WARNING, "Unknown Teid in MBR.\n");
+        log_msg(LOG_WARNING, "Unknown Teid in MBR.");
         mbr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
@@ -62,7 +62,7 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	if (rc == false)
 	{
 		log_msg(LOG_ERROR, "s11_MB_resp_handler: "
-				"Failed to decode MB_resp Msg %d\n", hdr->teid);
+				"Failed to decode MB_resp Msg %d", hdr->teid);
 		return E_PARSING_FAILED;
 	}
 	mbr_info.cause = msgData.cause.causeValue;
@@ -91,7 +91,7 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	mbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
-	log_msg(LOG_INFO, "Send MB resp to mme-app stage8.\n");
+	log_msg(LOG_INFO, "Send MB resp to mme-app stage8.");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&mbr_info, sizeof(struct MB_resp_Q_msg));
 
 	return SUCCESS;

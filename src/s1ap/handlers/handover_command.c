@@ -18,7 +18,7 @@
 static int
 handover_command_processing(struct handover_command_Q_msg *g_ho_cmd)
 {
-	log_msg(LOG_DEBUG,"Process Handover Command.\n");
+	log_msg(LOG_DEBUG,"Process Handover Command.");
 
 	uint32_t length = 0;
 	uint8_t *buffer = NULL;
@@ -26,14 +26,14 @@ handover_command_processing(struct handover_command_Q_msg *g_ho_cmd)
 	int ret = s1ap_mme_encode_handover_command(g_ho_cmd, &buffer, &length);
 	if(ret == -1)
 	{
-		log_msg(LOG_ERROR, "Encoding Handover Command failed.\n");
+		log_msg(LOG_ERROR, "Encoding Handover Command failed.");
 		return E_FAIL;
 	}
 
 	send_sctp_msg(
 	        g_ho_cmd->src_enb_context_id, buffer, length, 1);
 
-	log_msg(LOG_DEBUG, "HO Command sent. No. of bytes %d\n", length);
+	log_msg(LOG_DEBUG, "HO Command sent. No. of bytes %d", length);
 	if(buffer != NULL) {
 		free(buffer);
 	}

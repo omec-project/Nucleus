@@ -79,7 +79,7 @@ uint32_t MmeCommonUtils::allocateMtmsi()
 			break;
 	}
 
-	log_msg(LOG_INFO, "MTMSI allocated is %u\n", tmsi);
+	log_msg(LOG_INFO, "MTMSI allocated is %u", tmsi);
 
 	return tmsi;
 }
@@ -131,19 +131,19 @@ void MmeCommonUtils::getS1apPlmnIdFroms11(struct PLMN* plmn_p)
 AttachType MmeCommonUtils::getAttachType(UEContext* ueContext_p,
 		const struct ue_attach_info& ue_info)
 {
-	log_msg(LOG_INFO, "deriveAttachType\n");
+	log_msg(LOG_INFO, "deriveAttachType");
 
 	AttachType attachType = maxAttachType_c;
 
 	if(UE_ID_IMSI(ue_info.flags))
 	{
-		log_msg(LOG_INFO, "IMSI attach received.\n");
+		log_msg(LOG_INFO, "IMSI attach received.");
 
 		attachType = imsiAttach_c;
 	}
 	else if (UE_ID_GUTI(ue_info.flags))
 	{
-		log_msg(LOG_INFO, "GUTI attach received. mTMSI is %u \n",
+		log_msg(LOG_INFO, "GUTI attach received. mTMSI is %u ",
 				ue_info.mi_guti.m_TMSI);
 
 		attachType = unknownGutiAttach_c;
@@ -158,19 +158,19 @@ AttachType MmeCommonUtils::getAttachType(UEContext* ueContext_p,
 			{
 				if (ueContext_p->getMTmsi() == ue_info.mi_guti.m_TMSI)
 				{
-					log_msg(LOG_INFO, "and known\n");
+					log_msg(LOG_INFO, "and known");
 
 					attachType = knownGutiAttach_c;
 				}
 				else
 				{
 					log_msg(LOG_INFO, "mTMSI mismatches with UE context. "
-							"Treat as unknown GUTI attach\n");
+							"Treat as unknown GUTI attach");
 				}
 			}
 			else
 			{
-				log_msg(LOG_INFO, "UE context is null. Unknown GUTI attach triggered\n");
+				log_msg(LOG_INFO, "UE context is null. Unknown GUTI attach triggered");
 			}
 
 		}
@@ -189,7 +189,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 	const s1_incoming_msg_header_t* msgData_p = (s1_incoming_msg_header_t*)(buf->getDataPointer());
 	if(msgData_p == NULL)
 	{
-		log_msg(LOG_INFO, "MsgData is NULL .\n");
+		log_msg(LOG_INFO, "MsgData is NULL .");
 		return cb;
 	}
 
@@ -200,7 +200,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			const ue_attach_info_t *ue_info = (ue_attach_info_t *)(msgData_p);
 			if(UE_ID_IMSI(ue_info->flags))
 			{
-				log_msg(LOG_INFO, "IMSI attach received.\n");
+				log_msg(LOG_INFO, "IMSI attach received.");
 
 				uint8_t imsi[BINARY_IMSI_LEN] = {0};
 				memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
@@ -214,18 +214,17 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				int cbIndex = SubsDataGroupManager::Instance()->findCBWithimsi(IMSIInfo);
 				if (cbIndex > 0)
 				{
-					log_msg(LOG_DEBUG, "existing cb for IMSI. %s \n",IMSIInfo.getDigitsArray());
+					log_msg(LOG_DEBUG, "existing cb for IMSI. %s ",IMSIInfo.getDigitsArray());
 					cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 				}
 				if (cb == NULL)
 				{
-					log_msg(LOG_INFO, "create new cb for IMSI %s.\n",
-							IMSIInfo.getDigitsArray());
+					log_msg(LOG_INFO, "create new cb for IMSI %s.", IMSIInfo.getDigitsArray());
 
 					cb = SubsDataGroupManager::Instance()->allocateCB();
 					if(cb == NULL) 
 					{
-						log_msg(LOG_DEBUG, "create new cb for IMSI failed. %s \n",IMSIInfo.getDigitsArray());
+						log_msg(LOG_DEBUG, "create new cb for IMSI failed. %s ",IMSIInfo.getDigitsArray());
 						return nullptr;
 					}
 					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
@@ -233,11 +232,11 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else if (UE_ID_GUTI(ue_info->flags))
 			{
-				log_msg(LOG_INFO, "GUTI attach received.\n");
+				log_msg(LOG_INFO, "GUTI attach received.");
 
 				if (isLocalGuti(ue_info->mi_guti))
 				{
-					log_msg(LOG_INFO, "GUTI is local.\n");
+					log_msg(LOG_INFO, "GUTI is local.");
 
 					int cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(ue_info->mi_guti.m_TMSI);
 					if (cbIndex > 0)
@@ -246,7 +245,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					}
 					else
 					{
-						log_msg(LOG_ERROR, "Failed to find control block with mTmsi.\n");
+						log_msg(LOG_ERROR, "Failed to find control block with mTmsi.");
 
 						// allocate new cb and proceed?
 						cb = SubsDataGroupManager::Instance()->allocateCB();
@@ -270,13 +269,13 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi.\n");
+				log_msg(LOG_INFO, "Failed to find control block with mTmsi.");
 			}
 
 			if (cb == NULL)
 			{
 				log_msg(LOG_INFO, "Failed to find control block using mtmsi %d."
-						" Allocate a temporary control block\n", msgData_p->ue_idx);
+						" Allocate a temporary control block", msgData_p->ue_idx);
 			    
 			    // Respond  with Service Reject from default Service Request event handler
 			    cb = SubsDataGroupManager::Instance()->allocateCB();
@@ -295,7 +294,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi. %d\n", detach_Req->ue_m_tmsi);
+				log_msg(LOG_INFO, "Failed to find control block with mTmsi. %d", detach_Req->ue_m_tmsi);
 			}
 			break;
 		}
@@ -310,7 +309,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			else
 			{
 				log_msg(LOG_INFO, "Failed to find control block using mTmsi %d."
-                                              " Allocate a temporary control block\n", tau_Req->ue_m_tmsi);
+                                              " Allocate a temporary control block", tau_Req->ue_m_tmsi);
 				// Respond  with TAU Reject from default TAU event handler
 				cb = SubsDataGroupManager::Instance()->allocateCB();
 				cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
@@ -320,7 +319,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 		}
 		default:
 		{
-			log_msg(LOG_INFO, "Unhandled message type %d \n", msgData_p->msg_type);
+			log_msg(LOG_INFO, "Unhandled message type %d ", msgData_p->msg_type);
 		}
 	}
 
@@ -334,7 +333,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
     const gtp_incoming_msg_data_t* msgData_p = (gtp_incoming_msg_data_t*)(msg_p->getDataPointer());
     if(msgData_p == NULL)
     {
-        log_msg(LOG_INFO, "GTP message data is NULL .\n");
+        log_msg(LOG_INFO, "GTP message data is NULL .");
         return cb_p;
     }
 
@@ -345,7 +344,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
 	    const struct ddn_Q_msg* ddn = (const struct ddn_Q_msg*) (msg_p->getDataPointer());
             if (ddn->s11_mme_cp_teid == 0)
             {
-                log_msg(LOG_INFO, "UE Index in DDN message data is 0.\n");
+                log_msg(LOG_INFO, "UE Index in DDN message data is 0.");
                 return cb_p;
             }
 
@@ -353,7 +352,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
             if (cb_p == NULL)
             {
                 log_msg(LOG_INFO, "Failed to find control block using index %d."
-                        " Allocate a temporary control block\n", ddn->s11_mme_cp_teid);
+                        " Allocate a temporary control block", ddn->s11_mme_cp_teid);
 
                 // Respond  with DDN failure from default DDN event handler
                 cb_p = SubsDataGroupManager::Instance()->allocateCB();
@@ -365,7 +364,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
 	    const struct cb_req_Q_msg * cbr = (const struct cb_req_Q_msg *) (msg_p->getDataPointer());
             if (cbr->s11_mme_cp_teid == 0)
             {
-                log_msg(LOG_INFO, "UE Index in CB Req message data is 0.\n");
+                log_msg(LOG_INFO, "UE Index in CB Req message data is 0.");
                 return cb_p;
             }
 
@@ -373,7 +372,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
             if (cb_p == NULL)
             {
                 log_msg(LOG_INFO, "Failed to find control block using index %d."
-                        " Allocate a temporary control block\n", cbr->s11_mme_cp_teid);
+                        " Allocate a temporary control block", cbr->s11_mme_cp_teid);
 
                 // Respond  with CB Resp from default CB Req event handler
                 cb_p = SubsDataGroupManager::Instance()->allocateCB();
@@ -385,7 +384,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
             const struct db_req_Q_msg * dbr = (const struct db_req_Q_msg *) (msg_p->getDataPointer());
             if (dbr->s11_mme_cp_teid == 0)
             {
-                log_msg(LOG_INFO, "UE Index in DB Req message data is 0.\n");
+                log_msg(LOG_INFO, "UE Index in DB Req message data is 0.");
                 return cb_p;
             }
 
@@ -393,7 +392,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
             if (cb_p == NULL)
             {
                 log_msg(LOG_INFO, "Failed to find control block using index %d."
-                        " Allocate a temporary control block\n", dbr->s11_mme_cp_teid);
+                        " Allocate a temporary control block", dbr->s11_mme_cp_teid);
 
                 // Respond  with DB Resp from default DB Req event handler
                 cb_p = SubsDataGroupManager::Instance()->allocateCB();
@@ -402,7 +401,7 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
         }break;
         default:
         {
-            log_msg(LOG_INFO, "Unhandled message type\n");
+            log_msg(LOG_INFO, "Unhandled message type");
         }
     }
     return cb_p;
@@ -427,19 +426,19 @@ bool MmeCommonUtils::isUeNRCapable(UEContext &ueCtxt)
     bool rc;
 
     if (!ueCtxt.getUeNetCapab().ue_net_capab_m.u.bits.dcnr) {
-        log_msg(LOG_DEBUG, "UE does not support dual connectivity\n");
+        log_msg(LOG_DEBUG, "UE does not support dual connectivity");
         rc = false;
     } else if (!mme_cfg->feature_list.dcnr_support) {
-        log_msg(LOG_DEBUG,"MME local config does not allow dual connectivity\n");
+        log_msg(LOG_DEBUG,"MME local config does not allow dual connectivity");
         rc = false;
     } else if (!(ueCtxt.getHssFeatList2().feature_list & nrAsSecRatBitMask_c)) {
-        log_msg(LOG_DEBUG,"HSS does not support dual connectivity feature\n");
+        log_msg(LOG_DEBUG,"HSS does not support dual connectivity feature");
         rc = false;
     } else if (ueCtxt.getAccessRestrictionData() & nrAsSecRatInEutranNotAllowedBitMask_c) {
-        log_msg(LOG_DEBUG,"hss informed about access restriction for this UE\n");
+        log_msg(LOG_DEBUG,"hss informed about access restriction for this UE");
         rc = false;
     } else {
-        log_msg(LOG_DEBUG,"All well, this UE can use DCNR\n");
+        log_msg(LOG_DEBUG,"All well, this UE can use DCNR");
         rc = true;
     }
 

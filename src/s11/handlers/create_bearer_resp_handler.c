@@ -46,7 +46,7 @@ cb_resp_processing(struct CB_RESP_Q_msg *cb_resp_msg)
 	struct MsgBuffer*  cbRespMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(cbRespMsgBuf_p == NULL)
 	{
-        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
         return -1;
     }
 	
@@ -123,7 +123,7 @@ cb_resp_processing(struct CB_RESP_Q_msg *cb_resp_msg)
 			MsgBuffer_getBufLen(cbRespMsgBuf_p), 0,
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 
-	log_msg(LOG_INFO, "Create Bearer Resp Sent, len - %d bytes.\n", MsgBuffer_getBufLen(cbRespMsgBuf_p));
+	log_msg(LOG_INFO, "Create Bearer Resp Sent, len - %d bytes.", MsgBuffer_getBufLen(cbRespMsgBuf_p));
 	MsgBuffer_free(cbRespMsgBuf_p);
 	return SUCCESS;
 }
@@ -135,7 +135,7 @@ cb_resp_processing(struct CB_RESP_Q_msg *cb_resp_msg)
 void*
 create_bearer_resp_handler(void *data)
 {
-	log_msg(LOG_INFO, "Create bearer Response handler initialized\n");
+	log_msg(LOG_INFO, "Create bearer Response handler initialized");
 	cb_resp_processing((struct CB_RESP_Q_msg *)data);
 	return NULL;
 }

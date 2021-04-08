@@ -21,12 +21,12 @@ int s1_handover_faliure_handler(UnsuccessfulOutcome_t *msg)
 {
     handover_failure_Q_msg_t ho_failure = {0};
     struct proto_IE ho_failure_ies = {0};
-    log_msg(LOG_INFO, "Parse s1ap handover failure message\n");
+    log_msg(LOG_INFO, "Parse s1ap handover failure message");
 
     int decode_status = convertHoFailureToProtoIe(msg, &ho_failure_ies);
     if (decode_status < 0)
     {
-        log_msg(LOG_ERROR, "Failed to decode HO Failure\n");
+        log_msg(LOG_ERROR, "Failed to decode HO Failure");
 
         if (ho_failure_ies.data != NULL)
             free(ho_failure_ies.data);
@@ -39,14 +39,14 @@ int s1_handover_faliure_handler(UnsuccessfulOutcome_t *msg)
         {
         case S1AP_IE_MME_UE_ID:
         {
-            log_msg(LOG_INFO, "handover failure S1AP_IE_MME_UE_ID.\n");
+            log_msg(LOG_INFO, "handover failure S1AP_IE_MME_UE_ID.");
 
             ho_failure.header.ue_idx = ho_failure_ies.data[i].val.mme_ue_s1ap_id;
         }
             break;
         case S1AP_IE_CAUSE:
         {
-            log_msg(LOG_INFO, "handover failure S1AP_IE_CAUSE.\n");
+            log_msg(LOG_INFO, "handover failure S1AP_IE_CAUSE.");
 
             memcpy(&ho_failure.cause,
                     &ho_failure_ies.data[i].val.cause,
@@ -68,7 +68,7 @@ int s1_handover_faliure_handler(UnsuccessfulOutcome_t *msg)
 
     if (i < 0)
     {
-        log_msg(LOG_ERROR, "Error To write in s1_handover_faliure_handler\n");
+        log_msg(LOG_ERROR, "Error To write in s1_handover_faliure_handler");
     }
     if (ho_failure_ies.data != NULL)
         free(ho_failure_ies.data);

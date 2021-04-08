@@ -33,7 +33,7 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 
 	if (connSock == -1)
 	{
-		log_msg(LOG_ERROR, "Socket creation failed\n");
+		log_msg(LOG_ERROR, "Socket creation failed");
 		return -1;
 	}
 
@@ -49,7 +49,7 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 	if(ret == -1 )
 	{
 		perror("Bind:");
-		log_msg(LOG_ERROR, "Bind failed \n");
+		log_msg(LOG_ERROR, "Bind failed ");
 		close(connSock);
 		return -1;
 	}
@@ -65,7 +65,7 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 
 	if(ret == -1 )
 	{
-		log_msg(LOG_ERROR, "setsockopt() failed \n");
+		log_msg(LOG_ERROR, "setsockopt() failed ");
 		close(connSock);
 		return -1;
 	}
@@ -73,13 +73,13 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 	ret = setsockopt(connSock, SOL_SCTP, SCTP_MAXSEG,&mtu, sizeof(mtu));
 	if(ret == -1 )
 	{
-		log_msg(LOG_ERROR, "1 setsockopt() failed %s \n",strerror(errno));
+		log_msg(LOG_ERROR, "1 setsockopt() failed %s ",strerror(errno));
 	}
 
 	ret = listen(connSock, MAX_PENDING_CONN);
 	if(ret == -1 )
 	{
-		log_msg(LOG_ERROR, "listen() failed \n");
+		log_msg(LOG_ERROR, "listen() failed ");
 		close(connSock);
 		return -1;
 	}

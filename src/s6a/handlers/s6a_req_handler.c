@@ -157,8 +157,8 @@ send_FD_ULR(struct s6a_Q_msg *aia_msg, char imsi[])
 void
 dump_s6a_msg(struct s6a_Q_msg *air_msg)
 {
-	log_msg(LOG_INFO, "Received index= %d\n",air_msg->ue_idx);
-	log_msg(LOG_INFO, "Received plmn %x %x %x= %d\n",air_msg->tai.plmn_id.idx[0],
+	log_msg(LOG_INFO, "Received index= %d",air_msg->ue_idx);
+	log_msg(LOG_INFO, "Received plmn %x %x %x= %d",air_msg->tai.plmn_id.idx[0],
 			air_msg->tai.plmn_id.idx[1], air_msg->tai.plmn_id.idx[2]);
 }
 
@@ -177,7 +177,7 @@ send_FD_AIR(struct s6a_Q_msg *aia_msg, char imsi[])
 	struct s6a_sess_info s6a_sess = {.sess_id="", .sess_id_len = 0};
 	union avp_value val;
 
-	log_msg(LOG_INFO, "In Send AIR:\n");
+	log_msg(LOG_INFO, "In Send AIR:");
 	dump_s6a_msg(aia_msg);
 
 	/*Create FD header and message for authentication info request.*/
@@ -273,10 +273,10 @@ send_rpc_AIR(struct s6a_Q_msg *air_msg, char imsi[])
 	memcpy(msg.data.air.plmn_id, air_msg->tai.plmn_id.idx, 3);
 
 	if (write(g_our_hss_fd, &msg, HSS_REQ_MSG_SIZE) < 0) {
-		log_msg(LOG_ERROR, "HSS AIR msg send failed.\n");
+		log_msg(LOG_ERROR, "HSS AIR msg send failed.");
 		 		perror("writing on stream socket");
 	}
-	log_msg(LOG_INFO, "AIR msg send to hss for ue_idx %d\n",
+	log_msg(LOG_INFO, "AIR msg send to hss for ue_idx %d",
 		air_msg->ue_idx);
 }
 
@@ -295,10 +295,10 @@ send_rpc_ULR(struct s6a_Q_msg *ulr_msg, char imsi[])
 	memcpy(msg.data.air.plmn_id, ulr_msg->tai.plmn_id.idx, 3);
 
 	if (write(g_our_hss_fd, &msg, HSS_REQ_MSG_SIZE) < 0) {
-		log_msg(LOG_ERROR, "HSS ULR msg send failed.\n");
+		log_msg(LOG_ERROR, "HSS ULR msg send failed.");
 		perror("writing on stream socket");
 	}
-	log_msg(LOG_INFO, "ULR msg send to hss\n");
+	log_msg(LOG_INFO, "ULR msg send to hss");
 }
 
 
@@ -334,7 +334,7 @@ imsi_bin_to_str(unsigned char *b_imsi, char *s_imsi)
 static int
 AIR_processing(struct s6a_Q_msg * air_msg)
 {
-	log_msg(LOG_INFO, "IMSI recvd - %s\n %d \n", air_msg->imsi, air_msg->msg_type);
+	log_msg(LOG_INFO, "IMSI recvd - %s %d ", air_msg->imsi, air_msg->msg_type);
 
 	if(HSS_FD == g_s6a_cfg.hss_type) {
 		if(air_msg->msg_type == auth_info_request)
@@ -343,7 +343,7 @@ AIR_processing(struct s6a_Q_msg * air_msg)
 		else if(air_msg->msg_type == update_loc_request)
 			send_FD_ULR(air_msg, (char *)air_msg-> imsi);
 	} else {
-		log_msg(LOG_INFO, "Sending over IPC\n");
+		log_msg(LOG_INFO, "Sending over IPC");
 		send_rpc_AIR(air_msg, (char *) air_msg->imsi);
 		send_rpc_ULR(air_msg, (char *) air_msg->imsi);
 

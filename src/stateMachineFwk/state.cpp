@@ -43,7 +43,7 @@ namespace SM
 	{
 		for(auto& eventToActionsMapEntry : eventToActionsMap)
 		{
-			log_msg(LOG_DEBUG, "Event Id = %d \n", eventToActionsMapEntry.first);
+			log_msg(LOG_DEBUG, "Event Id = %d ", eventToActionsMapEntry.first);
 			ActionTable& act = eventToActionsMapEntry.second;
 			act.display();
 		}

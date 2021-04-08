@@ -58,7 +58,7 @@ s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip,
 	if(rc == false)
 	{
 			log_msg(LOG_ERROR, "s11_CB_req_handler: "
-					"Failed to decode Create Bearer Request Msg %d\n",
+					"Failed to decode Create Bearer Request Msg %d",
 					hdr->teid);
 			return E_PARSING_FAILED;
 	}
@@ -103,7 +103,7 @@ s11_CB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip,
 	cbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	cbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 	/*Send CB request msg*/
-	log_msg(LOG_INFO, "Send CB req to mme-app.\n");
+	log_msg(LOG_INFO, "Send CB req to mme-app.");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&cbr_info, sizeof(struct cb_req_Q_msg));
 	return SUCCESS;
 }

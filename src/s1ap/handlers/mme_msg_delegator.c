@@ -25,7 +25,7 @@
 void
 handle_mmeapp_message(void * data)
 {
-	log_msg(LOG_INFO, "handle mme-app message \n");
+	log_msg(LOG_INFO, "handle mme-app message ");
 	
 	char *msg = ((char *) data) + (sizeof(uint32_t)*2);
 
@@ -106,7 +106,7 @@ handle_mmeapp_message(void * data)
 		erab_release_command_handler(msg);
 		break;
 	default:
-		log_msg(LOG_ERROR,"Unhandled mme-app message\n");
+		log_msg(LOG_ERROR,"Unhandled mme-app message");
 		break;
 	}
 	free(data);

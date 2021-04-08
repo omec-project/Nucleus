@@ -21,12 +21,12 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
 {
     enb_status_transfer_Q_msg_t ho_enb_status_transfer = {0};
     struct proto_IE ho_enb_status_transfer_ies = {0};
-    log_msg(LOG_INFO, "Parse s1ap handover enb_status_transfer message\n");
+    log_msg(LOG_INFO, "Parse s1ap handover enb_status_transfer message");
 
     int decode_status = convertEnbStatusTransferToProtoIe(msg, &ho_enb_status_transfer_ies);
     if (decode_status < 0)
     {
-        log_msg(LOG_ERROR, "Failed to decode enb-status-transfer message\n");
+        log_msg(LOG_ERROR, "Failed to decode enb-status-transfer message");
 
         if (ho_enb_status_transfer_ies.data != NULL)
             free(ho_enb_status_transfer_ies.data);
@@ -41,7 +41,7 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
         case S1AP_IE_MME_UE_ID:
         {
             log_msg(LOG_INFO,
-                    "handover enb_status_transfer S1AP_IE_MME_UE_ID.\n");
+                    "handover enb_status_transfer S1AP_IE_MME_UE_ID.");
             ho_enb_status_transfer.header.ue_idx =
                     ho_enb_status_transfer_ies.data[i].val.mme_ue_s1ap_id;
             ho_enb_status_transfer.s1ap_mme_ue_id =
@@ -51,7 +51,7 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
         case S1AP_IE_ENB_UE_ID:
         {
             log_msg(LOG_INFO,
-                    "handover enb_status_transfer S1AP_IE_ENB_UE_ID.\n");
+                    "handover enb_status_transfer S1AP_IE_ENB_UE_ID.");
             ho_enb_status_transfer.header.s1ap_enb_ue_id =
                     ho_enb_status_transfer_ies.data[i].val.enb_ue_s1ap_id;
         }
@@ -59,7 +59,7 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
 
         case S1AP_IE_ENB_STATUS_TRANSFER_TRANSPARENTCONTAINER:
         {
-            log_msg(LOG_INFO, "handover enb_status_transfer S1AP_IE_TAI.\n");
+            log_msg(LOG_INFO, "handover enb_status_transfer S1AP_IE_TAI.");
             memcpy(
                     &ho_enb_status_transfer.enB_status_transfer_transparent_containerlist,
                     &ho_enb_status_transfer_ies.data[i].val.enB_status_transfer_transparent_containerlist,
@@ -82,11 +82,11 @@ int s1_enb_status_transfer_handler(InitiatingMessage_t *msg)
     if (i < 0)
     {
         log_msg(LOG_ERROR,
-                "Error To write in s1_enb_status_transfer_handler\n");
+                "Error To write in s1_enb_status_transfer_handler");
     }
 
     log_msg(LOG_INFO, "enb_status_transfer sent to mme-app."
-            "Bytes sent %d\n", i);
+            "Bytes sent %d", i);
 
     if (ho_enb_status_transfer_ies.data != NULL)
         free(ho_enb_status_transfer_ies.data);

@@ -17,7 +17,7 @@
 static int
 handover_request_processing(struct handover_request_Q_msg *g_ho_req)
 {
-	log_msg(LOG_DEBUG,"Process Handover Request. %d\n",g_ho_req->target_enb_context_id);
+	log_msg(LOG_DEBUG,"Process Handover Request. %d",g_ho_req->target_enb_context_id);
 
 	uint32_t length = 0;
     uint8_t *buffer = NULL;
@@ -25,14 +25,14 @@ handover_request_processing(struct handover_request_Q_msg *g_ho_req)
 	int ret = s1ap_mme_encode_handover_request(g_ho_req, &buffer, &length);
     if (ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding handover request failed.\n");
+        log_msg(LOG_ERROR, "Encoding handover request failed.");
         return E_FAIL;
     }
 
 	send_sctp_msg(g_ho_req->target_enb_context_id, buffer, length, 1);
 
 	log_msg(LOG_DEBUG,
-	        "HO Request Sent. Num of bytes - %d, enb_fd - %d\n",
+	        "HO Request Sent. Num of bytes - %d, enb_fd - %d",
 	        length, g_ho_req->target_enb_context_id);
 	
 	if(buffer != NULL) {

@@ -94,13 +94,13 @@ static int
 create_session_processing(struct CS_Q_msg * g_csReqInfo)
 {
 	struct MsgBuffer*  csReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
-	if(csReqMsgBuf_p == NULL)
-	{
-                log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
-                return -1;
-        }
-    	struct sockaddr_in sgw_addr = {0};
-	GtpV2MessageHeader gtpHeader;
+    if(csReqMsgBuf_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
+        return -1;
+    }
+    struct sockaddr_in sgw_addr = {0};
+    GtpV2MessageHeader gtpHeader;
 	gtpHeader.msgType = GTP_CREATE_SESSION_REQ;
     uint32_t seq = 0;
 	get_sequence(&seq);
@@ -116,7 +116,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
         sgw_addr = g_s11_cp_addr; 
     }
 	
-	log_msg(LOG_INFO,"In create session handler->ue_idx:%d\n",g_csReqInfo->ue_idx);
+	log_msg(LOG_INFO,"In create session handler->ue_idx:%d",g_csReqInfo->ue_idx);
 
     add_gtp_transaction(gtpHeader.sequenceNumber, 
                           g_csReqInfo->ue_idx); 
@@ -133,7 +133,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 					BINARY_IMSI_LEN);
 
 	msgData.imsi.imsiValue.length = imsi_len;
-	log_msg(LOG_INFO, "IMSI Len: %d\n", imsi_len);
+	log_msg(LOG_INFO, "IMSI Len: %d", imsi_len);
 
 	msgData.msisdnIePresent = true;
 	msgData.msisdn.msisdnValue.length = 10;
@@ -232,7 +232,6 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 	msgData.aggregateMaximumBitRate.maxMbrUplink = g_csReqInfo->max_requested_bw_ul;
 	msgData.aggregateMaximumBitRate.maxMbrDownlink = g_csReqInfo->max_requested_bw_dl;
 
-    log_msg(LOG_INFO, "PCO length = %d\n", g_csReqInfo->pco_length);
     if(g_csReqInfo->pco_length > 0)
     {
         msgData.protocolConfigurationOptionsIePresent = true;
@@ -242,7 +241,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, csReqMsgBuf_p, &gtpHeader, &msgData);
 
-	log_msg(LOG_INFO, "send %d bytes.\n",MsgBuffer_getBufLen(csReqMsgBuf_p));
+	log_msg(LOG_INFO, "send %d bytes.",MsgBuffer_getBufLen(csReqMsgBuf_p));
 
 	int res = sendto (
 			g_s11_fd,
@@ -251,10 +250,10 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 			(struct sockaddr*)(&sgw_addr),
 			g_s11_serv_size);
 	if (res < 0) {
-		log_msg(LOG_ERROR,"Error in sendto in detach stage 3 post to next\n");
+		log_msg(LOG_ERROR,"Error in sendto in detach stage 3 post to next");
 	}
 
-	log_msg(LOG_INFO,"%d bytes sent. Err : %d, %s\n",res,errno,
+	log_msg(LOG_INFO,"%d bytes sent. Err : %d, %s",res,errno,
 			strerror(errno));
 
 	MsgBuffer_free(csReqMsgBuf_p);
@@ -268,7 +267,7 @@ create_session_processing(struct CS_Q_msg * g_csReqInfo)
 void*
 create_session_handler(void *data)
 {
-	log_msg(LOG_INFO, "Create Session Request handler\n");
+	log_msg(LOG_INFO, "Create Session Request handler");
 
 	create_session_processing((struct CS_Q_msg *) data);
 

@@ -182,9 +182,9 @@ parse_ula_subscription_data(struct avp *avp_ptr, ula_Q_msg_t *ula)
 						// if(g_fd_dict_data.service_slection ==
 						if (493 == apn_cfg_element->avp_code){
 
-							log_msg(LOG_INFO, "APN name recvd from hss - %s\n",
+							log_msg(LOG_INFO, "APN name recvd from hss - %s",
 									apn_cfg_element->avp_value->os.data);
-							log_msg(LOG_INFO, "APN length recvd from hss - %lu\n",
+							log_msg(LOG_INFO, "APN length recvd from hss - %lu",
 									apn_cfg_element->avp_value->os.len);
 
 							ula->selected_apn.val[0] = apn_cfg_element->avp_value->os.len;
@@ -197,7 +197,7 @@ parse_ula_subscription_data(struct avp *avp_ptr, ula_Q_msg_t *ula)
 						if (848 == apn_cfg_element->avp_code && ula->static_addr == 0){
 							struct sockaddr_in  temp;
 							int result = fd_dictfct_Address_interpret(apn_cfg_element->avp_value, &temp);
-							log_msg(LOG_INFO, "Served IP address found %d %s \n", result, inet_ntoa(temp.sin_addr)); 
+							log_msg(LOG_INFO, "Served IP address found %d %s ", result, inet_ntoa(temp.sin_addr)); 
 							ula->static_addr = temp.sin_addr.s_addr; // network order
 						} 
 						apn_cfg_prof_itr = apn_cfg_itr;
@@ -243,7 +243,7 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
 	CHECK_FCT_DO(fd_sess_getsid(sess, &sess_id, (size_t*)&sess_id_len),
 		return S6A_FD_ERROR);
 
-	log_msg(LOG_INFO, "\nCallback ----- >session id=%s \n", sess_id);
+	log_msg(LOG_INFO, "Callback ----- >session id=%s ", sess_id);
 
 	ula_msg.res = SUCCESS;
 	ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
@@ -262,11 +262,11 @@ ula_resp_callback(struct msg **buf, struct avp *avp_ptr, struct session *sess,
                     case SUPP_FEAT_AVP_CODE:
                     {
                         supported_features_list *supp_features_list = &ula_msg.supp_features_list;
-                        log_msg(LOG_DEBUG, "Found SUPP_FEAT_AVP_CODE\n");
+                        log_msg(LOG_DEBUG, "Found SUPP_FEAT_AVP_CODE");
                         if(supp_features_list->count < 2) {
                             int ret = parse_supported_features_avp(avp, &supp_features_list->supp_features[supp_features_list->count]);
                             if(ret == SUCCESS) {
-                                log_msg(LOG_DEBUG, "parse_supported_features_avp success\n");
+                                log_msg(LOG_DEBUG, "parse_supported_features_avp success");
                                 supp_features_list->count ++;
                             }
                         }

@@ -70,7 +70,7 @@ get_string_scalar(char *path)
 	char *value = calloc(1, 128);
 
 	if(NULL == entry) {
-		log_msg(LOG_ERROR, "%s: entry not found\n", path);
+		log_msg(LOG_ERROR, "%s: entry not found", path);
 		free(value);
 		return NULL;
 	}
@@ -82,7 +82,7 @@ get_string_scalar(char *path)
 	}
 	char *tmp = strchr(entry, ':');
 	sscanf(tmp, ": \"%[^\"]", value);
-	log_msg(LOG_INFO, "%s = %s\n", path, value);
+	log_msg(LOG_INFO, "%s = %s", path, value);
 	return value;
 }
 
@@ -93,7 +93,7 @@ get_int_scalar(char *path)
 	unsigned int i = 0;
 
 	if(NULL == entry) {
-		log_msg(LOG_ERROR, "%s: entry not found\n", path);
+		log_msg(LOG_ERROR, "%s: entry not found", path);
 		return -1;
 	}
 	char *tmp = strchr(entry, ':');
@@ -101,7 +101,7 @@ get_int_scalar(char *path)
 	i = atoi(tmp+1);
 
 	free(entry);
-	log_msg(LOG_INFO, "%s = %d\n", path, i);
+	log_msg(LOG_INFO, "%s = %d", path, i);
 	return i;
 }
 
@@ -125,7 +125,7 @@ load_json(char *filename)
 	json_fp = fopen(filename, "r");
 
 	if(NULL == json_fp) {
-		log_msg(LOG_ERROR, "Error opening json file\n");
+		log_msg(LOG_ERROR, "Error opening json file");
 		perror("Error:");
 		return -1;
 	}
