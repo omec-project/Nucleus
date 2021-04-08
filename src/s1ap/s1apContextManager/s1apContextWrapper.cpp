@@ -20,21 +20,21 @@ uint32_t createControlBlock_cpp()
     EnbContext* enbCtxt_p = NULL;
     cb = mme::S1apDataGroupManager::Instance()->allocateCB();
     if(cb == NULL) {
-        log_msg(LOG_ERROR, "failed to allocate CB \n");
+        log_msg(LOG_ERROR, "failed to allocate CB ");
         return INVALID_ENTRY;
     }
     enbCtxt_p = static_cast <EnbContext *>(cb->getPermDataBlock());
     if (enbCtxt_p != NULL)
     {
-        log_msg(LOG_ERROR, "Enb Context exists in newly allocated CB. Should release and allocate again. : TBD.\n");
+        log_msg(LOG_ERROR, "Enb Context exists in newly allocated CB. Should release and allocate again. : TBD.");
         return INVALID_ENTRY;
     }
 
-    log_msg(LOG_DEBUG, "Allocate Enb context for CB.\n");
+    log_msg(LOG_DEBUG, "Allocate Enb context for CB.");
     enbCtxt_p = mme::S1apDataGroupManager::Instance()->getEnbContext();
     if(NULL == enbCtxt_p)
     {
-        log_msg(LOG_ERROR, "Enb Context alloc failed.\n");
+        log_msg(LOG_ERROR, "Enb Context alloc failed.");
         return INVALID_ENTRY;
     }
 
@@ -50,7 +50,7 @@ uint32_t findControlBlockWithEnbId_cpp(uint32_t enbId)
 
     if (cbIndex <= 0)
     {
-        log_msg(LOG_ERROR, "Failed to find control block with enbid :%d.\n",enbId);
+        log_msg(LOG_ERROR, "Failed to find control block with enbid :%d.",enbId);
         return INVALID_CB_INDEX;
     }
 
@@ -64,7 +64,7 @@ bool clearControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *enbStru
 
     if (cbIndex <= 0)
     {
-        log_msg(LOG_ERROR, "Failed to find control block with enbFd :%d.\n",enbFd);
+        log_msg(LOG_ERROR, "Failed to find control block with enbFd :%d.",enbFd);
         return false; 
     }
 
@@ -74,7 +74,7 @@ bool clearControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *enbStru
         cb = mme::S1apDataGroupManager::Instance()->findControlBlock(cbIndex);
         if(NULL == cb)
         {
-            log_msg(LOG_ERROR,"Control block not found for cb Index %d.\n", cbIndex);
+            log_msg(LOG_ERROR,"Control block not found for cb Index %d.", cbIndex);
             return false;
         }
 
@@ -83,22 +83,22 @@ bool clearControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *enbStru
         strcpy(enbStructCtx->eNbName, enbCtxt_p->getEnbname());
         int val = mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
                                                                         enbCtxt_p->getEnbId());
-        log_msg(LOG_DEBUG,"clearControlBlock : delete enbid2 %d: %d\n", enbCtxt_p->getEnbId(),val);
+        log_msg(LOG_DEBUG,"clearControlBlock : delete enbid2 %d: %d", enbCtxt_p->getEnbId(),val);
         val = mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
                                                                     enbCtxt_p->getEnbFd());
-        log_msg(LOG_DEBUG,"clearControlBlock : delete enbfd2 %d: %d\n", enbCtxt_p->getEnbFd(), val);
-        log_msg(LOG_DEBUG,"clearControlBlock : fd map size after delete2 : %d.\n", 
+        log_msg(LOG_DEBUG,"clearControlBlock : delete enbfd2 %d: %d", enbCtxt_p->getEnbFd(), val);
+        log_msg(LOG_DEBUG,"clearControlBlock : fd map size after delete2 : %d.", 
                 mme::S1apDataGroupManager::Instance()->sizeEnbFdKeyMap());
-        log_msg(LOG_DEBUG,"clearControlBlock : Id map size after delete2 : %d.\n", 
+        log_msg(LOG_DEBUG,"clearControlBlock : Id map size after delete2 : %d.", 
                 mme::S1apDataGroupManager::Instance()->sizeEnbIdKeyMap());
-        log_msg(LOG_DEBUG,"clearControlBlock : deallocate cb for index %d\n", cbIndex);
+        log_msg(LOG_DEBUG,"clearControlBlock : deallocate cb for index %d", cbIndex);
         mme::S1apDataGroupManager::Instance()->deleteEnbContext(enbCtxt_p);
         mme::S1apDataGroupManager::Instance()->deAllocateCB(cbIndex);
         return true;
     }
     else
     {
-        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.\n",cbIndex);
+        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.",cbIndex);
         return true;
     }
 
@@ -111,7 +111,7 @@ uint32_t findControlBlockWithEnbFd_cpp(uint32_t enbFd)
 
     if (cbIndex <= 0)
     {
-        log_msg(LOG_ERROR, "Failed to find control block with enbFd :%d.\n",enbFd);
+        log_msg(LOG_ERROR, "Failed to find control block with enbFd :%d.",enbFd);
         return INVALID_CB_INDEX;
     }
 
@@ -127,7 +127,7 @@ uint32_t getEnbFdWithCbIndex_cpp(uint32_t cbIndex)
         cb = mme::S1apDataGroupManager::Instance()->findControlBlock(cbIndex);
         if(NULL == cb)
         {
-            log_msg(LOG_ERROR,"Control block not found for cb Index %d.\n", cbIndex);
+            log_msg(LOG_ERROR,"Control block not found for cb Index %d.", cbIndex);
             return INVALID_CB_INDEX;
         }
 
@@ -137,7 +137,7 @@ uint32_t getEnbFdWithCbIndex_cpp(uint32_t cbIndex)
     }
     else
     {
-        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.\n",cbIndex);
+        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.",cbIndex);
         return INVALID_CB_INDEX;
     }
 
@@ -151,7 +151,7 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
         cb = mme::S1apDataGroupManager::Instance()->findControlBlock(cbIndex);
         if(NULL == cb)
         {
-            log_msg(LOG_ERROR,"Control block not found for cb Index %d.\n", cbIndex);
+            log_msg(LOG_ERROR,"Control block not found for cb Index %d.", cbIndex);
             return INVALID_CB_INDEX;
         }
 
@@ -160,21 +160,21 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
         {
             if(update && (enbCbCtx->getTai().tac != enbCtx->tai_m.tac))
             {
-                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d.\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac);
+                log_msg(LOG_ERROR,"Different Enbs accessing same context tacNew : %d, tacOld : %d.", enbCbCtx->getTai().tac, enbCtx->tai_m.tac);
                 return INVALID_CB_INDEX;
             }
             else {
                 int val = mme::S1apDataGroupManager::Instance()->deleteenbIdkey(
                                                             enbCbCtx->getEnbId());
-                log_msg(LOG_DEBUG,"setValuesForEnb : delete enbid %d: %d\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : delete enbid %d: %d", 
                                     enbCbCtx->getEnbId(),val);
                 val = mme::S1apDataGroupManager::Instance()->deleteenbFdkey(
                                                             enbCbCtx->getEnbFd());
-                log_msg(LOG_DEBUG,"setValuesForEnb : delete enbfd %d: %d\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : delete enbfd %d: %d", 
                                     enbCbCtx->getEnbFd(), val);
-                log_msg(LOG_DEBUG,"setValuesForEnb : fd map size after delete : %d.\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : fd map size after delete : %d.", 
                         mme::S1apDataGroupManager::Instance()->sizeEnbFdKeyMap());
-                log_msg(LOG_DEBUG,"setValuesForEnb : Id map size after delete : %d.\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : Id map size after delete : %d.", 
                 mme::S1apDataGroupManager::Instance()->sizeEnbIdKeyMap());
                 enbCbCtx->setEnbFd(enbCtx->enbFd_m);
                 enbCbCtx->setEnbId(enbCtx->enbId_m);
@@ -183,16 +183,16 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
                 enbCbCtx->setEnbname(enbCtx->eNbName, strlen(enbCtx->eNbName));
                 enbCbCtx->setRestartCounter(enbCbCtx->getRestartCounter()+1);
                 enbCtx->restart_counter = enbCbCtx->getRestartCounter();
-                log_msg(LOG_DEBUG,"setValuesForEnb : Enbs accessing context tacNew : %d, tacOld : %d name = %s .\n", enbCbCtx->getTai().tac, enbCtx->tai_m.tac, enbCtx->eNbName);
+                log_msg(LOG_DEBUG,"setValuesForEnb : Enbs accessing context tacNew : %d, tacOld : %d name = %s .", enbCbCtx->getTai().tac, enbCtx->tai_m.tac, enbCtx->eNbName);
                 val = mme::S1apDataGroupManager::Instance()->addenbIdkey(
                                               enbCtx->enbId_m, cbIndex);
-                log_msg(LOG_DEBUG,"setValuesForEnb : cbIndex : %d, add enbId %d: %d\n", cbIndex, enbCbCtx->getEnbId(),val);
+                log_msg(LOG_DEBUG,"setValuesForEnb : cbIndex : %d, add enbId %d: %d", cbIndex, enbCbCtx->getEnbId(),val);
                 val = mme::S1apDataGroupManager::Instance()->addenbFdkey(
                                               enbCtx->enbFd_m, cbIndex);
-                log_msg(LOG_DEBUG,"setValuesForEnb : cbIndex : %d, add enbFd %d: %d\n", cbIndex, enbCbCtx->getEnbFd(),val);
-                log_msg(LOG_DEBUG,"setValuesForEnb : fd map size after add : %d.\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : cbIndex : %d, add enbFd %d: %d", cbIndex, enbCbCtx->getEnbFd(),val);
+                log_msg(LOG_DEBUG,"setValuesForEnb : fd map size after add : %d.", 
                         mme::S1apDataGroupManager::Instance()->sizeEnbFdKeyMap());
-                log_msg(LOG_DEBUG,"setValuesForEnb : Id map size after add : %d.\n", 
+                log_msg(LOG_DEBUG,"setValuesForEnb : Id map size after add : %d.", 
                         mme::S1apDataGroupManager::Instance()->sizeEnbIdKeyMap());
             }
         }
@@ -204,7 +204,7 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
     }
     else
     {
-        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.\n",cbIndex);
+        log_msg(LOG_ERROR, "Failed to find control block with cbIndex :%d.",cbIndex);
         return INVALID_CB_INDEX;
     }
 

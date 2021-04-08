@@ -37,7 +37,7 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	dsr_info.header.msg_type = delete_session_response;
 
 	/*****Message structure****/
-	log_msg(LOG_INFO, "Parse S11 DS resp message\n");
+	log_msg(LOG_INFO, "Parse S11 DS resp message");
 
 	//TODO : check cause for the result verification
 
@@ -50,7 +50,7 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
     }
     else
     {
-        log_msg(LOG_WARNING, "Unknown Teid in DSR.\n");
+        log_msg(LOG_WARNING, "Unknown Teid in DSR.");
         dsr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
@@ -60,7 +60,7 @@ s11_DS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	dsr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CS response msg*/
-	log_msg(LOG_INFO, "Send DS resp to mme-app stage8.\n");
+	log_msg(LOG_INFO, "Send DS resp to mme-app stage8.");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&dsr_info,
 		 	sizeof(struct DS_resp_Q_msg));
 

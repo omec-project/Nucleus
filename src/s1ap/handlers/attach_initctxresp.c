@@ -34,12 +34,12 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 	struct initctx_resp_Q_msg ics_resp= {0};
 
 	/*****Message structure****/
-	log_msg(LOG_INFO, "Parse int ctx s1ap response message:--\n");
+	log_msg(LOG_INFO, "Parse int ctx s1ap response message:--");
 	/*parse_IEs(msg+2, &s1_ics_ies, S1AP_INITIAL_CTX_RESP_CODE);*/
 	int decode_status = convertInitCtxRspToProtoIe(msg, &s1_ics_ies);
 	if(decode_status < 0) {
 		free(s1_ics_ies.data);
-		log_msg(LOG_ERROR, "Failed to decode s1ap message\n");
+		log_msg(LOG_ERROR, "Failed to decode s1ap message");
 		return E_FAIL;
 	}
     
@@ -67,7 +67,7 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
                     }
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_ics_ies.data[i].IE_type);
+                log_msg(LOG_WARNING,"Unhandled IE %d ",s1_ics_ies.data[i].IE_type);
         }
     }
 	
@@ -78,10 +78,10 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 	int i = send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&ics_resp, sizeof(struct initctx_resp_Q_msg));
 
 	if (i < 0) {
-		log_msg(LOG_ERROR, "Error to write in s1_init_ctx_resp_handler\n");
+		log_msg(LOG_ERROR, "Error to write in s1_init_ctx_resp_handler");
 	}
 	/*Send S1Setup response*/
-	log_msg(LOG_INFO, "Init ctx resp send to mme-app stage7. Bytes send %d\n", sizeof(struct initctx_resp_Q_msg));
+	log_msg(LOG_INFO, "Init ctx resp send to mme-app stage7. Bytes send %lu", sizeof(struct initctx_resp_Q_msg));
 
 	free(s1_ics_ies.data);
 	return SUCCESS;

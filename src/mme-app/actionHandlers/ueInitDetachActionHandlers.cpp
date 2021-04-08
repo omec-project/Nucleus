@@ -41,8 +41,8 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 {
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
-    log_msg(LOG_DEBUG, "%s Inside delete_session_req %u \n", __FUNCTION__, ue_ctxt->getContextID());
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+    log_msg(LOG_DEBUG, "Inside delete_session_req %u ", ue_ctxt->getContextID());
 
     bool status = false;
 
@@ -80,7 +80,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
         }
         else
         {
-            log_msg(LOG_DEBUG, "%s session context does not exist \n", __FUNCTION__);
+            log_msg(LOG_DEBUG, "session context does not exist ");
         }
     }
 
@@ -91,7 +91,7 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
     // so that abort can continue.
     if(!status)
     {
-        log_msg(LOG_DEBUG, "%s failure in handling dsreq event \n", __FUNCTION__);
+        log_msg(LOG_DEBUG, "failure in handling dsreq event ");
         MmeProcedureCtxt *procCtxt = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 
         if(procCtxt != NULL)
@@ -102,10 +102,10 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
                 {
                     // Action invoked as part of detach success path, return abort as
                     // we failed to send out delete session request to gw
-                    log_msg(LOG_DEBUG, "%s failure in handling dsreq event for detach_c procedure \n", __FUNCTION__);
+                    log_msg(LOG_DEBUG, "failure in handling dsreq event for detach_c procedure ");
                     if(procCtxt->getMmeErrorCause() == SUCCESS)
                     {
-                        log_msg(LOG_DEBUG, "%s failure in handling dsreq event. return abort \n", __FUNCTION__);
+                        log_msg(LOG_DEBUG, "failure in handling dsreq event. return abort ");
                         rc = ActStatus::ABORT;
                     }
 
@@ -124,9 +124,9 @@ ActStatus ActionHandlers::del_session_req(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside purge_req \n");
+	log_msg(LOG_DEBUG, "Inside purge_req ");
 	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 	
 	s6a_Q_msg purge_msg;
 	purge_msg.msg_type = purge_request;	
@@ -150,16 +150,16 @@ ActStatus ActionHandlers::purge_req(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside handle_delete_session_resp \n");
+	log_msg(LOG_DEBUG, "Inside handle_delete_session_resp ");
 	
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
 	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
 	if(sessionCtxtContainer.size() > 0)
 	{
 	    SessionContext* sessionCtxt = sessionCtxtContainer.front();
-	    VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL \n");
+	    VERIFY(sessionCtxt, return ActStatus::ABORT, "Session Context is NULL ");
 	    MmeContextManagerUtils::deallocateSessionContext(cb, sessionCtxt, ue_ctxt);
 	}
 	ProcedureStats::num_of_processed_del_session_resp ++;
@@ -169,10 +169,10 @@ ActStatus ActionHandlers::process_del_session_resp(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::process_pur_resp(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside handle_purge_resp \n");
+	log_msg(LOG_DEBUG, "Inside handle_purge_resp ");
 	
 	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 	//purge_resp_Q_msg_t *purge_msg = nullptr;
 	
 	/*Nothing is been done. Only takes the UE Index
@@ -187,9 +187,9 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 {
 	
 	UEContext *ue_ctxt =  static_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
   
-	log_msg(LOG_DEBUG, "%s - Inside send_detach_accept %u \n", __FUNCTION__,ue_ctxt->getContextID());
+	log_msg(LOG_DEBUG, "Inside send_detach_accept %u ",ue_ctxt->getContextID());
   
 	detach_accept_Q_msg detach_accpt;
 	detach_accpt.msg_type = detach_accept;
@@ -228,7 +228,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 	MmeContextManagerUtils::deallocateProcedureCtxt(cb, procedure_p );
 
 	MmContext* mmCtxt = ue_ctxt->getMmContext();
-	VERIFY_UE(cb, mmCtxt, "Invalid UE\n");
+	VERIFY_UE(cb, mmCtxt, "Invalid UE");
 
 	mmCtxt->setMmState(EpsDetached);
 	mmCtxt->setEcmState(ecmIdle_c);
@@ -248,7 +248,7 @@ ActStatus ActionHandlers::detach_accept_to_ue(SM::ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::abort_detach(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "abort_detach : Entry \n");
+    log_msg(LOG_DEBUG, "abort_detach : Entry ");
     MmeDetachProcedureCtxt *procedure_p =
             static_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
     if(procedure_p != NULL)
@@ -268,7 +268,7 @@ ActStatus ActionHandlers::abort_detach(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::handle_s1_rel_req_during_detach(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Recevied S1 Release Request during detach for cb %d\n", cb.getCBIndex());
+    log_msg(LOG_DEBUG, "Recevied S1 Release Request during detach for cb %d", cb.getCBIndex());
 
     MmeDetachProcedureCtxt *procedure_p =
             static_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());

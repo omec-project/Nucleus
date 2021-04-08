@@ -26,14 +26,14 @@ static int handover_preparation_failure_processing(
             &length);
     if (ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding Handover Preparation Failure failed.\n");
+        log_msg(LOG_ERROR, "Encoding Handover Preparation Failure failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_ho_prep_fail->src_enb_context_id, buffer, length, 1);
 
     log_msg(LOG_DEBUG,
-            "HO Handover Preparation Failure Sent. Num of bytes - %d\n",
+            "HO Handover Preparation Failure Sent. Num of bytes - %d",
             length);
 
 	if(buffer != NULL) {

@@ -85,7 +85,7 @@ extern "C"
 			errorStream.printDebugStream(LOG_ERROR);
         	} else
         	{
-        		log_msg(LOG_DEBUG,"GTP Encode Success\n");
+        		log_msg(LOG_DEBUG,"GTP Encode Success");
         	}
         	return rc;
         }
@@ -107,7 +107,7 @@ extern "C"
 			errorStream.printDebugStream();
         	} else
         	{
-        		log_msg(LOG_DEBUG,"GTP Decode Success\n");
+        		log_msg(LOG_DEBUG,"GTP Decode Success");
         	}
         	return rc;
     	}

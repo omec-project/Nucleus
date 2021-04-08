@@ -29,13 +29,13 @@
 static int
 relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
 {
-	log_msg(LOG_DEBUG,"Process Ctx rel cmd.\n");
+	log_msg(LOG_DEBUG,"Process Ctx rel cmd.");
 	uint32_t length = 0;
 	uint8_t *buffer = NULL;
 
 	struct s1ap_common_req_Q_msg req = {0};
 
-	log_msg(LOG_DEBUG,"Inside relcmd processing\n");
+	log_msg(LOG_DEBUG,"Inside relcmd processing");
 
 	req.IE_type = S1AP_CTX_REL_CMD;
 	req.enb_fd = g_uectxtrelcmd->enb_fd;
@@ -44,13 +44,13 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
 	req.cause.present = g_uectxtrelcmd->cause.present;
 	req.cause.choice.radioNetwork = g_uectxtrelcmd->cause.choice.radioNetwork;
 
-	log_msg(LOG_DEBUG,"Before s1ap_encoder\n");
+	log_msg(LOG_DEBUG,"Before s1ap_encoder");
 
 	int ret = s1ap_mme_encode_initiating(&req, &buffer, &length);
-	log_msg(LOG_DEBUG,"Invoked s1ap_encoder\n");
+	log_msg(LOG_DEBUG,"Invoked s1ap_encoder");
 	if(ret == -1)
 	{
-		log_msg(LOG_ERROR, "Encoding ctx rel cmd failed.\n");
+		log_msg(LOG_ERROR, "Encoding ctx rel cmd failed.");
 		return E_FAIL;
 	}
 
@@ -59,7 +59,7 @@ relcmd_processing(struct s1relcmd_info *g_uectxtrelcmd)
 	if(buffer != NULL) {
 		free(buffer);
 	}
-	log_msg(LOG_INFO, "-----S1 Release Command sent to UE. len %d ret %d---\n", length, ret);
+	log_msg(LOG_INFO, "-----S1 Release Command sent to UE. len %d ret %d---", length, ret);
 	return SUCCESS;
 
 }
@@ -71,7 +71,7 @@ void*
 s1_release_command_handler(void *data)
 {
 
-	log_msg(LOG_INFO, "s1 release command handler ready.\n");
+	log_msg(LOG_INFO, "s1 release command handler ready.");
 	
 	relcmd_processing((struct s1relcmd_info *)data);
 

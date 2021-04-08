@@ -34,7 +34,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     if(sessionCtxtContainer.size() < 1)
     {
         log_msg(LOG_DEBUG,
-		" send_ho_request_to_target_enb:Session context list is empty\n");
+		" send_ho_request_to_target_enb:Session context list is empty");
 	return;
     }
 
@@ -42,7 +42,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
     if (bearerCtxt == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve Bearer context for UE IDx %d\n",
+        log_msg(LOG_ERROR, "Failed to retrieve Bearer context for UE IDx %d",
                 cb.getCBIndex());
         return;
     }
@@ -139,7 +139,7 @@ bool MmeS1MsgUtils::populateErabSetupAndActDedBrReq(SM::ControlBlock &cb,
 
     SessionContext *sess_p = ueCtxt.findSessionContextByLinkedBearerId(procCtxt.getBearerId());
     VERIFY(sess_p, procCtxt.setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND);
-        return false, "Session Context is NULL\n");
+        return false, "Session Context is NULL");
 
     auto& cbBearerStatusCont = procCtxt.getBearerStatusContainer();
 

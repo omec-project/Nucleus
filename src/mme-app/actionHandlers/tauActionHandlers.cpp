@@ -52,19 +52,19 @@ extern mmeConfig *mme_tables;
 ***************************************/
 ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 {
-	log_msg(LOG_INFO,"Inside send_tau_response_to_ue\n");
+	log_msg(LOG_INFO,"Inside send_tau_response_to_ue");
 
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
-		log_msg(LOG_ERROR, "send_tau_response_to_ue: ue context is NULL\n",cb.getCBIndex());
+		log_msg(LOG_ERROR, "send_tau_response_to_ue: ue context is NULL",cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
 	MmeProcedureCtxt* prcdCtxt_p = dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
 	if (prcdCtxt_p == NULL)
 	{
-		log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureCtxt is NULL\n");
+		log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureCtxt is NULL");
 		return ActStatus::HALT;
 	}
 
@@ -159,7 +159,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	}
 	ProcedureStats::num_of_tau_response_to_ue_sent++;
 
-	log_msg(LOG_INFO,"Leaving send_tau_response_to_ue\n");
+	log_msg(LOG_INFO,"Leaving send_tau_response_to_ue");
 	return ActStatus::PROCEED;
 }
 

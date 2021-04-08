@@ -115,7 +115,7 @@ detach_accept_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received detach accept message  - encoded nas message size %d \n",g_acptReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received detach accept message  - encoded nas message size %d ",g_acptReqInfo->nasMsgSize);
 	datalen = g_acptReqInfo->nasMsgSize + 1; 
 	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
 	buffer_copy(&g_acpt_buffer, (void *)&g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
@@ -151,7 +151,7 @@ ue_ctx_release_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	uint8_t s1ap_len_pos;
 	uint8_t u8value = 0;
 
-	log_msg(LOG_INFO, "ue_ctx_release_processing \n");
+	log_msg(LOG_INFO, "ue_ctx_release_processing ");
 	s1apPDU.procedurecode = id_UEContexRelease;
 	s1apPDU.criticality = CRITICALITY_REJECT;
 
@@ -234,14 +234,14 @@ ue_ctx_release_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 	/* TODO : Revisit. cause : nas(2) and value : detach (2), why 0x24 ? */
 	u8value = 0x24;
 	buffer_copy(&g_ctxrel_buffer, &u8value, sizeof(u8value));
-	log_msg(LOG_INFO,"S1 Release sent to UE pos  = %d \n",g_ctxrel_buffer.pos);
+	log_msg(LOG_INFO,"S1 Release sent to UE pos  = %lu",g_ctxrel_buffer.pos);
 
 	/* Copy length to s1ap length field */
 	datalen = g_ctxrel_buffer.pos - s1ap_len_pos - 1;
 	memcpy(g_ctxrel_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 	send_sctp_msg(g_acptReqInfo->enb_fd, g_ctxrel_buffer.buf, g_ctxrel_buffer.pos,1);
 
-	log_msg(LOG_INFO,"S1 Release sent to UE size = %d \n",g_ctxrel_buffer.pos);
+	log_msg(LOG_INFO,"S1 Release sent to UE size = %lu",g_ctxrel_buffer.pos);
 	free(s1apPDU.value.data);
 
 	return SUCCESS;
@@ -253,7 +253,7 @@ ue_ctx_release_processing(const struct detach_accept_Q_msg *g_acptReqInfo)
 void*
 detach_accept_handler(void *data)
 {
-   log_msg(LOG_INFO, "detach accept handler ready.\n");
+   log_msg(LOG_INFO, "detach accept handler ready.");
    struct detach_accept_Q_msg *msg = (struct detach_accept_Q_msg *)data;
 
    detach_accept_processing(msg);

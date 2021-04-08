@@ -30,8 +30,8 @@ ie_parse_global_enb_id(char *msg, int len)
 	memcpy(&(global_enb_id.macro_enb_id), msg+(sizeof(int)), MACRO_ENB_ID_SIZE);
 	global_enb_id.plmn = ntohl(global_enb_id.plmn);
 	//global_enb_id.macro_enb_id = ntohl(global_enb_id.macro_enb_id);
-	log_msg(LOG_INFO, "plmn %x\n", global_enb_id.plmn);
-	log_msg(LOG_INFO, "Macro enb id %x-%x-%x-%x\n", global_enb_id.macro_enb_id[0],
+	log_msg(LOG_INFO, "plmn %x", global_enb_id.plmn);
+	log_msg(LOG_INFO, "Macro enb id %x-%x-%x-%x", global_enb_id.macro_enb_id[0],
 		global_enb_id.macro_enb_id[4],global_enb_id.macro_enb_id[8],global_enb_id.macro_enb_id[12]);
 	
 	return (void*)&global_enb_id;

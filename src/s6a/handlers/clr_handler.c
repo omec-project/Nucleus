@@ -57,7 +57,7 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	/*read session id and extract ue index*/
 	CHECK_FCT_DO(fd_sess_getsid(sess, &sess_id, (size_t*)&sess_id_len),
 			return S6A_FD_ERROR);
-	log_msg(LOG_INFO, "\n CLR callback ----- >session id=%s \n",sess_id);
+	log_msg(LOG_INFO, "CLR callback ----- >session id=%s ",sess_id);
     
 
 	/*AVP: Cancellation-Type*/

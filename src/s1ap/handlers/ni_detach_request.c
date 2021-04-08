@@ -113,7 +113,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received network initiated detach - nas message %d \n",g_acptReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received network initiated detach - nas message %d ",g_acptReqInfo->nasMsgSize);
 
 	datalen = g_acptReqInfo->nasMsgSize + 1; 
 
@@ -145,7 +145,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 void*
 ni_detach_request_handler(void *data)
 {
-   log_msg(LOG_INFO, "NI detach request handler ready.\n");
+   log_msg(LOG_INFO, "NI detach request handler ready.");
    struct ni_detach_request_Q_msg *msg = (struct ni_detach_request_Q_msg *)data;
 
    ni_detach_request_processing(msg);

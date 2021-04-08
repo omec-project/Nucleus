@@ -28,7 +28,7 @@ int create_unix_socket()
 
 	if (fd == -1)
 	{
-		log_msg(LOG_ERROR, "Socket creation failed\n");
+		log_msg(LOG_ERROR, "Socket creation failed");
 		return -1;
 	}
 
@@ -44,13 +44,13 @@ int create_unix_socket()
 
 	if (bind(fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
 		perror("Bind:");
-		log_msg(LOG_ERROR, "Bind failed \n");
+		log_msg(LOG_ERROR, "Bind failed ");
 		close(fd);
 		return -1;
 	}
 
 	if (listen(fd, MAX_PENDING_CONN) == -1) {
-		log_msg(LOG_ERROR, "listen() failed \n");
+		log_msg(LOG_ERROR, "listen() failed ");
 		close(fd);
 		return -1;
 	}

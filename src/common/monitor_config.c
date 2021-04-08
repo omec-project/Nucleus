@@ -49,7 +49,7 @@ handle_events(int fd, int *wd, config_watch_t *config)
     char *ptr;
 
     /* Loop while events can be read from inotify file descriptor. */
-    log_msg(LOG_INFO,"Config - %p - Received file event for %s at time %lu \n",config, config->config_file, t);
+    log_msg(LOG_INFO,"Config - %p - Received file event for %s at time %lu ",config, config->config_file, t);
     for (;;) {
 
         /* Read some events. */
@@ -130,7 +130,7 @@ handle_events(int fd, int *wd, config_watch_t *config)
 #ifdef TEST_LOCALLY
 void config_change_callback(char *configFile, uint32_t flags)
 {
-  printf("Received config change callback %s\n",__FUNCTION__);
+  printf("Received config change callback %s",__FUNCTION__);
   return;
 }
 
@@ -152,7 +152,7 @@ config_thread_handler(void *config)
   config_watch_t *cfg = (config_watch_t *)config;
   int fd = 0 ; 
 
-  log_msg(LOG_INFO, "Thread started for monitoring config file %s - Monitoring config object  %p \n",cfg->config_file, cfg);
+  log_msg(LOG_INFO, "Thread started for monitoring config file %s - Monitoring config object  %p ",cfg->config_file, cfg);
 
   fd = inotify_init1(IN_NONBLOCK);
   if (fd == -1) 
@@ -164,10 +164,10 @@ config_thread_handler(void *config)
   wd = inotify_add_watch(fd, cfg->config_file, IN_ALL_EVENTS); //OPEN | IN_CLOSE);
   if (wd == -1) 
   {
-      log_msg(LOG_INFO, "Can not watch file. File does not exist - %s \n",cfg->config_file);
+      log_msg(LOG_INFO, "Can not watch file. File does not exist - %s ",cfg->config_file);
       return NULL;
   }
-  log_msg(LOG_INFO, "add_watch return %d \n", wd);
+  log_msg(LOG_INFO, "add_watch return %d ", wd);
 
   /* Prepare for polling */
   nfds = 1;
@@ -198,13 +198,13 @@ config_thread_handler(void *config)
         bool handled = handle_events(fd, &wd, cfg);
         if(handled == true)
         {
-          log_msg(LOG_DEBUG, "FILE change detected\n");
+          log_msg(LOG_DEBUG, "FILE change detected");
           if(cfg->always == true)
           {
             wd = inotify_add_watch(fd, cfg->config_file, IN_ALL_EVENTS); //OPEN | IN_CLOSE);
             if (wd == -1) 
             {
-              fprintf(stderr, "Cannot watch \n");
+              fprintf(stderr, "Cannot watch ");
               perror("inotify_add_watch");
               exit(1);
             }
@@ -218,7 +218,7 @@ config_thread_handler(void *config)
     }
   }
 
-  log_msg(LOG_INFO, "Thread closing for monitoring config file %s Config-%p \n",cfg->config_file, cfg);
+  log_msg(LOG_INFO, "Thread closing for monitoring config file %s Config-%p ",cfg->config_file, cfg);
   free(cfg);
   return NULL;
 }

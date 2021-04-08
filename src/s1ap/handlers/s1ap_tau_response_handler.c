@@ -37,7 +37,7 @@ get_tau_rsp_protoie_value(struct proto_IE *value, struct tauResp_Q_msg *g_tauRes
 	value->data[0].val.mme_ue_s1ap_id = g_tauRespInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_tauRespInfo->s1ap_enb_ue_id;
 
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
+	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d",
 			g_tauRespInfo->ue_idx, g_tauRespInfo->s1ap_enb_ue_id);
 
 	//free(value->data);
@@ -196,7 +196,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	buffer_copy(&g_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received TAU response from mme-app. Nas message %d \n",g_tauRespInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received TAU response from mme-app. Nas message %d ",g_tauRespInfo->nasMsgSize);
 	datalen = g_tauRespInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_buffer, &datalen,
@@ -209,7 +209,7 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 
    	send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);
-	log_msg(LOG_INFO, "\nTAU RESP received from MME\n");
+	log_msg(LOG_INFO, "TAU RESP received from MME");
     if(s1apPDU.value.data)
     {
         free(s1apPDU.value.data);
@@ -223,7 +223,7 @@ void*
 tau_response_handler(void *data)
 {
 
-	log_msg(LOG_INFO, "TAU response handler ready.\n");
+	log_msg(LOG_INFO, "TAU response handler ready.");
 
 	tau_rsp_processing((struct tauResp_Q_msg *)data);
 	

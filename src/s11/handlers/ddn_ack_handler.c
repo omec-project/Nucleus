@@ -44,7 +44,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 	struct MsgBuffer* ddnAckMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(ddnAckMsgBuf_p == NULL)
 	{
-	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
             return -1;
 	}
 	GtpV2MessageHeader gtpHeader;
@@ -70,7 +70,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 			MsgBuffer_getBufLen(ddnAckMsgBuf_p), 0,
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	
-	log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
+	log_msg(LOG_INFO, "DDN Ack Sent, len - %d bytes.", MsgBuffer_getBufLen(ddnAckMsgBuf_p));
 	MsgBuffer_free(ddnAckMsgBuf_p);
 	return SUCCESS;
 }
@@ -82,7 +82,7 @@ ddn_ack_processing(struct DDN_ACK_Q_msg *ddn_ack_msg)
 void*
 ddn_ack_handler(void *data)
 {
-	log_msg(LOG_INFO, "DDN Ack handler initialized\n");
+	log_msg(LOG_INFO, "DDN Ack handler initialized");
     ddn_ack_processing((struct DDN_ACK_Q_msg *)data);
 	return NULL;
 }

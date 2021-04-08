@@ -53,7 +53,7 @@ using namespace cmn;
 ***************************************/
 ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 {
-	log_msg(LOG_ERROR, "default_attach_req_handler \n");
+	log_msg(LOG_ERROR, "default_attach_req_handler ");
 
 	UEContext* ueCtxt_p = NULL;
 	MmContext* mmCtxt = NULL;
@@ -65,7 +65,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 	if (msgBuf == NULL)
 	{
-		log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+		log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
 
 		// Invalid message. Cannot proceed further.
 		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -79,7 +79,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	AttachType attachType = MmeCommonUtils::getAttachType(ueCtxt_p, *ue_info);
 	if (attachType == maxAttachType_c)
 	{
-		log_msg(LOG_ERROR, "Failed to identify attach type \n");
+		log_msg(LOG_ERROR, "Failed to identify attach type ");
 
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
@@ -90,7 +90,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		ueCtxt_p = SubsDataGroupManager::Instance()->getUEContext();
 		if (ueCtxt_p == NULL)
 		{
-			log_msg(LOG_ERROR, "Failed to allocate UE context \n");
+			log_msg(LOG_ERROR, "Failed to allocate UE context ");
 
 	        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			return ActStatus::HALT;
@@ -99,7 +99,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		mmCtxt = SubsDataGroupManager::Instance()->getMmContext();
 		if( mmCtxt == NULL )
 		{
-			log_msg(LOG_ERROR, "Failed to allocate MM Context \n");
+			log_msg(LOG_ERROR, "Failed to allocate MM Context ");
 
 			MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			return ActStatus::HALT;
@@ -117,7 +117,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	MmeAttachProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeAttachProcedureCtxt();
 	if( prcdCtxt_p == NULL )
 	{
-		log_msg(LOG_ERROR, "Failed to allocate Procedure Context \n");
+		log_msg(LOG_ERROR, "Failed to allocate Procedure Context ");
 
 		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 		return ActStatus::HALT;
@@ -207,19 +207,19 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 ActStatus ActionHandlers::default_detach_req_handler(ControlBlock& cb)
 {
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message buffer is NULL \n");
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message buffer is NULL ");
 
     const s1_incoming_msg_header_t* msgData_p =
             static_cast<const s1_incoming_msg_header_t*>(msgBuf->getDataPointer());
-    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message data buffer is NULL \n");
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Detach Hdlr: message data buffer is NULL ");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt, "Detach Hdlr: UE Context is NULL \n");
+    VERIFY_UE(cb, ueCtxt, "Detach Hdlr: UE Context is NULL ");
 
     MmeDetachProcedureCtxt* prcdCtxt_p = MmeContextManagerUtils::allocateDetachProcedureCtxt(cb, ueInitDetach_c);
     if( prcdCtxt_p == NULL )
     {
-        log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d\n", cb.getCBIndex());
+        log_msg(LOG_ERROR, "Failed to allocate procedure context for detach cbIndex %d", cb.getCBIndex());
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         return ActStatus::PROCEED;
     }
@@ -244,10 +244,10 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
 
     VERIFY(msgBuf, return ActStatus::PROCEED,
-            "default_ddn_handler: Invalid message buffer \n");
+            "default_ddn_handler: Invalid message buffer ");
 
     VERIFY(msgBuf->getLength() >= sizeof(struct ddn_Q_msg),
-            return ActStatus::PROCEED, "default_ddn_handler: Invalid DDN message length \n");
+            return ActStatus::PROCEED, "default_ddn_handler: Invalid DDN message length ");
 
     const struct ddn_Q_msg *ddn_info =
     		static_cast<const ddn_Q_msg*>(msgBuf->getDataPointer());
@@ -280,21 +280,21 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
             else
             {
                 log_msg(LOG_INFO,
-                        "default_ddn_handler: Failed to allocate procedure context \n");
+                        "default_ddn_handler: Failed to allocate procedure context ");
                 gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
             }
         }
         else
         {
             log_msg(LOG_INFO,
-                    "default_ddn_handler: Failed to find session context \n");
+                    "default_ddn_handler: Failed to find session context ");
             gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
         }
     }
     else
     {
         log_msg(LOG_INFO,
-                "default_ddn_handler: Failed to find UE context \n");
+                "default_ddn_handler: Failed to find UE context ");
 
         gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
 
@@ -327,14 +327,14 @@ ActStatus ActionHandlers::default_ddn_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "default_service_req_handler \n");
+    log_msg(LOG_DEBUG, "default_service_req_handler ");
 
     ProcedureStats::num_of_service_request_received++;
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
         return ActStatus::HALT;
     }
 
@@ -353,7 +353,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
                     MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(cb, none_c);
             if (srvReqProc_p != NULL)
             {
-                log_msg(LOG_ERROR, "Allocated service request procedure context \n");
+                log_msg(LOG_ERROR, "Allocated service request procedure context ");
                 mmCtxt->setEcmState(ecmConnected_c);
                 ueCtxt->setS1apEnbUeId(serviceReq->header.s1ap_enb_ue_id);
 
@@ -362,14 +362,14 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
             }
             else
             {
-                log_msg(LOG_ERROR, "Failed to allocate procedure context \n");
+                log_msg(LOG_ERROR, "Failed to allocate procedure context ");
 
                 emmCause = emmCause_network_failure;
             }
         }
         else
         {
-            log_msg(LOG_ERROR, "Invalid UE Context in service request handling\n");
+            log_msg(LOG_ERROR, "Invalid UE Context in service request handling");
 
             emmCause = emmCause_ue_id_not_derived_by_network;
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -377,7 +377,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL in service request handling\n");
+        log_msg(LOG_ERROR, "UE Context is NULL in service request handling");
 
         emmCause = emmCause_ue_id_not_derived_by_network;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -385,7 +385,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 
     if (emmCause != 0)
     {
-        log_msg(LOG_INFO, "Send service request reject for enb context %u \n", serviceReq->enb_fd);
+        log_msg(LOG_INFO, "Send service request reject for enb context %u ", serviceReq->enb_fd);
         struct commonRej_info serviceRej =
         {
                 service_reject,
@@ -412,10 +412,10 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
 ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 {
 	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL \n");
+	VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL ");
 
 	MmContext* mmCtxt = ueCtxt->getMmContext();
-    	VERIFY_UE(cb, mmCtxt, "CLR Hdlr: MmContext is NULL \n");
+    	VERIFY_UE(cb, mmCtxt, "CLR Hdlr: MmContext is NULL ");
 	
 	ProcedureStats::num_of_clr_received ++;
 	ProcedureStats::num_of_cla_sent ++;
@@ -423,7 +423,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	if (mmCtxt->getMmState() == EpsDetached)
 	{
 		log_msg(LOG_INFO, "Subscriber is already detached. "
-				"Cleaning up the contexts. UE IDx %d\n", cb.getCBIndex());
+				"Cleaning up the contexts. UE IDx %d", cb.getCBIndex());
 		
 		MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());		
 		return ActStatus::PROCEED;
@@ -434,7 +434,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	if(prcdCtxt_p == NULL)
 	{
         	log_msg(LOG_ERROR,
-                	"Failed to allocate procedure context for detach cbIndex %d\n",
+                	"Failed to allocate procedure context for detach cbIndex %d",
                 	cb.getCBIndex());
         	MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         	return ActStatus::PROCEED;
@@ -456,7 +456,7 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve message buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
 	// Wait for UE to retry.
         return ActStatus::PROCEED;
     }
@@ -465,7 +465,7 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
             static_cast<s1_incoming_msg_header_t*>(msgBuf->getDataPointer());
     if (msgData_p == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer ");
 	// Wait for UE to retry.
         return ActStatus::PROCEED;
     }
@@ -473,7 +473,7 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
     MmeS1RelProcedureCtxt* prcdCtxt_p = SubsDataGroupManager::Instance()->getMmeS1RelProcedureCtxt();
     if( prcdCtxt_p == NULL )
     {
-	log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt \n");
+	log_msg(LOG_ERROR, "Failed to allocate procedure Ctxt ");
 	// Wait for UE to retry.
 	return ActStatus::PROCEED;
     }
@@ -496,14 +496,14 @@ ActStatus ActionHandlers::default_s1_release_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "default_tau_req_handler: Entry \n");
+    log_msg(LOG_DEBUG, "default_tau_req_handler: Entry ");
 
     ProcedureStats::num_of_tau_req_received++;
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL \n");
+        log_msg(LOG_DEBUG, "process_tau_req: msgBuf is NULL ");
         return ActStatus::HALT;
     }
 
@@ -548,14 +548,14 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
             }
             else
             {
-                log_msg(LOG_ERROR, "Failed to allocate procedure context \n");
+                log_msg(LOG_ERROR, "Failed to allocate procedure context ");
 
                 emmCause = emmCause_network_failure;
             }
         }
         else
         {
-            log_msg(LOG_ERROR, "Invalid UE Context \n");
+            log_msg(LOG_ERROR, "Invalid UE Context ");
 
             emmCause = emmCause_ue_id_not_derived_by_network;
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -563,7 +563,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL \n");
+        log_msg(LOG_ERROR, "UE Context is NULL ");
 
         emmCause = emmCause_ue_id_not_derived_by_network;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -599,7 +599,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_DEBUG,"process_handover_required: msgBuf is NULL \n");
+        log_msg(LOG_DEBUG,"process_handover_required: msgBuf is NULL ");
         return ActStatus::HALT;
     }
 
@@ -607,7 +607,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
             static_cast<const handover_required_Q_msg_t*>(msgBuf->getDataPointer());
     if (hoReq == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer ");
         return ActStatus::HALT;
     }
 
@@ -615,14 +615,14 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	if (hoReqProc_p == NULL)
 	{
 		log_msg(LOG_ERROR, "Failed to allocate procedure context"
-				" for ho required cbIndex %d\n", cb.getCBIndex());
+				" for ho required cbIndex %d", cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
 	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	if (ueCtxt == NULL)
 	{
-		log_msg(LOG_DEBUG, "ue context is NULL \n");
+		log_msg(LOG_DEBUG, "ue context is NULL ");
 		return ActStatus::HALT;
 	}
 
@@ -645,14 +645,14 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 *******************************************************/
 ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "default_erab_mod_indication_handler: Entry \n");
+    log_msg(LOG_DEBUG, "default_erab_mod_indication_handler: Entry ");
 
     ProcedureStats::num_of_erab_mod_ind_received++;
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ueCtxt == NULL)
     {
-        log_msg(LOG_ERROR, "UE Context is NULL \n");
+        log_msg(LOG_ERROR, "UE Context is NULL ");
 
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         return ActStatus::HALT;
@@ -661,14 +661,14 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
     {
-        log_msg(LOG_DEBUG, "process_erab_mod_indication: msgBuf is NULL \n");
+        log_msg(LOG_DEBUG, "process_erab_mod_indication: msgBuf is NULL ");
         return ActStatus::PROCEED;
     }
 
     const erab_mod_ind_Q_msg_t *erabModInd = static_cast<const erab_mod_ind_Q_msg_t*>(msgBuf->getDataPointer());
     if (erabModInd == NULL)
     {
-        log_msg(LOG_ERROR, "Failed to retrieve data buffer \n");
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer ");
         return ActStatus::PROCEED;
     }
 
@@ -685,7 +685,7 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
     }
     else
     {
-        log_msg(LOG_INFO, "Failed to allocate procedure context \n");
+        log_msg(LOG_INFO, "Failed to allocate procedure context ");
     }
 
     return ActStatus::PROCEED;
@@ -696,18 +696,18 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
  ***************************************/
 ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "default_create_bearer_req_handler: Entry \n");
+    log_msg(LOG_DEBUG, "default_create_bearer_req_handler: Entry ");
     ProcedureStats::num_of_create_bearer_req_received++;
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     // Invalid buffer. Nothing to do, wait for gw to retry.
     VERIFY(msgBuf, return ActStatus::PROCEED,
-            "Invalid create bearer request msg buffer\n");
+            "Invalid create bearer request msg buffer");
 
     const cb_req_Q_msg *cb_req =
             static_cast<const cb_req_Q_msg*>(msgBuf->getDataPointer());
     VERIFY(cb_req, return ActStatus::PROCEED,
-            "Invalid create bearer request data\n");
+            "Invalid create bearer request data");
 
     uint8_t gtpCause = 0;
     int sgw_cp_teid = 0;
@@ -754,7 +754,7 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
                     else
                     {
                         log_msg(LOG_ERROR,
-                                "Failed to allocate context for paging procedure.\n");
+                                "Failed to allocate context for paging procedure.");
                         gtpCause = GTPV2C_CAUSE_UNABLE_TO_PAGE_UE;
                     }
 
@@ -768,19 +768,19 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
             else
             {
                 log_msg(LOG_INFO,
-                        "Failed to allocate context for create bearer procedure.\n");
+                        "Failed to allocate context for create bearer procedure.");
                 gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
             }
         }
         else
         {
-            log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL \n");
+            log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL ");
             gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         }
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL \n");
+        log_msg(LOG_ERROR, "UE Context is NULL ");
 
         gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -816,7 +816,7 @@ ActStatus ActionHandlers::default_create_bearer_req_handler(ControlBlock &cb)
 ***************************************/
 ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "handle_paging_failure: Entry \n");
+    log_msg(LOG_DEBUG, "handle_paging_failure: Entry ");
 
     ActStatus rc = ActStatus::PROCEED;
 
@@ -844,7 +844,7 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_paging_failure: Exit \n");
+    log_msg(LOG_DEBUG, "handle_paging_failure: Exit ");
 
     return rc;
 }
@@ -854,17 +854,17 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Entry \n");
+    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Entry ");
 	
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     // Invalid buffer. Nothing to do, wait for gw to retry.
     VERIFY(msgBuf, return ActStatus::PROCEED,
-            "Invalid delete bearer request msg buffer\n");
+            "Invalid delete bearer request msg buffer");
 
     const db_req_Q_msg *db_req =
             static_cast<const db_req_Q_msg*>(msgBuf->getDataPointer());
     VERIFY(db_req, return ActStatus::PROCEED,
-            "Invalid delete bearer request data\n");
+            "Invalid delete bearer request data");
 
     uint8_t gtpCause = 0;
     int sgw_cp_teid = 0;
@@ -912,7 +912,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                     }
                     else if (mmCtxt->getEcmState() == ecmIdle_c)
                     {
-                        log_msg(LOG_DEBUG,"UE is IDLE\n");
+                        log_msg(LOG_DEBUG,"UE is IDLE");
                         if (db_req->linked_bearer_id == 0 && db_req->cause != GTPV2C_CAUSE_REACTIVATION_REQUESTED)
                         {
                             for (int i = 0; i < db_req->eps_bearer_ids_count; i++)
@@ -935,7 +935,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                             // If ECM state is ECM idle, allocate service request and set paging
                             // trigger as pgwInit_c, so that at the end of service request procedure,
                             // DBReq procedure will be informed and can proceed with the ded deactivation.
-                            log_msg(LOG_DEBUG,"In Idle\n");
+                            log_msg(LOG_DEBUG,"In Idle");
                             srvReqProc_p =
                                 MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
                                         cb, pgwInit_c);
@@ -947,7 +947,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                             else
                             {
                                 log_msg(LOG_ERROR,
-                                    "Failed to allocate context for paging procedure.\n");
+                                    "Failed to allocate context for paging procedure.");
                                 gtpCause = GTPV2C_CAUSE_UNABLE_TO_PAGE_UE;
                             }
                         }
@@ -971,25 +971,25 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
                 else
                 {
                     log_msg(LOG_INFO,
-                            "Failed to allocate context for delete bearer procedure.\n");
+                            "Failed to allocate context for delete bearer procedure.");
                     gtpCause = GTPV2C_CAUSE_REQUEST_REJECTED;
                 }
             }
             else
             {
-                log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL \n");
+                log_msg(LOG_ERROR, "Invalid UE Context. MmContext is NULL ");
                 gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
             }
         }
         else
         {
-            log_msg(LOG_ERROR, "Invalid UE Context. Session Context is NULL \n");
+            log_msg(LOG_ERROR, "Invalid UE Context. Session Context is NULL ");
             gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         }
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL \n");
+        log_msg(LOG_ERROR, "UE Context is NULL ");
 
         gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
@@ -1017,7 +1017,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
         		dispatchIpcMsg((char*) &dbRsp, sizeof(dbRsp), destAddr);
     }
 	
-    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Exit \n");
+    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Exit ");
 	
     return ActStatus::PROCEED;
 }
@@ -1027,7 +1027,7 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "handle_detach_failure: Entry \n");
+    log_msg(LOG_DEBUG, "handle_detach_failure: Entry ");
 
     ActStatus rc = ActStatus::PROCEED;
 
@@ -1049,7 +1049,7 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         }
     }
-    log_msg(LOG_DEBUG, "handle_detach_failure: Exit \n");
+    log_msg(LOG_DEBUG, "handle_detach_failure: Exit ");
 
     return rc;
 }

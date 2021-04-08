@@ -43,12 +43,12 @@ s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 	{
 			
 			log_msg(LOG_ERROR, "s11_Ddn_handler: "
-					   "Failed to decode ddn Msg %d\n",
+					   "Failed to decode ddn Msg %d",
 								hdr->teid);
 			return E_PARSING_FAILED;
 	}
 	/*****Message structure****/
-	log_msg(LOG_INFO, "Parse S11 Ddn message\n");
+	log_msg(LOG_INFO, "Parse S11 Ddn message");
 
 	//TODO : check cause for the result verification
 	if (msgData.allocationRetentionPriorityIePresent) {
@@ -65,7 +65,7 @@ s11_DDN_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip)
 	ddn_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send DDN msg*/
-	log_msg(LOG_INFO, "Send ddn to mme-app\n");
+	log_msg(LOG_INFO, "Send ddn to mme-app");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&ddn_info, sizeof(struct ddn_Q_msg));
 
 	return SUCCESS;

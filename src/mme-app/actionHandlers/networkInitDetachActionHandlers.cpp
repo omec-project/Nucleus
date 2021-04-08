@@ -34,13 +34,13 @@ using namespace cmn::utils;
 
 ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside ni_detach_req_to_ue \n");
+	log_msg(LOG_DEBUG, "Inside ni_detach_req_to_ue ");
 	
 	UEContext *ue_ctxt =  dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
 	MmeDetachProcedureCtxt *procCtxt =  dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
-	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL ");
 
 	ni_detach_request_Q_msg ni_detach_req;
 	
@@ -88,10 +88,10 @@ ActStatus ActionHandlers::ni_detach_req_to_ue(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside process_detach_accept_from_ue \n");
+	log_msg(LOG_DEBUG, "Inside process_detach_accept_from_ue ");
 		
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 		
 	//ue_ctxt->getUeSecInfo().increment_uplink_count();
 
@@ -105,10 +105,10 @@ ActStatus ActionHandlers::process_detach_accept_from_ue(SM::ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_detach\n");
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_detach");
 
     UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     struct s1relcmd_info s1relcmd;
 
@@ -136,15 +136,15 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_detach(ControlBlock& cb)
 **************************************************************/
 ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Inside process_ue_ctxt_rel_comp_for_detach \n");
+    log_msg(LOG_DEBUG, "Inside process_ue_ctxt_rel_comp_for_detach ");
 
     UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt, "Invalid UE");
     MmeDetachProcedureCtxt *procCtxt = dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
-    VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+    VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL ");
 
     MmContext* mmCtxt = ueCtxt->getMmContext();
-    VERIFY_UE(cb, mmCtxt, "Invalid UE\n");
+    VERIFY_UE(cb, mmCtxt, "Invalid UE");
 
     if(procCtxt->getCancellationType() == SUBSCRIPTION_WITHDRAWAL)
     {

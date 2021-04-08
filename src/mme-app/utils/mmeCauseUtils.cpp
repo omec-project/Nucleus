@@ -16,7 +16,7 @@ using namespace mme;
 
 uint32_t MmeCauseUtils::convertToNasEmmCause(ERROR_CODES mmeErrorCause)
 {
-    log_msg(LOG_DEBUG, "MME Error Cause %d\n", mmeErrorCause);
+    log_msg(LOG_DEBUG, "MME Error Cause %d", mmeErrorCause);
 
 	uint32_t nasEmmCause = 0;
 
@@ -36,7 +36,7 @@ uint32_t MmeCauseUtils::convertToNasEmmCause(ERROR_CODES mmeErrorCause)
 
 uint32_t MmeCauseUtils::convertToGtpCause(ERROR_CODES mmeErrorCause)
 {
-    log_msg(LOG_DEBUG, "MME Error Cause %d\n", mmeErrorCause);
+    log_msg(LOG_DEBUG, "MME Error Cause %d", mmeErrorCause);
 
 	uint32_t gtpCause = 0;
 
@@ -61,7 +61,7 @@ uint32_t MmeCauseUtils::convertToGtpCause(ERROR_CODES mmeErrorCause)
 
 S1apCause MmeCauseUtils::convertToS1apCause(ERROR_CODES mmeErrorCause)
 {
-    log_msg(LOG_DEBUG, "MME Error Cause %d\n", mmeErrorCause);
+    log_msg(LOG_DEBUG, "MME Error Cause %d", mmeErrorCause);
 
     S1apCause s1apCause;
 

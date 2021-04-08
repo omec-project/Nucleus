@@ -21,12 +21,12 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
 {
     handover_notify_Q_msg_t notify = {0};
     struct proto_IE ho_notify_ies = {0};
-    log_msg(LOG_INFO, "Parse s1ap handover notify message\n");
+    log_msg(LOG_INFO, "Parse s1ap handover notify message");
 
     int decode_status = convertHoNotifyToProtoIe(msg, &ho_notify_ies);
     if (decode_status < 0)
     {
-        log_msg(LOG_ERROR, "Failed to decode HO Notify\n");
+        log_msg(LOG_ERROR, "Failed to decode HO Notify");
 
         if (ho_notify_ies.data != NULL)
             free(ho_notify_ies.data);
@@ -40,7 +40,7 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
         {
         case S1AP_IE_MME_UE_ID:
         {
-            log_msg(LOG_INFO, "handover notify S1AP_IE_MME_UE_ID.\n");
+            log_msg(LOG_INFO, "handover notify S1AP_IE_MME_UE_ID.");
             notify.header.ue_idx = ho_notify_ies.data[i].val.mme_ue_s1ap_id;
             notify.s1ap_mme_ue_id =
                     ho_notify_ies.data[i].val.mme_ue_s1ap_id;
@@ -48,21 +48,21 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
             break;
         case S1AP_IE_ENB_UE_ID:
         {
-            log_msg(LOG_INFO, "handover notify S1AP_IE_ENB_UE_ID.\n");
+            log_msg(LOG_INFO, "handover notify S1AP_IE_ENB_UE_ID.");
             notify.header.s1ap_enb_ue_id =
                     ho_notify_ies.data[i].val.enb_ue_s1ap_id;
         }
             break;
         case S1AP_IE_UTRAN_CGI:
         {
-            log_msg(LOG_INFO, "handover notify S1AP_IE_UTRAN_CGI.\n");
+            log_msg(LOG_INFO, "handover notify S1AP_IE_UTRAN_CGI.");
             memcpy(&notify.utran_cgi,
                     &ho_notify_ies.data[i].val.utran_cgi, sizeof(struct CGI));
         }
             break;
         case S1AP_IE_TAI:
         {
-            log_msg(LOG_INFO, "handover notify S1AP_IE_TAI.\n");
+            log_msg(LOG_INFO, "handover notify S1AP_IE_TAI.");
             memcpy(&notify.tai,
                     &ho_notify_ies.data[i].val.tai, sizeof(struct TAI));
         }
@@ -81,11 +81,11 @@ int s1_handover_notify_handler(InitiatingMessage_t *msg)
             sizeof(notify));
     if (i < 0)
     {
-        log_msg(LOG_ERROR, "Error To write in s1_handover_notify_handler\n");
+        log_msg(LOG_ERROR, "Error To write in s1_handover_notify_handler");
     }
 
     log_msg(LOG_INFO, "Handover notify complete sent to mme-app."
-            "Bytes sent %d\n", i);
+            "Bytes sent %d", i);
 
     if (ho_notify_ies.data != NULL)
         free(ho_notify_ies.data);

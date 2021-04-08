@@ -58,7 +58,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 	struct MsgBuffer*  mbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(mbReqMsgBuf_p == NULL)
 	{
-	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
             return -1;
 	}
 	GtpV2MessageHeader gtpHeader;
@@ -144,7 +144,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 			(struct sockaddr*)&sgw_ip,
 			g_s11_serv_size);
 	//TODO " error chk, eagain etc?	
-	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(mbReqMsgBuf_p));
+	log_msg(LOG_INFO, "Modify bearer sent, len - %d bytes.", MsgBuffer_getBufLen(mbReqMsgBuf_p));
 
 	MsgBuffer_free(mbReqMsgBuf_p);
 
@@ -157,7 +157,7 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 void*
 modify_bearer_handler(void *data)
 {
-	log_msg(LOG_INFO, "Modify bearer handler initialized\n");
+	log_msg(LOG_INFO, "Modify bearer handler initialized");
 	
 	modify_bearer_processing((struct MB_Q_msg *)data);
 

@@ -19,12 +19,12 @@ extern s1ap_instance_t *s1ap_inst;
 void s1ap_config_change_cbk(char *config_file, uint32_t flags)
 {
 	// Run the script with this file. It generates new config for mme
-	log_msg(LOG_INFO, "Received %s . File %s Flags %x \n", __FUNCTION__, config_file, flags);
+	log_msg(LOG_INFO, "Received %s . File %s Flags %x ", __FUNCTION__, config_file, flags);
 
     char cmd[128];  
     sprintf(cmd, "cp %s %s ",config_file, "/openmme/target/conf/s1ap.json"); 
     int ret = system(cmd);
-    log_msg(LOG_DEBUG,"command %s return value %d \n", cmd, ret);
+    log_msg(LOG_DEBUG,"command %s return value %d ", cmd, ret);
 
 
 	s1ap_config_t *current_config = get_s1ap_config();

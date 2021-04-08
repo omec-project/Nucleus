@@ -42,12 +42,12 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEMsgUnqPtr eMsg)
     utils::MsgBuffer *msgBuf = eMsg->getMsgBuffer();
     if (msgBuf == NULL)
     {
-        log_msg(LOG_INFO, "GTP Message Buffer is empty \n");
+        log_msg(LOG_INFO, "GTP Message Buffer is empty ");
         return;
     }
     if (msgBuf->getLength() < sizeof(gtp_incoming_msg_data_t))
     {
-        log_msg(LOG_INFO, "Not enough bytes in gtp message \n");
+        log_msg(LOG_INFO, "Not enough bytes in gtp message ");
         return;
     }
 
@@ -113,7 +113,7 @@ void GtpMsgHandler::handleGtpMessage_v(IpcEMsgUnqPtr eMsg)
                 break;
 
 		default:
-			log_msg(LOG_INFO, "Unhandled Gtp Message %d \n", msgData_p->msg_type);
+			log_msg(LOG_INFO, "Unhandled Gtp Message %d ", msgData_p->msg_type);
 	}
 
 }
@@ -126,7 +126,7 @@ void GtpMsgHandler::handleCreateSessionResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleCreateSessionResponseMsg_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -144,7 +144,7 @@ void GtpMsgHandler::handleModifyBearerResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleModifyBearerResponseMsg_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -162,7 +162,7 @@ void GtpMsgHandler::handleDeleteSessionResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleDeleteSessionResponse_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -179,7 +179,7 @@ void GtpMsgHandler::handleReleaseBearerResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleReleaseBearerResponse_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -191,14 +191,14 @@ void GtpMsgHandler::handleReleaseBearerResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_
 
 void GtpMsgHandler::handleDdnMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO,"Inside handle DDN\n");
+	log_msg(LOG_INFO,"Inside handle DDN");
 
 	SM::ControlBlock* controlBlk_p =
 	        MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleDdnMsg_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -210,7 +210,7 @@ void GtpMsgHandler::handleDdnMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-        log_msg(LOG_INFO,"Inside handle Create Bearer Request\n");
+        log_msg(LOG_INFO,"Inside handle Create Bearer Request");
 
         SM::ControlBlock* controlBlk_p =
                 MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
@@ -218,7 +218,7 @@ void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t 
         {
                    /* TODO : generate CBRsp with cause context not found */
                   log_msg(LOG_ERROR, "handleCreateBearerRequestMsg_v: "
-                                                        "Failed to find UE context using idx %d\n",
+                                                        "Failed to find UE context using idx %d",
                                                         ueIdx);
                 return;
         }
@@ -230,14 +230,14 @@ void GtpMsgHandler::handleCreateBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t 
 
 void GtpMsgHandler::handleDeleteBearerRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-        log_msg(LOG_INFO,"Inside handle Delete Bearer Request\n");
+        log_msg(LOG_INFO,"Inside handle Delete Bearer Request");
 
         SM::ControlBlock* controlBlk_p =
                 MmeCommonUtils::findControlBlockForS11Msg(eMsg->getMsgBuffer());
         if(controlBlk_p == NULL)
         {
                 log_msg(LOG_ERROR, "handleDeleteBearerRequestMsg_v: "
-                                                        "Failed to find UE context using idx %d\n",
+                                                        "Failed to find UE context using idx %d",
                                                         ueIdx);
                 return;
         }

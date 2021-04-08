@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
     if (init_sock() != SUCCESS)
     {
-        log_msg(LOG_ERROR, "Error in initializing unix domain socket server.\n");
+        log_msg(LOG_ERROR, "Error in initializing unix domain socket server.");
         return -E_FAIL_INIT;
     }
 

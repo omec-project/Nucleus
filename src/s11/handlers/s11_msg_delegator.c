@@ -90,7 +90,7 @@ parse_bearer_ctx(bearer_ctxt_t *bearer, char* data, short len)
 			break;
 
 		default:
-		log_msg(LOG_ERROR, "Unhandled S11 bearer IE: %d\n", header->ie_type);
+		log_msg(LOG_ERROR, "Unhandled S11 bearer IE: %d", header->ie_type);
 		}
 
 		data += ntohs(header->ie_len) + sizeof(struct s11_IE_header); /*goto next IE*/
@@ -104,7 +104,7 @@ parse_gtpv2c_IEs(char *msg, int len, struct s11_proto_IE *proto_ies)
 	proto_ies->no_of_ies = get_IE_cnt(msg, len);
 
 	if(0 == proto_ies->no_of_ies) {
-		log_msg(LOG_INFO, "No IEs recvd in message\n");
+		log_msg(LOG_INFO, "No IEs recvd in message");
 		return SUCCESS;
 	}
 	/*allocated IEs for message*/
@@ -150,7 +150,7 @@ parse_gtpv2c_IEs(char *msg, int len, struct s11_proto_IE *proto_ies)
 		break;
 
 		default:
-		log_msg(LOG_ERROR, "Unhandled S11 IE: %d\n", ie->header.ie_type);
+		log_msg(LOG_ERROR, "Unhandled S11 IE: %d", ie->header.ie_type);
 		}
 
 		msg += (ntohs(((struct s11_IE_header*)msg)->ie_len) + sizeof(struct s11_IE_header)) ; /*goto next IE*/
@@ -161,7 +161,7 @@ parse_gtpv2c_IEs(char *msg, int len, struct s11_proto_IE *proto_ies)
 void
 handle_s11_message(void *message)
 {
-	log_msg(LOG_INFO, "S11 recv msg handler.\n");
+	log_msg(LOG_INFO, "S11 recv msg handler.");
 
 	MsgBuffer* msgBuf_p = (MsgBuffer*)(message);
 
@@ -173,7 +173,7 @@ handle_s11_message(void *message)
 	bool rc = GtpV2Stack_decodeMessageHeader(gtpStack_gp, &msgHeader, msgBuf_p);
 
 	if(rc == false)
-		log_msg(LOG_ERROR,"Failed to decode the GTP Message\n");
+		log_msg(LOG_ERROR,"Failed to decode the GTP Message");
 
 	switch(msgHeader.msgType){
 	case GTP_CREATE_SESSION_RSP:

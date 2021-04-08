@@ -44,7 +44,7 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip,
     if (rc == false)
     {
         log_msg(LOG_ERROR, "s11_DB_req_handler: "
-                "Failed to decode Delete Bearer Request Msg %d\n", hdr->teid);
+                "Failed to decode Delete Bearer Request Msg %d", hdr->teid);
         return E_PARSING_FAILED;
     }
 
@@ -81,7 +81,7 @@ s11_DB_req_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip,
     dbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
     /*Send DB request msg*/
-    log_msg(LOG_INFO, "Send DB req to mme-app.\n");
+    log_msg(LOG_INFO, "Send DB req to mme-app.");
     send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char*) &dbr_info,
             sizeof(struct db_req_Q_msg));
     return SUCCESS;

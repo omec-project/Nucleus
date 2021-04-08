@@ -7,7 +7,8 @@ static gtpTables *table = nullptr;
 
 extern "C"
 {
-     #include "gtp_cpp_wrapper.h"
+    #include "gtp_cpp_wrapper.h"
+    #include "log.h"
 
     void init_cpp_gtp_tables(void)
     {
@@ -16,13 +17,13 @@ extern "C"
 
     int add_gtp_transaction(uint32_t msg_seq, uint32_t ue_index)
     {
-        printf("%s  Seq %d, Index - %d \n",__FUNCTION__,msg_seq, ue_index);
+        log_msg(LOG_DEBUG, "Seq %d, Index - %d ",msg_seq, ue_index);
         return table->addSeqKey(msg_seq, ue_index); 
     }
 
     int find_gtp_transaction(uint32_t msg_seq)
     {
-        printf("%s  Seq %d \n",__FUNCTION__,msg_seq);
+        log_msg(LOG_DEBUG,"Seq %d ",msg_seq);
         return table->findUeIdxWithSeq(msg_seq); 
     }
 

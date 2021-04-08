@@ -148,7 +148,7 @@ get_aia_sec_vector(struct avp *avp_data, aia_Q_msg_t *aia)
 static
 void send_to_stage2(aia_Q_msg_t *aia_msg)
 {
-	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
+	TRACE_ENTRY("****************WRITE TO g_Q_mme_S6a_fd");
 
 	aia_msg->header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	aia_msg->header.srcInstAddr = htonl(s6AppInstanceNum_c);
@@ -170,14 +170,14 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	struct avp *sub_avp = NULL;
 	struct avp_hdr *element = NULL;
 
-	log_msg(LOG_INFO, "\nCallback ----- >AIA recvd\n");
+	log_msg(LOG_INFO, "Callback ----- >AIA recvd");
 
 	dump_fd_msg(resp);
 	//TODO - workaround for dump call. Remove this.
 	{
 		char * buf = NULL;
 		size_t len = 0;
-		log_msg(LOG_DEBUG,"*********AIA CALLBACK******%s\n", fd_msg_dump_treeview(&buf, &len, NULL, resp,
+		log_msg(LOG_DEBUG,"*********AIA CALLBACK******%s", fd_msg_dump_treeview(&buf, &len, NULL, resp,
 					fd_g_config->cnf_dict, 0, 1));
 		free(buf);
 	}
@@ -185,7 +185,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 	CHECK_FCT_DO(fd_sess_getsid(session, &sess_id, (size_t*)&sess_id_len),
 		return S6A_FD_ERROR);
 
-	log_msg(LOG_INFO, "\nCallback ----- >session id=%s \n",sess_id);
+	log_msg(LOG_INFO, "Callback ----- >session id=%s ",sess_id);
     
 	aia_msg.header.msg_type = auth_info_answer;
 	/*Retrieve UE index embedded in to session ID string at AIR time*/
@@ -199,7 +199,7 @@ int aia_resp_callback(struct msg **buf, struct avp *_avp,
 		res = avp_hdr->avp_value->u32;
 
 		if (DIAMETER_SUCCESS != res) {
-			log_msg(LOG_ERROR, "Diameter error with HSS\n");
+			log_msg(LOG_ERROR, "Diameter error with HSS");
 		}
 	} else {
 		struct fd_result fd_res;

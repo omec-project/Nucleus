@@ -29,7 +29,7 @@ void MmeGtpMsgUtils::populateModifyBearerRequestHo(SM::ControlBlock& cb,
     BearerContext *bearerCtxt = sessionCtxt.findBearerContextByBearerId(sessionCtxt.getLinkedBearerId());
     if (bearerCtxt == NULL)
     {
-        log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho: bearer ctxt is NULL \n");
+        log_msg(LOG_DEBUG, "send_mb_req_to_sgw_for_ho: bearer ctxt is NULL ");
         return;
     }
 
@@ -117,14 +117,14 @@ bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
         else
         {
             log_msg(LOG_INFO,
-                    "populateCreateBearerResponse : SessionContext is NULL \n");
+                    "populateCreateBearerResponse : SessionContext is NULL ");
             cb_resp.cause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         }
     }
     else
     {
         log_msg(LOG_INFO,
-                "populateCreateBearerResponse : UEContext is NULL \n");
+                "populateCreateBearerResponse : UEContext is NULL ");
         cb_resp.cause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
     }
 
@@ -159,7 +159,7 @@ bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
 
                 status = true;
 
-                log_msg(LOG_INFO, "populateCreateBearerResponse : CB Response Cause: %d \n", cb_resp.cause);
+                log_msg(LOG_INFO, "populateCreateBearerResponse : CB Response Cause: %d ", cb_resp.cause);
             }
         }
     }
@@ -194,7 +194,7 @@ bool MmeGtpMsgUtils::populateDeleteBearerResponse(SM::ControlBlock &cb,
     if (db_req == NULL)
     {
         log_msg(LOG_INFO,
-                "populateDeleteBearerResponse : db_Req is NULL \n");
+                "populateDeleteBearerResponse : db_Req is NULL ");
         return status;
     }
 
@@ -249,14 +249,14 @@ bool MmeGtpMsgUtils::populateDeleteBearerResponse(SM::ControlBlock &cb,
         else
         {
             log_msg(LOG_INFO,
-                    "populateDeleteBearerResponse : SessionContext is NULL \n");
+                    "populateDeleteBearerResponse : SessionContext is NULL ");
             gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
         }
     }
     else
     {
         log_msg(LOG_INFO,
-                "populateDeleteBearerResponse : UEContext is NULL \n");
+                "populateDeleteBearerResponse : UEContext is NULL ");
         gtpCause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
     }
 
@@ -281,7 +281,7 @@ bool MmeGtpMsgUtils::populateDeleteBearerResponse(SM::ControlBlock &cb,
 
     status = true;
 
-    log_msg(LOG_INFO, "populateDeleteBearerResponse : DB Response Cause: %d \n",
+    log_msg(LOG_INFO, "populateDeleteBearerResponse : DB Response Cause: %d ",
             db_resp.cause);
 
     return status;

@@ -27,7 +27,7 @@
 static int
 process_attach_rej(struct commonRej_info *g_mmeS1apInfo)
 {
-    log_msg(LOG_DEBUG,"Process Attach Reject.\n");
+    log_msg(LOG_DEBUG,"Process Attach Reject.");
 	uint32_t length = 0;
     uint8_t *buffer = NULL;
     struct s1ap_common_req_Q_msg message_p={0};
@@ -40,12 +40,12 @@ process_attach_rej(struct commonRej_info *g_mmeS1apInfo)
     int ret = s1ap_mme_encode_initiating(&message_p, &buffer, &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding Attach Reject failed.\n");
+        log_msg(LOG_ERROR, "Encoding Attach Reject failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-	log_msg(LOG_INFO, "buffer size is %d\n", length);
+	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -73,12 +73,12 @@ process_service_rej(struct commonRej_info *g_mmeS1apInfo)
     int ret = s1ap_mme_encode_initiating(&message_p, &buffer, &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding Service Reject failed.\n");
+        log_msg(LOG_ERROR, "Encoding Service Reject failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-	log_msg(LOG_INFO, "buffer size is %d\n", length);
+	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -106,12 +106,12 @@ process_tau_rej(struct commonRej_info *g_mmeS1apInfo)
     int ret = s1ap_mme_encode_initiating(&message_p, &buffer, &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding TAU Reject failed.\n");
+        log_msg(LOG_ERROR, "Encoding TAU Reject failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-    log_msg(LOG_INFO, "buffer size is %d\n", length);
+    log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -124,7 +124,7 @@ void*
 s1ap_reject_handler(void *data)
 {
 	
-	log_msg(LOG_INFO, "NAS Reject Handler.\n");
+	log_msg(LOG_INFO, "NAS Reject Handler.");
 
 	struct commonRej_info *nasReject = (struct commonRej_info *)data;
 

@@ -347,7 +347,7 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 		}
 		default:
 		{
-			log_msg(LOG_INFO, "Unsupported procedure type %d\n", procedure_p->getCtxtType());
+			log_msg(LOG_INFO, "Unsupported procedure type %d", procedure_p->getCtxtType());
 			rc = false;
 		}
 	}
@@ -358,13 +358,13 @@ bool MmeContextManagerUtils::deallocateProcedureCtxt(SM::ControlBlock& cb_r, Mme
 {
     if (procedure_p == NULL)
     {
-        log_msg(LOG_DEBUG, "procedure_p is NULL \n");
+        log_msg(LOG_DEBUG, "procedure_p is NULL ");
         return true;
     }
 
     if (procedure_p->getCtxtType() == defaultMmeProcedure_c)
     {
-        log_msg(LOG_ERROR, "CB %d trying to delete default procedure context \n", cb_r.getCBIndex());
+        log_msg(LOG_ERROR, "CB %d trying to delete default procedure context ", cb_r.getCBIndex());
         return true;
     }
 
@@ -446,7 +446,7 @@ void MmeContextManagerUtils::deleteAllSessionContext(SM::ControlBlock& cb_r)
     auto &sessionCtxtContainer = ueCtxt_p->getSessionContextContainer();
     if (sessionCtxtContainer.size() < 1)
     {
-        log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d\n",
+        log_msg(LOG_ERROR, "Session context list is empty for UE IDX %d",
                 cb_r.getCBIndex());
         return;
     }
@@ -568,7 +568,7 @@ void MmeContextManagerUtils::deallocateSessionContext(SM::ControlBlock &cb_r,
         auto &bearerCtxtContainer = sessionCtxt_p->getBearerContextContainer();
         if (bearerCtxtContainer.size() < 1)
         {
-            log_msg(LOG_ERROR, "Bearer context list is empty for UE IDX %d\n",
+            log_msg(LOG_ERROR, "Bearer context list is empty for UE IDX %d",
                     cb_r.getCBIndex());
             return;
         }

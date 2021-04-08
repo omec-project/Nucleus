@@ -33,7 +33,7 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	
 	/*****Message structure***
 	*/
-	log_msg(LOG_INFO, "Parse S11 RB resp message\n");
+	log_msg(LOG_INFO, "Parse S11 RB resp message");
 	
 	//TODO : check cause for the result verification
 	
@@ -43,7 +43,7 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
     }
     else
     {
-        log_msg(LOG_WARNING, "Unknown Teid in RABR.\n");
+        log_msg(LOG_WARNING, "Unknown Teid in RABR.");
         rbr_info.s11_mme_cp_teid = find_gtp_transaction(hdr->sequenceNumber);
     }
 
@@ -57,7 +57,7 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
         if(rc == false)
         {
                         log_msg(LOG_ERROR, "s11_RB_resp_handler: "
-                                                                "Failed to decode Release Access Bearer Response Msg %d\n",
+                                                                "Failed to decode Release Access Bearer Response Msg %d",
                                                                 hdr->teid);
                         return E_PARSING_FAILED;
         }
@@ -67,7 +67,7 @@ s11_RB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	rbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send RAB Release response msg*/
-	log_msg(LOG_INFO, "Send RB resp to mme-app stage2.\n");
+	log_msg(LOG_INFO, "Send RB resp to mme-app stage2.");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&rbr_info, sizeof(struct RB_resp_Q_msg));
 
 	return SUCCESS;

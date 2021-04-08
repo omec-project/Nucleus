@@ -35,7 +35,7 @@ get_uectxtrelcmd_protoie_value(struct proto_IE *value, struct s1relcmd_info *g_u
 	
 	value->data[1].enb_ue_s1ap_id = g_uectxtrelcmd->enb_s1ap_ue_id;
 	
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
+	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d",
 					g_uectxtrelcmd->ue_idx,g_uectxtrelcmd->enb_s1ap_ue_id);
 	return SUCCESS;
 }*/
@@ -52,7 +52,7 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 
 	struct s1ap_common_req_Q_msg req = {0};
 
-	log_msg(LOG_DEBUG,"Inside ics_req_paging processing\n");	
+	log_msg(LOG_DEBUG,"Inside ics_req_paging processing");	
 
 	req.IE_type = S1AP_INIT_CTXT_SETUP_REQ;
 	req.ue_idx = g_icsreq->ue_idx;
@@ -81,13 +81,13 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 	}
 	memcpy(&(req.sec_key), &(g_icsreq->sec_key), KENB_SIZE);	
 	
-	log_msg(LOG_DEBUG,"Before s1ap_encoder\n");
+	log_msg(LOG_DEBUG,"Before s1ap_encoder");
 
 	int ret = s1ap_mme_encode_initiating(&req, &buffer, &length);
-	log_msg(LOG_DEBUG,"Invoked s1ap_encoder\n");
+	log_msg(LOG_DEBUG,"Invoked s1ap_encoder");
 	if(ret == -1)
 	{
-		log_msg(LOG_ERROR, "Encoding ics_req_paging failed.\n");
+		log_msg(LOG_ERROR, "Encoding ics_req_paging failed.");
 		return E_FAIL;
 	}
 
@@ -95,7 +95,7 @@ ics_req_paging_processing(struct ics_req_paging_Q_msg *g_icsreq)
 	if(buffer) {
 		free(buffer);
 	}
-	log_msg(LOG_INFO, "\n----ICS Req for paging sent to UE.---\n");
+	log_msg(LOG_INFO, "----ICS Req for paging sent to UE.---");
 	return SUCCESS;
 	
 }
@@ -108,7 +108,7 @@ void*
 ics_req_paging_handler(void *data)
 {
 
-	log_msg(LOG_INFO,"ICS Req for paging handler ready.\n");
+	log_msg(LOG_INFO,"ICS Req for paging handler ready.");
 	
 	ics_req_paging_processing((struct ics_req_paging_Q_msg *)data);
 

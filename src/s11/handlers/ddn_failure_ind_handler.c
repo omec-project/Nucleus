@@ -43,7 +43,7 @@ ddn_failure_ind_processing(struct DDN_FAIL_Q_msg *ddn_fail_msg)
     struct MsgBuffer* ddnFailMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
     if(ddnFailMsgBuf_p == NULL)
     {
-        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
             return -1;
     }
     GtpV2MessageHeader gtpHeader;
@@ -69,7 +69,7 @@ ddn_failure_ind_processing(struct DDN_FAIL_Q_msg *ddn_fail_msg)
             MsgBuffer_getBufLen(ddnFailMsgBuf_p), 0,
             (struct sockaddr*)&sgw_ip, g_s11_serv_size);
 
-    log_msg(LOG_INFO, "DDN Failure Indication Sent, len - %d bytes.\n", MsgBuffer_getBufLen(ddnFailMsgBuf_p));
+    log_msg(LOG_INFO, "DDN Failure Indication Sent, len - %d bytes.", MsgBuffer_getBufLen(ddnFailMsgBuf_p));
     MsgBuffer_free(ddnFailMsgBuf_p);
     return SUCCESS;
 }
@@ -81,7 +81,7 @@ ddn_failure_ind_processing(struct DDN_FAIL_Q_msg *ddn_fail_msg)
 void*
 ddn_failure_ind_handler(void *data)
 {
-    log_msg(LOG_INFO, "DDN Ack handler initialized\n");
+    log_msg(LOG_INFO, "DDN Ack handler initialized");
     ddn_failure_ind_processing((struct DDN_FAIL_Q_msg *)data);
     return NULL;
 }

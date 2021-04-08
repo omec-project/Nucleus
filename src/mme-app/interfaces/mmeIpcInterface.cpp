@@ -47,7 +47,7 @@ bool MmeIpcInterface::setup()
 
 	if (receiver_sock->bindTipcSocket(myAddress) == false)
 	{
-		log_msg(LOG_ERROR, "MmeIpcInterface Setup Failed!!!\n");
+		log_msg(LOG_ERROR, "MmeIpcInterface Setup Failed!!!");
 
 		delete receiver_sock;
 
@@ -97,7 +97,7 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEMsgUnqPtr eMsg)
 	msgBuf->readUint32(destAddr);
 	msgBuf->readUint32(srcAddr);
 
-	log_msg(LOG_INFO, "IPC Message received from src %u to dest %u\n", srcAddr, destAddr);
+	log_msg(LOG_INFO, "IPC Message received from src %u to dest %u", srcAddr, destAddr);
 
 	switch (srcAddr)
 
@@ -112,7 +112,7 @@ void MmeIpcInterface::handleIpcMsg(cmn::IpcEMsgUnqPtr eMsg)
 		S6MsgHandler::Instance()->handleS6Message_v(std::move(eMsg));
 		break;
 	default:
-		log_msg(LOG_INFO, "IPC Message from unsupported instance\n");
+		log_msg(LOG_INFO, "IPC Message from unsupported instance");
 	}
 }
 
@@ -131,7 +131,7 @@ bool MmeIpcInterface::dispatchIpcMsg(char* buf, uint32_t len, cmn::ipc::IpcAddre
 
 
 	bool ret = mmeIpcEgressFifo_g.push(eMsg);
-	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d, result = %s \n", msgBuf->getLength(), (ret == true) ? "Queued":"Dropped");
+	log_msg(LOG_INFO, "Dispatch IPC msg. Len %d, result = %s ", msgBuf->getLength(), (ret == true) ? "Queued":"Dropped");
 	return ret;
 }
 
