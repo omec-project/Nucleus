@@ -113,12 +113,8 @@ void StateFactory::initialize()
 	S1ReleaseWfReleaseAccessBearerResp::Instance()->initialize();
 	S1ReleaseWfUeCtxtReleaseComp::Instance()->initialize();
 	ServiceRequestStart::Instance()->initialize();
-	ServiceRequestWfAia::Instance()->initialize();
-	ServiceRequestWfAuthRespValidate::Instance()->initialize();
-	ServiceRequestWfAuthResponse::Instance()->initialize();
 	ServiceRequestWfInitCtxtResp::Instance()->initialize();
 	ServiceRequestWfMbResp::Instance()->initialize();
-	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
 
         populateEventStringMap();
