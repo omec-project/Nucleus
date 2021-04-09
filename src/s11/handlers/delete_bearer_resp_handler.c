@@ -45,7 +45,7 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 	struct MsgBuffer*  dbRespMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(dbRespMsgBuf_p == NULL)
 	{
-        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+        log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
         return -1;
     }
 	
@@ -103,7 +103,7 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 			MsgBuffer_getBufLen(dbRespMsgBuf_p), 0,
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 
-	log_msg(LOG_INFO, "Delete Bearer Resp Sent, len - %d bytes.\n", MsgBuffer_getBufLen(dbRespMsgBuf_p));
+	log_msg(LOG_INFO, "Delete Bearer Resp Sent, len - %d bytes.", MsgBuffer_getBufLen(dbRespMsgBuf_p));
 	MsgBuffer_free(dbRespMsgBuf_p);
 	return SUCCESS;
 }
@@ -115,7 +115,7 @@ db_resp_processing(struct DB_RESP_Q_msg *db_resp_msg)
 void*
 delete_bearer_resp_handler(void *data)
 {
-	log_msg(LOG_INFO, "Delete bearer Response handler initialized\n");
+	log_msg(LOG_INFO, "Delete bearer Response handler initialized");
 	db_resp_processing((struct DB_RESP_Q_msg *)data);
 	return NULL;
 }

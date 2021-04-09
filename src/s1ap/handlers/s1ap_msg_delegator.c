@@ -58,13 +58,13 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         }
                         else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
 							return -1;
 						}
 
                         proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
 						memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id, s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
-                        log_msg(LOG_DEBUG, "ENB UE S1ap ID decode Success = %u \n",proto_ies->data[i].val.enb_ue_s1ap_id);
+                        log_msg(LOG_DEBUG, "ENB UE S1ap ID decode Success = %lu ",proto_ies->data[i].val.enb_ue_s1ap_id);
 						s1Msg->header.s1ap_enb_ue_id = proto_ies->data[i].val.enb_ue_s1ap_id;
 					} break;
 				case ProtocolIE_ID_id_NAS_PDU:
@@ -76,7 +76,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						}
 						else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed");
 							return -1;
 						}
 
@@ -93,11 +93,11 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         }
                         else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE TAI failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE TAI failed");
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "TAI decode Success\n");
+                        log_msg(LOG_DEBUG, "TAI decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_TAI;
 						memcpy(&proto_ies->data[i].val.tai.tac, s1apTAI_p->tAC.buf, s1apTAI_p->tAC.size);
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx,
@@ -114,11 +114,11 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         }
 
                         if (s1apCGI_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE CGI failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE CGI failed");
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "CGI decode Success\n");
+                        log_msg(LOG_DEBUG, "CGI decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_UTRAN_CGI;
 						memcpy(&proto_ies->data[i].val.utran_cgi.cell_id,
                                s1apCGI_p->cell_ID.buf, s1apCGI_p->cell_ID.size);
@@ -137,11 +137,11 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 						    s1apRRCEstCause_p = &ie_p->value.choice.RRC_Establishment_Cause;
                         }
                         else {
-							log_msg (LOG_ERROR, "Decoding of IE RRC Cause failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE RRC Cause failed");
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "RRC Cause decode Success\n");
+                        log_msg(LOG_DEBUG, "RRC Cause decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_RRC_EST_CAUSE;
 						proto_ies->data[i].val.rrc_est_cause = (enum ie_RRC_est_cause) *s1apRRCEstCause_p;
 					} break;
@@ -154,7 +154,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                         }
                         else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE STMSI failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE STMSI failed");
 							return -1;
 						}
 
@@ -170,7 +170,7 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
-                        log_msg(LOG_WARNING, "Unhandled IE %d in initial UE message ", ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled IE %lu in initial UE message ", ie_p->id);
                     }
 			}
 		}
@@ -191,7 +191,7 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
     uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
     if(INVALID_CB_INDEX == cbIndex)
     {
-        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
+        log_msg(LOG_ERROR,"No CB found for enb fd %d.", enb_fd);
         return E_FAIL;
     }
 
@@ -207,7 +207,7 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
 
-	log_msg(LOG_INFO, "sending S1AP_INITIAL_UE_MSG msg: context_id = %u tmsi = %u \n", cbIndex, s1Msg.s_tmsi.m_TMSI);
+	log_msg(LOG_INFO, "sending S1AP_INITIAL_UE_MSG msg: context_id = %u tmsi = %u ", cbIndex, s1Msg.s_tmsi.m_TMSI);
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1Msg));
 
 	/*Send S1Setup response*/
@@ -221,12 +221,12 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 	//TODO: use static instead of synamic for perf.
 	struct proto_IE proto_ies={0};
 
-	log_msg(LOG_INFO, "S1AP_UL_NAS_TX_MSG msg \n");
+	log_msg(LOG_INFO, "S1AP_UL_NAS_TX_MSG msg ");
     
     uint32_t cbIndex = findControlBlockWithEnbFd(enb_fd);
     if(INVALID_CB_INDEX == cbIndex)
     {
-        log_msg(LOG_ERROR,"No CB found for enb fd %d.\n", enb_fd);
+        log_msg(LOG_ERROR,"No CB found for enb fd %d.", enb_fd);
         return E_FAIL;
     }
 
@@ -272,12 +272,12 @@ handle_s1ap_message(void *msg)
     dec_ret = aper_decode (NULL, &asn_DEF_S1AP_PDU, (void **)&pdu_p, message, msg_size, 0, 0);
 
     if (dec_ret.code != RC_OK) {
-        log_msg(LOG_ERROR, "handle s1ap message ASN Decode PDU Failed\n");
+        log_msg(LOG_ERROR, "handle s1ap message ASN Decode PDU Failed");
         free(msg);
         return;
     }
 
-    log_msg(LOG_INFO, "handle s1ap message enb_fd = %d msg size = %d .\n",enb_fd, msg_size);
+    log_msg(LOG_INFO, "handle s1ap message enb_fd = %d msg size = %d .",enb_fd, msg_size);
     switch (pdu_p->present) {
         case S1AP_PDU_PR_initiatingMessage:
             s1ap_mme_decode_initiating (pdu_p->choice.initiatingMessage, enb_fd);
@@ -299,7 +299,7 @@ handle_s1ap_message(void *msg)
 int
 s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 {
-  log_msg(LOG_DEBUG,"successful outcome decode :proc code %d\n", msg->procedureCode);
+  log_msg(LOG_DEBUG,"successful outcome decode :proc code %lu", msg->procedureCode);
   switch (msg->procedureCode) {
 
 	case S1AP_INITIAL_CTX_RESP_CODE:
@@ -323,8 +323,7 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
         break;
 		
 	default:
-		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
-		         msg->procedureCode & 0x00FF);
+		log_msg(LOG_ERROR, "Unknown procedure code - %lu", msg->procedureCode & 0x00FF);
 		break;
 	}
 	
@@ -334,14 +333,14 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
 int
 s1ap_mme_decode_unsuccessfull_outcome (UnsuccessfulOutcome_t *msg)
 {
-    log_msg(LOG_DEBUG,"unsuccessful outcome decode : proc code %d\n", msg->procedureCode);
+    log_msg(LOG_DEBUG,"unsuccessful outcome decode : proc code %lu", msg->procedureCode);
     switch (msg->procedureCode) {
 
       case S1AP_HANDOVER_RESOURCE_ALLOCATION_CODE:
     	  s1_handover_faliure_handler(msg);
     	  break;
       default:
-    	  log_msg(LOG_ERROR, "Unknown procedure code - %d\n",msg->procedureCode & 0x00FF);
+    	  log_msg(LOG_ERROR, "Unknown procedure code - %lu",msg->procedureCode & 0x00FF);
     	  break;
     }
 
@@ -351,7 +350,7 @@ s1ap_mme_decode_unsuccessfull_outcome (UnsuccessfulOutcome_t *msg)
 int
 s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd) 
 {
-  log_msg(LOG_INFO, "s1ap_mme_decode_initiating proc code %d\n", initiating_p->procedureCode);
+  log_msg(LOG_INFO, "s1ap_mme_decode_initiating proc code %lu", initiating_p->procedureCode);
   switch (initiating_p->procedureCode) {
 	case S1AP_SETUP_REQUEST_CODE:
 		s1_setup_handler(initiating_p, enb_fd);
@@ -390,8 +389,7 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
 		break;
 
 	default:
-		log_msg(LOG_ERROR, "Unknown procedure code - %d\n",
-			initiating_p->procedureCode & 0x00FF);
+		log_msg(LOG_ERROR, "Unknown procedure code - %lu", initiating_p->procedureCode & 0x00FF);
 		break;
 	}
 	
@@ -429,7 +427,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         }
                         else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -446,7 +444,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         }
 						
                         if (s1apMMEUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -463,7 +461,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         } 
 						else
                         {
-							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE NAS PDU failed");
 							return -1;
 						}
 
@@ -481,7 +479,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         }
 						
                         if (s1apTAI_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE TAI failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE TAI failed");
 							return -1;
 						}
 
@@ -500,7 +498,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                         }
 						
                         if (s1apCGI_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE CGI failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE CGI failed");
 							return -1;
 						}
 
@@ -514,7 +512,7 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
-                        log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                     }
 			}
 		}
@@ -555,7 +553,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         }
 						
                         if (s1apENBUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -573,7 +571,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         }
                         else 
 						{
-							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -591,7 +589,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                         }
 						
                         if (s1apErabSetupList_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE s1apErabSetupList failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE s1apErabSetupList failed");
 							return -1;
 						}
 
@@ -619,7 +617,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
                                         }
 
                                         if (s1apErabSetupItem_p == NULL) {
-                                            log_msg (LOG_ERROR, "Decoding of IE s1apErabSetupItem failed\n");
+                                            log_msg (LOG_ERROR, "Decoding of IE s1apErabSetupItem failed");
                                             return -1;
                                         }
 
@@ -639,7 +637,7 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 					else
 					{
                                             log_msg(LOG_ERROR,
-                                            "Decoding of IE E_RABSetupItemCtxtSURes->gTP_TEID failed\n");
+                                            "Decoding of IE E_RABSetupItemCtxtSURes->gTP_TEID failed");
                                             return -1;
                                         }
 
@@ -655,26 +653,26 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 					else
 					{
 					    log_msg(LOG_ERROR,
-                                            "Decoding of IE E_RABSetupItemCtxtSURes->transp_layer_addr failed\n");
+                                            "Decoding of IE E_RABSetupItemCtxtSURes->transp_layer_addr failed");
                                             return -1;
-					}
+                    }
                                     }break;
                                 default:
                                     {
-                                        log_msg(LOG_WARNING, "Unhandled List item %d", ie_p->id);
+                                        log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                                     }
                             }
                         }
 
-		} break;
+		        } break;
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
-                        log_msg(LOG_WARNING, "Unhandled IE %d", ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                     }
-			}
-		}
-     }
+            }
+        }
+    }
 
     return 0;
 }
@@ -711,7 +709,7 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
                         }
 						
                         if (s1apENBUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -728,7 +726,7 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
                         }
 						
                         if (s1apMMEUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -739,7 +737,7 @@ int convertUeCtxRelComplToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* pro
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
-                        log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                     }
 			}
 		}
@@ -780,7 +778,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
                         }
 
                         if (s1apENBUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -797,7 +795,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
                         }
 
                         if (s1apMMEUES1APID_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
 							return -1;
 						}
 
@@ -814,7 +812,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
                         }
 
                         if (s1apCause_p == NULL) {
-							log_msg (LOG_ERROR, "Decoding of IE Cause failed\n");
+							log_msg (LOG_ERROR, "Decoding of IE Cause failed");
 							return -1;
 						}
 
@@ -823,38 +821,38 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
                         switch(s1apCause_p->present)
                         {
                             case Cause_PR_radioNetwork:
-							    log_msg (LOG_DEBUG, "RadioNetwork case : %d\n",
+							    log_msg (LOG_DEBUG, "RadioNetwork case : %lu",
                                           s1apCause_p->choice.radioNetwork);
                                 proto_ies->data[i].val.cause.choice.radioNetwork
                                     = s1apCause_p->choice.radioNetwork;
                                 break;
                             case Cause_PR_transport:
-							    log_msg (LOG_DEBUG, "Transport case : %d\n",
+							    log_msg (LOG_DEBUG, "Transport case : %lu",
                                           s1apCause_p->choice.transport);
                                 proto_ies->data[i].val.cause.choice.transport
                                     = s1apCause_p->choice.transport;
                                 break;
                             case Cause_PR_nas:
-							    log_msg (LOG_DEBUG, "Nas case : %d\n",
+							    log_msg (LOG_DEBUG, "Nas case : %lu",
                                           s1apCause_p->choice.nas);
                                 proto_ies->data[i].val.cause.choice.nas
                                     = s1apCause_p->choice.nas;
                                 break;
                             case Cause_PR_protocol:
-							    log_msg (LOG_DEBUG, "Protocol case : %d\n",
+							    log_msg (LOG_DEBUG, "Protocol case : %lu",
                                           s1apCause_p->choice.protocol);
                                 proto_ies->data[i].val.cause.choice.protocol
                                     = s1apCause_p->choice.protocol;
                                 break;
                             case Cause_PR_misc:
-							    log_msg (LOG_DEBUG, "Misc case : %d\n",
+							    log_msg (LOG_DEBUG, "Misc case : %lu",
                                           s1apCause_p->choice.misc);
                                 proto_ies->data[i].val.cause.choice.misc
                                     = s1apCause_p->choice.misc;
                                 break;
                             case Cause_PR_NOTHING:
                             default:
-                                log_msg(LOG_WARNING, "Unknown cause %d\n", s1apCause_p->present);
+                                log_msg(LOG_WARNING, "Unknown cause %d", s1apCause_p->present);
 
                         }
 						s1apCause_p = NULL;
@@ -862,7 +860,7 @@ int convertUeCtxRelReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto
                 default:
                     {
                         proto_ies->data[i].IE_type = ie_p->id;
-                        log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                     }
 			}
 		}
@@ -909,7 +907,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
                 if (s1apENBUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -930,7 +928,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -949,7 +947,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
 
                 if (s1apCause_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE Cause failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE Cause failed");
                     return -1;
                 }
 
@@ -958,13 +956,13 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
                 switch (s1apCause_p->present)
                 {
                 case Cause_PR_radioNetwork:
-                    log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
+                    log_msg(LOG_DEBUG, "RadioNetwork case : %lu",
                             s1apCause_p->choice.radioNetwork);
                     proto_ies->data[i].val.cause.choice.radioNetwork =
                             s1apCause_p->choice.radioNetwork;
                     break;
                 default:
-                    log_msg(LOG_WARNING, "Unknown cause %d\n",
+                    log_msg(LOG_WARNING, "Unknown cause %d",
                             s1apCause_p->present);
 
                 }
@@ -981,7 +979,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
 
                 if (handoverType_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE HandoverType failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE HandoverType failed");
                     return -1;
                 }
 
@@ -1001,7 +999,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
 
                 if (targetID_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE targetID failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE targetID failed");
                     return -1;
                 }
 
@@ -1011,14 +1009,14 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
                     struct TargeteNB_ID *targeteNB_ID = targetID_p->choice.targeteNB_ID;
                     if (targeteNB_ID == NULL)
                     {
-                        log_msg(LOG_ERROR, "Decoding of IE targeteNB_ID failed\n");
+                        log_msg(LOG_ERROR, "Decoding of IE targeteNB_ID failed");
                         return -1;
                     }
 
                     TAI_t *s1apTAI_p = &(targeteNB_ID->selected_TAI);
                     if (s1apTAI_p == NULL)
                     {
-                        log_msg (LOG_ERROR, "Decoding of IE TAI failed\n");
+                        log_msg (LOG_ERROR, "Decoding of IE TAI failed");
                         return -1;
                     }
 
@@ -1051,7 +1049,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
                 if (source_ToTarget_TransparentContainer_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE Source_ToTarget_TransparentContainer failed\n");
+                            "Decoding of IE Source_ToTarget_TransparentContainer failed");
                     return -1;
                 }
 
@@ -1067,7 +1065,7 @@ int convertUehoReqToProtoIe(InitiatingMessage_t *msg,
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
             }
         }
@@ -1114,7 +1112,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                 if (s1apENBUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1135,7 +1133,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1156,7 +1154,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                 if (e_RABAdmittedList_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE E_RABAdmittedList failed\n");
+                            "Decoding of IE E_RABAdmittedList failed");
                     return -1;
                 }
 
@@ -1184,7 +1182,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                         if (eRabAdmittedItem_p == NULL)
                         {
                             log_msg(LOG_ERROR,
-                                    "Decoding of IE eRABAdmittedItem failed\n");
+                                    "Decoding of IE eRABAdmittedItem failed");
                             return -1;
                         }
 
@@ -1231,8 +1229,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                         break;
                     default:
                     {
-                        log_msg(LOG_WARNING, "Unhandled List item %d",
-                                ie_p->id);
+                        log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                     }
                     }
                 }
@@ -1251,7 +1248,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                 if (target_ToSource_TransparentContainer_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE Target_ToSource_TransparentContainer failed\n");
+                            "Decoding of IE Target_ToSource_TransparentContainer failed");
                     return -1;
                 }
 
@@ -1268,7 +1265,7 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
 
             }
@@ -1315,7 +1312,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
                 if (s1apENBUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1337,7 +1334,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1359,7 +1356,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
 
                 if (s1apCGI_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE CGI failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE CGI failed");
                     return -1;
                 }
 
@@ -1381,7 +1378,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
 
                 if (s1apTAI_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE TAI failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE TAI failed");
                     return -1;
                 }
 
@@ -1396,7 +1393,7 @@ int convertHoNotifyToProtoIe(InitiatingMessage_t *msg,
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
 
             }
@@ -1444,7 +1441,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 if (s1apENBUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1466,7 +1463,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1491,7 +1488,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                 if (s1apContainer_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE ENB_STATUS_TRANSFER_TRANSPARENTCONTAINER failed\n");
+                            "Decoding of IE ENB_STATUS_TRANSFER_TRANSPARENTCONTAINER failed");
                     return -1;
                 }
 
@@ -1524,7 +1521,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                         if (bearersSubjectToStatusTransferItem == NULL)
                         {
                             log_msg(LOG_ERROR,
-                                    "Decoding of IE bearersSubjectToStatusTransferItem failed\n");
+                                    "Decoding of IE bearersSubjectToStatusTransferItem failed");
                             return -1;
                         }
 
@@ -1547,7 +1544,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
                         break;
                     default:
                     {
-                        log_msg(LOG_WARNING, "Unhandled List item %d", ie->id);
+                        log_msg(LOG_WARNING, "Unhandled List item %lu", ie->id);
                     }
 
                     }
@@ -1557,7 +1554,7 @@ int convertEnbStatusTransferToProtoIe(InitiatingMessage_t *msg,
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
 
             }
@@ -1605,7 +1602,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1625,7 +1622,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
 
                 if (s1apCause_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE Cause failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE Cause failed");
                     return -1;
                 }
 
@@ -1634,13 +1631,13 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
                 switch (s1apCause_p->present)
                 {
                 case Cause_PR_radioNetwork:
-                    log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
+                    log_msg(LOG_DEBUG, "RadioNetwork case : %lu",
                             s1apCause_p->choice.radioNetwork);
                     proto_ies->data[i].val.cause.choice.radioNetwork =
                             s1apCause_p->choice.radioNetwork;
                     break;
                 default:
-                    log_msg(LOG_WARNING, "Unknown cause %d\n",
+                    log_msg(LOG_WARNING, "Unknown cause %d",
                             s1apCause_p->present);
 
                 }
@@ -1650,7 +1647,7 @@ int convertHoFailureToProtoIe(UnsuccessfulOutcome_t *msg,
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
 
             }
@@ -1697,7 +1694,7 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
                 if (s1apENBUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1719,7 +1716,7 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
                 if (s1apMMEUES1APID_p == NULL)
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
 
@@ -1739,7 +1736,7 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
 
                 if (s1apCause_p == NULL)
                 {
-                    log_msg(LOG_ERROR, "Decoding of IE Cause failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE Cause failed");
                     return -1;
                 }
 
@@ -1748,23 +1745,21 @@ int convertUeHoCancelToProtoIe(InitiatingMessage_t *msg,
                 switch (s1apCause_p->present)
                 {
                 case Cause_PR_radioNetwork:
-                    log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
-                            s1apCause_p->choice.radioNetwork);
+                    log_msg(LOG_DEBUG, "RadioNetwork case : %lu", s1apCause_p->choice.radioNetwork);
                     proto_ies->data[i].val.cause.choice.radioNetwork =
                             s1apCause_p->choice.radioNetwork;
                     break;
                 default:
-                    log_msg(LOG_WARNING, "Unknown cause %d\n",
-                            s1apCause_p->present);
+                    log_msg(LOG_WARNING, "Unknown cause %d", s1apCause_p->present);
 
                 }
                 s1apCause_p = NULL;
             }
-                break;
+            break;
             default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
             }
         }
@@ -1813,7 +1808,7 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
 		else
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
             } break;
@@ -1835,7 +1830,7 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
 		else
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                            "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
             } break;
@@ -1888,7 +1883,7 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
 				    else
 				    {
                                         log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->dL_GTP_TEID failed\n");
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->dL_GTP_TEID failed");
                                         return -1;
                                     }
 
@@ -1906,36 +1901,36 @@ int convertErabModIndToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_
 				    else
 				    {
                                         log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->transportLayerAddress failed\n");
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd->transportLayerAddress failed");
                                         return -1;
                                     }
 				}
 				else
                                 {
                                     log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd failed\n");
+                                        "Decoding of IE E_RABToBeModifiedItemBearerModInd failed");
                                     return -1;
                                 }
                     	    }break;
                     	    default:
                     	    {
-                                log_msg(LOG_WARNING, "Unhandled List item %d",
-                                                  ie_p->id);
+                                log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                             }
                         }
-		    }
+		            }
                 }
-		else
+		        else
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE E_RABToBeModifiedListBearerModInd failed\n");
+                            "Decoding of IE E_RABToBeModifiedListBearerModInd failed");
                     return -1;
                 }
-            } break;
-	    default:
+            } 
+            break;
+	        default:
             {
                 proto_ies->data[i].IE_type = ie_p->id;
-		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+		        log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
             }
 
             }
@@ -1958,7 +1953,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        log_msg(LOG_INFO, "No of IEs = %d", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
 
         for (int i = 0; i < protocolIes->list.count; i++)
@@ -1985,7 +1980,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
 		else
                 {
                     log_msg(LOG_ERROR,
-                            "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                            "Decoding of IE eNB_UE_S1AP_ID failed");
                     return -1;
                 }
             } break;
@@ -2004,10 +1999,9 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                     memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
                             s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
                 }
-		else
+		        else
                 {
-                    log_msg(LOG_ERROR,
-                            "Decoding of IE MME_UE_S1AP_ID failed\n");
+                    log_msg(LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
                     return -1;
                 }
             } break;
@@ -2020,8 +2014,8 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                     e_RABSetupList_p = &ie_p->value.choice.E_RABSetupListBearerSURes;
                 }
 
-		if (e_RABSetupList_p != NULL)
-		{
+		        if (e_RABSetupList_p != NULL)
+		        {
                     proto_ies->data[i].IE_type = S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES;
 
                     proto_ies->data[i].val.erab_su_list.count =
@@ -2034,76 +2028,72 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                         switch (ie_p->id)
                         {
                             case ProtocolIE_ID_id_E_RABSetupItemBearerSURes:
-			    {
-                        	E_RABSetupItemBearerSURes_t *eRabSetupItem_p = NULL;
-                        	if (E_RABSetupItemBearerSUResIEs__value_PR_E_RABSetupItemBearerSURes
-                                	== ie_p->value.present)
-                        	{
-                            	    eRabSetupItem_p =
-                                        &ie_p->value.choice.E_RABSetupItemBearerSURes;
-                        	}
+			                {
+                        	    E_RABSetupItemBearerSURes_t *eRabSetupItem_p = NULL;
+                        	    if (E_RABSetupItemBearerSUResIEs__value_PR_E_RABSetupItemBearerSURes
+                                    	== ie_p->value.present)
+                        	    {
+                                	    eRabSetupItem_p =
+                                            &ie_p->value.choice.E_RABSetupItemBearerSURes;
+                        	    }
 
-                        	if (eRabSetupItem_p != NULL)
-				{
+                        	    if (eRabSetupItem_p != NULL)
+				                {
 
-                      		    proto_ies->data[i].val.erab_su_list.erab_su_item[j].e_RAB_ID =
-                                        (uint8_t) eRabSetupItem_p->e_RAB_ID;
+                      		        proto_ies->data[i].val.erab_su_list.erab_su_item[j].e_RAB_ID =
+                                            (uint8_t) eRabSetupItem_p->e_RAB_ID;
 
-				    if (eRabSetupItem_p->gTP_TEID.buf != NULL)
-				    {
-                        		memcpy(
-                                	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid),
-                               		eRabSetupItem_p->gTP_TEID.buf, eRabSetupItem_p->gTP_TEID.size);
+				                    if (eRabSetupItem_p->gTP_TEID.buf != NULL)
+				                    {
+                                       	memcpy(
+                                              	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid),
+                                           		eRabSetupItem_p->gTP_TEID.buf, eRabSetupItem_p->gTP_TEID.size);
 
-                        		proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid =
-                                	    ntohl(
-                                            proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid);
-
-				    }
-				    else
-				    {
-                                        log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABSetupItemBearerSURes->gTP_TEID failed\n");
-                                        return -1;
+                                       	proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid =
+                                              	    ntohl(proto_ies->data[i].val.erab_su_list.erab_su_item[j].gtp_teid);
+				                    }
+				                    else
+				                    {
+                                            log_msg(LOG_ERROR,
+                                            "Decoding of IE E_RABSetupItemBearerSURes->gTP_TEID failed");
+                                            return -1;
                                     }
 
-                        	    if (eRabSetupItem_p->transportLayerAddress.buf != NULL)
-				    {
-					memcpy(
-                                	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress),
-                                	eRabSetupItem_p->transportLayerAddress.buf,
-                                	eRabSetupItem_p->transportLayerAddress.size);
+                        	        if (eRabSetupItem_p->transportLayerAddress.buf != NULL)
+				                    {
+					                    memcpy(
+                                    	&(proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress),
+                                    	eRabSetupItem_p->transportLayerAddress.buf,
+                                    	eRabSetupItem_p->transportLayerAddress.size);
 
-                        		proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress =
-                                	    ntohl(
-                                       	    proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress);
-				    }
-				    else
-				    {
+                        	    	proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress =
+                                    	    ntohl(
+                                           	    proto_ies->data[i].val.erab_su_list.erab_su_item[j].transportLayerAddress);
+				                    }
+                                    else
+                                    {
                                         log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABSetupItemBearerSURes->transportLayerAddress failed\n");
+                                                "Decoding of IE E_RABSetupItemBearerSURes->transportLayerAddress failed");
                                         return -1;
                                     }
-				}
-				else
-                                {
-                                    log_msg(LOG_ERROR,
-                                        "Decoding of IE E_RABSetupItemBearerSURes failed\n");
-                                    return -1;
                                 }
-                    	    }break;
+                                else
+                                {
+                                    log_msg(LOG_ERROR,"Decoding of IE E_RABSetupItemBearerSURes failed");
+                                        return -1;
+                                }
+                    	    }
+                            break;
                     	    default:
                     	    {
-                                log_msg(LOG_WARNING, "Unhandled List item %d",
-                                                  ie_p->id);
+                                log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                             }
                         }
-		    }
+		            }
                 }
-		else
+		        else
                 {
-                    log_msg(LOG_ERROR,
-                            "Decoding of IE E_RABSetupItemBearerSURes failed\n");
+                    log_msg(LOG_ERROR,"Decoding of IE E_RABSetupItemBearerSURes failed");
                     return -1;
                 }
             } break;
@@ -2141,7 +2131,7 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                                         (uint8_t) eRabFailedToSetupItem_p->e_RAB_ID;
 
                         	    Cause_t *s1apCause_p = &eRabFailedToSetupItem_p->cause;
-				    if(s1apCause_p != NULL)
+				                if(s1apCause_p != NULL)
                         	    {
                             		proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].cause.present =
                                         	s1apCause_p->present;
@@ -2149,50 +2139,46 @@ int convertErabSetupRespToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *pro
                             		{
                                 	    case Cause_PR_radioNetwork:
                                 	    {
-                                    		log_msg(LOG_DEBUG, "RadioNetwork case : %d\n",
-                                            	s1apCause_p->choice.radioNetwork);
+                                    		log_msg(LOG_DEBUG, "RadioNetwork case : %lu", s1apCause_p->choice.radioNetwork);
                                     		proto_ies->data[i].val.erab_fail_list.erab_fail_item[j].
                                         	cause.choice.radioNetwork =
                                             		s1apCause_p->choice.radioNetwork;
                                 	    }break;
                                 	    default:
-
-                                    		log_msg(LOG_WARNING, "Unknown cause %d\n", 
-                                            			s1apCause_p->present);
+                                    		log_msg(LOG_WARNING, "Unknown cause %d", s1apCause_p->present);
                             		}
                         	    }
                         	    else
                         	    {
                             		log_msg(LOG_ERROR, 
-                                    		"Decoding of IE E_RABFailedToSetupItemBearerSURes->Cause failed\n");
+                                    		"Decoding of IE E_RABFailedToSetupItemBearerSURes->Cause failed");
                             		return -1;
                         	    }
                     		}    
                     		else
                     		{
-                        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupItemBearerSURes failed\n");
+                        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupItemBearerSURes failed");
                         	    return -1;
                     		}
                 	    } break;
                 	    default:
                 	    {
-                    		log_msg(LOG_WARNING, "Unhandled List item %d \n", ie_p->id);
+                    		log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                 	    }
             		}
         	    }
     		}
     		else
     		{
-        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupListBearerSURes failed\n");
+        	    log_msg(LOG_ERROR, "Decoding of IE E_RABFailedToSetupListBearerSURes failed");
         	    return -1;
     		}
 	    } break;  
-	    default:
-            {
-                proto_ies->data[i].IE_type = ie_p->id;
-		log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
-            }
-
+	            default:
+                {
+                    proto_ies->data[i].IE_type = ie_p->id;
+		            log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
+                }
             }
         }
     }
@@ -2213,7 +2199,7 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
         no_of_IEs = protocolIes->list.count;
         proto_ies->no_of_IEs = no_of_IEs;
 
-        log_msg(LOG_INFO, "No of IEs = %d\n", no_of_IEs);
+        log_msg(LOG_INFO, "No of IEs = %d", no_of_IEs);
         proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
 
         for (int i = 0; i < protocolIes->list.count; i++)
@@ -2240,11 +2226,11 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                     else
                     {
                         log_msg(LOG_ERROR,
-                                "Decoding of IE eNB_UE_S1AP_ID failed\n");
+                                "Decoding of IE eNB_UE_S1AP_ID failed");
                         return -1;
                     }
                 }
-                    break;
+                break;
                 case ProtocolIE_ID_id_MME_UE_S1AP_ID:
                 {
                     MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
@@ -2263,11 +2249,11 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                     else
                     {
                         log_msg(LOG_ERROR,
-                                "Decoding of IE MME_UE_S1AP_ID failed\n");
+                                "Decoding of IE MME_UE_S1AP_ID failed");
                         return -1;
                     }
                 }
-                    break;
+                break;
                 case ProtocolIE_ID_id_E_RABReleaseListBearerRelComp:
                 {
                     E_RABReleaseListBearerRelComp_t *e_RABReleaseList_p = NULL;
@@ -2311,15 +2297,14 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                                     else
                                     {
                                         log_msg(LOG_ERROR,
-                                                "Decoding of IE E_RABReleaseItemBearerRelComp failed\n");
+                                                "Decoding of IE E_RABReleaseItemBearerRelComp failed");
                                         return -1;
                                     }
                                 }
                                     break;
                                 default:
                                 {
-                                    log_msg(LOG_WARNING,
-                                            "Unhandled List item %d", ie_p->id);
+                                    log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                                 }
                             }
                         }
@@ -2327,11 +2312,11 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                     else
                     {
                         log_msg(LOG_ERROR,
-                                "Decoding of IE E_RABReleaseItemBearerRelComp failed\n");
+                                "Decoding of IE E_RABReleaseItemBearerRelComp failed");
                         return -1;
                     }
                 }
-                    break;
+                break;
                 case ProtocolIE_ID_id_E_RABFailedToReleaseList:
                 {
                     E_RABList_t *e_RABFailedToReleaseList_p = NULL;
@@ -2373,8 +2358,7 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                                         proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].e_RAB_ID =
                                                 (uint8_t) eRabFailedToReleaseItem_p->e_RAB_ID;
 
-                                        Cause_t *s1apCause_p =
-                                                &eRabFailedToReleaseItem_p->cause;
+                                        Cause_t *s1apCause_p = &eRabFailedToReleaseItem_p->cause;
                                         if(s1apCause_p != NULL)
                                         {
                                             proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].cause.present =
@@ -2383,39 +2367,31 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                                             {
                                                 case Cause_PR_radioNetwork:
                                                 {
-                                                    log_msg(LOG_DEBUG,
-                                                            "RadioNetwork case : %d\n",
-                                                            s1apCause_p->choice.radioNetwork);
+                                                    log_msg(LOG_DEBUG, "RadioNetwork case : %lu", s1apCause_p->choice.radioNetwork);
                                                     proto_ies->data[i].val.erab_failed_to_release_list.erab_item[j].cause.choice.radioNetwork =
                                                             s1apCause_p->choice.radioNetwork;
                                                 }
-                                                    break;
+                                                break;
                                                 default:
-                                                    log_msg(LOG_WARNING,
-                                                            "Unknown cause %d\n",
-                                                            s1apCause_p->present);
+                                                    log_msg(LOG_WARNING, "Unknown cause %d", s1apCause_p->present);
                                             }
                                         }
                                         else
                                         {
-                                            log_msg(LOG_ERROR,
-                                                    "Decoding of IE eRabFailedToReleaseItem->Cause failed\n");
+                                            log_msg(LOG_ERROR, "Decoding of IE eRabFailedToReleaseItem->Cause failed");
                                             return -1;
                                         }
                                     }
                                     else
                                     {
-                                        log_msg(LOG_ERROR,
-                                                "Decoding of IE eRabFailedToReleaseItem failed\n");
+                                        log_msg(LOG_ERROR, "Decoding of IE eRabFailedToReleaseItem failed");
                                         return -1;
                                     }
                                 }
                                     break;
                                 default:
                                 {
-                                    log_msg(LOG_WARNING,
-                                            "Unhandled List item %d \n",
-                                            ie_p->id);
+                                    log_msg(LOG_WARNING, "Unhandled List item %lu", ie_p->id);
                                 }
                             }
                         }
@@ -2423,17 +2399,16 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                     else
                     {
                         log_msg(LOG_ERROR,
-                                "Decoding of IE eRabFailedToReleaseItem_p failed\n");
+                                "Decoding of IE eRabFailedToReleaseItem_p failed");
                         return -1;
                     }
                 }
-                    break;
+                break;
                 default:
                 {
                     proto_ies->data[i].IE_type = ie_p->id;
-                    log_msg(LOG_WARNING, "Unhandled IE %d\n", ie_p->id);
+                    log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                 }
-
             }
         }
     }

@@ -26,14 +26,14 @@ static int handover_cancel_ack_processing(
             &length);
     if (ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding Handover Cancel Acknowledge failed.\n");
+        log_msg(LOG_ERROR, "Encoding Handover Cancel Acknowledge failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_ho_cancel_ack->src_enb_context_id, buffer, length, 1);
 
     log_msg(LOG_DEBUG,
-            "HO Handover Cancel Acknowledge Sent. Num of bytes - %d\n", length);
+            "HO Handover Cancel Acknowledge Sent. Num of bytes - %d", length);
 	if(buffer != NULL) {
 		free(buffer);
 	}

@@ -18,7 +18,6 @@
 /**Globals and externs**/
 extern struct fd_dict_objects g_fd_dict_objs;
 extern struct fd_dict_data g_fd_dict_data;
-extern bool g_nolog;
 extern enum log_levels g_log_level;
 /**Globals and externs**/
 
@@ -58,7 +57,6 @@ dump_fd_msg(struct msg *msg)
 	//char *buf = NULL;
 	//int len = 0;
 
-	if (g_nolog) return;
 
 	//TODO: correct - fprintf(stderr, "%s\n", fd_msg_dump_treeview(&buf, &len, NULL, msg,
 	//			fd_g_config->cnf_dict, 0, 1));
@@ -78,7 +76,7 @@ get_ue_idx_from_fd_resp(unsigned char *sid, int sidlen)
 	char *tmp = strrchr((char *)sid, ';');
 
 	index = strtol(++tmp, NULL, 10);
-	log_msg(LOG_INFO, "Received resp for index %d\n", index);
+	log_msg(LOG_INFO, "Received resp for index %d", index);
 	return index;
 }
 

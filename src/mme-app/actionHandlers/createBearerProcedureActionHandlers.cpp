@@ -48,32 +48,32 @@ using namespace cmn::utils;
  ***************************************/
 ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "init_ded_bearer_activation : Entry\n");
+    log_msg(LOG_DEBUG, "init_ded_bearer_activation : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmCreateBearerProcCtxt *cbReqProc_p =
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
-            " Create Bearer Procedure Context is NULL \n");
+            " Create Bearer Procedure Context is NULL ");
 
     cmn::IpcEventMessage *ipcMsg =
             dynamic_cast<cmn::IpcEventMessage*>(cbReqProc_p->getCreateBearerReqEMsgRaw());
-    VERIFY(ipcMsg, return ActStatus::ABORT, "Invalid IPC Event Message in CBReq Procedure Context \n");
+    VERIFY(ipcMsg, return ActStatus::ABORT, "Invalid IPC Event Message in CBReq Procedure Context ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(ipcMsg->getMsgBuffer());
-    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
+    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer ");
 
     const cb_req_Q_msg *cb_req =
             static_cast<const cb_req_Q_msg*>(msgBuf->getDataPointer());
-    VERIFY(cb_req, return ActStatus::ABORT, "Invalid data buffer \n");
+    VERIFY(cb_req, return ActStatus::ABORT, "Invalid data buffer ");
 
     SessionContext *sessionCtxt = ue_ctxt->findSessionContextByLinkedBearerId(
             cb_req->linked_eps_bearer_id);
     VERIFY(sessionCtxt,
             cbReqProc_p->setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
-            "Session Context is NULL \n");
+            "Session Context is NULL ");
 
     uint8_t bearerAllocCount = 0;
     for (int i = 0; i < cb_req->bearer_ctx_list.bearers_count; i++)
@@ -90,7 +90,7 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
         if (bearerCtxt_p != NULL)
         {
             log_msg(LOG_DEBUG,
-                    "Allocated Bearer Context with eps_bearer_id: %d for s1u sgw teid: %d \n",
+                    "Allocated Bearer Context with eps_bearer_id: %d for s1u sgw teid: %d ",
                     bearerCtxt_p->getBearerId(),
                     cb_req->bearer_ctx_list.bearer_ctxt[i].s1u_sgw_teid.header.teid_gre);
 
@@ -127,7 +127,7 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
         else
         {
             log_msg(LOG_ERROR,
-                    "Failed to allocate Bearer Context with teid: %d \n",
+                    "Failed to allocate Bearer Context with teid: %d ",
                     cb_req->bearer_ctx_list.bearer_ctxt[i].s1u_sgw_teid.header.teid_gre);
 
             brStatus.cause.cause = GTPV2C_CAUSE_REQUEST_REJECTED;
@@ -154,15 +154,15 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_bearer_setup_and_sess_mgmt_req(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "send_bearer_setup_and_sess_mgmt_req : Entry\n");
+    log_msg(LOG_DEBUG, "send_bearer_setup_and_sess_mgmt_req : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmCreateBearerProcCtxt *cbReqProc_p = 
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
-            "Create Bearer Procedure Context is NULL \n");
+            "Create Bearer Procedure Context is NULL ");
 
     erabsu_ctx_req_Q_msg erab_su_req;
     memset(&erab_su_req, 0, sizeof(erabsu_ctx_req_Q_msg));
@@ -191,7 +191,7 @@ ActStatus ActionHandlers::send_bearer_setup_and_sess_mgmt_req(ControlBlock &cb)
     else
     {
         log_msg(LOG_INFO, "send_bearer_setup_and_sess_mgmt_req : "
-                "Failed to populate eRAB Setup Request\n");
+                "Failed to populate eRAB Setup Request");
         actStatus = ActStatus::ABORT;
     }
     return actStatus;
@@ -234,12 +234,12 @@ ActStatus ActionHandlers::send_create_bearer_response(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::handle_ded_act_cmp_ind(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "handle_ded_act_cmp_ind : Entry\n");
+    log_msg(LOG_DEBUG, "handle_ded_act_cmp_ind : Entry");
 
     MmeSmCreateBearerProcCtxt *cbReqProc_p = 
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(cbReqProc_p, return ActStatus::ABORT,
-            "Create Bearer Procedure Context is NULL \n");
+            "Create Bearer Procedure Context is NULL ");
 
     ActStatus actStatus = ActStatus::PROCEED;
 
@@ -279,10 +279,10 @@ ActStatus ActionHandlers::handle_ded_act_cmp_ind(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::abort_create_bearer_procedure(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "abort_create_bearer_procedure : Entry\n");
+    log_msg(LOG_DEBUG, "abort_create_bearer_procedure : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmCreateBearerProcCtxt *cbReqProc_p =
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());
@@ -332,7 +332,7 @@ ActStatus ActionHandlers::abort_create_bearer_procedure(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::create_bearer_proc_complete(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "create_bearer_proc_complete : Entry\n");
+    log_msg(LOG_DEBUG, "create_bearer_proc_complete : Entry");
 
     MmeSmCreateBearerProcCtxt *cbReqProc_p =
             dynamic_cast<MmeSmCreateBearerProcCtxt*>(cb.getTempDataBlock());

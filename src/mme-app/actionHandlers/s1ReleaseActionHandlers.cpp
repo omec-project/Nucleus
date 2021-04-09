@@ -43,34 +43,35 @@ using namespace cmn::utils;
 
 ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside send_rel_ab_req_to_sgw \n");
+	log_msg(LOG_DEBUG, "Inside send_rel_ab_req_to_sgw ");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 	
     	MmeS1RelProcedureCtxt *procCtxt = dynamic_cast<MmeS1RelProcedureCtxt*>(cb.getTempDataBlock());
-    	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL \n");
+    	VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL ");
 
 	auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
 	VERIFY(sessionCtxtContainer.size() > 0,
 	        procCtxt->setMmeErrorCause(SESSION_CONTAINER_EMPTY); return ActStatus::ABORT,
-	        "Sessions Container is empty\n");
+	        "Sessions Container is empty");
 
 	SessionContext* sessionCtxt = sessionCtxtContainer.front();
     	VERIFY(sessionCtxt,
             procCtxt->setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
-            "Sessions Context is NULL\n");
+            "Sessions Context is NULL");
 
 	BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
 	VERIFY(bearerCtxt,
 	        procCtxt->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);return ActStatus::ABORT,
-	          "Bearer Context is NULL \n");
+	          "Bearer Context is NULL ");
 
-    	if(ue_ctxt->getS1apEnbUeId() != procCtxt->getS1apEnbUeId())
-    	{
-        	log_msg(LOG_DEBUG, "S1 Release req with wrong enb_s1ap_ue_id.\n");
-		return ActStatus::ABORT;
-    	}
+    if(ue_ctxt->getS1apEnbUeId() != procCtxt->getS1apEnbUeId())
+    {
+        log_msg(LOG_DEBUG, "S1 Release req with wrong enb_s1ap_ue_id. UE Context has %u " 
+                           "and proc context has %u ",ue_ctxt->getS1apEnbUeId(), procCtxt->getS1apEnbUeId());
+        return ActStatus::ABORT;
+    }
 
 	struct RB_Q_msg rb_msg;
 	rb_msg.msg_type = release_bearer_request;
@@ -93,14 +94,14 @@ ActStatus ActionHandlers:: send_rel_ab_req_to_sgw(SM::ControlBlock& cb)
 
 	ProcedureStats::num_of_rel_access_bearer_req_sent ++;
 	
-	log_msg(LOG_DEBUG, "Inside send_rel_ab_req_to_sgw \n");
+	log_msg(LOG_DEBUG, "Inside send_rel_ab_req_to_sgw ");
 
 	return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers:: process_rel_ab_resp_from_sgw(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "process_rel_ab_resp_from_sgw \n");
+	log_msg(LOG_DEBUG, "process_rel_ab_resp_from_sgw ");
 
 	ProcedureStats::num_of_rel_access_bearer_resp_received ++;
 
@@ -109,10 +110,10 @@ ActStatus ActionHandlers:: process_rel_ab_resp_from_sgw(SM::ControlBlock& cb)
 
 ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue\n");
+	log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 	S1apCause s1apCause;
 	MmeProcedureCtxt* prcdCtxt_p = 
 		dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
@@ -141,7 +142,7 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	
 	ProcedureStats::num_of_s1_rel_cmd_sent ++;
 	
-	log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue \n");
+	log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue ");
 
 	return ActStatus::PROCEED;
 }
@@ -177,13 +178,13 @@ ActStatus ActionHandlers::abort_s1_release(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::s1_release_complete(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "Insidei s1_release_complete \n");
+    log_msg(LOG_DEBUG, "Insidei s1_release_complete ");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmContext *mmCtxt = ue_ctxt->getMmContext();
-    VERIFY_UE(cb, mmCtxt, "Invalid MM Context\n");
+    VERIFY_UE(cb, mmCtxt, "Invalid MM Context");
 
     mmCtxt->setEcmState(ecmIdle_c);
 
@@ -200,7 +201,7 @@ ActStatus ActionHandlers::s1_release_complete(ControlBlock& cb)
     ue_ctxt->setS1apEnbUeId(0);
     ProcedureStats::num_of_s1_rel_comp_received++;
 
-    log_msg(LOG_DEBUG, "Leaving s1_release_complete \n");
+    log_msg(LOG_DEBUG, "Leaving s1_release_complete ");
 
     return ActStatus::PROCEED;
 }

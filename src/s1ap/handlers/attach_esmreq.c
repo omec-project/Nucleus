@@ -53,7 +53,7 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
     Buffer g_esm_buffer = {0};
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
-	log_msg(LOG_INFO, "ESM Info Request handler MME-s1ap-id %d, enb-s1ap-id %d, fd %d \n",
+	log_msg(LOG_INFO, "ESM Info Request handler MME-s1ap-id %d, enb-s1ap-id %d, fd %d ",
 			g_esmReqInfo->ue_idx, g_esmReqInfo->enb_s1ap_ue_id, g_esmReqInfo->enb_fd);
 
 	s1apPDU.procedurecode = id_downlinkNASTransport;
@@ -142,7 +142,7 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 
 	int ret = send_sctp_msg(g_esmReqInfo->enb_fd, g_esm_buffer.buf, g_esm_buffer.pos, 1);
 	if(ret < 0) {
-	log_msg(LOG_ERROR, "Failed to send - ESM Info Request. MME-s1ap-id %d, enb-s1ap-id %d, fd %d \n",
+	log_msg(LOG_ERROR, "Failed to send - ESM Info Request. MME-s1ap-id %d, enb-s1ap-id %d, fd %d ",
 			g_esmReqInfo->ue_idx, g_esmReqInfo->enb_s1ap_ue_id, g_esmReqInfo->enb_fd);
 	}
 

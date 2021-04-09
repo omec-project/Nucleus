@@ -49,7 +49,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	if(rc == false)
 	{
 			log_msg(LOG_ERROR, "s11_CS_resp_handler: "
-								"Failed to decode Create Session Response Msg %d\n",
+								"Failed to decode Create Session Response Msg %d",
 								hdr->teid);
 			return E_PARSING_FAILED;
 	}
@@ -106,7 +106,7 @@ s11_CS_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 	csr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 
 	/*Send CS response msg*/
-	log_msg(LOG_INFO, "Send CS resp to mme-app stage6.\n");
+	log_msg(LOG_INFO, "Send CS resp to mme-app stage6.");
 	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&csr_info, sizeof(struct csr_Q_msg));
 
 	return SUCCESS;

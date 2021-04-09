@@ -42,14 +42,14 @@ s11_ECHO_req_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t 
 	{
 			
 			log_msg(LOG_ERROR, "s11_ECHO_req_resp_handler: "
-					   "Failed to decode echo req Msg\n");
+					   "Failed to decode echo req Msg");
 			return E_PARSING_FAILED;
 	}
 
 	struct MsgBuffer* echoRespMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
 	if(echoRespMsgBuf_p == NULL)
 	{
-	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	    log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
             return -1;
 	}
 	
@@ -73,7 +73,7 @@ s11_ECHO_req_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t 
 			MsgBuffer_getBufLen(echoRespMsgBuf_p), 0,
 			(struct sockaddr*)&sgw_ip, g_s11_serv_size);
 	
-	log_msg(LOG_INFO, "ECHO Resp Sent, len - %d bytes.\n", MsgBuffer_getBufLen(echoRespMsgBuf_p));
+	log_msg(LOG_INFO, "ECHO Resp Sent, len - %d bytes.", MsgBuffer_getBufLen(echoRespMsgBuf_p));
 	MsgBuffer_free(echoRespMsgBuf_p);
 	return SUCCESS;
 

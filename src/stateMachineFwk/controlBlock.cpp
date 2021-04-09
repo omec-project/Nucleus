@@ -229,7 +229,7 @@ namespace SM
     {
         std::lock_guard<std::mutex> lock(mutex_m);
         
-        log_msg(LOG_INFO, "CB state transition from %d to %d\n", cbState_m, state);
+        log_msg(LOG_DEBUG, "CB state transition from %d to %d", cbState_m, state);
 
         cbState_m = state;
     }

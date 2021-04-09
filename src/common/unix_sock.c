@@ -40,7 +40,7 @@ init_sock()
 	g_unix_fd = create_unix_socket();
 
 	if (g_unix_fd == -1) {
-		log_msg(LOG_ERROR, "Error in creating unix socket. \n");
+		log_msg(LOG_ERROR, "Error in creating unix socket. ");
 		return -E_FAIL;
 	}
 
@@ -52,7 +52,7 @@ init_sock()
 
 	int ret = pthread_create(&acceptUnix_t, &attr,&accept_unix, NULL);
 	if(ret < 0) {
-		log_msg(LOG_ERROR,"UNIX ACCEPTS THREAD FAILED\n");
+		log_msg(LOG_ERROR,"UNIX ACCEPTS THREAD FAILED");
 		return -E_FAIL;
 	}
 
@@ -69,7 +69,7 @@ init_sock()
 void *
 accept_unix(void *data)
 {
-	log_msg(LOG_DEBUG, "accept connection on unix sock\n");
+	log_msg(LOG_DEBUG, "accept connection on unix sock");
 	int new_socket = 0;
 	int activity = 0;
 	int i = 0;
@@ -103,17 +103,17 @@ accept_unix(void *data)
 		activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
 		if ((activity < 0) && (errno != EINTR)) {
-			log_msg(LOG_ERROR, "select error.\n");
+			log_msg(LOG_ERROR, "select error.");
 		 }
 
 		if (FD_ISSET(g_unix_fd, &readfds)) {
-			log_msg(LOG_DEBUG, "stuck in accept.\n");
+			log_msg(LOG_DEBUG, "stuck in accept.");
 
 			if ((new_socket = accept_unix_socket(g_unix_fd)) == -1) {
-				log_msg(LOG_ERROR, "Error in accept on unix socket.\n");
+				log_msg(LOG_ERROR, "Error in accept on unix socket.");
 			}
 
-			log_msg(LOG_DEBUG, "New Connection Established\n.");
+			log_msg(LOG_DEBUG, "New Connection Established.");
 			FD_CLR(g_unix_fd, &readfds);
 
 			for (i = 0; i < MAX_CLIENT; i++) {
@@ -121,7 +121,7 @@ accept_unix(void *data)
 				if( client_socket[i] == 0 ) {
 
 					client_socket[i] = new_socket;
-					log_msg(LOG_DEBUG, "Adding to list of sockets at %d value %d\n" , i, new_socket);
+					log_msg(LOG_DEBUG, "Adding to list of sockets at %d value %d" , i, new_socket);
 					break;
 				}
 			}
@@ -136,14 +136,14 @@ accept_unix(void *data)
 			    if ((valread = recv_unix_msg(sd, 
 			             buffer, BUF_SIZE)) == 0) 
 				{
-                                    log_msg(LOG_INFO, "Host Disconnected\n");
+                                    log_msg(LOG_INFO, "Host Disconnected");
 				    close(sd);
 				    client_socket[i] = 0;
 
 				}
 				else if(valread == -1)
 				{
-                                    log_msg(LOG_INFO, "Host Disconnected\n");
+                                    log_msg(LOG_INFO, "Host Disconnected");
 				    //close(sd);
 				    //client_socket[i] = 0;
 				}
@@ -153,13 +153,13 @@ accept_unix(void *data)
 				    malloc((sizeof(char) * valread)+sizeof(int));
                                     if(tmpBuf == NULL)
 				    {
-                                        log_msg(LOG_ERROR, "malloc failed\n");
+                                        log_msg(LOG_ERROR, "malloc failed");
 					continue;
 				    }
 				    
 				    memcpy(tmpBuf, &sd, sizeof(int));
 			            memcpy(tmpBuf + sizeof(int), buffer, valread);
-				    log_msg(LOG_DEBUG, "Received msg len : %d \n",valread);
+				    log_msg(LOG_DEBUG, "Received msg len : %d ",valread);
 				    insert_job(g_tpool, monitorConfigFunc_fpg, tmpBuf);
 
 				}
@@ -174,6 +174,6 @@ accept_unix(void *data)
 void dummy_monitor_fn(void* msg)
 {
     log_msg(LOG_ERROR, "Unix IPC Socket callback "
-                      "not registered by the application!\n");
+                      "not registered by the application!");
     pthread_exit(NULL);
 }

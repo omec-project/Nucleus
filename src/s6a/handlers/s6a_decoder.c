@@ -37,17 +37,17 @@ parse_supported_features_avp(struct avp *avp_ptr, supported_features *supp_featu
         {
             case FEAT_LIST_ID_AVP_CODE:
                 {
-                    log_msg(LOG_DEBUG,"found feature_list_id avp %u \n",hdr->avp_value->u32);
+                    log_msg(LOG_DEBUG,"found feature_list_id avp %u ",hdr->avp_value->u32);
                     supp_features->feature_list_id = hdr->avp_value->u32;
                 } break;
             case FEAT_LIST_AVP_CODE:
                 {
-                    log_msg(LOG_DEBUG,"found feature_list avp  %u \n",hdr->avp_value->u32);
+                    log_msg(LOG_DEBUG,"found feature_list avp  %u ",hdr->avp_value->u32);
                     supp_features->feature_list = hdr->avp_value->u32;
                 } break;
             case SUPP_FEAT_VENDOR_ID_AVP_CODE:
             {
-                    log_msg(LOG_DEBUG,"found vendor_id avp  %u \n",hdr->avp_value->u32);
+                    log_msg(LOG_DEBUG,"found vendor_id avp  %u ",hdr->avp_value->u32);
                     break;
             }
             default:

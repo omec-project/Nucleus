@@ -63,7 +63,7 @@ init_hss_rpc()
 
 	g_our_hss_fd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (g_our_hss_fd < 0) {
-		log_msg(LOG_ERROR, "HSS socket creation failed.\n");
+		log_msg(LOG_ERROR, "HSS socket creation failed.");
 		perror("Error opening HSS socket");
 		exit(-1);
 	}
@@ -73,12 +73,12 @@ init_hss_rpc()
 
 	if (connect(g_our_hss_fd, (struct sockaddr *)&hss_serv,
 	sizeof(struct sockaddr_un)) < 0) {
-		log_msg(LOG_ERROR, "HSS connect failed.\n");
+		log_msg(LOG_ERROR, "HSS connect failed.");
 		perror("connecting HSS socket");
 		close(g_our_hss_fd);
 		exit(-1);
 	}
-	log_msg(LOG_INFO, "Connected to HSS\n");
+	log_msg(LOG_INFO, "Connected to HSS");
 }
 
 /**
@@ -90,7 +90,7 @@ init_hss_rpc()
 static int
 init_fd()
 {
-	log_msg(LOG_INFO, "INIT FD .. .\n");
+	log_msg(LOG_INFO, "INIT FD .. .");
 
 	/* Initialize the core freeDiameter library */
 	CHECK_FCT_DO(fd_core_initialize(), return S6A_FD_ERROR);
@@ -174,19 +174,19 @@ init_handlers()
 {
 	if ((ipc_reader_tipc_s6 = create_tipc_socket()) <= 0)
 	{
-		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket \n");
+		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket ");
 		return -E_FAIL;
 	}
 	if ( bind_tipc_socket(ipc_reader_tipc_s6, s6AppInstanceNum_c) != 1)
 	{
-		log_msg(LOG_ERROR, "failed to bind port name %s\n", strerror(errno));
+		log_msg(LOG_ERROR, "failed to bind port name %s", strerror(errno));
 		return -E_FAIL;
 	}
 
 	g_tpool_tipc_reader_s6a = thread_pool_new(3);
 
 	if (g_tpool_tipc_reader_s6a == NULL) {
-		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		log_msg(LOG_ERROR, "Error in creating thread pool. ");
 		return -E_FAIL_INIT;
 	}
 	pthread_attr_t attr;
@@ -212,10 +212,10 @@ init_s6a_ipc()
 {
 	g_Q_mme_S6a_fd = create_tipc_socket();
 	if (g_Q_mme_S6a_fd == -1) {
-		log_msg(LOG_ERROR, "Error in opening writer IPC channel\n");
+		log_msg(LOG_ERROR, "Error in opening writer IPC channel");
 		pthread_exit(NULL);
 	}
-	log_msg(LOG_INFO, "S6a response - mme-app TIPC: Connected.\n");
+	log_msg(LOG_INFO, "S6a response - mme-app TIPC: Connected.");
 	return 0;
 }
 
@@ -245,18 +245,18 @@ s6a_run()
 
 		if ((len = read(g_our_hss_fd, buf,
 						sizeof(struct hss_resp_msg))) < 0) {
-			log_msg(LOG_ERROR, "Error reading hss buff\n");
+			log_msg(LOG_ERROR, "Error reading hss buff");
 	                perror("reading stream message");
 			exit(-1);
 		} else if (len == 0) {
-			log_msg(LOG_ERROR, "Error reading hss buff\n");
+			log_msg(LOG_ERROR, "Error reading hss buff");
 	                perror("reading stream message");
 			exit(-1);
 		}else {
 			unsigned char *tmp_buf = (unsigned char *)
 					calloc(sizeof(char), len);
 			memcpy(tmp_buf, buf, len);
-			log_msg(LOG_INFO, "HSS Received msg len : %d \n",len);
+			log_msg(LOG_INFO, "HSS Received msg len : %d ",len);
 			insert_job(g_tpool, hss_resp_handler, tmp_buf);
 		}
 	}
@@ -299,7 +299,7 @@ main(int argc, char **argv)
 		/* Initialize thread pool for handling HSS resp*/
 		g_tpool = thread_pool_new(HSS_RESP_THREADPOOL_SIZE);
 		if (g_tpool == NULL) {
-			log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+			log_msg(LOG_ERROR, "Error in creating thread pool. ");
 			return -1;
 		}
 	}

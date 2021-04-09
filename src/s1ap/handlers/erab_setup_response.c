@@ -20,22 +20,22 @@ extern ipc_handle ipc_S1ap_Hndl;
 
 void dump_erab_su_resp(struct erabSuResp_Q_msg *msg)
 {
-   log_msg(LOG_INFO, "MME-UE-S1AP-ID %d\n", msg->s1ap_mme_ue_id);
-   log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d\n", msg->header.s1ap_enb_ue_id);
-   log_msg(LOG_INFO, "eRABSetupList_count %d\n", msg->erab_su_list.count);
+   log_msg(LOG_INFO, "MME-UE-S1AP-ID %d", msg->s1ap_mme_ue_id);
+   log_msg(LOG_INFO, "eNB-UE-S1AP-ID %d", msg->header.s1ap_enb_ue_id);
+   log_msg(LOG_INFO, "eRABSetupList_count %d", msg->erab_su_list.count);
    for(int i = 0; i < msg->erab_su_list.count; i++)
    {
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].erab_id: %d\n", i, msg->erab_su_list.
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].erab_id: %d", i, msg->erab_su_list.
 		       erab_su_item[i].e_RAB_ID);
        struct in_addr tl_address = 
        			{msg->erab_su_list.erab_su_item[i].transportLayerAddress};
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %s\n", i, inet_ntoa(tl_address));
-       log_msg(LOG_INFO,"eRAB_setup_item[%d].gtp_teid: %d\n", i, msg->erab_su_list.
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].transportLayerAddress: %s", i, inet_ntoa(tl_address));
+       log_msg(LOG_INFO,"eRAB_setup_item[%d].gtp_teid: %d", i, msg->erab_su_list.
                        erab_su_item[i].gtp_teid);
    }
    for(int i = 0; i < msg->erab_fail_list.count; i++)
    {
-       log_msg(LOG_INFO,"eRAB_failed_to_setup_item[%d].erab_id: %d\n", i, msg->erab_fail_list.
+       log_msg(LOG_INFO,"eRAB_failed_to_setup_item[%d].erab_id: %d", i, msg->erab_fail_list.
 		       erab_fail_item[i].e_RAB_ID);
    }
 
@@ -49,7 +49,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
     int decode_status = convertErabSetupRespToProtoIe(msg, &erab_su_resp_ies);
     if (decode_status < 0)
     {
-        log_msg(LOG_ERROR, "Failed to decode ERAB Setup Response\n");
+        log_msg(LOG_ERROR, "Failed to decode ERAB Setup Response");
 
         if (erab_su_resp_ies.data != NULL)
             free(erab_su_resp_ies.data);
@@ -64,7 +64,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             case S1AP_IE_MME_UE_ID:
             {
                 log_msg(LOG_INFO,
-                    "ERAB Setup Response S1AP_IE_MME_UE_ID %d\n", 
+                    "ERAB Setup Response S1AP_IE_MME_UE_ID %lu", 
                 erab_su_resp_ies.data[i].val.mme_ue_s1ap_id);
 
                 erab_su_resp.header.ue_idx = erab_su_resp_ies.data[i].val.mme_ue_s1ap_id;
@@ -73,7 +73,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             case S1AP_IE_ENB_UE_ID:
             {
                 log_msg(LOG_INFO,
-                    "ERAB Setup Response S1AP_IE_ENB_UE_ID %d\n",
+                    "ERAB Setup Response S1AP_IE_ENB_UE_ID %lu",
                 erab_su_resp_ies.data[i].val.enb_ue_s1ap_id);
 
                 erab_su_resp.header.s1ap_enb_ue_id = erab_su_resp_ies.data[i].val.enb_ue_s1ap_id;
@@ -83,7 +83,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             {   
                 log_msg(LOG_INFO,
                     "ERAB Setup Response S1AP_IE_E_RAB_SETUP_LIST_BEARER_SU_RES \
-		             received with the count : %d\n", 
+		             received with the count : %d", 
                      erab_su_resp_ies.data[i].val.erab_su_list.count);
 
                 erab_su_resp.erab_su_list.count =
@@ -98,7 +98,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             {
                 log_msg(LOG_INFO,
                     "ERAB Setup Response S1AP_IE_E_RAB_FAILED_TO_SETUP_LIST_BEARER_SU_RES \
-		             received with the count : %d\n", 
+		             received with the count : %d", 
                      erab_su_resp_ies.data[i].val.erab_fail_list.count);
 
                 erab_su_resp.erab_fail_list.count =
@@ -110,7 +110,7 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             }
             break;
             default:
-                log_msg(LOG_WARNING, "Unhandled IE %d\n", erab_su_resp_ies.data[i].IE_type);
+                log_msg(LOG_WARNING, "Unhandled IE %d", erab_su_resp_ies.data[i].IE_type);
         }
     }
 
@@ -124,10 +124,10 @@ int erab_setup_response_handler(SuccessfulOutcome_t *msg)
             sizeof(struct erabSuResp_Q_msg));
     if (i < 0)
     {
-        log_msg(LOG_ERROR, "Error To write in erab_su_resp_handler %s\n", strerror(errno));
+        log_msg(LOG_ERROR, "Error To write in erab_su_resp_handler %s", strerror(errno));
     }
 
-    log_msg(LOG_INFO, "ERAB Setup Response sent to mme-app. Bytes sent %d\n", i);
+    log_msg(LOG_INFO, "ERAB Setup Response sent to mme-app. Bytes sent %d", i);
 
     free(erab_su_resp_ies.data);
 

@@ -59,7 +59,7 @@ uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
         rc = timeoutMgr.cancelTimer(timerCtxt);
         if (rc > 0)
         {
-            log_msg(LOG_DEBUG, "Timer deleted\n");
+            log_msg(LOG_DEBUG, "Timer deleted");
             delete timerCtxt;
         }
     }
@@ -68,12 +68,12 @@ uint32_t MmeTimerUtils::stopTimer(TimerContext* timerCtxt)
 
 void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
 {
-    log_msg(LOG_DEBUG, "\n %s : %d \n",__FUNCTION__,__LINE__);
+    log_msg(LOG_DEBUG, " timeout ");
 
     MmeUeTimerContext* mmeTimerCtxt = static_cast<MmeUeTimerContext *>(timerCtxt);
     if (mmeTimerCtxt == NULL)
     {
-        log_msg(LOG_DEBUG, "\n %s : %d invalid mmeTimerCtxt \n",__FUNCTION__,__LINE__);
+        log_msg(LOG_DEBUG, "invalid mmeTimerCtxt ");
         return;
     }
     if(mmeTimerCtxt->getTimerType() == mmeConfigDnsResolve_c)
@@ -84,14 +84,14 @@ void MmeTimerUtils::onTimeout(TimerContext* timerCtxt)
     }
     else if (mmeTimerCtxt->getTimerType() == stateGuardTimer_c)
     {
-        log_msg(LOG_DEBUG, "State Guard Timer expiry \n");
+        log_msg(LOG_DEBUG, "State Guard Timer expiry ");
 
         ControlBlock *controlBlk_p =
                 SubsDataGroupManager::Instance()->findControlBlock(
                         mmeTimerCtxt->getUeIndex());
         if (controlBlk_p == NULL)
         {
-            log_msg(LOG_INFO, "Failed to find UE context using idx %d\n",
+            log_msg(LOG_INFO, "Failed to find UE context using idx %d",
                     mmeTimerCtxt->getUeIndex());
 
             return;

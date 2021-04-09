@@ -114,12 +114,12 @@ init_s11_workers()
 {
 	if ((ipc_reader_tipc_s11 = create_tipc_socket()) <= 0)
 	{
-		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket \n");
+		log_msg(LOG_ERROR, "Failed to create IPC Reader tipc socket ");
 		return -E_FAIL;
 	}
 	if ( bind_tipc_socket(ipc_reader_tipc_s11, s11AppInstanceNum_c) != 1)
 	{
-		log_msg(LOG_ERROR, "Failed to bind IPC Reader tipc socket \n");
+		log_msg(LOG_ERROR, "Failed to bind IPC Reader tipc socket ");
 		return -E_FAIL;
 	}
 
@@ -127,11 +127,11 @@ init_s11_workers()
 	g_tpool_tipc_reader_s11 = thread_pool_new(3);
 
 	if (g_tpool_tipc_reader_s11 == NULL) {
-		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		log_msg(LOG_ERROR, "Error in creating thread pool. ");
 		return -E_FAIL_INIT;
 	}
 
-	log_msg(LOG_INFO, "S11 Listener thead pool initalized.\n");
+	log_msg(LOG_INFO, "S11 Listener thead pool initalized.");
 
 	// thread to read incoming ipc messages from tipc socket
 	pthread_attr_t attr;
@@ -153,7 +153,7 @@ init_gtpv2()
 	g_client_addr.sin_family = AF_INET;
 	//g_client_addr.sin_addr.s_addr = htonl(g_s11_cfg.local_egtp_ip);
 	struct in_addr mme_local_addr = {g_s11_cfg.local_egtp_ip};
-	fprintf(stderr, "....................local egtp %s\n", inet_ntoa(mme_local_addr));
+	fprintf(stderr, "....................local egtp %s", inet_ntoa(mme_local_addr));
 	g_client_addr.sin_addr.s_addr = htonl(g_s11_cfg.local_egtp_ip);
 	g_client_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
 
@@ -163,11 +163,11 @@ init_gtpv2()
 	/*Configure settings in address struct*/
 	g_s11_cp_addr.sin_family = AF_INET;
 	//g_s11_cp_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
-	fprintf(stderr, ".................... egtp def port %d\n", g_s11_cfg.egtp_def_port);
+	fprintf(stderr, ".................... egtp def port %d", g_s11_cfg.egtp_def_port);
 	g_s11_cp_addr.sin_port = htons(g_s11_cfg.egtp_def_port);
 	//g_s11_cp_addr.sin_addr.s_addr = htonl(g_s11_cfg.sgw_ip);
 	struct in_addr sgw_addr = {g_s11_cfg.sgw_ip};
-	fprintf(stderr, "....................sgw ip %s\n", inet_ntoa(sgw_addr));
+	fprintf(stderr, "....................sgw ip %s", inet_ntoa(sgw_addr));
 	g_s11_cp_addr.sin_addr.s_addr = g_s11_cfg.sgw_ip;
 	memset(g_s11_cp_addr.sin_zero, '\0', sizeof(g_s11_cp_addr.sin_zero));
 
@@ -179,11 +179,11 @@ init_gtpv2()
 int
 init_s11_ipc()
 {
-	log_msg(LOG_INFO, "Connecting to mme-app S11 CS response queue\n");
+	log_msg(LOG_INFO, "Connecting to mme-app S11 CS response queue");
 	if ((g_resp_fd  = create_tipc_socket()) <= 0)
 		return -E_FAIL;
 
-	log_msg(LOG_INFO, "S11 - mme-app IPC: Connected.\n");
+	log_msg(LOG_INFO, "S11 - mme-app IPC: Connected.");
 
 	return 0;
 }
@@ -212,7 +212,7 @@ s11_reader()
 			MsgBuffer_writeUint16(tmp_buf_p, src_port, true);
 			MsgBuffer_writeBytes(tmp_buf_p, buffer, len, true);
 			MsgBuffer_rewind(tmp_buf_p);
-			log_msg(LOG_INFO, "S11 Received msg len : %d \n",len);
+			log_msg(LOG_INFO, "S11 Received msg len : %d ",len);
 
 			insert_job(g_tpool, handle_s11_message, tmp_buf_p);
 		}
@@ -260,13 +260,13 @@ main(int argc, char **argv)
 	gtpStack_gp = createGtpV2Stack();
 	if (gtpStack_gp == NULL)
 	{
-		log_msg(LOG_ERROR, "Error in initializing ipc.\n");
+		log_msg(LOG_ERROR, "Error in initializing ipc.");
 		return -1;
 	}
 
 	/*Init writer sockets*/
 	if (init_s11_ipc() != 0) {
-		log_msg(LOG_ERROR, "Error in initializing ipc.\n");
+		log_msg(LOG_ERROR, "Error in initializing ipc.");
 		return -1;
 	}
 
@@ -276,10 +276,10 @@ main(int argc, char **argv)
 	g_tpool = thread_pool_new(S11_THREADPOOL_SIZE);
 
 	if (g_tpool == NULL) {
-		log_msg(LOG_ERROR, "Error in creating thread pool. \n");
+		log_msg(LOG_ERROR, "Error in creating thread pool. ");
 		return -1;
 	}
-	log_msg(LOG_INFO, "S11 listener threadpool initialized.\n");
+	log_msg(LOG_INFO, "S11 listener threadpool initialized.");
 
 	if (init_gtpv2() != 0)
 		return -1;

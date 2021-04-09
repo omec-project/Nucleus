@@ -43,9 +43,9 @@ void parse_args(int argc, char **argv)
 	} while (c != -1);
 
 	if ((args_set & REQ_ARGS) != REQ_ARGS) {
-		log_msg(LOG_ERROR, "Usage: %s\n", argv[0]);
+		log_msg(LOG_ERROR, "Usage: %s", argv[0]);
 		for (c = 0; long_options[c].name; ++c) {
-			log_msg(LOG_ERROR, "\t[ -%s | -%c ] %s\n",
+			log_msg(LOG_ERROR, "\t[ -%s | -%c ] %s",
 					long_options[c].name,
 					long_options[c].val,
 					long_options[c].name);
@@ -65,7 +65,7 @@ void convert_imsi_to_bcd_str(uint8_t *src, uint8_t* dest)
 {
   if (!src || !dest)
   {
-      log_msg(LOG_ERROR, "invalid buffer pointers.\n");
+      log_msg(LOG_ERROR, "invalid buffer pointers.");
       return;
   }
 

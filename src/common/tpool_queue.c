@@ -22,7 +22,7 @@ static struct node *createnode(void *data)
 	entry = (struct node *)malloc(sizeof(struct node));
 	if(entry == NULL) {
 #ifdef DEBUG
-		log_msg(LOG_ERROR, "failed to allocate memory\n");
+		log_msg(LOG_ERROR, "failed to allocate memory");
 #endif
 		return NULL;
 	}
@@ -96,7 +96,7 @@ struct Queue *queue_new()
 	queue = (struct Queue *)malloc(sizeof(struct Queue));
 	if(queue == NULL) {
 #ifdef DEBUG
-		log_msg(LOG_ERROR, "failed to allocate memory\n");
+		log_msg(LOG_ERROR, "failed to allocate memory");
 #endif
 		return NULL;
 	}

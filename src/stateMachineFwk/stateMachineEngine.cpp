@@ -59,7 +59,7 @@ ActStatus StateMachineEngine::handleProcedureEvent(ControlBlock &cb,
 
     SmUtility *util = SmUtility::Instance();
     log_msg(LOG_DEBUG,
-            "################ Executing actions for event: %s and State: %s #################\n",
+            "### Executing actions for event: %s and State: %s ###",
             util->convertEventToString(smCtxt.evt.getEventId()).c_str(),
             currentState_p->getStateName());
 
@@ -91,7 +91,7 @@ void StateMachineEngine::run()
 
     if (cb->getControlBlockState() == FREE)
     {
-        log_msg(LOG_ERROR, "A freed Control Block found in Procedure Queue\n");
+        log_msg(LOG_ERROR, "A freed Control Block found in Procedure Queue");
         return;
     }
 
@@ -123,7 +123,7 @@ void StateMachineEngine::run()
 
             EventStatus eStatus = currentState_p->validateEvent(*cb, tempData_p, smCtxt.evt);
 
-            log_msg(LOG_INFO, "Event Status %d\n", eStatus);
+            log_msg(LOG_INFO, "Event Status %d", eStatus);
 
             switch (eStatus)
             {
@@ -142,7 +142,7 @@ void StateMachineEngine::run()
 
                 if (ret == ABORT)
                 {
-                    log_msg(LOG_INFO, "Abort Event Initiated \n");
+                    log_msg(LOG_INFO, "Abort Event Initiated ");
 
                     uint16_t currentEventId = smCtxt.evt.getEventId();
 

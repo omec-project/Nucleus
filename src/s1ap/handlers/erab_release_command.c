@@ -17,7 +17,7 @@
 static int erab_release_command_processing(
         struct erab_release_command_Q_msg *g_erab_rel_cmd)
 {
-    log_msg(LOG_DEBUG, "E-RAB release command Processing.\n");
+    log_msg(LOG_DEBUG, "E-RAB release command Processing.");
 
     uint32_t length = 0;
     uint8_t *buffer = NULL;
@@ -26,14 +26,14 @@ static int erab_release_command_processing(
                                                    &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding E-RAB release command  failed.\n");
+        log_msg(LOG_ERROR, "Encoding E-RAB release command  failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(g_erab_rel_cmd->enb_context_id, buffer, length, 1);
 
     log_msg(LOG_DEBUG,
-            "E-RAB release command sent. No. of bytes %d on enb_context_id %d\n",
+            "E-RAB release command sent. No. of bytes %d on enb_context_id %d",
             length, g_erab_rel_cmd->enb_context_id);
     if(buffer != NULL) {
         free(buffer);

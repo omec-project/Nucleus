@@ -43,29 +43,29 @@ using namespace cmn::utils;
  ***************************************/
 ActStatus ActionHandlers::process_erab_setup_response(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "process_erab_setup_response : Entry\n");
+    log_msg(LOG_DEBUG, "process_erab_setup_response : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedActProcCtxt *dedBrActProc_p =
             dynamic_cast<SmDedActProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dedBrActProc_p, return ActStatus::ABORT,
-            "Ded Bearer Activation Procedure Context is NULL \n");
+            "Ded Bearer Activation Procedure Context is NULL ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
-    	return ActStatus::ABORT, "process_erab_setup_response : Invalid message buffer \n");
+    	return ActStatus::ABORT, "process_erab_setup_response : Invalid message buffer ");
 
     const erabSuResp_Q_msg_t *erab_su_resp =
                 static_cast<const erabSuResp_Q_msg_t*>(msgBuf->getDataPointer());
     VERIFY(erab_su_resp, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
-    	return ActStatus::ABORT, "process_erab_setup_response : Invalid data buffer \n");
+    	return ActStatus::ABORT, "process_erab_setup_response : Invalid data buffer ");
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
     VERIFY(bearerCtxt_p, dedBrActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);
-                return ActStatus::ABORT, "Bearer Context is NULL \n");
+                return ActStatus::ABORT, "Bearer Context is NULL ");
 
     ActStatus actStatus = ActStatus::PROCEED;
     bool bearerEntryFound = false;
@@ -114,29 +114,29 @@ ActStatus ActionHandlers::process_erab_setup_response(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::process_act_ded_bearer_accept(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "process_act_ded_bearer_accept : Entry\n");
+    log_msg(LOG_DEBUG, "process_act_ded_bearer_accept : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedActProcCtxt *dedBrActProc_p =
             dynamic_cast<SmDedActProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dedBrActProc_p, return ActStatus::ABORT,
-            "Ded Bearer Activation Procedure Context is NULL \n");
+            "Ded Bearer Activation Procedure Context is NULL ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
-    	return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid message buffer \n");
+    	return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid message buffer ");
 
     const dedicatedBearerContextAccept_Q_msg_t *dedBrAcpt =
             static_cast<const dedicatedBearerContextAccept_Q_msg_t*>(msgBuf->getDataPointer());
     VERIFY(dedBrAcpt, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
-    		return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid data buffer \n");
+    		return ActStatus::ABORT, "process_act_ded_bearer_accept : Invalid data buffer ");
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
     VERIFY(bearerCtxt_p, dedBrActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);
-                return ActStatus::ABORT, "Bearer Context is NULL \n");
+                return ActStatus::ABORT, "Bearer Context is NULL ");
 
     if (dedBrAcpt->pco_opt.pco_length > 0)
     {
@@ -174,29 +174,29 @@ ActStatus ActionHandlers::process_act_ded_bearer_accept(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::process_act_ded_bearer_reject(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "process_act_ded_bearer_reject : Entry\n");
+    log_msg(LOG_DEBUG, "process_act_ded_bearer_reject : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedActProcCtxt *dedBrActProc_p =
             dynamic_cast<SmDedActProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dedBrActProc_p, return ActStatus::ABORT,
-            "Ded Bearer Activation Procedure Context is NULL \n");
+            "Ded Bearer Activation Procedure Context is NULL ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf, dedBrActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER);
-    	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid message buffer \n");
+    	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid message buffer ");
 
     const dedicatedBearerContextReject_Q_msg_t *dedBrReject =
                 static_cast<const dedicatedBearerContextReject_Q_msg_t*>(msgBuf->getDataPointer());
     VERIFY(dedBrReject, dedBrActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER);
-    	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid data buffer \n");
+    	return ActStatus::ABORT, "process_act_ded_bearer_reject : Invalid data buffer ");
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrActProc_p->getBearerId(), ueCtxt_p);
     VERIFY(bearerCtxt_p, dedBrActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);
-                return ActStatus::ABORT, "Bearer Context is NULL \n");
+                return ActStatus::ABORT, "Bearer Context is NULL ");
 
     dedBrActProc_p->setMmeErrorCause(NAS_ESM_FAILURE_IND);
     dedBrActProc_p->setEsmCause(dedBrReject->esm_cause);
@@ -211,10 +211,10 @@ ActStatus ActionHandlers::process_act_ded_bearer_reject(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::abort_ded_activation(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "abort_ded_activation : Entry\n");
+    log_msg(LOG_DEBUG, "abort_ded_activation : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedActProcCtxt *dedBrActProc_p =
             dynamic_cast<SmDedActProcCtxt*>(cb.getTempDataBlock());
@@ -273,10 +273,10 @@ ActStatus ActionHandlers::abort_ded_activation(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::ded_act_complete(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "ded_act_complete : Entry\n");
+    log_msg(LOG_DEBUG, "ded_act_complete : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedActProcCtxt *dedBrActProc_p =
             dynamic_cast<SmDedActProcCtxt*>(cb.getTempDataBlock());

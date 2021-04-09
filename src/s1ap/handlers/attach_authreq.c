@@ -42,7 +42,7 @@ get_authreq_protoie_value(struct proto_IE *value, struct authreq_info *g_authreq
 	value->data[0].val.mme_ue_s1ap_id = g_authreqInfo->ue_idx;
 	value->data[1].val.enb_ue_s1ap_id = g_authreqInfo->enb_s1ap_ue_id;
 
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d and enodeb fd = %d\n",
+	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d and enodeb fd = %d",
 			g_authreqInfo->ue_idx, g_authreqInfo->enb_s1ap_ue_id, g_authreqInfo->enb_fd);
 
 	return SUCCESS;
@@ -136,7 +136,7 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received Authrequest has nas message %d \n",g_authreqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received Authrequest has nas message %d ",g_authreqInfo->nasMsgSize);
 	datalen = g_authreqInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_value_buffer, &datalen,
@@ -162,7 +162,7 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 void*
 authreq_handler(void *data)
 {
-	log_msg(LOG_INFO, "AuthReq handler.\n");
+	log_msg(LOG_INFO, "AuthReq handler.");
 
 	authreq_processing((struct authreq_info *)data);
 

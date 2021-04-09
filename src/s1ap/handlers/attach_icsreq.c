@@ -414,24 +414,24 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	buffer_copy(&g_ics_buffer, &datalen, sizeof(datalen));
 #endif
 
-	log_msg(LOG_INFO, "Received Nas message from mme-app size %d\n", g_icsReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received Nas message from mme-app size %d", g_icsReqInfo->nasMsgSize);
 //	datalen = g_icsReqInfo->nasMsgSize + 1; 
 
 //	buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
 
-	log_msg(LOG_INFO, "RAB2 payload length before adding NAS %d\n", g_rab2_buffer.pos);
+	log_msg(LOG_INFO, "RAB2 payload length before adding NAS %lu", g_rab2_buffer.pos);
 	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgSize, sizeof(uint8_t));
 
 	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
 
-	log_msg(LOG_INFO, "RAB2 payload length %d\n", g_rab2_buffer.pos);
-	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %d\n", g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "RAB2 payload length %lu", g_rab2_buffer.pos);
+	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %lu", g_rab1_buffer.pos);
     /* Now lets append rab2 to rab1 */ 
     if(g_rab2_buffer.pos <= 127)
     {
         datalen = g_rab2_buffer.pos;
 	    buffer_copy(&g_rab1_buffer, &datalen, sizeof(datalen));
-	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %lu", g_rab1_buffer.pos);
     /* Now lets append rab2 to rab1 */ 
     }
     else
@@ -441,7 +441,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab2_pay_len >> 8;
         lenStr[1] = rab2_pay_len & 0xff;
 	    buffer_copy(&g_rab1_buffer, lenStr, sizeof(lenStr));
-	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %d\n", g_rab1_buffer.pos);
+	    log_msg(LOG_INFO, "RAB1 payload length after adding rab2 lengh  %lu", g_rab1_buffer.pos);
     }
 	buffer_copy(&g_rab1_buffer, &g_rab2_buffer.buf[0], g_rab2_buffer.pos);
 
@@ -451,13 +451,13 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 
     /*g_s1ap_buffer is having rab appended to it.. */
 
-	log_msg(LOG_INFO, "RAB1 payload length %d\n", g_rab1_buffer.pos);
-	log_msg(LOG_INFO, "s1ap buffer payload length before appending RAB1 %d\n", g_s1ap_buffer.pos);
+	log_msg(LOG_INFO, "RAB1 payload length %lu", g_rab1_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length before appending RAB1 %lu", g_s1ap_buffer.pos);
     if(g_rab1_buffer.pos <= 127)
     {
         datalen = g_rab1_buffer.pos;
 	    buffer_copy(&(g_s1ap_buffer), &datalen, sizeof(datalen));
-	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %lu", g_s1ap_buffer.pos);
     }
     else
     {
@@ -466,10 +466,10 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
         lenStr[0] = rab1_pay_len >> 8;
         lenStr[1] = rab1_pay_len & 0xff;
 	    buffer_copy(&g_s1ap_buffer, lenStr, sizeof(lenStr));
-	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %d\n", g_s1ap_buffer.pos);
+	    log_msg(LOG_INFO, "s1ap buffer payload length after adding rab1 header %lu", g_s1ap_buffer.pos);
     }
 	buffer_copy(&g_s1ap_buffer, &g_rab1_buffer.buf[0], g_rab1_buffer.pos);
-	log_msg(LOG_INFO, "s1ap buffer payload length after appending RAB1 %d\n", g_s1ap_buffer.pos);
+	log_msg(LOG_INFO, "s1ap buffer payload length after appending RAB1 %lu", g_s1ap_buffer.pos);
     /* RAB is appended to s1ap payload now */ 
 
 	/* id-UESecurityCapabilities */
@@ -525,7 +525,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	/* Copy length to s1ap length field */
 	//datalen = g_s1ap_buffer.pos - s1ap_len_pos - 1;
 	//uint16_t s1aplen = g_s1ap_buffer.pos - s1ap_len_pos - 1;
-	log_msg(LOG_INFO, "S1AP payload length %d\n", g_s1ap_buffer.pos);
+	log_msg(LOG_INFO, "S1AP payload length %lu", g_s1ap_buffer.pos);
 	uint16_t s1aplen = g_s1ap_buffer.pos;
     if(s1aplen <= 127 )
     {
@@ -547,14 +547,14 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 	free(s1apPDU.value.data);
 
 	send_sctp_msg(g_icsReqInfo->enb_fd, g_ics_buffer.buf, g_ics_buffer.pos, 1);
-	log_msg(LOG_INFO,"Initial Context Setup Request sent successfully\n");
+	log_msg(LOG_INFO,"Initial Context Setup Request sent successfully");
 	return SUCCESS;
 }
 
 void*
 icsreq_handler(void *data)
 {
-	log_msg(LOG_INFO, "icsreq handler ready.\n");
+	log_msg(LOG_INFO, "icsreq handler ready.");
 
 
 	icsreq_processing((struct init_ctx_req_Q_msg *)data);

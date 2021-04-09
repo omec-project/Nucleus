@@ -51,20 +51,20 @@ s1_setup_response(int enb_fd, struct PLMN *plmn)
 	local_plmn_id.idx[0] = plmn->idx[0];
 	local_plmn_id.idx[1] = plmn->idx[1];
 	local_plmn_id.idx[2] = plmn->idx[2];
-	log_msg(LOG_DEBUG,"Number of mnc digits %d \n", plmn->mnc_digits);
+	log_msg(LOG_DEBUG,"Number of mnc digits %d ", plmn->mnc_digits);
     memcpy(&rsp_msg.mme_plmn_id, &local_plmn_id, 3);
     rsp_msg.rel_cap = s1ap_cfg->rel_cap;
 
     int ret = s1ap_mme_encode_outcome(&rsp_msg, &buffer, &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding S1 setup response failed.\n");
+        log_msg(LOG_ERROR, "Encoding S1 setup response failed.");
         return E_FAIL;
     }
 
 
     send_sctp_msg_with_fd(enb_fd, buffer, length, 0);
-   	log_msg(LOG_INFO, "buffer size is %d\n", length);
+   	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -87,12 +87,12 @@ s1_setup_failure(struct s1ap_common_req_Q_msg* s1ap_setup_failure)
     int ret = s1ap_mme_encode_outcome(s1ap_setup_failure, &buffer, &length);
     if(ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding S1 setup failure failed.\n");
+        log_msg(LOG_ERROR, "Encoding S1 setup failure failed.");
         return E_FAIL;
     }
 
     send_sctp_msg_with_fd(enb_fd, buffer, length, 0);
-  	log_msg(LOG_ERROR, "S1ap setup failure \n");
+  	log_msg(LOG_ERROR, "S1ap setup failure ");
     if(buffer)
     {
         free(buffer);
@@ -128,7 +128,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 					Global_ENB_ID_t *geNb = &ie_p->value.choice.Global_ENB_ID;
 					if(geNb->eNB_ID.present == ENB_ID_PR_macroENB_ID) 
 					{
-						log_msg(LOG_DEBUG, "macro eNB id size %d \n", geNb->eNB_ID.choice.macroENB_ID.size);
+						log_msg(LOG_DEBUG, "macro eNB id size %lu", geNb->eNB_ID.choice.macroENB_ID.size);
                         uint8_t *enb_id_buf = geNb->eNB_ID.choice.macroENB_ID.buf;
                         uint32_t val = enb_id_buf[0];
                         enbStruct.enbId_m |= val << 12;
@@ -139,7 +139,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 					}
                     else if (geNb->eNB_ID.present == ENB_ID_PR_homeENB_ID)
                     {
-						log_msg(LOG_DEBUG, "home eNB id size %d \n", 
+						log_msg(LOG_DEBUG, "home eNB id size %lu", 
                                   geNb->eNB_ID.choice.homeENB_ID.size);
                         uint8_t *enb_id_buf = geNb->eNB_ID.choice.homeENB_ID.buf;
                         uint32_t val = enb_id_buf[0];
@@ -156,7 +156,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 				case ProtocolIE_ID_id_eNBname:
 				{
 					ENBname_t *eNbName = &ie_p->value.choice.ENBname;
-					log_msg(LOG_DEBUG, "S1 Setup Message with eNB name %s \n", eNbName->buf);
+					log_msg(LOG_DEBUG, "S1 Setup Message with eNB name %s ", eNbName->buf);
                     strcpy(enbStruct.eNbName, (const char *)eNbName->buf);
 					break;
 				}
@@ -173,15 +173,15 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 							tac_i = (tac_i<<8) | tac->tAC.buf[t]; 
 						}
 
-						log_msg(LOG_INFO, "S1setup Supported Tac %d %d size %d ..Final tac %d \n", tac->tAC.buf[0], tac->tAC.buf[1] , tac->tAC.size, tac_i);
+						log_msg(LOG_INFO, "S1setup Supported Tac %d %d size %lu ..Final tac %d ", tac->tAC.buf[0], tac->tAC.buf[1] , tac->tAC.size, tac_i);
 						BPLMNs_t *plmns = &tac->broadcastPLMNs; 
-						log_msg(LOG_INFO, "S1setup Supported PLMNS %d \n", plmns->list.count);
+						log_msg(LOG_INFO, "S1setup Supported PLMNS %d ", plmns->list.count);
 						for(int p=0; p<plmns->list.count; p++)
 						{
 							PLMNidentity_t *plmn = plmns->list.array[p]; 
 							char plmn_s[10] = {'\0'};
 							memcpy(plmn_s, plmn->buf, plmn->size);
-							log_msg(LOG_INFO, "S1setup Supported PLMN %s Plmn buffer size %d \n", plmn_s, plmn->size);
+							log_msg(LOG_INFO, "S1setup Supported PLMN %s Plmn buffer size %lu ", plmn_s, plmn->size);
 							struct PLMN plmn_struct = {0}; 
 							for(int b=0; b< plmn->size; b++) 
 							{
@@ -194,8 +194,8 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 								  (s1ap_cfg->plmns[config_plmn].idx[1] == plmn_struct.idx[1]) &&
 								  (s1ap_cfg->plmns[config_plmn].idx[2] == plmn_struct.idx[2])) 
 								{
-									log_msg(LOG_INFO, "PLMN match found  Configured %x %x %x \n", s1ap_cfg->plmns[config_plmn].idx[0], s1ap_cfg->plmns[config_plmn].idx[1], s1ap_cfg->plmns[config_plmn].idx[2]);
-									log_msg(LOG_INFO, "PLMN match found  Received %x %x %x \n", plmn_struct.idx[0], plmn_struct.idx[1], plmn_struct.idx[2]);
+									log_msg(LOG_INFO, "PLMN match found  Configured %x %x %x ", s1ap_cfg->plmns[config_plmn].idx[0], s1ap_cfg->plmns[config_plmn].idx[1], s1ap_cfg->plmns[config_plmn].idx[2]);
+									log_msg(LOG_INFO, "PLMN match found  Received %x %x %x ", plmn_struct.idx[0], plmn_struct.idx[1], plmn_struct.idx[2]);
                                     memcpy(&enbStruct.tai_m.plmn_id,
                                            &plmn_struct, 
                                            3); //sizeof(struct PLMN)); plmn struct has some more fields
@@ -206,8 +206,8 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 								}
 								else 
 								{
-									log_msg(LOG_INFO, "PLMN match not found  - Configured - %x %x %x \n", s1ap_cfg->plmns[config_plmn].idx[0], s1ap_cfg->plmns[config_plmn].idx[1], s1ap_cfg->plmns[config_plmn].idx[2]);
-									log_msg(LOG_INFO, "PLMN match not found Received - %x %x %x \n", plmn_struct.idx[0], plmn_struct.idx[1], plmn_struct.idx[2]);
+									log_msg(LOG_INFO, "PLMN match not found  - Configured - %x %x %x ", s1ap_cfg->plmns[config_plmn].idx[0], s1ap_cfg->plmns[config_plmn].idx[1], s1ap_cfg->plmns[config_plmn].idx[2]);
+									log_msg(LOG_INFO, "PLMN match not found Received - %x %x %x ", plmn_struct.idx[0], plmn_struct.idx[1], plmn_struct.idx[2]);
 								}
 							}
 							if(config_plmn >= s1ap_cfg->num_plmns)
@@ -231,28 +231,28 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
 
     if(match_found)
     {
-        log_msg(LOG_DEBUG, "PLMN Match found. Create CB and add Enb Info.\n");
+        log_msg(LOG_DEBUG, "PLMN Match found. Create CB and add Enb Info.");
         cbIndex = findControlBlockWithEnbId(enbStruct.enbId_m);
         if(INVALID_CB_INDEX == cbIndex)
         {
-            log_msg(LOG_DEBUG, "No ENb ctx found for enb id %d.\n", enbStruct.enbId_m);
+            log_msg(LOG_DEBUG, "No ENb ctx found for enb id %d.", enbStruct.enbId_m);
             cbIndex = createControlBlock();
             if(INVALID_CB_INDEX == cbIndex)
             {
                 log_msg(LOG_ERROR,"CB creation failed.");
                 return E_FAIL;
             }
-            log_msg(LOG_DEBUG, "New ctx block %d allocated for found for enb id %d.\n", cbIndex, enbStruct.enbId_m);
+            log_msg(LOG_DEBUG, "New ctx block %d allocated for found for enb id %d.", cbIndex, enbStruct.enbId_m);
             setValuesForEnbCtx(cbIndex, &enbStruct, false);
         }
         else
         {
-            log_msg(LOG_DEBUG, "ENB Ctx found for enb id %d. Update values.\n",enbStruct.enbId_m);
+            log_msg(LOG_DEBUG, "ENB Ctx found for enb id %d. Update values.",enbStruct.enbId_m);
             enbStruct.restart_counter++;
             cbIndex = setValuesForEnbCtx(cbIndex, &enbStruct, true);
             if(INVALID_CB_INDEX == cbIndex)
             {
-                log_msg(LOG_ERROR,"Set values in Enb Ctx failed.\n");
+                log_msg(LOG_ERROR,"Set values in Enb Ctx failed.");
                 struct s1ap_common_req_Q_msg s1ap_setup_failure = {0};
                 s1ap_setup_failure.IE_type = S1AP_SETUP_FAILURE;
                 s1ap_setup_failure.enb_fd = enb_fd;
@@ -264,7 +264,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
     }
     else
     {
-        log_msg(LOG_ERROR, "No PLMN Match found for enb id %d.\n",enbStruct.enbId_m);
+        log_msg(LOG_ERROR, "No PLMN Match found for enb id %d.",enbStruct.enbId_m);
         /* Send S1Setup Failure.*/
    	    struct s1ap_common_req_Q_msg s1ap_setup_failure = {0};
         s1ap_setup_failure.IE_type = S1AP_SETUP_FAILURE;

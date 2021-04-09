@@ -42,7 +42,7 @@ get_attach_id_request_protoie_value(struct proto_IE *value,struct attachIdReq_in
 	value->data[1].val.enb_ue_s1ap_id = g_attachIdReqInfo->s1ap_enb_ue_id;
     
 
-	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d\n",
+	log_msg(LOG_INFO, "mme_ue_s1ap_id %d and enb_ue_s1ap_id %d",
 			g_attachIdReqInfo->ue_idx, g_attachIdReqInfo->s1ap_enb_ue_id);
 
 	return SUCCESS;
@@ -136,7 +136,7 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received Id Req has nas message %d \n",g_attachIdReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received Id Req has nas message %d ",g_attachIdReqInfo->nasMsgSize);
 	datalen = g_attachIdReqInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_value_buffer, &datalen,
@@ -168,7 +168,7 @@ void*
 idreq_handler(void *data)
 {
 	
-	log_msg(LOG_INFO, "S1Ap attach Id Request handler ready.\n");
+	log_msg(LOG_INFO, "S1Ap attach Id Request handler ready.");
 
 	s1ap_attach_id_req_processing((struct attachIdReq_info *)data);
 

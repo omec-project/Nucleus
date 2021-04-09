@@ -64,7 +64,7 @@ void MonitorSubscriber::handle_monitor_imsi_req(struct monitor_imsi_req *mir, in
                             ueCtxt_p->getImsi().getImsiDigits(mia.imsi);
                             memcpy(&mia.tai, &ueCtxt_p->getTai().tai_m, sizeof(struct TAI));
                             memcpy(&mia.ambr, &ueCtxt_p->getAmbr().ambr_m, sizeof(struct AMBR));
-                            log_msg(LOG_ERROR, "IMSI: %s PAA %x \n", mia.imsi, mia.paa);
+                            log_msg(LOG_ERROR, "IMSI: %s PAA %x ", mia.imsi, mia.paa);
                         }
                     }
                     else if (mmCtxt_p->getMmState() == EpsDetached)

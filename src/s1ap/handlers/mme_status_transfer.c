@@ -17,7 +17,7 @@
 static int
 mme_status_transfer_processing(struct mme_status_transfer_Q_msg *g_mme_status)
 {
-    log_msg(LOG_DEBUG, "Process MME Status Transfer.\n");
+    log_msg(LOG_DEBUG, "Process MME Status Transfer.");
 
     uint32_t length = 0;
     uint8_t *buffer = NULL;
@@ -27,14 +27,14 @@ mme_status_transfer_processing(struct mme_status_transfer_Q_msg *g_mme_status)
 
     if (ret == -1)
     {
-        log_msg(LOG_ERROR, "Encoding mme status transfer failed.\n");
+        log_msg(LOG_ERROR, "Encoding mme status transfer failed.");
         return E_FAIL;
     }
 
     send_sctp_msg(
             g_mme_status->target_enb_context_id, buffer, length, 1);
 
-    log_msg(LOG_DEBUG, "MME-Status-Transfer sent. No. of bytes %d\n", length);
+    log_msg(LOG_DEBUG, "MME-Status-Transfer sent. No. of bytes %d", length);
 	if(buffer != NULL) {
 		free(buffer);
 	}

@@ -18,7 +18,7 @@
 static int
 erab_mod_confirm_processing(struct erab_mod_confirm *g_erab_mod_conf)
 {
-	log_msg(LOG_DEBUG,"E-RAB Modification Confirmation.\n");
+	log_msg(LOG_DEBUG,"E-RAB Modification Confirmation.");
 
 	uint32_t length = 0;
 	uint8_t *buffer = NULL;
@@ -26,14 +26,14 @@ erab_mod_confirm_processing(struct erab_mod_confirm *g_erab_mod_conf)
 	int ret = s1ap_mme_encode_erab_mod_confirmation(g_erab_mod_conf, &buffer, &length);
 	if(ret == -1)
 	{
-		log_msg(LOG_ERROR, "Encoding E-RAB Modification Confirmation failed.\n");
+		log_msg(LOG_ERROR, "Encoding E-RAB Modification Confirmation failed.");
 		return E_FAIL;
 	}
 
 	send_sctp_msg(
 	        g_erab_mod_conf->enb_context_id, buffer, length, 1);
 
-	log_msg(LOG_DEBUG, "E-RAB Modification Confirmation sent. No. of bytes %d\n", length);
+	log_msg(LOG_DEBUG, "E-RAB Modification Confirmation sent. No. of bytes %d", length);
 	if(buffer != NULL) {
 		free(buffer);
 	}

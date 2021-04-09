@@ -84,13 +84,13 @@ parse_s1ap_conf(s1ap_config_t *config)
 			// over
 			break;
 		}
-		log_msg(LOG_INFO, "Parsed plmn %s \n", plmn);
+		log_msg(LOG_INFO, "Parsed plmn %s ", plmn);
 		uint16_t mcc_i, mnc_i;
 		uint16_t mnc_digits=3;
         get_mcc_mnc(plmn, &mcc_i, &mnc_i, &mnc_digits);
         config->plmn_mcc_mnc[count-1].mcc = mcc_i;
 		config->plmn_mcc_mnc[count-1].mnc = mnc_i;
-		log_msg(LOG_INFO, "Parsed plmn mcc - %d mnc - %d \n", mcc_i, mnc_i);
+		log_msg(LOG_INFO, "Parsed plmn mcc - %d mnc - %d ", mcc_i, mnc_i);
 		unsigned char mcc_dig_1 = mcc_i / 100; 
 		unsigned char mcc_dig_2 = (mcc_i / 10) % 10; 
 		unsigned char mcc_dig_3 = mcc_i % 10; 
@@ -117,7 +117,7 @@ parse_s1ap_conf(s1ap_config_t *config)
 		count++;
 	}
 	config->num_plmns = count - 1;
-	log_msg(LOG_ERROR,"Config parsing success \n");
+	log_msg(LOG_ERROR,"Config parsing success ");
 	return SUCCESS;
 }
 

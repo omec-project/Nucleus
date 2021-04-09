@@ -47,28 +47,28 @@ using namespace cmn::utils;
  ***************************************/
 ActStatus ActionHandlers::init_ded_bearer_deactivation(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "init_ded_bearer_deactivation : Entry\n");
+    log_msg(LOG_DEBUG, "init_ded_bearer_deactivation : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmDeleteBearerProcCtxt *dbReqProc_p =
             dynamic_cast<MmeSmDeleteBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dbReqProc_p, return ActStatus::ABORT,
-            " Delete Bearer Procedure Context is NULL \n");
+            " Delete Bearer Procedure Context is NULL ");
 
     const cmn::IpcEventMessage *eMsg =
             dynamic_cast<const cmn::IpcEventMessage*>(dbReqProc_p->getDeleteBearerReqEMsgRaw());
     cmn::IpcEventMessage *ipcMsg = const_cast<cmn::IpcEventMessage*>(eMsg);
     VERIFY(ipcMsg, return ActStatus::ABORT,
-            "Invalid IPC Event Message in DBReq Procedure Context \n");
+            "Invalid IPC Event Message in DBReq Procedure Context ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(ipcMsg->getMsgBuffer());
-    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer \n");
+    VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer ");
 
     const db_req_Q_msg *db_req =
             static_cast<const db_req_Q_msg*>(msgBuf->getDataPointer());
-    VERIFY(db_req, return ActStatus::ABORT, "Invalid data buffer \n");
+    VERIFY(db_req, return ActStatus::ABORT, "Invalid data buffer ");
 
     uint8_t bearerDeAllocCount = 0;
     for (int i = 0; i < db_req->eps_bearer_ids_count; i++)
@@ -117,7 +117,7 @@ ActStatus ActionHandlers::init_ded_bearer_deactivation(ControlBlock &cb)
         else
         {
             log_msg(LOG_ERROR,
-                    "Failed to find Bearer Context with bearer id: %d \n",
+                    "Failed to find Bearer Context with bearer id: %d ",
                     db_req->eps_bearer_ids[i]);
 
             brCtxtDbResp.cause.cause = GTPV2C_CAUSE_CONTEXT_NOT_FOUND;
@@ -136,7 +136,7 @@ ActStatus ActionHandlers::init_ded_bearer_deactivation(ControlBlock &cb)
         actStatus = ABORT;
     }
 
-    log_msg(LOG_DEBUG, "init_ded_bearer_deactivation : Exit\n");
+    log_msg(LOG_DEBUG, "init_ded_bearer_deactivation : Exit");
     return actStatus;
 }
 
@@ -161,7 +161,7 @@ ActStatus ActionHandlers::init_ue_detach_procedure(ControlBlock &cb)
     }
     else
     {
-        log_msg(LOG_DEBUG, "Detach Procedure Context is NULL \n");
+        log_msg(LOG_DEBUG, "Detach Procedure Context is NULL ");
         SM::Event evt(DETACH_FAILURE, NULL);
         cb.qInternalEvent(evt);
     }
@@ -174,7 +174,7 @@ ActStatus ActionHandlers::init_ue_detach_procedure(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::send_delete_bearer_response(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "send_delete_bearer_response : Entry\n");
+    log_msg(LOG_DEBUG, "send_delete_bearer_response : Entry");
 
     MmeSmDeleteBearerProcCtxt *dbReqProc_p =
             dynamic_cast<MmeSmDeleteBearerProcCtxt*>(cb.getTempDataBlock());
@@ -199,7 +199,7 @@ ActStatus ActionHandlers::send_delete_bearer_response(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "send_delete_bearer_response : Exit\n");
+    log_msg(LOG_DEBUG, "send_delete_bearer_response : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -208,10 +208,10 @@ ActStatus ActionHandlers::send_delete_bearer_response(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::abort_delete_bearer_procedure(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "abort_delete_bearer_procedure : Entry\n");
+    log_msg(LOG_DEBUG, "abort_delete_bearer_procedure : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmDeleteBearerProcCtxt *dbReqProc_p =
             dynamic_cast<MmeSmDeleteBearerProcCtxt*>(cb.getTempDataBlock());
@@ -264,7 +264,7 @@ ActStatus ActionHandlers::abort_delete_bearer_procedure(ControlBlock &cb)
                 mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC_FAILURE);
     }
 
-    log_msg(LOG_DEBUG, "abort_delete_bearer_procedure : Exit\n");
+    log_msg(LOG_DEBUG, "abort_delete_bearer_procedure : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -273,10 +273,10 @@ ActStatus ActionHandlers::abort_delete_bearer_procedure(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::check_and_init_deactivation(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "check_and_init_deactivation : Entry\n");
+    log_msg(LOG_DEBUG, "check_and_init_deactivation : Entry");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     MmeSmDeleteBearerProcCtxt *dbReqProc_p =
             dynamic_cast<MmeSmDeleteBearerProcCtxt*>(cb.getTempDataBlock());
@@ -289,7 +289,7 @@ ActStatus ActionHandlers::check_and_init_deactivation(ControlBlock &cb)
                             dbReqProc_p->getBearerId());
             VERIFY(sessionCtxt,
                     dbReqProc_p->setMmeErrorCause(SESSION_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
-                    "Session Context is NULL \n");
+                    "Session Context is NULL ");
             if (ue_ctxt->getSessionContextContainer().size() == 1)
             {
                 SM::Event evt(START_UE_DETACH, NULL);
@@ -303,7 +303,7 @@ ActStatus ActionHandlers::check_and_init_deactivation(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "check_and_init_deactivation : Exit\n");
+    log_msg(LOG_DEBUG, "check_and_init_deactivation : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -312,12 +312,12 @@ ActStatus ActionHandlers::check_and_init_deactivation(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::handle_ded_deact_cmp_ind(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "handle_ded_deact_cmp_ind : Entry\n");
+    log_msg(LOG_DEBUG, "handle_ded_deact_cmp_ind : Entry");
 
     MmeSmDeleteBearerProcCtxt *dbReqProc_p =
             dynamic_cast<MmeSmDeleteBearerProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dbReqProc_p, return ActStatus::ABORT,
-            "Delete Bearer Procedure Context is NULL \n");
+            "Delete Bearer Procedure Context is NULL ");
 
     ActStatus actStatus = ActStatus::PROCEED;
 
@@ -350,7 +350,7 @@ ActStatus ActionHandlers::handle_ded_deact_cmp_ind(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_ded_deact_cmp_ind : Exit\n");
+    log_msg(LOG_DEBUG, "handle_ded_deact_cmp_ind : Exit");
     return actStatus;
 }
 
@@ -359,7 +359,7 @@ ActStatus ActionHandlers::handle_ded_deact_cmp_ind(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::delete_bearer_proc_complete(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "delete_bearer_proc_complete : Entry\n");
+    log_msg(LOG_DEBUG, "delete_bearer_proc_complete : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
     if(ueCtxt_p != NULL)
@@ -384,7 +384,7 @@ ActStatus ActionHandlers::delete_bearer_proc_complete(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "delete_bearer_proc_complete : Exit\n");
+    log_msg(LOG_DEBUG, "delete_bearer_proc_complete : Exit");
     return ActStatus::PROCEED;
 }
 

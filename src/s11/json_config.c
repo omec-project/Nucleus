@@ -66,8 +66,8 @@ parse_s11_conf()
 	  	{
 	  		// Keep trying ...May be SGW is not yet deployed 
 			// We shall be doing this once timer library is integrated 
-	  		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(err));
-	  		log_msg(LOG_INFO, "getaddr info failed %s\n",gai_strerror(err));
+	  		fprintf(stderr, "getaddrinfo: %s", gai_strerror(err));
+	  		log_msg(LOG_INFO, "getaddr info failed %s",gai_strerror(err));
 	  	}
 	  	else 
 	  	{
@@ -76,7 +76,7 @@ parse_s11_conf()
 	  			if(rp->ai_family == AF_INET)
 	  			{
 	  				struct sockaddr_in *addrV4 = (struct sockaddr_in *)rp->ai_addr;
-	  				log_msg(LOG_INFO, "gw address received from DNS response %s\n", inet_ntoa(addrV4->sin_addr));
+	  				log_msg(LOG_INFO, "gw address received from DNS response %s", inet_ntoa(addrV4->sin_addr));
 	  				*config_addr[i].addr = addrV4->sin_addr.s_addr;
 	  			}
 	  		}

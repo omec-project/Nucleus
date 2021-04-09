@@ -39,7 +39,7 @@ S1MsgHandler* S1MsgHandler::Instance()
 // Starting point 
 void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 {
-	log_msg(LOG_INFO, "S1 - handleS1Message_v\n");
+	log_msg(LOG_INFO, "S1 - handleS1Message_v");
 
 	if (std::move(eMsg).get() == NULL)
 		return;
@@ -47,21 +47,21 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
 	if (msgBuf == NULL)
 	{
-		log_msg(LOG_INFO, "S1 Message Buffer is empty \n");
+		log_msg(LOG_INFO, "S1 Message Buffer is empty ");
 		return;
 	}
 
-	log_msg(LOG_INFO, "message size %d in s1 ipc message \n",msgBuf->getLength());
+	log_msg(LOG_INFO, "message size %d in s1 ipc message ",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_header_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
-	            "Received %d but should be %d\n", msgBuf->getLength(),
+	            "Received %d but should be %d", msgBuf->getLength(),
 	            sizeof (s1_incoming_msg_header_t));
 	    return;
 	}
 
 	s1_incoming_msg_header_t* msgData_p = (s1_incoming_msg_header_t*)(msgBuf->getDataPointer());
-	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
+	log_msg(LOG_INFO, "S1 - handleS1Message_v %d",msgData_p->msg_type);
 
 	/* Below function should take care of decryption and integrity check */
 	/* Get the control block and pass it to below function */
@@ -104,7 +104,7 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
             handleNasPduParseFailureInd_v(eMsg, msgData_p->ue_idx);
 
             free(nas.elements);
-            log_msg(LOG_ERROR, "NAS pdu parse failed.\n");
+            log_msg(LOG_ERROR, "NAS pdu parse failed.");
             return;
         }
 
@@ -112,7 +112,7 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
         free(nas.elements);
     } while(0);
 
-	log_msg(LOG_INFO, "S1 - handleS1Message_v %d\n",msgData_p->msg_type);
+	log_msg(LOG_INFO, "S1 - handleS1Message_v %d",msgData_p->msg_type);
 	switch (msgData_p->msg_type)
 	{
 		case msg_type_t::attach_request:
@@ -245,19 +245,19 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 			handleS1apEnbStatusMsg_v(std::move(eMsg));
 			break;
 		default:
-			log_msg(LOG_ERROR, "Unhandled S1 Message %d \n", msgData_p->msg_type);
+			log_msg(LOG_ERROR, "Unhandled S1 Message %d ", msgData_p->msg_type);
 	}
 }
 
 void S1MsgHandler::handleInitUeAttachRequestMsg_v(IpcEMsgUnqPtr eMsg)
 {
-	log_msg(LOG_INFO, "S1 - handleInitUeAttachRequestMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleInitUeAttachRequestMsg_v");
 
 	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
 	SM::ControlBlock* controlBlk_p = MmeCommonUtils::findControlBlock(msgData_p);
 	if (controlBlk_p == NULL)
 	{
-		log_msg(LOG_ERROR, "Failed to allocate ControlBlock \n");
+		log_msg(LOG_ERROR, "Failed to allocate ControlBlock ");
 
         	return;
 	}
@@ -269,13 +269,13 @@ void S1MsgHandler::handleInitUeAttachRequestMsg_v(IpcEMsgUnqPtr eMsg)
 
 void S1MsgHandler::handleIdentityResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleIdentityResponseMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleIdentityResponseMsg_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleIdentityResponseMsg_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -287,13 +287,13 @@ void S1MsgHandler::handleIdentityResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueId
 
 void S1MsgHandler::handleAuthResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleAuthResponseMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleAuthResponseMsg_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleAuthResponseMsg_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -306,13 +306,13 @@ void S1MsgHandler::handleAuthResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleSecurityModeResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleSecurityModeResponse_v\n");
+	log_msg(LOG_INFO, "S1 - handleSecurityModeResponse_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleSecurityModeResponse_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -324,13 +324,13 @@ void S1MsgHandler::handleSecurityModeResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueI
 
 void S1MsgHandler::handleEsmInfoResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleEsmInfoResponse_v\n");
+	log_msg(LOG_INFO, "S1 - handleEsmInfoResponse_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleEsmInfoResponse_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -342,13 +342,13 @@ void S1MsgHandler::handleEsmInfoResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleInitCtxtResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleInitCtxtResponse_v\n");
+	log_msg(LOG_INFO, "S1 - handleInitCtxtResponse_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleInitCtxtResponse_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -360,13 +360,13 @@ void S1MsgHandler::handleInitCtxtResponse_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleAttachComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleAttachComplete_v\n");
+	log_msg(LOG_INFO, "S1 - handleAttachComplete_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleAttachComplete_v: "
-							"Failed to find UE context using idx %d\n",
+							"Failed to find UE context using idx %d",
 							ueIdx);
 		return;
 	}
@@ -378,14 +378,14 @@ void S1MsgHandler::handleAttachComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleDetachRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleDetachRequest_v\n");
+	log_msg(LOG_INFO, "S1 - handleDetachRequest_v");
 
 	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
 	SM::ControlBlock* controlBlk_p = MmeCommonUtils::findControlBlock(msgData_p);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleDetachRequest_v: "
-				"Failed to find UE context using idx %d\n", ueIdx);
+				"Failed to find UE context using idx %d", ueIdx);
 		return;
 	}
 
@@ -396,13 +396,13 @@ void S1MsgHandler::handleDetachRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleS1ReleaseRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleS1ReleaseRequestMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleS1ReleaseRequestMsg_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
     	{
 		log_msg(LOG_ERROR, ":handleS1ReleaseRequestMsg_v: "
-                		"Failed to find UE context using idx %d\n", ueIdx);
+                		"Failed to find UE context using idx %d", ueIdx);
         	return;
     	}
 
@@ -413,13 +413,13 @@ void S1MsgHandler::handleS1ReleaseRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueId
 
 void S1MsgHandler::handleS1ReleaseComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleS1ReleaseComplete_v\n");
+	log_msg(LOG_INFO, "S1 - handleS1ReleaseComplete_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
     	{
 		log_msg(LOG_ERROR, ":handleS1ReleaseComplete_v: "
-                		"Failed to find UE context using idx %d\n", ueIdx);
+                		"Failed to find UE context using idx %d", ueIdx);
         	return;
     	}
 
@@ -430,13 +430,13 @@ void S1MsgHandler::handleS1ReleaseComplete_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleDetachAcceptFromUE_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleDetachAcceptFromUE_v\n");
+	log_msg(LOG_INFO, "S1 - handleDetachAcceptFromUE_v");
 
 	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleDetachAcceptFromUE_v: "
-				   "Failed to find UE Context using idx %d\n",
+				   "Failed to find UE Context using idx %d",
 				   ueIdx);
 		return;
 	}
@@ -448,14 +448,14 @@ void S1MsgHandler::handleDetachAcceptFromUE_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx
 
 void S1MsgHandler::handleServiceRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleServiceRequest_v\n");
+	log_msg(LOG_INFO, "S1 - handleServiceRequest_v");
 
     utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
     SM::ControlBlock* controlBlk_p = MmeCommonUtils::findControlBlock(msgData_p);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleServiceRequest_v: "
-				   "Failed to find UE Context using idx %d\n",
+				   "Failed to find UE Context using idx %d",
 				   ueIdx);
 		return;
 	}
@@ -467,14 +467,14 @@ void S1MsgHandler::handleServiceRequest_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 
 void S1MsgHandler::handleTauRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleTauRequestMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleTauRequestMsg_v");
 
     utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
     SM::ControlBlock* controlBlk_p = MmeCommonUtils::findControlBlock(msgData_p);
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleTauRequestMsg_v: "
-				   "Failed to find UE Context using idx %d\n",
+				   "Failed to find UE Context using idx %d",
 				   ueIdx);
 		return;
 	}
@@ -487,14 +487,14 @@ void S1MsgHandler::handleTauRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 void S1MsgHandler::handleHandoverRequiredMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleHandoverRequiredMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleHandoverRequiredMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleHandoverRequiredMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -506,14 +506,14 @@ void S1MsgHandler::handleHandoverRequiredMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleHandoverRequestAckMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleHandoverRequestAckMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleHandoverRequestAckMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleHandoverRequestAckMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -525,14 +525,14 @@ void S1MsgHandler::handleHandoverRequestAckMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleHandoverNotifyMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleHandoverNotifyMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleHandoverNotifyMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleHandoverNotifyMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -544,14 +544,14 @@ void S1MsgHandler::handleHandoverNotifyMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleEnbStatusTransferMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleEnbStatusTransferMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleEnbStatusTransferMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -563,14 +563,14 @@ void S1MsgHandler::handleEnbStatusTransferMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleHandoverCancelMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleHandoverCancelMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleHandoverCancelMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleHandoverCancelMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -582,14 +582,14 @@ void S1MsgHandler::handleHandoverCancelMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleHandoverFailureMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleHandoverFailureMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleHandoverFailureMsg_v");
 
     SM::ControlBlock *controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if (controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleHandoverFailureMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -601,14 +601,14 @@ void S1MsgHandler::handleHandoverFailureMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-	log_msg(LOG_INFO, "S1 - handleErabModificationIndicationMsg_v\n");
+	log_msg(LOG_INFO, "S1 - handleErabModificationIndicationMsg_v");
 
     SM::ControlBlock* controlBlk_p = 
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
 	if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleErabModificationIndicationMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -620,14 +620,14 @@ void S1MsgHandler::handleErabModificationIndicationMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleErabSetupResponseMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleErabSetupResponseMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleErabSetupResponseMsg_v");
 
     SM::ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleErabSetupResponseMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -639,14 +639,14 @@ void S1MsgHandler::handleErabSetupResponseMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleActDedBearerCtxtAcceptMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleActDedBearerCtxtAcceptMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleActDedBearerCtxtAcceptMsg_v");
 
     SM::ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleActDedBearerCtxtAcceptMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -658,14 +658,14 @@ void S1MsgHandler::handleActDedBearerCtxtAcceptMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleActDedBearerCtxtRejectMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleActDedBearerCtxtRejectMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleActDedBearerCtxtRejectMsg_v");
 
     SM::ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleActDedBearerCtxtRejectMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -677,14 +677,14 @@ void S1MsgHandler::handleActDedBearerCtxtRejectMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleErabRelResponseMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleErabRelResponseMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleErabRelResponseMsg_v");
 
     SM::ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleErabRelResponseMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -696,14 +696,14 @@ void S1MsgHandler::handleErabRelResponseMsg_v(IpcEMsgUnqPtr eMsg,
 void S1MsgHandler::handleDeActBearerCtxtAcceptMsg_v(IpcEMsgUnqPtr eMsg,
         uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleDeActBearerCtxtAcceptMsg_v\n");
+    log_msg(LOG_INFO, "S1 - handleDeActBearerCtxtAcceptMsg_v");
 
     SM::ControlBlock* controlBlk_p =
             SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
     if(controlBlk_p == NULL)
     {
         log_msg(LOG_ERROR, "handleDeActBearerCtxtAcceptMsg_v: "
-                "Failed to find UE Context using idx %d\n", ueIdx);
+                "Failed to find UE Context using idx %d", ueIdx);
         return;
     }
 
@@ -718,9 +718,9 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
 	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
     assert(msgBuf != NULL);
 	s1apEnbStatus_Msg_t *enb = (s1apEnbStatus_Msg_t*)(msgBuf->getDataPointer());
-    log_msg(LOG_INFO, " Received enb Status message for %d \n",enb->context_id);
+    log_msg(LOG_INFO, " Received enb Status message for %d ",enb->context_id);
     if(enb->context_id >= 1024) {
-        log_msg(LOG_INFO, " Supported only 1024 eNBs \n");
+        log_msg(LOG_INFO, " Supported only 1024 eNBs ");
         return;
     }
      // new enb found  
@@ -752,7 +752,7 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
 
 void S1MsgHandler::handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr eMsg, uint32_t ueIdx)
 {
-    log_msg(LOG_INFO, "S1 - handleNasPduParseFailureInd_v\n");
+    log_msg(LOG_INFO, "S1 - handleNasPduParseFailureInd_v");
 
     if (ueIdx == 0) {
         // We havent identified the UE. Nothing left to do.
@@ -769,7 +769,7 @@ void S1MsgHandler::handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr 
                 SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
         if (cb == NULL) {
             log_msg(LOG_ERROR, "handleNasPduParseFailureInd_v: "
-                    "Failed to find UE Context using idx %d\n", ueIdx);
+                    "Failed to find UE Context using idx %d", ueIdx);
             return;
         }
 
@@ -778,6 +778,6 @@ void S1MsgHandler::handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr 
     }
     else
     {
-        log_msg(LOG_ERROR, "NasPduParseFailureInd Message is NULL\n");
+        log_msg(LOG_ERROR, "NasPduParseFailureInd Message is NULL");
     }
 }

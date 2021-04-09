@@ -48,7 +48,7 @@ paging_processing(struct paging_req_Q_msg *g_paging)
 
 	if(ret == -1)
 	{
-		log_msg(LOG_ERROR, "Encoding paging request failed.\n");
+		log_msg(LOG_ERROR, "Encoding paging request failed.");
 		return E_FAIL;
 	}
 
@@ -56,7 +56,7 @@ paging_processing(struct paging_req_Q_msg *g_paging)
 	if(buffer != NULL) {
 		free(buffer);
 	}
-	log_msg(LOG_INFO, "-----Paging sent to UE.---\n");
+	log_msg(LOG_INFO, "-----Paging sent to UE.---");
 	return SUCCESS;
 }
 
@@ -68,7 +68,7 @@ void*
 paging_handler(void *data)
 {
 
-	log_msg(LOG_INFO, "paging handler ready.\n");
+	log_msg(LOG_INFO, "paging handler ready.");
 	
 	paging_processing((struct paging_req_Q_msg*)data);
 

@@ -53,7 +53,7 @@ release_bearer_processing(struct RB_Q_msg *rb_msg)
     struct MsgBuffer*  rbReqMsgBuf_p = createMsgBuffer(S11_MSGBUF_SIZE);
     if(rbReqMsgBuf_p == NULL)
     {
-	log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.\n");
+	log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
 	return -1;
     }
     GtpV2MessageHeader gtpHeader;	
@@ -82,7 +82,7 @@ release_bearer_processing(struct RB_Q_msg *rb_msg)
            (struct sockaddr*)&sgw_ip,
            g_s11_serv_size);
     //TODO " error chk, eagain etc?
-    log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.\n", MsgBuffer_getBufLen(rbReqMsgBuf_p));
+    log_msg(LOG_INFO, "Release Bearer sent, len - %d bytes.", MsgBuffer_getBufLen(rbReqMsgBuf_p));
 
     MsgBuffer_free(rbReqMsgBuf_p);
 
@@ -98,7 +98,7 @@ void*
 release_bearer_handler(void *data)
 {
 	
-	log_msg(LOG_INFO, "Release bearer handler initialized\n");
+	log_msg(LOG_INFO, "Release bearer handler initialized");
 	
 	release_bearer_processing((struct RB_Q_msg *)data);
 

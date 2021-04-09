@@ -31,12 +31,12 @@ s1_ctx_release_complete_handler(SuccessfulOutcome_t *msg)
 	struct proto_IE s1_ctx_release_ies;
 	s1_ctx_release_ies.data = NULL;
 
-	log_msg(LOG_INFO, "Parse s1ap context release complete message:--\n");
+	log_msg(LOG_INFO, "Parse s1ap context release complete message:--");
 
 	int decode_status = convertUeCtxRelComplToProtoIe(msg, &s1_ctx_release_ies);
 	if(decode_status < 0) {
 		free(s1_ctx_release_ies.data);
-		log_msg(LOG_ERROR, "Failed to decode s1ap message\n");
+		log_msg(LOG_ERROR, "Failed to decode s1ap message");
 		return E_FAIL;
 	}
 
@@ -50,7 +50,7 @@ s1_ctx_release_complete_handler(SuccessfulOutcome_t *msg)
 	                release_complete.ue_idx = s1_ctx_release_ies.data[i].val.mme_ue_s1ap_id;
                 }break;
             default:
-                log_msg(LOG_WARNING,"Unhandled IE %d \n",s1_ctx_release_ies.data[i].IE_type);
+                log_msg(LOG_WARNING,"Unhandled IE %d ",s1_ctx_release_ies.data[i].IE_type);
         }
     }
 
@@ -63,11 +63,11 @@ s1_ctx_release_complete_handler(SuccessfulOutcome_t *msg)
 				sizeof(s1_incoming_msg_header_t));
 	if (i < 0) {
 
-		log_msg(LOG_ERROR,"Error To write in s1_ctx_release_code_handler\n");
+		log_msg(LOG_ERROR,"Error To write in s1_ctx_release_code_handler");
 	}
 
 	log_msg(LOG_INFO, "Ctx Release complete sent to mme-app."
-				"Bytes sent %d\n", i);
+				"Bytes sent %d", i);
 
 	free(s1_ctx_release_ies.data);
 	return SUCCESS;

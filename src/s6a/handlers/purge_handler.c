@@ -34,7 +34,7 @@ extern int g_Q_mme_S6a_fd;
 static
 void send_to_stage2(purge_resp_Q_msg_t *purge_rsp)
 {
-	TRACE_ENTRY("\n****************WRITE TO g_Q_mme_S6a_fd");
+	TRACE_ENTRY("****************WRITE TO g_Q_mme_S6a_fd");
 
 	purge_rsp->header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	purge_rsp->header.srcInstAddr = htonl(s6AppInstanceNum_c);
@@ -67,7 +67,7 @@ purge_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 	/*read session id and extract ue index*/
 	CHECK_FCT_DO(fd_sess_getsid(sess, &sess_id, (size_t*)&sess_id_len),
 			return S6A_FD_ERROR);
-	log_msg(LOG_INFO, "\nPurge callback ----- >session id=%s \n",sess_id);
+	log_msg(LOG_INFO, "Purge callback ----- >session id=%s ",sess_id);
     
 	purge_rsp.header.msg_type = purge_answser;
 	purge_rsp.header.ue_idx = get_ue_idx_from_fd_resp(sess_id, sess_id_len);
