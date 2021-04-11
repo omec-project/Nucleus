@@ -1226,7 +1226,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
     		int nas_index = 0;
             attach_req.header = *s1Msg; // copy header 
 			attach_req.header.msg_type = msg_type_t::attach_request;
-			attach_req.enb_fd = init->enodeb_fd;
+			attach_req.enb_fd = init->enb_fd;
             
             // copy S1ap AVPs
             attach_req.criticality = init->criticality;
@@ -1370,12 +1370,12 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case ServiceRequest:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message SERVICE REQUEST ");
             service_req_Q_msg_t serv_req = {0}; 
 	        initial_ue_msg_t *init = (initial_ue_msg_t*)(s1Msg);
             serv_req.header = *s1Msg;
 			serv_req.header.msg_type = msg_type_t::service_request;
-			serv_req.enb_fd = init->enodeb_fd;
+			serv_req.enb_fd = init->enb_fd;
+			log_msg(LOG_INFO, "Copy Required details of message SERVICE REQUEST eNB fd %d ", serv_req.enb_fd);
             
             // copy s1ap AVPs
             serv_req.tai = init->tai;
@@ -1387,7 +1387,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
             serv_req.seq_no = nas->header.seq_no;
             memcpy(&serv_req.mac, nas->header.short_mac, sizeof(uint16_t));
 
-            memcpy((void*)s1Msg, &serv_req, sizeof(service_req_Q_msg_t));
+            memcpy((void*)s1Msg, (void*)&serv_req, sizeof(service_req_Q_msg_t));
 			break;
 		}
 		case DetachRequest:
@@ -1416,12 +1416,12 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
             if(s1Msg->msg_type == S1AP_INITIAL_UE_MSG_CODE) {
                 initial_ue_msg_t *initMsg = (initial_ue_msg_t*)s1Msg;
                 tau_req.tai = initMsg->tai;
-			    tau_req.enb_fd = initMsg->enodeb_fd;
+			    tau_req.enb_fd = initMsg->enb_fd;
                 tau_req.header.ue_idx = initMsg->s_tmsi.m_TMSI; 
             } else if (s1Msg->msg_type == S1AP_UL_NAS_TX_MSG_CODE) {
                 uplink_nas_t *ulMsg = (uplink_nas_t*)s1Msg;
                 tau_req.tai = ulMsg->tai;
-			    tau_req.enb_fd = ulMsg->enodeb_fd;
+			    tau_req.enb_fd = ulMsg->enb_fd;
             }
 			tau_req.header.msg_type = msg_type_t::tau_request;
 
@@ -1460,7 +1460,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
                     }
                	}
                 nas_index++;
-            }         
+            }
             memcpy((void*)s1Msg, &tau_req, sizeof(tauReq_Q_msg_t));
 	    	break;
 		}

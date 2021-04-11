@@ -341,7 +341,11 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
     service_req_Q_msg_t *serviceReq =
             static_cast<service_req_Q_msg_t*>(msgBuf->getDataPointer());
 
+    log_msg(LOG_INFO, "Service request received from enb context %u & UEIndex/TMSI = %u ", serviceReq->enb_fd, serviceReq->header.ue_idx);
     unsigned char emmCause = 0;
+    int ue_idx = serviceReq->header.ue_idx;
+    int s1ap_enb_ue_id = serviceReq->header.s1ap_enb_ue_id;
+    int enb_fd = serviceReq->enb_fd;
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ueCtxt != NULL)
@@ -377,8 +381,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
     }
     else
     {
-        log_msg(LOG_ERROR, "UE Context is NULL in service request handling");
-
+        log_msg(LOG_ERROR, "UE Context is NULL in service request handling %u ",serviceReq->enb_fd);
         emmCause = emmCause_ue_id_not_derived_by_network;
         MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
     }
@@ -389,9 +392,9 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
         struct commonRej_info serviceRej =
         {
                 service_reject,
-                serviceReq->header.ue_idx,
-                serviceReq->header.s1ap_enb_ue_id,
-                serviceReq->enb_fd,
+                ue_idx,
+                s1ap_enb_ue_id,
+                enb_fd,
                 emmCause
         };
 
@@ -511,11 +514,14 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
             static_cast<const tauReq_Q_msg_t*>(msgBuf->getDataPointer());
 
     unsigned char emmCause = 0;
+    int ue_m_tmsi = tauReq->ue_m_tmsi;
+    int s1ap_enb_ue_id = tauReq->header.s1ap_enb_ue_id;
+    int enb_fd = tauReq->enb_fd;
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ueCtxt != NULL)
     {
-	MmContext *mmCtxt = ueCtxt->getMmContext();
+        MmContext *mmCtxt = ueCtxt->getMmContext();
         if (mmCtxt != NULL)
         {
             MmeTauProcedureCtxt *tauReqProc_p =
@@ -524,7 +530,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
             {
                 mmCtxt->setEcmState(ecmConnected_c);
 
-		if(tauReq->ue_net_capab.len > 0)
+                if(tauReq->ue_net_capab.len > 0)
                 {
                     ueCtxt->setUeNetCapab(Ue_net_capab(tauReq->ue_net_capab));
                 }
@@ -574,9 +580,9 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
         struct commonRej_info tauRej =
         {
                 tau_reject,
-		        tauReq->ue_m_tmsi,
-                tauReq->header.s1ap_enb_ue_id,
-                tauReq->enb_fd,
+		        ue_m_tmsi,
+                s1ap_enb_ue_id,
+                enb_fd,
                 emmCause
         };
 

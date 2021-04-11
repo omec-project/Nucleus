@@ -57,7 +57,6 @@ extern int parse_mme_conf(mme_config *config);
 extern void* RunServer(void * data);
 
 extern char processName[255];
-extern int pid;
 int g_unix_fd = 0;
 struct thread_pool *g_tpool;
 pthread_t acceptUnix_t;
@@ -80,7 +79,6 @@ void setThreadName(std::thread* thread, const char* threadName)
 int main(int argc, char *argv[])
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
-	pid = getpid();
 
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
