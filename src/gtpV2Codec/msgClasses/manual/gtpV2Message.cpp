@@ -34,7 +34,6 @@ void GtpV2Message::encodeHeader(MsgBuffer& buffer, GtpV2MessageHeader& msgHeader
   }
   
   Uint32 seqNumber = msgHeader.sequenceNumber << 8;
-  std::cout << "current seq num indx is " << buffer.getCurrentIndex() << std::endl;
   buffer.writeUint32(seqNumber);
   
 }

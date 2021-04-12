@@ -202,7 +202,7 @@ init_ue_msg_handler(InitiatingMessage_t *msg, int enb_fd)
 		free(proto_ies.data);
 		return E_FAIL;
     }
-	s1Msg.enodeb_fd = cbIndex;
+	s1Msg.enb_fd = cbIndex;
 	s1Msg.header.msg_type = S1AP_INITIAL_UE_MSG_CODE; 
 	s1Msg.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	s1Msg.header.srcInstAddr = htonl(s1apAppInstanceNum_c);
@@ -231,7 +231,7 @@ UL_NAS_msg_handler(InitiatingMessage_t *msg, int enb_fd)
     }
 
 	uplink_nas_t s1Msg={0};
-	s1Msg.enodeb_fd = cbIndex;
+	s1Msg.enb_fd = cbIndex;
     int decode_result = convertUplinkNasToProtoIe(msg, &proto_ies, &s1Msg);
 
     if(decode_result < 0 )

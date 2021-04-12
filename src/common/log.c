@@ -25,6 +25,7 @@ FILE *log_fp;
 
 void init_logging(char *env, char *file)
 {
+    pid = getpid();
 	if(strcmp(env, "container") == 0) {
 		log_fp = (FILE *)stderr;
 		fprintf(log_fp, "init_logging %s", env);
@@ -37,4 +38,5 @@ void init_logging(char *env, char *file)
 		}
 		fprintf(log_fp, "init_logging %s", env);
 	}
+    logging_level = LOG_DEBUG;
 }

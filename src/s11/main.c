@@ -46,7 +46,6 @@ struct thread_pool *g_tpool_tipc_reader_s11;
 /**End: global and externs**/
 
 extern char processName[255];
-extern int pid;
 uint32_t gtp_seq;
 pthread_mutex_t seq_lock;
 
@@ -236,7 +235,6 @@ int
 main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
-	pid = getpid();
 	
 	init_backtrace(argv[0]);
 

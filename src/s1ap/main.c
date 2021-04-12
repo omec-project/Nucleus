@@ -61,7 +61,6 @@ struct time_stat g_attach_stats[65535];
 /**End: global and externs**/
 
 extern char processName[255];
-extern int pid;
 
 extern void
 handle_mmeapp_message(void * data);
@@ -447,7 +446,6 @@ int
 main(int argc, char **argv)
 {
 	memcpy (processName, argv[0], strlen(argv[0]));
-	pid = getpid();
 	
 	s1ap_inst = (s1ap_instance_t *) calloc(1, sizeof(s1ap_instance_t));
 	s1ap_inst->s1ap_config = (s1ap_config_t *) calloc(1, sizeof(s1ap_config_t));

@@ -568,7 +568,7 @@ struct erab_release_command_Q_msg {
 struct initial_ue_msg {
     s1_incoming_msg_header_t header;
     rawNas_Q_msg_t  nasMsg;
-    int enodeb_fd;
+    int enb_fd;
     int criticality;
     unsigned char IMSI[BINARY_IMSI_LEN];
     struct TAI tai;
@@ -581,7 +581,7 @@ typedef struct initial_ue_msg initial_ue_msg_t;
 struct uplink_nas {
     s1_incoming_msg_header_t header;
     rawNas_Q_msg_t  nasMsg;
-    int enodeb_fd;
+    int enb_fd;
    	uint32_t	s1ap_enb_ue_id;
    	uint32_t	s1ap_mme_ue_id;
 	struct TAI tai;

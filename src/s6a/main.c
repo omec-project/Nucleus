@@ -39,7 +39,6 @@ pthread_t g_detach_handler_tid;
 pthread_t g_our_hss_tid;
 
 extern char processName[255];
-extern int pid;
 
 int ipc_reader_tipc_s6;
 
@@ -274,13 +273,12 @@ main(int argc, char **argv)
 {
 	srand(time(0));
 	memcpy (processName, argv[0], strlen(argv[0]));
-	pid = getpid();
 	
 	init_backtrace(argv[0]); 
 
 	char *hp = getenv("MMERUNENV");
 	if (hp && (strcmp(hp, "container") == 0)) {
-			init_logging("container", NULL);
+		init_logging("container", NULL);
 	}
 	else { 
 		init_logging("hostbased", "/tmp/s6alogs.txt");
