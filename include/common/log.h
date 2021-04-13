@@ -16,9 +16,12 @@ extern "C"{
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #define __file__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
+extern int pid;
 extern FILE *log_fp;
 extern uint8_t logging_level;
 enum log_levels{
@@ -40,7 +43,7 @@ void init_backtrace(char *binary);
         time_t _t = time(NULL); \
         struct tm * _p = localtime(&_t);\
         strftime(_s, 30, "%Y-%m-%d %H:%M:%S", _p);\
-		fprintf(log_fp, "[%s] %s : %s : %s : %u : " msg " \n", log_level_name[prio], _s, __file__ , __func__, __LINE__, ##__VA_ARGS__);\
+		fprintf(log_fp, "[%s] %s : %s : %s : %u : [%u:%ld] " msg " \n", log_level_name[prio], _s, __file__ , __func__, __LINE__, pid, syscall(SYS_gettid), ##__VA_ARGS__);\
 	}\
 } while (0) 
 
