@@ -34,10 +34,10 @@ namespace mme
     	tau_c,
     	s1Handover_c,
         erabModInd_c,
-	cbReq_c,
-	dedBrActivation_c,
-	dbReq_c,
-	dedBrDeActivation_c,
+        cbReq_c,
+        dedBrActivation_c,
+        dbReq_c,
+        dedBrDeActivation_c,
 
     	maxProcedureType_c
  };
@@ -49,7 +49,7 @@ namespace mme
     	mmeInitDetach_c,
     	hssInitDetach_c,
     	ueInitDetach_c,
-	pgwInitDetach_c,
+    	pgwInitDetach_c,
 
     	maxDetachtype_c
  };

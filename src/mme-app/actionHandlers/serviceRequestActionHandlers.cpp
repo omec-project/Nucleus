@@ -642,7 +642,8 @@ ActStatus ActionHandlers::abort_service_req_procedure(ControlBlock& cb)
     }
     default:
     {
-        if ((pagingTrigger & pgwInit_c) != 0)
+        if (procedure_p->checkPagingTriggerBit(pgwInit_c) ||
+                procedure_p->checkPagingTriggerBit(hssInit_c))
         {
             /* Fire a page failure event. This is a CONSUME_AND_FORWARD event.
              * Other procedures waiting for paging complete (Create Bearer, Delete Bearer etc.)
@@ -673,8 +674,10 @@ ActStatus ActionHandlers::service_request_complete(ControlBlock& cb)
             static_cast<MmeSvcReqProcedureCtxt*>(cb.getTempDataBlock());
     VERIFY(procedure_p, return ActStatus::ABORT, "Procedure Context is NULL ");
 
-    if (procedure_p->checkPagingTriggerBit(pgwInit_c))
+    if (procedure_p->checkPagingTriggerBit(pgwInit_c) ||
+            procedure_p->checkPagingTriggerBit(hssInit_c))
     {
+        // Fire paging complete so that procedures waiting for this event can continue.
         SM::Event evt(PAGING_COMPLETE, NULL);
         cb.qInternalEvent(evt);
     }

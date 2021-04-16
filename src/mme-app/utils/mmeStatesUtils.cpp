@@ -295,6 +295,7 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
         }
             break;
     case GW_CP_REQ_INIT_PAGING:
+    case HSS_INIT_PAGING:
     case GW_INIT_DED_BEARER_AND_SESSION_SETUP:
     case DED_BEARER_DEACT_START:
     case PAGING_FAILURE:

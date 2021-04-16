@@ -67,23 +67,11 @@ clr_resp_callback(struct msg **buf, struct avp *avps, struct session *sess,
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
 		clr_msg.c_type = avp_header->avp_value->i32;
 	}
-	
-	fd_msg_search_avp(resp,g_fd_dict_objs.org_host, &avp_ptr);
-	if(NULL != avp_ptr) {
-		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(clr_msg.origin_host,avp_header->avp_value->os.data,sizeof(clr_msg.origin_host));
-    }
-
-	fd_msg_search_avp(resp, g_fd_dict_objs.org_realm, &avp_ptr);
-	if(NULL != avp_ptr) {
-		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(clr_msg.origin_realm,avp_header->avp_value->os.data,sizeof(clr_msg.origin_realm));
-    }
          
 	fd_msg_search_avp(resp, g_fd_dict_objs.user_name,&avp_ptr);
 	if(NULL != avp_ptr) {
 		fd_msg_avp_hdr(avp_ptr, &avp_header);
-		memcpy(clr_msg.imsi,avp_header->avp_value->os.data,sizeof(clr_msg.imsi));
+		memcpy(clr_msg.header.IMSI,avp_header->avp_value->os.data,sizeof(clr_msg.header.IMSI));
     }
        
     /*CLA Processing*/

@@ -407,6 +407,61 @@ ControlBlock* MmeCommonUtils::findControlBlockForS11Msg(cmn::utils::MsgBuffer* m
     return cb_p;
 }
 
+ControlBlock* MmeCommonUtils::findControlBlockForS6aMsg(cmn::utils::MsgBuffer* msg_p)
+{
+    ControlBlock *cb_p = NULL;
+
+    const s6_incoming_msg_header_t *msgData_p =
+            (s6_incoming_msg_header_t*) (msg_p->getDataPointer());
+    if (msgData_p == NULL)
+    {
+        log_msg(LOG_INFO, "S6a Incoming Header is NULL.");
+        return cb_p;
+    }
+
+    switch (msgData_p->msg_type)
+    {
+        case cancel_location_request:
+        case delete_subscriber_data_request:
+        {
+            DigitRegister15 IMSI;
+            IMSI.setImsiDigits((unsigned char*) msgData_p->IMSI);
+
+            bool ueFound = false;
+            int ue_idx = SubsDataGroupManager::Instance()->findCBWithimsi(IMSI);
+            log_msg(LOG_INFO, "UE_IDX found from map : %d ", ue_idx);
+
+            if (ue_idx > 0)
+            {
+                ueFound = true;
+                cb_p = SubsDataGroupManager::Instance()->findControlBlock(ue_idx);
+            }
+
+            if (cb_p == NULL)
+            {
+                log_msg(LOG_INFO,
+                    "Failed to find control block using index %d."
+                    " Allocate a temporary control block",
+                    ue_idx);
+
+                cb_p = SubsDataGroupManager::Instance()->allocateCB();
+                cb_p->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+
+                if (ueFound) {
+                    // Remove stale entry
+                    SubsDataGroupManager::Instance()->deleteimsikey(IMSI);
+                }
+            }
+        }
+        break;
+        default:
+        {
+            log_msg(LOG_INFO, "Unhandled message type");
+        }
+    }
+    return cb_p;
+}
+
 bool MmeCommonUtils::isEmmInfoRequired(ControlBlock& cb, UEContext& ueCtxt, MmeProcedureCtxt& procCtxt)
 {
 	bool rc = false;

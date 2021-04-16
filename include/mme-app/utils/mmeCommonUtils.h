@@ -42,6 +42,8 @@ namespace mme
 
 		static SM::ControlBlock* findControlBlockForS11Msg(cmn::utils::MsgBuffer* msg_p);
 
+		static SM::ControlBlock* findControlBlockForS6aMsg(cmn::utils::MsgBuffer* msg_p);
+
 		static AttachType getAttachType(UEContext* ueCtxt_p, const struct ue_attach_info& attachReqMsg_r);
 
 		static void formatS1apPlmnId(struct PLMN* plmn_p);

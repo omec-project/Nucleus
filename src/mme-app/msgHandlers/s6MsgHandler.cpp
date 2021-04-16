@@ -11,6 +11,7 @@
 #include <log.h>
 #include <mmeSmDefs.h>
 #include <eventMessage.h>
+#include <utils/mmeCommonUtils.h>
 #include "mmeStatsPromClient.h"
 
 using namespace SM;
@@ -74,6 +75,11 @@ void S6MsgHandler::handleS6Message_v(IpcEMsgUnqPtr eMsg)
 			handleCancelLocationRequest_v(std::move(eMsg));
 			break;
 
+                case msg_type_t::delete_subscriber_data_request:
+                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S6A_DELETE_SUBSCRIBER_DATA_REQUEST);
+                        handleDeleteSubscriberRequest_v(std::move(eMsg));
+                        break;
+
 		default:
 			log_msg(LOG_INFO, "Unhandled S6 Message %d ", msgData_p->msg_type);
 	}
@@ -136,32 +142,38 @@ void S6MsgHandler::handlePurgeAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
 void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 {
 	log_msg(LOG_INFO, "Inside handleCancelLocationRequest ");
-        
-	utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
-	void* buf = msgData_p->getDataPointer();
-	const clr_Q_msg_t* msgInfo_p = (clr_Q_msg_t *)(buf);
 
-	DigitRegister15 IMSI;
-	IMSI.setImsiDigits((unsigned char *)msgInfo_p->imsi);
-      
-	int ue_idx =  SubsDataGroupManager::Instance()->findCBWithimsi(IMSI);
-	log_msg(LOG_INFO, "UE_IDX found from map : %d ", ue_idx);
-
-	if (ue_idx < 1)
+	SM::ControlBlock *controlBlk_p = MmeCommonUtils::findControlBlockForS6aMsg(
+		eMsg->getMsgBuffer());
+	if (controlBlk_p == NULL)
 	{
-		log_msg(LOG_ERROR, "Failed to find ue index using IMSI : %d", ue_idx);
-		return;
+	    log_msg(LOG_ERROR,
+		    "handleCancelLocationRequest_v: "
+		    "Failed to find UE context using IMSI in CLR");
+	    return;
 	}
 
-	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ue_idx);
-	if(controlBlk_p == NULL)
-	{
-		log_msg(LOG_ERROR, "handleCancelLocationRequest_v: "
-				   "Failed to find UE Context using IMSI in CLR");
-		return;
-	}
 	//Fire CLR event, insert CB to Procedure Queue
 	SM::Event evt(CLR_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
+}
+
+void S6MsgHandler::handleDeleteSubscriberRequest_v(cmn::IpcEMsgUnqPtr eMsg)
+{
+    log_msg(LOG_INFO, "Inside handleDeleteSubscriberRequest ");
+
+    SM::ControlBlock *controlBlk_p = MmeCommonUtils::findControlBlockForS6aMsg(
+            eMsg->getMsgBuffer());
+    if (controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR,
+                "handleDeleteSubscriberRequest_v: "
+                "Failed to find UE context using IMSI in DSR");
+        return;
+    }
+
+    //Fire DSR event, insert CB to Procedure Queue
+    SM::Event evt(DSR_FROM_HSS, cmn::IpcEMsgShPtr(std::move(eMsg)));
+    controlBlk_p->addEventToProcQ(evt);
 }
 

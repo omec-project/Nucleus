@@ -119,6 +119,11 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::handle_detach_failure);
                 eventToActionsMap[DETACH_FAILURE] = actionTable;
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_delete_subs_req_handler);
+                eventToActionsMap[DSR_FROM_HSS] = actionTable;
+        }
 }
 
 /******************************************************************************

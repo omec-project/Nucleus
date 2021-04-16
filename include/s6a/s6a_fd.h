@@ -81,6 +81,8 @@ struct fd_dict_objects {
 	struct dict_object *CLR; /*Cancel-Location-Request*/
 	struct dict_object *CLA; /*Cancel-Location-Answer*/
 	//NI Detach
+	struct dict_object *DSR; /*Delete-Subscriber-Data-Request*/
+	struct dict_object *DSA; /*Delete-Subscriber-Data-Answer*/
 	
 	/*common s6a requst header*/
 	struct dict_object *auth_app_id;
@@ -152,6 +154,10 @@ struct fd_dict_objects {
 	//NI Detach
 	/*CLR elements*/
 	struct dict_object *cancellation_type;
+
+	/*DSR elements*/
+	struct dict_object *DSR_flags;
+	struct dict_object *Context_Identifier;
 };
 
 /**
@@ -234,6 +240,10 @@ struct fd_dict_data {
 	//NI Detach
 	/*CLR Data*/
 	struct dict_avp_data cancellation_type;
+
+	/*DSR flags*/
+	struct dict_avp_data DSR_flags;
+	struct dict_avp_data Context_Identifier;
 };
 
 /**
@@ -306,6 +316,12 @@ clr_resp_callback(struct msg **msg, struct avp *avp, struct session *sess,
 int
 purge_resp_callback(struct msg **msg, struct avp *avp, struct session *sess,
 		void *data, enum disp_action *act);
+
+
+int
+dsr_callback(struct msg **msg, struct avp *avp, struct session *sess,
+		void *data, enum disp_action *act);
+
 
 /**
  * @brief Dumo freediameter message on console

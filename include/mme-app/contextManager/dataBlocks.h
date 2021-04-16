@@ -396,6 +396,12 @@ namespace mme
 			SessionContext* findSessionContextByLinkedBearerId(uint8_t linkedBearerId_i);
 			
 			/****************************************
+			* findSessionContextByApnConfigProfileCtxId
+			*    find SessionContext ByApnConfigProfileCtxId
+			****************************************/
+			SessionContext* findSessionContextByApnConfigProfileCtxId(uint32_t apnConfigProfileCtxId_i);
+			
+			/****************************************
 			* getSessionContextContainer
 			*    get SessionContextContainer to UEContext
 			****************************************/

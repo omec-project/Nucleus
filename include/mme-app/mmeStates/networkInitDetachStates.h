@@ -19,7 +19,47 @@
  #include "state.h"
 
  namespace mme {
-	class NiDetachStart : public SM::State
+	class NetworkInitDetachState : public SM::State
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static NetworkInitDetachState* Instance();
+
+			/****************************************
+			* NetworkInitDetachState
+			*    Destructor
+			****************************************/
+			~NetworkInitDetachState();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* NetworkInitDetachState
+			*    Protected constructor
+			****************************************/
+			NetworkInitDetachState();  
+	};
+	
+	class NiDetachStart : public NetworkInitDetachState
 	{
 		public:
 			/******************************************
@@ -59,7 +99,47 @@
 			NiDetachStart();  
 	};
 	
-	class NiDetachWfDetAccptDelSessResp : public SM::State
+	class NiDetachWfPagingComplete : public NetworkInitDetachState
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static NiDetachWfPagingComplete* Instance();
+
+			/****************************************
+			* NiDetachWfPagingComplete
+			*    Destructor
+			****************************************/
+			~NiDetachWfPagingComplete();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* NiDetachWfPagingComplete
+			*    Protected constructor
+			****************************************/
+			NiDetachWfPagingComplete();  
+	};
+	
+	class NiDetachWfDetAccptDelSessResp : public NetworkInitDetachState
 	{
 		public:
 			/******************************************
@@ -99,7 +179,7 @@
 			NiDetachWfDetAccptDelSessResp();  
 	};
 	
-	class NiDetachWfDelSessResp : public SM::State
+	class NiDetachWfDelSessResp : public NetworkInitDetachState
 	{
 		public:
 			/******************************************
@@ -139,7 +219,7 @@
 			NiDetachWfDelSessResp();  
 	};
 	
-	class NiDetachWfDetachAccept : public SM::State
+	class NiDetachWfDetachAccept : public NetworkInitDetachState
 	{
 		public:
 			/******************************************
@@ -179,7 +259,7 @@
 			NiDetachWfDetachAccept();  
 	};
 	
-	class NiDetachWfS1RelComp : public SM::State
+	class NiDetachWfS1RelComp : public NetworkInitDetachState
 	{
 		public:
 			/******************************************

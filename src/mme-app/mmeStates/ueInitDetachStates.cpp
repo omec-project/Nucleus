@@ -30,7 +30,62 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachStart::DetachStart():State()
+UeInitDetachState::UeInitDetachState():State()
+{
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+UeInitDetachState::~UeInitDetachState()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+UeInitDetachState* UeInitDetachState::Instance()
+{
+        static UeInitDetachState state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void UeInitDetachState::initialize()
+{
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_dsr_during_detach);
+                eventToActionsMap[DSR_FROM_HSS] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t UeInitDetachState::getStateId()const
+{
+	return ue_init_detach_state;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* UeInitDetachState::getStateName()const
+{
+	return "ue_init_detach_state";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+DetachStart::DetachStart(): UeInitDetachState()
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -59,6 +114,7 @@ DetachStart* DetachStart::Instance()
 ******************************************************************************/
 void DetachStart::initialize()
 {
+        UeInitDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
@@ -93,7 +149,7 @@ const char* DetachStart::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfPurgeRespDelSessionResp::DetachWfPurgeRespDelSessionResp():State()
+DetachWfPurgeRespDelSessionResp::DetachWfPurgeRespDelSessionResp(): UeInitDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -123,6 +179,7 @@ DetachWfPurgeRespDelSessionResp* DetachWfPurgeRespDelSessionResp::Instance()
 ******************************************************************************/
 void DetachWfPurgeRespDelSessionResp::initialize()
 {
+        UeInitDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
@@ -172,7 +229,7 @@ const char* DetachWfPurgeRespDelSessionResp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfDelSessionResp::DetachWfDelSessionResp():State()
+DetachWfDelSessionResp::DetachWfDelSessionResp(): UeInitDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -202,6 +259,7 @@ DetachWfDelSessionResp* DetachWfDelSessionResp::Instance()
 ******************************************************************************/
 void DetachWfDelSessionResp::initialize()
 {
+        UeInitDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
@@ -245,7 +303,7 @@ const char* DetachWfDelSessionResp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-DetachWfPurgeResp::DetachWfPurgeResp():State()
+DetachWfPurgeResp::DetachWfPurgeResp(): UeInitDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -275,6 +333,7 @@ DetachWfPurgeResp* DetachWfPurgeResp::Instance()
 ******************************************************************************/
 void DetachWfPurgeResp::initialize()
 {
+        UeInitDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_pur_resp);

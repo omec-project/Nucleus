@@ -48,6 +48,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(DETACH_COMPLETE,"DETACH_COMPLETE");      
     smUtil->addEventToStrEntry(DETACH_FAILURE,"DETACH_FAILURE");      
     smUtil->addEventToStrEntry(DETACH_REQ_FROM_UE,"DETACH_REQ_FROM_UE");      
+    smUtil->addEventToStrEntry(DSR_FROM_HSS,"DSR_FROM_HSS");      
     smUtil->addEventToStrEntry(ENB_STATUS_TRANFER_FROM_SRC_ENB,"ENB_STATUS_TRANFER_FROM_SRC_ENB");      
     smUtil->addEventToStrEntry(eRAB_MOD_IND_START,"eRAB_MOD_IND_START");      
     smUtil->addEventToStrEntry(ERAB_MOD_INDICATION_FROM_ENB,"ERAB_MOD_INDICATION_FROM_ENB");      
@@ -63,6 +64,8 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(HO_NOTIFY_FROM_ENB,"HO_NOTIFY_FROM_ENB");      
     smUtil->addEventToStrEntry(HO_REQUEST_ACK_FROM_ENB,"HO_REQUEST_ACK_FROM_ENB");      
     smUtil->addEventToStrEntry(HO_REQUIRED_FROM_ENB,"HO_REQUIRED_FROM_ENB");      
+    smUtil->addEventToStrEntry(HSS_INIT_DETACH,"HSS_INIT_DETACH");      
+    smUtil->addEventToStrEntry(HSS_INIT_PAGING,"HSS_INIT_PAGING");      
     smUtil->addEventToStrEntry(IDENTITY_RESPONSE_FROM_UE,"IDENTITY_RESPONSE_FROM_UE");      
     smUtil->addEventToStrEntry(IMSI_VALIDATION_FAILURE,"IMSI_VALIDATION_FAILURE");      
     smUtil->addEventToStrEntry(IMSI_VALIDATION_SUCCESS,"IMSI_VALIDATION_SUCCESS");      

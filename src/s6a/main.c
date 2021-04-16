@@ -24,6 +24,8 @@
 #include "thread_pool.h"
 #include <sys/types.h>
 #include "msgType.h"
+#include <transactionDb.h>
+
 /**Globals and externs**/
 struct fd_dict_objects g_fd_dict_objs;
 struct fd_dict_data g_fd_dict_data;
@@ -47,6 +49,12 @@ S6Req_handler(void *data);
 
 extern void*
 detach_handler(void *data);
+
+extern void*
+dsa_handler(void *data);
+
+void * s6IncReqTransDb_gp = NULL;
+
 /**Globals and externs**/
 
 /**
@@ -139,6 +147,9 @@ handle_mmeapp_message_s6a(void * data)
 		break;
 	case purge_request:
 		detach_handler(msg);
+		break;
+	case delete_subscriber_data_answer:
+		dsa_handler(msg);
 		break;
 	default:
 		break;
@@ -306,6 +317,8 @@ main(int argc, char **argv)
 
 	/*Initialize listner for AIR and ULR from mme-app*/
 	init_handlers();
+
+	s6IncReqTransDb_gp = newTransDb();
 
 	s6a_run();
 

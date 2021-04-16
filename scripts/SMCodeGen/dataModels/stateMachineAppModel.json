@@ -91,6 +91,13 @@
                                     "HANDLE_DETACH_FAILURE"
                                 ],
                                 "NextState":"end_state"
+                            },
+                            {
+                                "Name":"DSR_FROM_HSS",
+                                "Actions":[
+                                    "DEFAULT_DELETE_SUBS_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
                             }
                         ]
                     }
@@ -623,10 +630,28 @@
                 "Name":"UE_INIT_DETACH",
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "enabled"
+                        "stateGuardTimerFeature" : "enabled",
+                        "defaultState" : "ue_init_detach_state"
                     }
                 ],
                 "States":[
+                    {
+                        "Name":"ue_init_detach_state",
+                        "Events":[
+                            {
+                                "Name":"DSR_FROM_HSS",
+                                "Actions":[
+                                    "HANDLE_DSR_DURING_DETACH"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout" : "0"
+                            }
+                        ]
+                    },
                     {
                         "Name":"detach_start",
                         "Events":[
@@ -867,15 +892,33 @@
                 "Name":"NETWORK_INIT_DETACH",
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "enabled"
+                        "stateGuardTimerFeature" : "enabled",
+                        "defaultState" : "network_init_detach_state"
                     }
                 ],
                 "States":[
                     {
+                        "Name":"network_init_detach_state",
+                        "Events":[
+                            {
+                                "Name":"DSR_FROM_HSS",
+                                "Actions":[
+                                    "HANDLE_DSR_DURING_DETACH"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout" : "0"
+                            }
+                        ]
+                    },
+                    {
                         "Name":"ni_detach_start",
                         "Events":[
                             {
-                                "Name":"CLR_FROM_HSS",
+                                "Name":"HSS_INIT_DETACH",
                                 "Actions":[
                                     "NI_DETACH_REQ_TO_UE",
                                     "DEL_SESSION_REQ"
@@ -896,7 +939,12 @@
                                     "NI_DETACH_REQ_TO_UE"
                                 ],
                                 "NextState":"ni_detach_wf_detach_accept"
-                            },
+                            },                           
+                            {
+                                "Name":"HSS_INIT_PAGING",
+                                "Actions":[ ],
+                                "NextState":"ni_detach_wf_paging_complete"
+                            },                            
                             {
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
@@ -907,6 +955,44 @@
                             }
                         ]
                     },
+                    {
+                        "Name": "ni_detach_wf_paging_complete",
+                        "Events": [
+                            {
+                                "Name": "PAGING_COMPLETE",
+                                "Actions": [
+                                    "TRIGGER_NWK_INIT_DETACH"
+                                ],
+                                "NextState": "ni_detach_start"
+                            },
+                            {
+                                "Name": "PAGING_FAILURE",
+                                "Actions": [
+                                    "HANDLE_PAGING_FAILURE"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            },
+                            {
+                                "Name": "ABORT_EVENT",
+                                "Actions": [
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    },                    
                     {
                         "Name":"ni_detach_wf_det_accpt_del_sess_resp",
                         "Events":[
@@ -1038,6 +1124,13 @@
                         "Events":[
                             {
                                 "Name":"GW_CP_REQ_INIT_PAGING",
+                                "Actions":[
+                                    "SEND_PAGING_REQ_TO_UE"
+                                ],
+                                "NextState":"paging_wf_service_req"
+                            },
+                            {
+                                "Name":"HSS_INIT_PAGING",
                                 "Actions":[
                                     "SEND_PAGING_REQ_TO_UE"
                                 ],

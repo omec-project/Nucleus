@@ -55,6 +55,9 @@ AIR_handler(void *data);
 void*
 detach_handler(void *data);
 
+void*
+dsa_handler(void *data);
+
 /*Handler for AIA coming from built in perf HS*/
 void
 handle_perf_hss_aia(int ue_idx, struct hss_aia_msg *aia);

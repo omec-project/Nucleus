@@ -177,6 +177,11 @@ s6a_fd_objs_init()
 					g_fd_dict_objs.CLA);
 	//NI Detach
 	
+	FD_DICT_SEARCH(DICT_COMMAND, CMD_BY_NAME, "Delete-Subscriber-Data-Request",
+                                        g_fd_dict_objs.DSR);
+
+	FD_DICT_SEARCH(DICT_COMMAND, CMD_BY_NAME, "Delete-Subscriber-Data-Answer",
+                                        g_fd_dict_objs.DSA);
 	
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Visited-PLMN-Id",
 					g_fd_dict_objs.visited_PLMN_id);
@@ -332,6 +337,13 @@ s6a_fd_objs_init()
 	FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS,
 					"Cancellation-Type",
 					g_fd_dict_objs.cancellation_type);
+
+    FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "DSR-Flags",
+                    g_fd_dict_objs.DSR_flags);
+
+    FD_DICT_SEARCH(DICT_AVP, AVP_BY_NAME_ALL_VENDORS, "Context-Identifier",
+                    g_fd_dict_objs.Context_Identifier);
+
 	return SUCCESS;
 }
 
@@ -564,6 +576,15 @@ s6a_fd_data_init()
 	CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.cancellation_type,
 				&g_fd_dict_data.cancellation_type),
 				return S6A_FD_ERROR);
+
+    CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.DSR_flags,
+                &g_fd_dict_data.DSR_flags),
+                return S6A_FD_ERROR);
+
+    CHECK_FCT_DO(fd_dict_getval(g_fd_dict_objs.Context_Identifier,
+                &g_fd_dict_data.Context_Identifier),
+                return S6A_FD_ERROR);
+
 	return SUCCESS;
 }
 
@@ -598,6 +619,12 @@ s6a_fd_cb_reg(void)
                         return S6A_FD_ERROR);
 	
 	//NI Detach
+	
+	data.command = g_fd_dict_objs.DSR;
+	CHECK_FCT_DO(fd_disp_register(dsr_callback, DISP_HOW_CC, &data,
+			NULL, NULL),
+			return S6A_FD_ERROR);
+
 	
 	CHECK_FCT_DO(fd_disp_app_support(g_fd_dict_objs.s6a_app,
 			g_fd_dict_objs.vendor_id, 1, 0),

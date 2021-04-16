@@ -445,7 +445,7 @@ ActStatus ActionHandlers::default_cancel_loc_req_handler(ControlBlock& cb)
 	prcdCtxt_p->setCancellationType(SUBSCRIPTION_WITHDRAWAL);
 	prcdCtxt_p->setNasDetachType(reattachNotRequired);
 
-	SM::Event evt(CLR_FROM_HSS, NULL);
+	SM::Event evt(HSS_INIT_DETACH, NULL);
 	cb.qInternalEvent(evt);
 	
 	return ActStatus::PROCEED;
@@ -830,24 +830,9 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt_p != NULL)
     {
-        if (procCtxt_p->getCtxtType() == cbReq_c)
-        {
-            MmeSmCreateBearerProcCtxt *cbReqProc_p =
-                    dynamic_cast<MmeSmCreateBearerProcCtxt*>(procCtxt_p);
+        procCtxt_p->setMmeErrorCause(PAGING_FAILED);
 
-            cbReqProc_p->setMmeErrorCause(PAGING_FAILED);
-
-            rc = ActStatus::ABORT;
-        }
-        else if (procCtxt_p->getCtxtType() == dbReq_c)
-        {
-            MmeSmDeleteBearerProcCtxt *dbReqProc_p =
-                    dynamic_cast<MmeSmDeleteBearerProcCtxt*>(procCtxt_p);
-
-            dbReqProc_p->setMmeErrorCause(PAGING_FAILED);
-
-            rc = ActStatus::ABORT;
-        }
+        rc = ActStatus::ABORT;
     }
 
     log_msg(LOG_DEBUG, "handle_paging_failure: Exit ");
@@ -1058,5 +1043,154 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
     log_msg(LOG_DEBUG, "handle_detach_failure: Exit ");
 
     return rc;
+}
+
+/***************************************
+* Action handler : default_delete_subs_req_handler
+***************************************/
+ActStatus ActionHandlers::default_delete_subs_req_handler(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "default_delete_subs_req_handler : Entry\n");
+
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Invalid message buffer\n");
+
+    const dsr_Q_msg_t* msgData_p = static_cast<const dsr_Q_msg_t *>(msgBuf->getDataPointer());
+
+    DigitRegister15 IMSI;
+    IMSI.setImsiDigits((unsigned char *)msgData_p->header.IMSI);
+
+    s6a_dsa_Q_msg dsa;
+    dsa.msg_type = delete_subscriber_data_answer;
+    dsa.eteId = msgData_p->eteId;
+    dsa.res_code = DIAMETER_UNABLE_TO_COMPLY;
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        MmContext* mmCtxt = ueCtxt->getMmContext();
+        if(mmCtxt)
+        {
+            if (msgData_p->dsr_flags & dsrCompApnProfWdwl_c)
+            {
+                log_msg(LOG_INFO, "DSR received with Complete APN Config "
+                    "Profile Withdrawal Flag set to 1");
+            }
+            else
+            {
+                if (mmCtxt->getMmState() == EpsDetached)
+                {
+                    log_msg(LOG_INFO,
+                            "Subscriber is already detached. "
+                            "Cleaning up the contexts. UE IDx %d",
+                            cb.getCBIndex());
+                    dsa.res_code = DIAMETER_ERROR_USER_UNKNOWN;
+
+                    // cleanup the context??
+                    MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+                }
+                else
+                {
+                    if(msgData_p->dsr_flags & dsrPdnSubsCtxWdwl_c)
+                    {
+                        // check if apn context id matches with any in the session,
+                        // if yes, trigger Detach.
+                        SessionContext* sess_p = ueCtxt->findSessionContextByApnConfigProfileCtxId(msgData_p->apn_conf_prof_id);
+                        if(sess_p)
+                        {
+                            dsa.res_code = DIAMETER_SUCCESS;
+
+                            MmeDetachProcedureCtxt* prcdCtxt_p =
+                                    MmeContextManagerUtils::allocateDetachProcedureCtxt(cb, hssInitDetach_c);
+                            if(prcdCtxt_p != NULL)
+                            {
+                                prcdCtxt_p->setNasDetachType(reattachNotRequired);
+
+                                if(mmCtxt->getEcmState() == ecmIdle_c)
+                                {
+                                    // If ECM state is ECM idle, allocate service request and set paging
+                                    // trigger as hssInit_c, so that at the end of service request procedure,
+                                    // DSD procedure will be informed and can proceed with the detach.
+                                    MmeSvcReqProcedureCtxt *srvReqProc_p =
+                                            MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(
+                                                    cb, hssInit_c);
+                                    if(srvReqProc_p != NULL)
+                                    {
+                                        SM::Event evt(HSS_INIT_PAGING, NULL);
+                                        cb.qInternalEvent(evt);
+                                    }
+                                    else
+                                    {
+                                        log_msg(LOG_ERROR,
+                                                "Failed to allocate context for paging procedure during DSD. "
+                                                "Deleting subscriber %s anyway", IMSI.getDigitsArray());
+                                        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+                                    }
+                                }
+                                else
+                                {
+                                    // Check if a service request procedure is in progress.
+                                    // If yes, add hss init paging trigger to it.
+                                    // At the end of paging procedure, detach will continue.
+                                    MmeSvcReqProcedureCtxt *srvReqProc_p = dynamic_cast<MmeSvcReqProcedureCtxt*>(
+                                            MmeContextManagerUtils::findProcedureCtxt(
+                                                    cb, serviceRequest_c));
+                                    if (srvReqProc_p)
+                                    {
+                                        srvReqProc_p->setPagingTriggerBit(hssInit_c);
+
+                                        SM::Event evt(HSS_INIT_PAGING, NULL);
+                                        cb.qInternalEvent(evt);
+                                    }
+                                    else
+                                    {
+                                        SM::Event evt(HSS_INIT_DETACH, NULL);
+                                        cb.qInternalEvent(evt);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                log_msg(LOG_ERROR,
+                                        "Failed to allocate context for paging procedure during DSD. "
+                                        "Deleting subscriber %s anyway", IMSI.getDigitsArray());
+
+                                MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+                            }
+                        } // session with apn config id found
+                    } // dsr flag - PDN Subs Context Withdrawal check
+                } // UE Attached
+            } // dsr flag - Complete APN Conf Profile Withdrawal check
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Invalid UE Context. MM Context is NULL for UE with IMSI %s", IMSI.getDigitsArray());
+            dsa.res_code = DIAMETER_ERROR_USER_UNKNOWN;
+            MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "Failed to find ue index using IMSI : %s", IMSI.getDigitsArray());
+        dsa.res_code = DIAMETER_ERROR_USER_UNKNOWN;
+
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (dsa.res_code != 0)
+    {
+        /* Send message to S6app in S6q*/
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
+
+        mmeStats::Instance()->increment(
+                mmeStatsCounter::MME_MSG_TX_S6A_DELETE_SUBSCRIBER_DATA_ANSWER);
+        MmeIpcInterface &mmeIpcIf =
+                static_cast<MmeIpcInterface&>(compDb.getComponent(
+                        MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char*) &dsa, sizeof(dsa), destAddr);
+    }
+
+    return ActStatus::PROCEED;
 }
 
