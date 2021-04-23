@@ -114,7 +114,7 @@ void SecUtils::create_nh_key(const unsigned char *kasme, unsigned char *nh_key,
 {
        uint8_t salt[35] = {0};
        salt[0] = NEXT_HOP_FC; /*TODO : Sec algo. handle properly instead of harcoding here*/
-       memcpy(&(salt[1]),&( old_nh_key), KENB_SIZE);/* sync input*/
+       memcpy(&(salt[1]),( old_nh_key), KENB_SIZE);/* sync input*/
        salt[33] = SYNC_INPUT_LEN_BYTE_1;
        salt[34] = SYNC_INPUT_LEN_BYTE_2;
 
