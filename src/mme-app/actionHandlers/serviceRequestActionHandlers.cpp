@@ -201,8 +201,12 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
     secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
     SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
-    secInfo.next_hop_chaining_count = 0;
-    memcpy(secInfo.next_hop_nh, secInfo.kenb_key, KENB_SIZE);
+
+    unsigned char nh[SECURITY_KEY_SIZE] = { 0 };
+    secInfo.next_hop_chaining_count = 1;
+    SecUtils::create_nh_key(secVect->kasme.val, nh, secInfo.kenb_key);
+    memcpy(secInfo.next_hop_nh , nh, KENB_SIZE);
+
     ics_req_paging_Q_msg icr_msg;
     icr_msg.msg_type = ics_req_paging;
     icr_msg.ue_idx = ue_ctxt->getContextID();

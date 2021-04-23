@@ -1386,7 +1386,7 @@ int s1ap_mme_encode_handover_mme_status_transfer(
 
     bearersSubjectToStatusTransferItemIes.id =
     ProtocolIE_ID_id_Bearers_SubjectToStatusTransfer_Item;
-    bearersSubjectToStatusTransferItemIes.criticality = 0;
+    bearersSubjectToStatusTransferItemIes.criticality = 1;
     bearersSubjectToStatusTransferItemIes.value.present =
             Bearers_SubjectToStatusTransfer_ItemIEs__value_PR_Bearers_SubjectToStatusTransfer_Item;
 
