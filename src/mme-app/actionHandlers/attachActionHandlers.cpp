@@ -926,11 +926,13 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	E_UTRAN_sec_vector* secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 	secinfo& secInfo = const_cast<secinfo&>(ue_ctxt->getUeSecInfo().secinfo_m);
 
-	SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
-	secInfo.next_hop_chaining_count = 0 ;
-	memcpy(secInfo.next_hop_nh , secInfo.kenb_key, KENB_SIZE);
-	
-	init_ctx_req_Q_msg icr_msg;
+    SecUtils::create_kenb_key(secVect->kasme.val, secInfo.kenb_key, nas_count);
+    unsigned char nh[SECURITY_KEY_SIZE] = { 0 };
+    secInfo.next_hop_chaining_count = 1;
+    SecUtils::create_nh_key(secVect->kasme.val, nh, secInfo.kenb_key);
+    memcpy(secInfo.next_hop_nh , nh, KENB_SIZE);
+
+    init_ctx_req_Q_msg icr_msg;
 	memset(&icr_msg, 0, sizeof(init_ctx_req_Q_msg));
 
 	bool eps_nw_feature_supp_presence = false;
