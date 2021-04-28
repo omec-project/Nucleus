@@ -75,14 +75,10 @@ const uint16_t s1_release_start = 51;
 const uint16_t s1_release_wf_release_access_bearer_resp = 52;     
 const uint16_t s1_release_wf_ue_ctxt_release_comp = 53;     
 const uint16_t service_request_start = 54;     
-const uint16_t service_request_wf_aia = 55;     
-const uint16_t service_request_wf_auth_resp_validate = 56;     
-const uint16_t service_request_wf_auth_response = 57;     
-const uint16_t service_request_wf_init_ctxt_resp = 58;     
-const uint16_t service_request_wf_mb_resp = 59;     
-const uint16_t service_request_wf_sec_cmp = 60;     
-const uint16_t tau_start = 61;
-const uint16_t END_STATE = 62;
+const uint16_t service_request_wf_init_ctxt_resp = 55;     
+const uint16_t service_request_wf_mb_resp = 56;     
+const uint16_t tau_start = 57;
+const uint16_t END_STATE = 58;
 
 /******************************************
 * MME-APP Specific Events - ID

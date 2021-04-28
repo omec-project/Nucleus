@@ -8,7 +8,7 @@ import json, sys, os
 from os.path import join
 import utils
 #set path where you have Template-Toolkit 
-#sys.path.append("<path>/Template-Toolkit-Python")
+sys.path.append("/Users/badhrinathpa/bads_change/2021/Template-Toolkit-Python/")
 
 def processTemplate(templateIp, appModelJSON):
     from template import Template
