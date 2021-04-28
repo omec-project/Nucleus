@@ -172,7 +172,7 @@ typedef struct targetId{
         struct TAI selected_tai;
 }targetId;
 
-#define TRANS_CONT_SIZE 2700
+#define TRANS_CONT_SIZE 3000
 struct src_target_transparent_container{
     int count;
     unsigned char buffer[TRANS_CONT_SIZE];
