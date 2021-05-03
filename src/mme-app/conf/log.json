@@ -1,0 +1,90 @@
+{
+    "EpcTools": {
+        "EnablePublicObjects": true,
+        "Debug": false,
+        "SynchronizationObjects": {
+            "NumberSemaphores": 100,
+            "NumberMutexes": 100
+        },
+        "Logger": {
+            "ApplicationName": "mme-app",
+            "QueueSize": 8192,
+            "NumberThreads": 1,
+            "SinkSets": [
+               {
+                  "SinkID": 1,
+                  "Sinks": [
+                     {
+                        "SinkType": "syslog",
+                        "LogLevel": "off",
+                        "Pattern": "[__APPNAME__] [%n] [%l] %v"
+                     },
+                     {
+                        "SinkType": "stdout",
+                        "LogLevel": "off",
+                        "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stdout] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
+                     },
+                     {
+                        "SinkType": "stderr",
+                        "LogLevel": "off",
+                        "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [stderr] [%^__APPNAME__%$] [%n] [%^%l%$] %v"
+                     },
+                     {
+                        "SinkType": "basic_file",
+                        "LogLevel": "off",
+                        "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
+                        "FileName": "./epc.basic.log",
+                        "Truncate": false
+                     },
+                     {
+                        "SinkType": "rotating_file",
+                        "LogLevel": "off",
+                        "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
+                        "FileName": "./epc.rotating.log",
+                        "MaxSizeMB": 5,
+                        "MaxNumberFiles": 4,
+                        "RotateOnOpen": false
+                     },
+                     {
+                        "SinkType": "daily_file",
+                        "LogLevel": "off",
+                        "Pattern": "[%Y-%m-%dT%H:%M:%S.%e] [%^__APPNAME__%$] [%n] [%^%l%$] %v",
+                        "FileName": "./epc.daily.log",
+                        "Truncate": false,
+                        "RolloverHour": 14,
+                        "RolloverMinute": 55
+                     }
+                  ]
+               },
+               {
+                  "SinkID": 2,
+                  "Sinks": [
+                     {
+                        "SinkType": "rotating_file",
+                        "LogLevel": "off",
+                        "Pattern": "%v",
+                        "FileName": "./epc.stats.rotating.log",
+                        "MaxSizeMB": 20,
+                        "MaxNumberFiles": 2
+                     }
+                  ]
+               }
+            ],
+            "Logs": [
+               {
+                  "LogID": 1,
+                  "Category": "system",
+                  "SinkID": 1,
+                  "LogLevel": "critical"
+               },
+               {
+                  "LogID": 2,
+                  "Category": "stats",
+                  "SinkID": 2,
+                  "LogLevel": "debug"
+               }
+            ]
+        }
+    }
+}
+

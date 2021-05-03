@@ -5,8 +5,9 @@
 		"s1ap_addr": "192.168.1.52",
 		"egtp_addr": "192.168.1.52",
 		"sctp_port": 36412,
-        "prom_port": 3081,
+		"prom_port": 3085,
 		"name": "vmmestandalone",
+		"logging": "info",
 		"egtp_default_hostname": "sutlej.ccin.ccpu.com",
 		"group_id": 1,
 		"code": 1,
@@ -25,6 +26,19 @@
 			"plmn1": "mcc=315,mnc=010",
 			"plmn2": "mcc=208,mnc=01"
         },
+	"dns":{
+		"dns_enable": 0,
+		"cache": {
+			"concurrent" : 25,
+			"percentage" : 80,
+			"interval_seconds" : 60,
+			"query_timeout_ms" :1000,
+			"query_tries" : 1
+			},
+		"dns_server" :{
+			"address" : "10.43.13.27"
+			}
+	},
         "feature_list": {
             "dcnr_support": "enabled"
         },

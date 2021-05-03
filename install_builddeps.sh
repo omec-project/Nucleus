@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
 # Copyright 2019-present Open Networking Foundation
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -31,7 +32,9 @@ install_build_pkg_deps() {
   		automake \
 		make \
         rapidjson-dev \
-		unzip
+		unzip \
+		libpcap-dev \
+		sudo
 }
 
 install_freediameter() {
@@ -78,8 +81,18 @@ install_prometheus() {
 	/tmp/cmake-3.18.0-Linux-x86_64/bin/cmake .. -DBUILD_SHARED_LIBS=ON && make -j 4 && $SUDO make install && $SUDO make DESTDIR=`pwd`/deploy install
 }
 
+install_epctools() {
+        $SUDO rm -rf /tmp/epctools
+        git clone  https://github.com/omec-project/epctools /tmp/epctools
+        pushd /tmp/epctools
+        git submodule update --init
+        ./configure &&  $SUDO make install && ldconfig
+
+}
+
 install_build_deps() {
 	install_build_pkg_deps
+        install_epctools
 	install_freediameter
 	install_grpc
     install_prometheus

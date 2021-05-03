@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2020-present Open Networking Foundation
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -233,6 +234,53 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
                 config->mnc_dig3 = mncSection["dig3"].GetInt(); 
             }
         }
+	if(mmeSection.HasMember("dns"))
+	{
+                log_msg(LOG_INFO, "Inside DNS section");
+                const rapidjson::Value& dnsSection = mmeSection["dns"];
+                if(dnsSection.HasMember("dns_enable"))
+                {
+                        config->dns_config.dns_flag = dnsSection["dns_enable"].GetInt();
+                }
+                if( 1 ==  config->dns_config.dns_flag )
+                {
+                        const rapidjson::Value& cacheSection = dnsSection["cache"];
+                        if(cacheSection.HasMember("concurrent"))
+                        {
+                                config->dns_config.concurrent = cacheSection["concurrent"].GetInt();
+
+                        }
+                        if(cacheSection.HasMember("percentage"))
+                        {
+                                config->dns_config.percentage = cacheSection["percentage"].GetInt();
+
+                        }
+                        if(cacheSection.HasMember("interval_seconds"))
+                        {
+                                config->dns_config.interval_seconds = cacheSection["interval_seconds"].GetInt();
+
+                        }
+                        if(cacheSection.HasMember("query_timeout_ms"))
+                        {
+                                config->dns_config.query_timeout_ms = cacheSection["query_timeout_ms"].GetInt();
+
+                        }
+                        if(cacheSection.HasMember("query_tries"))
+                        {
+                                config->dns_config.query_tries = cacheSection["query_tries"].GetInt();
+                        }
+
+                        const rapidjson::Value& addressSection = dnsSection["dns_server"];
+                        if(addressSection.HasMember("address"))
+                        {
+                                config->dns_config.dns_server = (char*)malloc(sizeof(char)*16);
+
+                                strcpy(config->dns_config.dns_server,addressSection["address"].GetString());
+                        }
+
+               }
+
+	}
         if(mmeSection.HasMember("plmnlist"))
         {
             int count = 1;
@@ -327,12 +375,14 @@ mmeConfig::mme_parse_config_new(mme_config_t *config)
         }
     }
     /* Print parsed configuraton */
-    log_msg(LOG_DEBUG,"mme_name : %s ", config->mme_name);
-    log_msg(LOG_DEBUG,"mme_groupid : %d ", config->mme_group_id);
-    log_msg(LOG_DEBUG,"mme_code : %d ", config->mme_code);
-    log_msg(LOG_DEBUG,"logging  : %s ", config->logging);
-    log_msg(LOG_DEBUG,"MCC :    %d %d %d ", config->mcc_dig1, config->mcc_dig2, config->mcc_dig3);
-    log_msg(LOG_DEBUG,"MNC :    %d %d %d ", config->mnc_dig1, config->mnc_dig2, config->mnc_dig3);
+    log_msg(LOG_DEBUG,"mme_name : %s \n", config->mme_name);
+    log_msg(LOG_DEBUG,"mme_groupid : %d \n", config->mme_group_id);
+    log_msg(LOG_DEBUG,"mme_code : %d \n", config->mme_code);
+    log_msg(LOG_DEBUG,"logging  : %s \n", config->logging);
+    log_msg(LOG_DEBUG,"MCC :    %d %d %d \n", config->mcc_dig1, config->mcc_dig2, config->mcc_dig3);
+    log_msg(LOG_DEBUG,"MNC :    %d %d %d \n", config->mnc_dig1, config->mnc_dig2, config->mnc_dig3);
+    log_msg(LOG_DEBUG,"prom port  : %d \n", config->prom_port);
+    log_msg(LOG_DEBUG,"dns flag  : %d \n", config->dns_config.dns_flag);
     for(int i=0; i<config->num_plmns;i++)
     {
         log_msg(LOG_DEBUG,"PLMN(%d) :    %d %d %d ", i, config->plmns[i].idx[0], config->plmns[i].idx[1], config->plmns[i].idx[2]);

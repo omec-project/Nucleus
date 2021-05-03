@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2019-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -242,6 +243,8 @@ class MmeGrpcCliServiceImpl final : public MmeGrpcCli::Service {
         reply->set_num_of_processed_sec_mode_resp(ProcedureStats::num_of_processed_sec_mode_resp);
         reply->set_num_of_esm_info_req_to_ue_sent(ProcedureStats::num_of_esm_info_req_to_ue_sent);
         reply->set_num_of_handled_esm_info_resp(ProcedureStats::num_of_handled_esm_info_resp);
+        reply->set_num_of_req_sent_to_dns(ProcedureStats::num_of_req_sent_to_dns);
+        reply->set_num_of_processed_dns_response(ProcedureStats::num_of_processed_dns_response);
         reply->set_num_of_cs_req_to_sgw_sent(ProcedureStats::num_of_cs_req_to_sgw_sent);
         reply->set_num_of_processed_cs_resp(ProcedureStats::num_of_processed_cs_resp);
         reply->set_num_of_init_ctxt_req_to_ue_sent(ProcedureStats::num_of_init_ctxt_req_to_ue_sent);

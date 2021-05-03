@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020  Great Software Laboratory Pvt. Ltd.
  * Copyright 2020-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -16,6 +17,7 @@ namespace cmn
     // Start app specfic message ids from 0x64
     const uint16_t IPC_EMSG = 0x01;
     const uint16_t TIMEOUT_EMSG = 0x02;
+    const uint16_t DNS_RESP_EMSG = 0x04;
 
 	class EventMessage
 	{
@@ -96,14 +98,38 @@ namespace cmn
             TimerContext* timerctxt_p;
     };
 
+    class DnsEventMessage :public EventMessage
+    {
+        public:
+            DnsEventMessage (uint64_t ip ):
+                EventMessage(DNS_RESP_EMSG), ipAddress(ip)
+            {
+            }
+
+            virtual ~DnsEventMessage ()
+            {
+
+            }
+
+	    uint64_t getIPAddress()
+            {
+		return ipAddress;
+            }
+
+        private:
+            uint64_t ipAddress;
+    };
+
     // Smart Pointer typedefs
     using EventMsgUnqPtr = std::unique_ptr<EventMessage>;
     using IpcEMsgUnqPtr = std::unique_ptr<IpcEventMessage>;
     using TimeoutEMsgUnqPtr = std::unique_ptr<TimeoutMessage>;
+    using DnsMsgUnqPtr = std::unique_ptr<DnsEventMessage>;
 
     using EventMsgShPtr = std::shared_ptr<EventMessage>;
     using IpcEMsgShPtr = std::shared_ptr<IpcEventMessage>;
     using TimeoutEMsgShPtr = std::shared_ptr<TimeoutMessage>;
+    using DnsMsgShPtr = std::shared_ptr<DnsEventMessage>;
 }
 
 #endif /* INCLUDE_CMN_EVENTMESSAGE_H_ */
