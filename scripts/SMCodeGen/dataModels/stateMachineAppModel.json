@@ -65,6 +65,13 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"FR_REQ_FROM_SRC_MME",
+                                "Actions":[
+                                    "FWD_REL_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"ERAB_MOD_INDICATION_FROM_ENB",
                                 "Actions":[
                                     "DEFAULT_ERAB_MOD_INDICATION_HANDLER"
@@ -1352,7 +1359,7 @@
                 ]
             },
             {
-                "Name":"S1_HANDOVER",
+                "Name":"S1_INTRA_MME_HANDOVER",
                 "Properties": [
                     {
                         "stateGuardTimerFeature" : "disabled"
@@ -1493,6 +1500,132 @@
                             }
                         ]
                     }
+                ]
+            },
+            {
+                "Name":"S1_INTER_MME_HANDOVER",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "disabled"
+                    }
+                ],
+                "States":[
+                    {
+                        "Name":"inter_s1_ho_start_src_mme",
+                        "Events":[
+                            {
+                                "Name":"INTER_S1HO_START",
+                                "Actions":[
+                                    "SEND_FR_REQUEST_TO_TARGET_MME"
+                                ],
+                                "NextState":"s1_fr_wf_ho_request_res"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_fr_wf_ho_request_res",
+                        "Events":[
+                            {
+                                "Name":"FWD_RELOCATION_RES_RCVD",
+                                "Actions":[
+                                    "PROCESS_FR_RES",
+                                    "SEND_HO_COMMAND_TO_SRC_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_enb_status_transfer"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_enb_status_transfer",
+                        "Events":[
+                            {
+                                "Name":"ENB_STATUS_TRANSFER_RECV_FROM_ENB",
+                                "Actions":[
+                                    "PROCESS_ENB_STATUS_TRANSFER",
+                                    "SEND_FWD_ACC_CTXT_NOTI_TO_TARGET_MME"
+                                ],
+                                "NextState":"s1_ho_wf_fwd_acc_ctxt_ack"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_fwd_acc_ctxt_ack",
+                        "Events":[
+                            {
+                                "Name":"FWD_ACC_CTXT_ACK_RCVD",
+                                "Actions":[
+                                    "PROCESS_FWD_ACC_CTXT_ACK"
+                                ],
+                                "NextState":"s1_ho_wf_fwd_rel_comp"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_fwd_rel_comp",
+                        "Events":[
+                            {
+                                "Name":"FWD_REL_COMP_NOTIFY_RCVD_FROM_TGT_MME",
+                                "Actions":[
+                                    "PROCESS_FWD_REL_COMP_NOTIFY",
+                                    "SEND_FWD_REL_COMP_ACK_TO_TARGET_MME",
+                                    "SEND_S1_REL_CMD_TO_UE_FOR_HO"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"inter_s1_ho_start_tgt_mme",
+                        "Events":[
+                            {
+                                "Name":"HO_REQ_TO_TARGET_ENB",
+                                "Actions":[
+                                    "SEND_HO_REQ_TO_TARGET_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_ho_req_ack"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_ho_req_ack",
+                        "Events":[
+                            {
+                                "Name":"HO_REQ_ACK_FROM_TARGET_ENB",
+                                "Actions":[
+                                    "PROCESS_HO_REQ_ACK",
+                                    "SEND_FWD_REL_RESP_TO_SRC_MME"
+                                ],
+                                "NextState":"s1_ho_wf_ho_fwd_acc_cntx_noti"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_ho_fwd_acc_cntx_noti",
+                        "Events":[
+                            {
+                                "Name":"HO_FWD_ACC_CNTX_NOTI",
+                                "Actions":[
+                                    "PROCESS_HO_FWD_ACC_CNTX_NOTI",
+                                    "SEND_HO_FWD_ACC_CNTX_ACK_TO_SRC_MME",
+                                    "SEND_FROM_TARGET_MME_STATUS_TRANFER_TO_TARGET_ENB"
+                                ],
+                                "NextState":"s1_ho_wf_ho_notify_from_target_enb"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_ho_notify_from_target_enb",
+                        "Events":[
+                            {
+                                "Name":"S1_HO_NOTIFY_FROM_TARGET_ENB",
+                                "Actions":[
+                                    "PROCESS_S1_HO_NOTIFY_FROM_TARGET_ENB",
+                                    "SEND_HO_FWD_REL_COMP_NOTIFICATION_TO_SRC_MME"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    }                    
                 ]
             },
             {
