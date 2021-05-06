@@ -40,8 +40,8 @@ int create_sctp_socket(unsigned int remote_ip, unsigned short port)
 	//TODO: use remote_ip
 	bzero ((void *) &servaddr, sizeof (servaddr));
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = htonl(remote_ip);
-	//servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
+	//servaddr.sin_addr.s_addr = htonl(remote_ip);
+	servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
 	servaddr.sin_port = htons(port);
 
 	ret = bind(connSock, (struct sockaddr *) &servaddr, sizeof (servaddr));

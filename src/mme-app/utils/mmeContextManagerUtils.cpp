@@ -15,7 +15,8 @@
 #include <mmeStates/deleteBearerProcedureStates.h>
 #include <mmeStates/ueInitDetachStates.h>
 #include <mmeStates/networkInitDetachStates.h>
-#include <mmeStates/s1HandoverStates.h>
+//#include <mmeStates/s1HandoverStates.h>
+#include <mmeStates/s1IntraMmeHandoverStates.h>
 #include <mmeStates/serviceRequestStates.h>
 #include <mmeStates/tauStates.h>
 #include <mmeStates/erabModIndicationStates.h>

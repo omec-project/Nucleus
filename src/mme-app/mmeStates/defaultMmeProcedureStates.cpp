@@ -101,6 +101,11 @@ void DefaultMmeState::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::fwd_rel_req_handler);
+                eventToActionsMap[FR_REQ_FROM_SRC_MME] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_erab_mod_indication_handler);
                 eventToActionsMap[ERAB_MOD_INDICATION_FROM_ENB] = actionTable;
         }
@@ -118,6 +123,16 @@ void DefaultMmeState::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_detach_failure);
                 eventToActionsMap[DETACH_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_overload_start);
+                eventToActionsMap[OVERLOAD_START] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_overload_stop);
+                eventToActionsMap[OVERLOAD_STOP] = actionTable;
         }
 }
 

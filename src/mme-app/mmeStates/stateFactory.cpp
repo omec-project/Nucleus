@@ -24,7 +24,8 @@
 #include "mmeStates/networkInitDetachStates.h"
 #include "mmeStates/serviceRequestStates.h"
 #include "mmeStates/tauStates.h"
-#include "mmeStates/s1HandoverStates.h"
+#include "mmeStates/s1IntraMmeHandoverStates.h"
+#include "mmeStates/s1InterMmeHandoverStates.h"
 #include "mmeStates/erabModIndicationStates.h"
 #include "mmeStates/createBearerProcedureStates.h"
 #include "mmeStates/dedBearerActProcedureStates.h"
@@ -68,6 +69,7 @@ void StateFactory::initialize()
 	AttachWfCsResp::Instance()->initialize();
 	AttachWfEsmInfoCheck::Instance()->initialize();
 	AttachWfEsmInfoResp::Instance()->initialize();
+	AttachWfIdentificationResponse::Instance()->initialize();
 	AttachWfIdentityResponse::Instance()->initialize();
 	AttachWfImsiValidateAction::Instance()->initialize();
 	AttachWfInitCtxtResp::Instance()->initialize();
@@ -96,6 +98,8 @@ void StateFactory::initialize()
 	DetachWfPurgeRespDelSessionResp::Instance()->initialize();
 	ErabModIndStart::Instance()->initialize();
 	ErabModIndWfMbResp::Instance()->initialize();
+	InterS1HoStartSrcMme::Instance()->initialize();
+	InterS1HoStartTgtMme::Instance()->initialize();
 	IntraS1HoStart::Instance()->initialize();
 	NiDetachStart::Instance()->initialize();
 	NiDetachWfDelSessResp::Instance()->initialize();
@@ -104,7 +108,14 @@ void StateFactory::initialize()
 	NiDetachWfS1RelComp::Instance()->initialize();
 	PagingStart::Instance()->initialize();
 	PagingWfServiceReq::Instance()->initialize();
+	S1FrWfHoRequestRes::Instance()->initialize();
+	S1HoWfEnbStatusTransfer::Instance()->initialize();
+	S1HoWfFwdAccCtxtAck::Instance()->initialize();
+	S1HoWfFwdRelComp::Instance()->initialize();
+	S1HoWfHoFwdAccCntxNoti::Instance()->initialize();
 	S1HoWfHoNotify::Instance()->initialize();
+	S1HoWfHoNotifyFromTargetEnb::Instance()->initialize();
+	S1HoWfHoReqAck::Instance()->initialize();
 	S1HoWfHoRequestAck::Instance()->initialize();
 	S1HoWfModifyBearerResponse::Instance()->initialize();
 	S1HoWfTauCheck::Instance()->initialize();

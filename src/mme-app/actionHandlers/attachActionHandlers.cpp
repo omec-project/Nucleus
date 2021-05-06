@@ -73,7 +73,7 @@ ActStatus ActionHandlers::validate_imsi_in_ue_context(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
-ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
+/*ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside send_identity_request_to_ue ");
 
@@ -110,7 +110,7 @@ ActStatus ActionHandlers::send_identity_request_to_ue(ControlBlock& cb)
 	
 	return ActStatus::PROCEED;
 }
-
+*/
 ActStatus ActionHandlers::process_identity_response(ControlBlock& cb)
 {
 	log_msg(LOG_DEBUG, "Inside process_identity_response ");
@@ -1501,3 +1501,19 @@ ActStatus ActionHandlers::handle_s1_rel_req_during_attach(ControlBlock& cb)
 
     return ActStatus::PROCEED;
 }
+/***************************************
+* Action handler : send_identification_request_to_old_mme
+***************************************/
+ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& cb)
+{
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : process_identification_response
+***************************************/
+ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
+{
+    return ActStatus::PROCEED;
+}
+
