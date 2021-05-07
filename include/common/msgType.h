@@ -693,6 +693,33 @@ struct DB_RESP_Q_msg {
     struct fteid s11_sgw_c_fteid;
  };
 #define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
+
+struct ID_Q_msg{
+    msg_type;
+    int ue_idx;
+    guti _guti;
+
+};
+#define S10_IDREQ_STAGE5_BUF_SIZE sizeof(struct ID_Q_msg)
+
+struct ID_RESP_Q_msg{
+    msg_type;
+    int ue_idx;
+    uint8_t cause;
+    ImsiIeData imsi;    ////conditonal optional
+    /*
+    uint8_t trace_information;
+    uint8_t ue_usage_type;
+    uint8_t monitoring_event_information;
+    uint8_t private_extension;
+   */
+    bool trace_information;
+    bool ue_usage_type;
+    bool monitoring_event_information;
+    bool private_extension;
+
+};
+#define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
  
 /*************************
  * Incoming GTP Messages
@@ -772,8 +799,26 @@ struct db_req_Q_msg {
     uint8_t eps_bearer_ids[DED_BEARER_COUNT];
     struct pco pco;
 };
+struct id_resp_Q_msg{
+    gtp_incoming_msg_data_t header;
+    uint8_t cause;
+    ImsiIeData imsi;    ////conditonal optional
+    uint8_t trace_information;
+    uint8_t ue_usage_type;
+    uint8_t monitoring_event_information;
+    uint8_t private_extension;
+   
+};
+
+struct ID_req_Q_msg(){
+    gtp_incoming_msg_data_t header;
+    guti _guti;
+};
+
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
+
+
 
 /*************************
  * Outgoing S6 Messages
