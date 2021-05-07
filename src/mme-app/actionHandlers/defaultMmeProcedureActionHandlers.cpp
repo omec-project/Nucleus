@@ -619,7 +619,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
     }
 
 	S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
-	if (hoReqProc_p == NULL)
+	if (hoReqProc_p == NULL)hoReqProc_p
 	{
 		log_msg(LOG_ERROR, "Failed to allocate procedure context"
 				" for ho required cbIndex %d", cb.getCBIndex());
@@ -639,12 +639,44 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	hoReqProc_p->setTargetTai(hoReq->target_id.selected_tai);
 	hoReqProc_p->setSrcS1apEnbUeId(hoReq->header.s1ap_enb_ue_id);
 	hoReqProc_p->setSrcEnbContextId(hoReq->src_enb_context_id);
+	////////////////////////////////////in case the format is different than config, formates1ap plmn id is called
+		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&hoReq->target_id.selected_tai.plmn_id));
+		//////////////////////////////// check if target tai is served by same mme
+		if (MmeCommonUtils::isLocalTAI(&hoReq.target_id.selected_tai.plmn_id, hoReq.target_id.selected_tai.tac ))
+		{
+			//can add check for enodeb also
+			log_msg(LOG_DEBUG,"Target TAI is served by current mme ");
 
-	ProcedureStats::num_of_ho_required_received++;
+			ProcedureStats::num_of_ho_required_received++;
 
-	SM::Event evt(INTRA_S1HO_START, NULL);
-	cb.qInternalEvent(evt);
-    return ActStatus::PROCEED;
+			SM::Event evt(INTRA_S1HO_START, NULL);
+			cb.qInternalEvent(evt);
+		    return ActStatus::PROCEED;
+
+		}
+		else
+		{
+			log_msg(LOG_DEBUG,"Target TAI is NOT served by current mme, Checking for neighboring MME ");
+			struct sockaddr_in neigh_mme_ip_addr = {0};
+
+			select_neighboring_mme(&hoReq.target_id.selected_tai, &neigh_mme_ip_addr);
+
+			if (!neigh_mme_ip_addr)
+			{
+				// failure case need to handle ()HO_FAILURE_FROM_TARGET_ENB
+			}
+			else
+			{
+				ProcedureStats::num_of_ho_required_received++;
+
+				SM::Event evt(INTER_S1HO_START, NULL);
+				cb.qInternalEvent(evt);
+			    return ActStatus::PROCEED;
+			}
+		}
+
+
+	/////////////////////////////////////////////////////////////////////////////
 }
 
 /******************************************************

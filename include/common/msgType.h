@@ -96,7 +96,8 @@ typedef enum msg_type_t {
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
     enb_status_msg,
-    max_msg_type
+    max_msg_type,
+	forward_relocation_request
 } msg_type_t;
 
 struct s1_incoming_msg_header {
