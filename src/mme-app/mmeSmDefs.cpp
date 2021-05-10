@@ -71,6 +71,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(HO_REQ_TO_TARGET_ENB,"HO_REQ_TO_TARGET_ENB");      
     smUtil->addEventToStrEntry(HO_REQUEST_ACK_FROM_ENB,"HO_REQUEST_ACK_FROM_ENB");      
     smUtil->addEventToStrEntry(HO_REQUIRED_FROM_ENB,"HO_REQUIRED_FROM_ENB");      
+    smUtil->addEventToStrEntry(IDENTIFICATION_REQ_FROM_UE,"IDENTIFICATION_REQ_FROM_UE");      
     smUtil->addEventToStrEntry(IDENTIFICATION_RESPONSE_FROM_MME,"IDENTIFICATION_RESPONSE_FROM_MME");      
     smUtil->addEventToStrEntry(IDENTITY_RESPONSE_FROM_UE,"IDENTITY_RESPONSE_FROM_UE");      
     smUtil->addEventToStrEntry(IMSI_VALIDATION_FAILURE,"IMSI_VALIDATION_FAILURE");      

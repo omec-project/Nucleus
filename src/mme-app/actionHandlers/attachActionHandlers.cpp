@@ -1501,6 +1501,9 @@ ActStatus ActionHandlers::handle_s1_rel_req_during_attach(ControlBlock& cb)
 
     return ActStatus::PROCEED;
 }
+
+#ifdef S10_FEATURE
+
 /***************************************
 * Action handler : send_identification_request_to_old_mme
 ***************************************/
@@ -1511,16 +1514,12 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
-	
-	
 	struct ID_Q_msg id_msg;
 	id_msg.msg_type = identification_request;
 	id_msg.ue_idx = ue_ctxt->getContextID();
 	
-
 	memcpy(&(id_msg.guti), &(ue_ctxt->getS11SgwCtrlFteid().guti,  //TODO guti need to find
 		sizeof(struct fteid));
-
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
@@ -1532,7 +1531,6 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 	ProcedureStats::num_of_identification_req_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_identification_request_to_old_mme ");
 	
-
     return ActStatus::PROCEED;
 }
 
@@ -1541,6 +1539,47 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 ***************************************/
 ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
 {
+	log_msg(LOG_DEBUG, "Entering process_identification_response ");
+
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+	
+	MmeAttachProcedureCtxt* procedure_p = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
+	VERIFY(procedure_p, return ActStatus::ABORT, "Procedure Context is NULL ");
+
+	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer ");
+	VERIFY(msgBuf->getLength() >= sizeof(struct id_resp_Q_msg), return ActStatus::ABORT, "Invalid CSRsp message length ");
+
+	const struct id_resp_Q_msg* id_resp_info = static_cast<const struct id_resp_Q_msg*>(msgBuf->getDataPointer());
+
+    if(id_resp_info->status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    {
+		log_msg(LOG_DEBUG, "IDRsp rejected by MME with cause %d ",id_resp_info->status);
+        std::ostringstream reason;
+        reason<<"IDRsp_reject_cause_"<<id_resp_info->status;
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{"failure_reason", reason.str()}});
+       	return ActStatus::ABORT;
+    }
+
+	uint8_t imsi[BINARY_IMSI_LEN] = {0};
+	memcpy( imsi, id_resp_info->IMSI, BINARY_IMSI_LEN );
+
+	// Only upper nibble of first octect in imsi need to be considered
+	// Changing the lower nibble to 0x0f for handling
+	uint8_t first = imsi[0] >> 4;
+	imsi[0] = (uint8_t)(( first << 4 ) | 0x0f );
+
+	DigitRegister15 IMSIInfo;
+	IMSIInfo.convertFromBcdArray(imsi);
+	ueCtxt_p->setImsi(IMSIInfo);
+
+	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());	
+	ProcedureStats::num_of_processed_identification_resp ++;
+	log_msg(LOG_DEBUG, "Leaving process_identification_response");
+
     return ActStatus::PROCEED;
 }
+
+#endif
 
