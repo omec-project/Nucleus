@@ -88,7 +88,8 @@ namespace mme
                 static int num_of_ded_act_complete;
                 static int num_of_create_bearer_proc_complete;
                 static int num_of_identification_req_sent;
-
+                static int num_of_identification_resp_sent;
+                static int num_of_processed_identification_resp;
         };
 };
 #endif

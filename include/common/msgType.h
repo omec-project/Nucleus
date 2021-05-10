@@ -713,10 +713,10 @@ struct ID_RESP_Q_msg{
     uint8_t monitoring_event_information;
     uint8_t private_extension;
    */
-    bool trace_information;
-    bool ue_usage_type;
-    bool monitoring_event_information;
-    bool private_extension;
+    bool traceInformationIePresent;
+    bool ueUsageTypeIePresent;
+    bool monitoringEventInformationIePresent;
+    bool privateExtensionIePresent;
 
 };
 #define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
@@ -801,6 +801,7 @@ struct db_req_Q_msg {
 };
 struct id_resp_Q_msg{
     gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
     uint8_t cause;
     ImsiIeData imsi;    ////conditonal optional
     uint8_t trace_information;
@@ -812,6 +813,7 @@ struct id_resp_Q_msg{
 
 struct ID_req_Q_msg(){
     gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
     guti _guti;
 };
 

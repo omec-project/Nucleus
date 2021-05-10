@@ -16,6 +16,13 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"IDENTIFICATION_REQ_FROM_UE",
+                                "Actions":[
+                                    "DEFAULT_IDENTIFICATION_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"DETACH_REQ_FROM_UE",
                                 "Actions":[
                                     "DEFAULT_DETACH_REQ_HANDLER"

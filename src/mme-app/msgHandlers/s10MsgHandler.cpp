@@ -19,22 +19,22 @@ using namespace SM;
 using namespace mme;
 using namespace cmn;
 
-s10MsgHandler::~s10MsgHandler() {
+S10MsgHandler::~S10MsgHandler() {
 
 }
 
-s10MsgHandler::s10MsgHandler()
+S10MsgHandler::S10MsgHandler()
 {
 
 }
 
-s10MsgHandler* s10MsgHandler::Instance()
+S10MsgHandler* S10MsgHandler::Instance()
 {
 	static s10MsgHandler msgHandler;
 	return &msgHandler;
 }
 
-void s10MsgHandler::handles10Message_v(IpcEMsgUnqPtr eMsg)
+void S10MsgHandler::handleS10Message_v(IpcEMsgUnqPtr eMsg)
 {
     if (eMsg.get() == NULL)
         return;
@@ -59,61 +59,57 @@ void s10MsgHandler::handles10Message_v(IpcEMsgUnqPtr eMsg)
 		case msg_type_t::identification_request:
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_REQUEST,);
-			const struct csr_Q_msg* csr_info= (const struct csr_Q_msg*) (msgBuf->getDataPointer());
-			handleCreateSessionResponseMsg_v(std::move(eMsg), csr_info->s11_mme_cp_teid);
+			const struct ID_req_Q_msg* idr_info= (const struct ID_req_Q_msg*) (msgBuf->getDataPointer());
+			handleIdentificationRequestMsg_v(std::move(eMsg), idr_info->s10_mme_cp_teid);
 		}
 		break;
 
-		case msg_type_t::modify_bearer_response:
+		case msg_type_t::identification_response:
 		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_MODIFY_BEARER_RESPONSE);
-			const struct MB_resp_Q_msg* mbr_info= (const struct MB_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleModifyBearerResponseMsg_v(std::move(eMsg), mbr_info->s11_mme_cp_teid);
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_RESPONSE);
+			const struct id_resp_Q_msg* id_resp_info= (const struct id_resp_Q_msg*) (msgBuf->getDataPointer());
+			handleIdentificationResponseMsg_v(std::move(eMsg), id_resp_info->s10_mme_cp_teid);
 		}
 		break;
-
-		case msg_type_t::delete_session_response:
-		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_SESSION_RESPONSE);
-			const struct DS_resp_Q_msg* dsr_info= (const struct DS_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleDeleteSessionResponseMsg_v(std::move(eMsg), dsr_info->s11_mme_cp_teid);
-		}
-		break;
-			
-		case msg_type_t::release_bearer_response:
-		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_RELEASE_BEARER_RESPONSE);
-			const struct RB_resp_Q_msg* rbr_info= (const struct RB_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleReleaseBearerResponseMsg_v(std::move(eMsg), rbr_info->s11_mme_cp_teid);
-		}
-		break;
-		
-		case msg_type_t::downlink_data_notification:
-		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION);
-			const struct ddn_Q_msg* ddn = (const struct ddn_Q_msg*) (msgBuf->getDataPointer());
-			handleDdnMsg_v(std::move(eMsg), ddn->s11_mme_cp_teid);
-		}
-		break;
-
-		case msg_type_t::create_bearer_request:
-		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_CREATE_BEARER_REQUEST);
-			const struct cb_req_Q_msg * cbr = (const struct cb_req_Q_msg *) (msgBuf->getDataPointer());
-			handleCreateBearerRequestMsg_v(std::move(eMsg), cbr->s11_mme_cp_teid);
-		}
-		break;
-
-		case msg_type_t::delete_bearer_request:
-                {
-                        mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S11_DELETE_BEARER_REQUEST);
-                        const struct db_req_Q_msg * dbr = (const struct db_req_Q_msg *) (msgBuf->getDataPointer());
-                        handleDeleteBearerRequestMsg_v(std::move(eMsg), dbr->s11_mme_cp_teid);
-                }
-                break;
 
 		default:
 			log_msg(LOG_INFO, "Unhandled s10 Message %d ", msgData_p->msg_type);
 	}
 
+}
+
+void S10MsgHandler::handleIdentificationRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
+{
+	log_msg(LOG_INFO, "handleIdentificationRequestMsg_v");
+
+	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+	if(controlBlk_p == NULL)
+	{
+		log_msg(LOG_ERROR, "handleIdentificationRequestMsg_v: "
+							"Failed to find UE context using idx %d",
+							ueIdx);
+		return;
+	}
+
+	// Fire Identification req event, insert cb to procedure queue
+	SM::Event evt(IDENTIFICATION_REQ_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
+	controlBlk_p->addEventToProcQ(evt);
+}
+
+void S10MsgHandler::handleIdentificationResponseMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
+{
+	log_msg(LOG_INFO, "handleIdentificationResponseMsg_v");
+
+	SM::ControlBlock* controlBlk_p = SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+	if(controlBlk_p == NULL)
+	{
+		log_msg(LOG_ERROR, "handleIdentificationResponseMsg_v: "
+							"Failed to find UE context using idx %d",
+							ueIdx);
+		return;
+	}
+
+	// Fire Identification resp from old MME, insert cb to procedure queue
+	SM::Event evt(IDENTIFICATION_RESPONSE_FROM_MME, cmn::IpcEMsgShPtr(std::move(eMsg)));
+	controlBlk_p->addEventToProcQ(evt);
 }
