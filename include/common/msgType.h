@@ -96,8 +96,11 @@ typedef enum msg_type_t {
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
     enb_status_msg,
-    max_msg_type,
+    max_msg_type
+#ifdef S10_FEATURE
+	,
 	forward_relocation_request
+#endif
 } msg_type_t;
 
 struct s1_incoming_msg_header {
@@ -539,7 +542,16 @@ struct handover_cancel_ack_Q_msg {
 	int s1ap_mme_ue_id;
 	int s1ap_enb_ue_id;
 };
-#define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
+#define S1AP_HANDOVER_CANCEL_ACK_ForwardBUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
+
+#ifdef S10_FEATURE
+struct forward_relocation_req_Q_msg {
+	msg_type_t msg_type;
+	unsigned char IMSI[BINARY_IMSI_LEN];
+	struct sockaddr neigh_mme_ip;
+};
+#define FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
+#endif
 
 /* Refer 36.413 - 9.1.3.1 */
 struct erabsu_ctx_req_Q_msg {

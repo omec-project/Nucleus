@@ -36,11 +36,13 @@ namespace mme
 	{
 	public:
 		static bool isLocalGuti(const guti& guti_r);
+#ifdef S10_FEATURE
 		///// handover required code changes
-		static bool MmeCommonUtils::compare_plmn_id(const struct PLMN *plmn);
-		static bool MmeCommonUtils::compare_tac(const uint16_t tac);
+		static bool compare_plmn_id(const struct PLMN *plmn);
+		static bool compare_tac(const uint16_t tac);
 		static bool isLocalTAI(const struct PLMN *plmn, const short target_tac);
 		//
+#endif
 		static uint32_t allocateMtmsi();
 
 		static SM::ControlBlock* findControlBlock(cmn::utils::MsgBuffer* msgData_p);

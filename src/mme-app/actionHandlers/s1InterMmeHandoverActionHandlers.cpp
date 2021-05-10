@@ -23,6 +23,41 @@ using namespace SM;
 ***************************************/
 ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 {
+	// S10_FEATURE
+	log_msg(LOG_DEBUG, "Inside send_fr_request_to_target_mme");
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_fr_request_to_target_mme: ue context is NULL");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *hoProcCtxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (hoProcCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_fr_request_to_target_mme: MmeS1HandoverProcedureCtxt is NULL");
+        return ActStatus::HALT;
+    }
+
+    struct forward_relocation_req_Q_msg frReq;
+    memset(&frReq, 0, sizeof(struct forward_relocation_req_Q_msg));
+
+    // msg_type
+    frReq.msg_type = forward_relocation_request;
+
+    // IMSI
+	const DigitRegister15& ueImsi = ueCtxt->getImsi();
+	ueImsi.convertToBcdArray( frReq.IMSI );
+
+    // neigh_mme_ip : based on context for neighbor mme take that ip in neigh_mme_ip
+
+	// teid : not sure how to generate teid
+
     return ActStatus::PROCEED;
 }
 

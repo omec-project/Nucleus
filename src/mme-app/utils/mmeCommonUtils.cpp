@@ -32,6 +32,7 @@ bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
 
 	return rc;
 }
+#ifdef S10_FEATURE
 ///// handover required code changes
 bool MmeCommonUtils::compare_plmn_id(const struct PLMN *plmn)
 {
@@ -83,6 +84,7 @@ void select_neighboring_mme(const struct TAI *tai, struct sockaddr** const servi
 	return;
 }
 ///////////////////
+#endif
 
 uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)
 {

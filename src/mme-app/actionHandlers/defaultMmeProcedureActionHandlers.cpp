@@ -639,6 +639,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 	hoReqProc_p->setTargetTai(hoReq->target_id.selected_tai);
 	hoReqProc_p->setSrcS1apEnbUeId(hoReq->header.s1ap_enb_ue_id);
 	hoReqProc_p->setSrcEnbContextId(hoReq->src_enb_context_id);
+#ifdef S10_FEATURE
 	////////////////////////////////////in case the format is different than config, formates1ap plmn id is called
 		MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&hoReq->target_id.selected_tai.plmn_id));
 		//////////////////////////////// check if target tai is served by same mme
@@ -646,13 +647,13 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 		{
 			//can add check for enodeb also
 			log_msg(LOG_DEBUG,"Target TAI is served by current mme ");
-
+#endif
 			ProcedureStats::num_of_ho_required_received++;
 
 			SM::Event evt(INTRA_S1HO_START, NULL);
 			cb.qInternalEvent(evt);
 		    return ActStatus::PROCEED;
-
+#ifdef S10_FEATURE
 		}
 		else
 		{
@@ -667,6 +668,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 			}
 			else
 			{
+				// need to add ip for mme in handover context
 				ProcedureStats::num_of_ho_required_received++;
 
 				SM::Event evt(INTER_S1HO_START, NULL);
@@ -677,6 +679,7 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 
 
 	/////////////////////////////////////////////////////////////////////////////
+#endif
 }
 
 /******************************************************
