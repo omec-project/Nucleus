@@ -808,7 +808,6 @@ struct id_resp_Q_msg{
     uint8_t ue_usage_type;
     uint8_t monitoring_event_information;
     uint8_t private_extension;
-   
 };
 
 struct ID_req_Q_msg(){
