@@ -26,6 +26,8 @@ enum class mmeStatsCounter {
 	ENB_NUM_ACTIVE,
 	MME_MSG_RX_NAS_ATTACH_REQUEST,
 	MME_MSG_RX_NAS_IDENTITY_RESPONSE,
+	MME_MSG_RX_S10_IDENTIFICATION_REQUEST,
+	MME_MSG_RX_S10_IDENTIFICATION_RESPONSE,
 	MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE,
 	MME_MSG_RX_NAS_SECURITY_MODE_RESPONSE,
 	MME_MSG_RX_NAS_ESM_RESPONSE,
@@ -60,8 +62,6 @@ enum class mmeStatsCounter {
 	MME_MSG_RX_S11_DOWNLINK_NOTIFICATION_INDICATION,
 	MME_MSG_RX_S11_CREATE_BEARER_REQUEST,
 	MME_MSG_RX_S11_DELETE_BEARER_REQUEST,
-	MME_MSG_RX_S10_IDENTIFICATION_REQUEST,
-	MME_MSG_RX_S10_IDENTIFICATION_RESPONSE,
 	MME_MSG_TX_NAS_IDENTITY_REQUEST,
 	MME_MSG_TX_NAS_AUTHENTICATION_REQUEST,
 	MME_MSG_TX_NAS_SECURITY_MODE_COMMAND,
@@ -94,11 +94,11 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_S11_RELEASE_BEARER_REQUEST,
 	MME_MSG_TX_S11_CREATE_BEARER_RESPONSE,
 	MME_MSG_TX_S11_DELETE_BEARER_RESPONSE,
-	MME_MSG_TX_S10_IDENTIFICATION_REQUEST,
-	MME_MSG_TX_S10_IDENTIFICATION_RESPONSE,
 	MME_MSG_TX_S6A_AUTHENTICATION_INFO_REQUEST,
 	MME_MSG_TX_S6A_UPDATE_LOCATION_REQUEST,
 	MME_MSG_TX_S6A_PURGE_REQUEST,
+	MME_MSG_TX_S10_IDENTIFICATION_REQUEST,
+	MME_MSG_TX_S10_IDENTIFICATION_RESPONSE,
 	MME_PROCEDURES_ATTACH_PROC_IMSI,
 	MME_PROCEDURES_ATTACH_PROC_GUTI,
 	MME_PROCEDURES_ATTACH_PROC_SUCCESS,
@@ -386,6 +386,8 @@ class mme_msg_rx_counters {
 	Family<Counter> &mme_msg_rx_family;
 	Counter &mme_msg_rx_nas_attach_request;
 	Counter &mme_msg_rx_nas_identity_response;
+	Counter &mme_msg_rx_s10_identification_request;
+	Counter &mme_msg_rx_s10_identification_response;
 	Counter &mme_msg_rx_nas_authentication_response;
 	Counter &mme_msg_rx_nas_security_mode_response;
 	Counter &mme_msg_rx_nas_esm_response;
@@ -516,6 +518,8 @@ class mme_msg_tx_counters {
 	Counter &mme_msg_tx_s6a_authentication_info_request;
 	Counter &mme_msg_tx_s6a_update_location_request;
 	Counter &mme_msg_tx_s6a_purge_request;
+	Counter &mme_msg_tx_s10_identification_request;
+	Counter &mme_msg_tx_s10_identification_response;
 
 	mme_msg_tx_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
 		return new mme_msg_tx_DynamicMetricObject1(mme_msg_tx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0);
