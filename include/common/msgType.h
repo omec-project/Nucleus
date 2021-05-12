@@ -98,6 +98,11 @@ typedef enum msg_type_t {
     enb_status_msg,
     identification_request,
     identification_response,
+    forward_relocation_request,
+    forward_relocation_response,
+    forward_access_context_notification,
+    forward_access_context_ack,
+    forward_relocation_complete_notification,
     max_msg_type
 } msg_type_t;
 
@@ -700,7 +705,6 @@ struct ID_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     guti _guti;
-
 };
 #define S10_IDREQ_STAGE5_BUF_SIZE sizeof(struct ID_Q_msg)
 
@@ -722,6 +726,20 @@ struct ID_RESP_Q_msg{
 
 };
 #define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
+
+struct FWD_ACC_CTXT_NOTIF_Q_msg{
+    msg_type_t msg_type;
+    int ue_idx;
+    struct enB_status_transfer_transparent_container f_container;
+};
+#define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_NOTIF_Q_msg)
+
+struct FWD_ACC_CTXT_ACK_Q_msg{
+    msg_type_t msg_type;
+    int ue_idx;
+    uint8_t cause;
+};
+#define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_ACK_Q_msg)
  
 /*************************
  * Incoming GTP Messages
@@ -819,10 +837,19 @@ struct ID_req_Q_msg{
     guti _guti;
 };
 
+struct Fwd_Acc_Ctxt_Notif_Q_msg{
+    gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
+    struct enB_status_transfer_transparent_container f_container;
+};
+
+struct Fwd_Acc_Ctxt_Ack_Q_msg{
+    gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
+    uint8_t cause;
+};
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
-
-
 
 /*************************
  * Outgoing S6 Messages
