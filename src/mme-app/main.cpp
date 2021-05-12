@@ -27,6 +27,8 @@
 #include <utils/mmeTimerUtils.h>
 #include "mmeStatsPromClient.h"
 
+#define S10_FEATURE
+
 using namespace std;
 using namespace mme;
 

@@ -1060,7 +1060,9 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 
     return rc;
 }
+#define S10_FEATURE
 
+#ifdef S10_FEATURE
 /***************************************
 * Action handler : fwd_rel_req_handler
 ***************************************/
@@ -1084,4 +1086,38 @@ ActStatus ActionHandlers::send_overload_stop(ControlBlock& cb)
 {
     return ActStatus::PROCEED;
 }
+
+/***************************************
+* Action handler : default_identification_req_handler
+***************************************/
+ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside default_identification_req_handler");
+
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+	
+	struct ID_RESP_Q_msg id_resp_msg;
+	id_resp_msg.msg_type = identification_response;
+	id_resp_msg.ue_idx = ue_ctxt->getContextID();
+	
+	ue_ctxt->getImsi().getImsiDigits(id_resp_msg.IMSI);
+	id_resp_msg.traceInformationIePresent = false;
+	id_resp_msg.ueUsageTypeIePresent = false;
+	id_resp_msg.monitoringEventInformationIePresent = false;
+	id_resp_msg.privateExtensionIePresent = false;
+
+	cmn::ipc::IpcAddress destAddr;
+	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
+
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_IDENTIFICATION_RESPONSE);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
+	mmeIpcIf.dispatchIpcMsg((char *) &id_resp_msg, sizeof(id_resp_msg), destAddr);
+		
+	ProcedureStats::num_of_identification_resp_sent ++;
+	log_msg(LOG_DEBUG, "Leaving default_identification_req_handler ");
+    return ActStatus::PROCEED;
+}
+
+#endif
 

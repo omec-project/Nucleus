@@ -174,6 +174,11 @@ namespace mme
         static SM::ActStatus default_erab_mod_indication_handler(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : default_identification_req_handler
+        ***********************************************/
+        static SM::ActStatus default_identification_req_handler(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : default_s1_ho_handler
         ***********************************************/
         static SM::ActStatus default_s1_ho_handler(SM::ControlBlock& cb);                
