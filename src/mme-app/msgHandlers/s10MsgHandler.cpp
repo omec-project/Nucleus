@@ -30,7 +30,7 @@ S10MsgHandler::S10MsgHandler()
 
 S10MsgHandler* S10MsgHandler::Instance()
 {
-	static s10MsgHandler msgHandler;
+	static S10MsgHandler msgHandler;
 	return &msgHandler;
 }
 
@@ -58,7 +58,7 @@ void S10MsgHandler::handleS10Message_v(IpcEMsgUnqPtr eMsg)
 	{
 		case msg_type_t::identification_request:
 		{
-			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_REQUEST,);
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_REQUEST);
 			const struct ID_req_Q_msg* idr_info= (const struct ID_req_Q_msg*) (msgBuf->getDataPointer());
 			handleIdentificationRequestMsg_v(std::move(eMsg), idr_info->s10_mme_cp_teid);
 		}

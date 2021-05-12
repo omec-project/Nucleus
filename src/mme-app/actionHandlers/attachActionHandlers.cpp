@@ -1502,6 +1502,8 @@ ActStatus ActionHandlers::handle_s1_rel_req_during_attach(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
+#define S10_FEATURE
+
 #ifdef S10_FEATURE
 
 /***************************************
@@ -1517,9 +1519,11 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 	struct ID_Q_msg id_msg;
 	id_msg.msg_type = identification_request;
 	id_msg.ue_idx = ue_ctxt->getContextID();
-	
-	memcpy(&(id_msg.guti), &(ue_ctxt->getS11SgwCtrlFteid().guti,  //TODO guti need to find
-		sizeof(struct fteid));
+
+	memcpy(&(id_msg._guti.plmn_id), &(ue_ctxt->getTai().tai_m.plmn_id), 3);
+	id_msg._guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	id_msg._guti.mme_code = mme_cfg->mme_code;
+    id_msg._guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
@@ -1528,7 +1532,7 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &id_msg, sizeof(id_msg), destAddr);
 		
-	ProcedureStats::num_of_identification_req_sent ++;
+	ProcedureStats::num_of_identification_req_sent++;
 	log_msg(LOG_DEBUG, "Leaving send_identification_request_to_old_mme ");
 	
     return ActStatus::PROCEED;
@@ -1553,14 +1557,14 @@ ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
 
 	const struct id_resp_Q_msg* id_resp_info = static_cast<const struct id_resp_Q_msg*>(msgBuf->getDataPointer());
 
-    if(id_resp_info->status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
+    /*if(id_resp_info->status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
     {
 		log_msg(LOG_DEBUG, "IDRsp rejected by MME with cause %d ",id_resp_info->status);
         std::ostringstream reason;
         reason<<"IDRsp_reject_cause_"<<id_resp_info->status;
         mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{"failure_reason", reason.str()}});
        	return ActStatus::ABORT;
-    }
+    }*/
 
 	uint8_t imsi[BINARY_IMSI_LEN] = {0};
 	memcpy( imsi, id_resp_info->IMSI, BINARY_IMSI_LEN );
@@ -1572,10 +1576,10 @@ ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
 
 	DigitRegister15 IMSIInfo;
 	IMSIInfo.convertFromBcdArray(imsi);
-	ueCtxt_p->setImsi(IMSIInfo);
+	ue_ctxt->setImsi(IMSIInfo);
 
-	SubsDataGroupManager::Instance()->addimsikey(ueCtxt_p->getImsi(), ueCtxt_p->getContextID());	
-	ProcedureStats::num_of_processed_identification_resp ++;
+	SubsDataGroupManager::Instance()->addimsikey(ue_ctxt->getImsi(), ue_ctxt->getContextID());	
+	ProcedureStats::num_of_processed_identification_resp++;
 	log_msg(LOG_DEBUG, "Leaving process_identification_response");
 
     return ActStatus::PROCEED;

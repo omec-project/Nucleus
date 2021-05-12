@@ -1060,6 +1060,7 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 
     return rc;
 }
+#define S10_FEATURE
 
 #ifdef S10_FEATURE
 /***************************************
@@ -1100,7 +1101,7 @@ ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 	id_resp_msg.msg_type = identification_response;
 	id_resp_msg.ue_idx = ue_ctxt->getContextID();
 	
-	ue_ctxt->getImsi().getImsiDigits(id_resp_msg.imsi);
+	ue_ctxt->getImsi().getImsiDigits(id_resp_msg.IMSI);
 	id_resp_msg.traceInformationIePresent = false;
 	id_resp_msg.ueUsageTypeIePresent = false;
 	id_resp_msg.monitoringEventInformationIePresent = false;
@@ -1111,7 +1112,7 @@ ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_IDENTIFICATION_RESPONSE);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &id_msg, sizeof(id_resp_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &id_resp_msg, sizeof(id_resp_msg), destAddr);
 		
 	ProcedureStats::num_of_identification_resp_sent ++;
 	log_msg(LOG_DEBUG, "Leaving default_identification_req_handler ");

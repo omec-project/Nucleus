@@ -84,4 +84,6 @@ int ProcedureStats::num_of_ded_bearer_ctxt_reject_received = 0;
 int ProcedureStats::num_of_abort_ded_activation = 0;
 int ProcedureStats::num_of_ded_act_complete = 0;
 int ProcedureStats::num_of_create_bearer_proc_complete = 0;
+int ProcedureStats::num_of_identification_req_sent = 0;
+int ProcedureStats::num_of_identification_resp_sent = 0;
 int ProcedureStats::num_of_processed_identification_resp = 0;

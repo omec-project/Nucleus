@@ -13,7 +13,7 @@
 class S10MsgHandler {
 public:
 	static S10MsgHandler* Instance();
-	~GtpMsgHandler();
+	~S10MsgHandler();
 
 	void handleS10Message_v(cmn::IpcEMsgUnqPtr eMsg);
 

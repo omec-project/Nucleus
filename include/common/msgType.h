@@ -96,6 +96,8 @@ typedef enum msg_type_t {
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
     enb_status_msg,
+    identification_request,
+    identification_response,
     max_msg_type
 } msg_type_t;
 
@@ -695,7 +697,7 @@ struct DB_RESP_Q_msg {
 #define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
 
 struct ID_Q_msg{
-    msg_type;
+    msg_type_t msg_type;
     int ue_idx;
     guti _guti;
 
@@ -703,10 +705,10 @@ struct ID_Q_msg{
 #define S10_IDREQ_STAGE5_BUF_SIZE sizeof(struct ID_Q_msg)
 
 struct ID_RESP_Q_msg{
-    msg_type;
+    msg_type_t msg_type;
     int ue_idx;
     uint8_t cause;
-    ImsiIeData imsi;    ////conditonal optional
+    unsigned char IMSI[BINARY_IMSI_LEN];    ////conditonal optional
     /*
     uint8_t trace_information;
     uint8_t ue_usage_type;
@@ -803,14 +805,15 @@ struct id_resp_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
     uint8_t cause;
-    ImsiIeData imsi;    ////conditonal optional
+    unsigned char IMSI[BINARY_IMSI_LEN];    
+    ////conditonal optional
     uint8_t trace_information;
     uint8_t ue_usage_type;
     uint8_t monitoring_event_information;
     uint8_t private_extension;
 };
 
-struct ID_req_Q_msg(){
+struct ID_req_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
     guti _guti;
