@@ -445,6 +445,16 @@ start_sctp_threads()
 int
 main(int argc, char **argv)
 {
+	// intentionly add mem leaking code for testing valgrind
+	void f(void) { 
+		int* x = malloc(10 * sizeof(int));
+		x[10] = 0;        // problem 1: heap block overrun
+	}                    // problem 2: memory leak -- x not freed
+
+	//log_msg(LOG_INFO, "inside main valgrind test======\n");
+	f();
+	// end of valgrind mem test
+
 	memcpy (processName, argv[0], strlen(argv[0]));
 	
 	s1ap_inst = (s1ap_instance_t *) calloc(1, sizeof(s1ap_instance_t));
@@ -457,6 +467,7 @@ main(int argc, char **argv)
 	else { 
 		init_logging("hostbased", "/tmp/s1aplogs.txt");
 	}
+	log_msg(LOG_INFO, "image with valgrind test======\n");
 	init_backtrace(argv[0]); 
 
 	parse_args(argc, argv);

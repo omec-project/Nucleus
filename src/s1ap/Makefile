@@ -30,6 +30,9 @@ ifeq ($(DEBUG),true)
 	CFLAGS += -g
 endif
 
+# for testing valgrind
+CFLAGS += -g
+
 ifeq ($(DEBUG),false)
 	CFLAGS += -O3
 endif
