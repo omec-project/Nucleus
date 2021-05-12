@@ -547,7 +547,11 @@ struct handover_cancel_ack_Q_msg {
 #ifdef S10_FEATURE
 struct forward_relocation_req_Q_msg {
 	msg_type_t msg_type;
+	int ue_idx;
 	unsigned char IMSI[BINARY_IMSI_LEN];
+	struct apn_name selected_apn;
+	uint32_t sgw_ip;
+	uint32_t pgw_ip;
 	struct sockaddr neigh_mme_ip;
 };
 #define FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)

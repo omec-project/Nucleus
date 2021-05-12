@@ -14,7 +14,32 @@
  ******************************************************************************/
 #include "actionHandlers/actionHandlers.h"
 #include "controlBlock.h" 
+#include "msgType.h"
+#include "mme_app.h"
+#include "procedureStats.h"
+#include "log.h"
+#include "secUtils.h"
+#include "state.h"
+#include <string.h>
+#include <sstream>
+#include <mmeSmDefs.h>
+#include "common_proc_info.h"
+#include <ipcTypes.h>
+#include <tipcTypes.h>
+#include <msgBuffer.h>
+#include <interfaces/mmeIpcInterface.h>
+#include <event.h>
+#include <stateMachineEngine.h>
+#include <utils/mmeCommonUtils.h>
+#include <utils/mmeS1MsgUtils.h>
+#include <utils/mmeGtpMsgUtils.h>
+#include <utils/mmeCauseUtils.h>
+#include <contextManager/dataBlocks.h>
+#include <utils/mmeContextManagerUtils.h>
+#include "mmeStatsPromClient.h"
 
+using namespace cmn;
+using namespace cmn::utils;
 using namespace mme;
 using namespace SM;
 
@@ -23,8 +48,8 @@ using namespace SM;
 ***************************************/
 ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 {
-	// S10_FEATURE
-	log_msg(LOG_DEBUG, "Inside send_fr_request_to_target_mme");
+    // S10_FEATURE
+    log_msg(LOG_DEBUG, "Inside send_fr_request_to_target_mme");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
 
@@ -44,19 +69,92 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
+    auto& sessionCtxtContainer = ueCtxt->getSessionContextContainer();
+    if(sessionCtxtContainer.size() < 1)
+    {
+        log_msg(LOG_DEBUG, "send_fr_request_to_target_mme: Session context list empty");
+        return ActStatus::HALT;
+    }
+
+    SessionContext* sessionCtxt = sessionCtxtContainer.front();
+
     struct forward_relocation_req_Q_msg frReq;
     memset(&frReq, 0, sizeof(struct forward_relocation_req_Q_msg));
 
     // msg_type
     frReq.msg_type = forward_relocation_request;
+    frReq.ue_idx = frReq->getContextID();
 
     // IMSI
-	const DigitRegister15& ueImsi = ueCtxt->getImsi();
-	ueImsi.convertToBcdArray( frReq.IMSI );
+    const DigitRegister15& ueImsi = ueCtxt->getImsi();
+    ueImsi.convertToBcdArray( frReq.IMSI );
+
+    //PDN connections
+    //APN
+    const Apn_name &apnName = ueCtxt->getSubscribedApn();
+    memcpy(&(frReq.selected_apn), &(apnName.apnname_m), sizeof(struct apn_name));
+    const unsigned char *ptr = &apnName.apnname_m.val[1];
+    std::string temp_str((char *)ptr);
+    apn_config *temp = mme_tables->find_apn(temp_str);
+    if(temp != NULL)
+    {
+        log_msg(LOG_DEBUG, "Found APN mapping in static table %x ",cs_msg.sgw_ip);
+        frReq.sgw_ip = temp->get_sgw_addr();
+        frReq.pgw_ip = temp->get_pgw_addr();
+    }
+    else
+    {
+        log_msg(LOG_DEBUG, "APN not found in static apn configuration ");
+    }
+
+    // Linked EPS Bearer ID
+    BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+    if(bearerCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_fr_request_to_target_mme: Bearer context list empty");
+        return ActStatus::HALT;
+    }
+    frReq.bearer_id = bearerCtxt->getBearerId();
+
+    //Bearer Contexts
+    //Support dedicated bearers
+    auto& bearerCtxtCont = sessionCtxt->getBearerContextContainer();
+    if (bearerCtxtCont != NULL)
+    {
+        uint8_t i =0;
+        frReq.bearer_ctx_list.bearers_count = bearerCtxtCont.size();
+        for (auto &bearerCtxtC : bearerCtxtCont)
+        {
+            if (bearerCtxtC != NULL)
+            {
+                frReq.bearer_ctx_list.bearer_ctxt[i].eps_bearer_id = bearerCtxtC->getBearerId();
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.qci = bearerCtxt->getBearerQos().qci;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pl = bearerCtxt->getBearerQos().arp.prioLevel;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pci = bearerCtxt->getBearerQos().arp.preEmptionCapab;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pvi = bearerCtxt->getBearerQos().arp.preEmptionVulnebility;
+            }
+        }
+    }
+
+    // ambr
+    frReq.exg_max_dl_bitrate = (ueCtxt->getAmbr().ambr_m).max_requested_bw_dl;
+    frReq.exg_max_ul_bitrate = (ueCtxt->getAmbr().ambr_m).max_requested_bw_ul;
 
     // neigh_mme_ip : based on context for neighbor mme take that ip in neigh_mme_ip
 
-	// teid : not sure how to generate teid
+    // mm context
+
+
+
+    /*Send message to S10-APP*/
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_REQUEST);
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s10AppInstanceNum_c};
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(frReq), destAddr);
+
+    log_msg(LOG_DEBUG, "Leaving send_fr_request_to_target_mme ");
+
+    ProcedureStats::num_of_fr_request_to_target_mme_sent++;
 
     return ActStatus::PROCEED;
 }
