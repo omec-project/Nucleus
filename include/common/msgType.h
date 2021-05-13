@@ -556,6 +556,7 @@ struct forward_relocation_req_Q_msg {
 	struct TAI tai;
 	unsigned char IMSI[BINARY_IMSI_LEN];
 	struct apn_name selected_apn;
+	unsigned int  paa_v4_addr;
 	uint8_t bearer_id;
 	bearer_ctx_list_t bearer_ctx_list;
 	uint32_t sgw_ip;

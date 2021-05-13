@@ -50,7 +50,7 @@ void MmeS1MsgUtils::populateHoRequest(SM::ControlBlock& cb,
     hoReq.s1ap_mme_ue_id = ueCtxt.getContextID();
     hoReq.target_enb_context_id = procCtxt.getTargetEnbContextId();
 
-    hoReq.handoverType = IntraLTE;
+    hoReq.handoverType = IntraLTE; // this can be changed in case of inter mme handover
     hoReq.cause.present = s1apCause_PR_radioNetwork;
     hoReq.cause.choice.radioNetwork =
             procCtxt.getS1HoCause().s1apCause_m.choice.radioNetwork;

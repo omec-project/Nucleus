@@ -22,7 +22,7 @@
 typedef enum hoType {
  	invalid_c,
  	intraMmeS1Ho_c,
-	interMneS1Ho_c
+	interMmeS1Ho_c
 }hoType;
 typedef struct mm_context {
 	security_mode security_mode;

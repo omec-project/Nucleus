@@ -114,6 +114,9 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
         log_msg(LOG_DEBUG, "APN not found in static apn configuration ");
     }
 
+    const PAA& pdn_addr = ueCtxt->getPdnAddr().paa_m;
+    frReq.paa_v4_addr = pdn_addr.ip_type.ipv4.s_addr;
+
     // Linked EPS Bearer ID
     BearerContext* bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
     if(bearerCtxt == NULL)
@@ -174,7 +177,7 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 
     log_msg(LOG_DEBUG, "Leaving send_fr_request_to_target_mme ");
 
-    ProcedureStats::num_of_fr_request_to_target_mme_sent++;
+    ProcedureStats::num_of_fwd_relocation_req_sent++;
 
     return ActStatus::PROCEED;
 }
@@ -232,6 +235,39 @@ ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
 {
+    log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_ho");
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if(ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: ue context is NULL ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_s1_rel_cmd_to_ue_for_ho: procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+    struct s1relcmd_info s1relcmd;
+    s1relcmd.msg_type = s1_release_command;
+    s1relcmd.ue_idx = ue_ctxt->getContextID();
+    s1relcmd.enb_s1ap_ue_id = ho_ctxt->getSrcS1apEnbUeId();
+    s1relcmd.cause.present = s1apCause_PR_radioNetwork;
+    s1relcmd.cause.choice.radioNetwork = s1apCauseRadioNetwork_successful_handover;
+    s1relcmd.enb_fd = ho_ctxt->getSrcEnbContextId();
+
+    // Fire and forget s1 release to src enb
+
+    /*Send message to S1AP-APP*/
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_S1_RELEASE_COMMAND);
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
+
+    ProcedureStats::num_of_s1_rel_cmd_sent ++;
+    log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue_for_ho ");
     return ActStatus::PROCEED;
 }
 
@@ -240,6 +276,41 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_ho_req_to_target_enb(ControlBlock& cb)
 {
+
+    log_msg(LOG_INFO, "Inside send_ho_req_to_target_enb");
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_req_to_target_enb: ue context is NULL");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *hoProcCtxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (hoProcCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_req_to_target_enb: MmeS1HandoverProcedureCtxt is NULL");
+        return ActStatus::HALT;
+    }
+
+    struct handover_request_Q_msg hoReq;
+    memset(&hoReq, 0, sizeof(struct handover_request_Q_msg));
+
+    MmeS1MsgUtils::populateHoRequest(cb, *ueCtxt, *hoProcCtxt, hoReq);
+
+    /*Send message to S1AP-APP*/
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_HANDOVER_REQUEST);
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
+
+    log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb ");
+
+    ProcedureStats::num_of_ho_request_to_target_enb_sent++;
     return ActStatus::PROCEED;
 }
 
@@ -248,6 +319,53 @@ ActStatus ActionHandlers::send_ho_req_to_target_enb(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_ho_req_ack(ControlBlock& cb)
 {
+
+    log_msg(LOG_DEBUG, "Inside process_ho_request_ack");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_ho_request_ack: ue ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_ho_request_ack: procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
+        return ActStatus::HALT;
+    }
+
+    const handover_req_acknowledge_Q_msg_t *ho_request_ack = static_cast<const handover_req_acknowledge_Q_msg_t*>(msgBuf->getDataPointer());
+
+    ho_ctxt->setTargetS1apEnbUeId(ho_request_ack->header.s1ap_enb_ue_id);
+    if (ho_request_ack->erab_admitted_list.count == 0)
+    {
+        log_msg(LOG_INFO, "HO Request ACK does not contain any eRAB Admitted Items.");
+
+        ho_ctxt->setMmeErrorCause(S1AP_HOREQACK_FAILED);
+        S1apCause s1apCause = MmeCauseUtils::convertToS1apCause(
+                ho_ctxt->getMmeErrorCause());
+        ho_ctxt->setS1HoCause(s1apCause);
+
+        return ActStatus::ABORT;
+    }
+    ho_ctxt->setTargetToSrcTransContainer(
+            ho_request_ack->targetToSrcTranspContainer);
+    ho_ctxt->setErabAdmittedItem(
+            ho_request_ack->erab_admitted_list.erab_admitted[0]);
+
+    ProcedureStats::num_of_ho_request_ack_received++;
+
+    log_msg(LOG_DEBUG, "Leaving process_ho_request_ack");
     return ActStatus::PROCEED;
 }
 

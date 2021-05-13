@@ -670,8 +670,9 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
         }
         else
         {
-            hoReqProc_p->setHoType(interMneS1Ho_c);
+            hoReqProc_p->setHoType(interMmeS1Ho_c);
             // need to add ip for mme in handover context
+            // macro_enb_id can be added to the context to pass it to the
             ProcedureStats::num_of_ho_required_received++;
 
             SM::Event evt(INTER_S1HO_START, NULL);
