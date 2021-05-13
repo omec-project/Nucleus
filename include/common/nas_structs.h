@@ -596,7 +596,6 @@ typedef struct nas_pdu_header_long {
         unsigned char message_type;
 }nas_pdu_header_long;
 
-#define S10_FEATURE
 #ifdef S10_FEATURE
 typedef enum security_mode {
     EPSsecurityContext = 0,

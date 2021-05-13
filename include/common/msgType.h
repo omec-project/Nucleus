@@ -543,29 +543,7 @@ struct handover_cancel_ack_Q_msg {
 	int s1ap_mme_ue_id;
 	int s1ap_enb_ue_id;
 };
-#define S1AP_HANDOVER_CANCEL_ACK_ForwardBUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
-
-#ifdef S10_FEATURE
-struct forward_relocation_req_Q_msg {
-	msg_type_t msg_type;
-	int ue_idx;
-	int target_enb_context_id;
-	struct F_Cause_t cause;
-	enum hoType handoverType;
-	struct src_target_transparent_container srcToTargetTranspContainer;
-	struct TAI tai;
-	unsigned char IMSI[BINARY_IMSI_LEN];
-	struct apn_name selected_apn;
-	unsigned int  paa_v4_addr;
-	uint8_t bearer_id;
-	bearer_ctx_list_t bearer_ctx_list;
-	uint32_t sgw_ip;
-	uint32_t pgw_ip;
-	mm_context_t mm_cntxt;
-	struct sockaddr neigh_mme_ip;
-};
-#define FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
-#endif
+#define S1AP_HANDOVER_CANCEL_ACK_BUF_SIZE sizeof(struct handover_cancel_ack_Q_msg)
 
 /* Refer 36.413 - 9.1.3.1 */
 struct erabsu_ctx_req_Q_msg {
@@ -720,6 +698,28 @@ struct DB_RESP_Q_msg {
     struct fteid s11_sgw_c_fteid;
  };
 #define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
+
+#ifdef S10_FEATURE
+struct forward_relocation_req_Q_msg {
+	msg_type_t msg_type;
+	int ue_idx;
+	int target_enb_context_id;
+	struct F_Cause_t cause;
+	enum hoType handoverType;
+	struct src_target_transparent_container srcToTargetTranspContainer;
+	struct TAI tai;
+	unsigned char IMSI[BINARY_IMSI_LEN];
+	struct apn_name selected_apn;
+	unsigned int  paa_v4_addr;
+	uint8_t bearer_id;
+	bearer_ctx_list_t bearer_ctx_list;
+	uint32_t sgw_ip;
+	uint32_t pgw_ip;
+	mm_context_t mm_cntxt;
+	struct sockaddr neigh_mme_ip;
+};
+#define S10_FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
+#endif
  
 /*************************
  * Incoming GTP Messages
