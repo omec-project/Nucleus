@@ -16,6 +16,7 @@ extern "C"{
 #include "s6_common_types.h"
 #include "s11_structs.h"
 #include "s1ap_structs.h"
+#include "s10_structs.h"
 #include "s1ap_ie.h"
 
 #define REQ_ARGS 0x0000
@@ -548,10 +549,18 @@ struct handover_cancel_ack_Q_msg {
 struct forward_relocation_req_Q_msg {
 	msg_type_t msg_type;
 	int ue_idx;
+	int target_enb_context_id;
+	struct F_Cause_t cause;
+	enum hoType handoverType;
+	struct src_target_transparent_container srcToTargetTranspContainer;
+	struct TAI tai;
 	unsigned char IMSI[BINARY_IMSI_LEN];
 	struct apn_name selected_apn;
+	uint8_t bearer_id;
+	bearer_ctx_list_t bearer_ctx_list;
 	uint32_t sgw_ip;
 	uint32_t pgw_ip;
+	mm_context_t mm_cntxt;
 	struct sockaddr neigh_mme_ip;
 };
 #define FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)

@@ -83,7 +83,14 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 
     // msg_type
     frReq.msg_type = forward_relocation_request;
-    frReq.ue_idx = frReq->getContextID();
+    frReq.ue_idx = ueCtxt->getContextID();
+    frReq.target_enb_context_id = hoProcCtxt->getTargetEnbContextId();
+    frReq.handoverType = hoProcCtxt->getHoType();
+    frReq.cause = hoProcCtxt->getS1HoCause();
+    memcpy(&(frReq.src_to_target_transparent_container),
+                &(hoProcCtxt->getSrcToTargetTransContainer()),
+                sizeof(struct src_target_transparent_container));
+    memcpy(&frReq.tai, &(hoProcCtxt->getTargetTai().tai_m), sizeof(struct TAI));
 
     // IMSI
     const DigitRegister15& ueImsi = ueCtxt->getImsi();
@@ -136,15 +143,28 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
         }
     }
 
-    // ambr
-    frReq.exg_max_dl_bitrate = (ueCtxt->getAmbr().ambr_m).max_requested_bw_dl;
-    frReq.exg_max_ul_bitrate = (ueCtxt->getAmbr().ambr_m).max_requested_bw_ul;
-
     // neigh_mme_ip : based on context for neighbor mme take that ip in neigh_mme_ip
 
     // mm context
+    frReq.mm_cntxt.security_mode = EPSsecurityContext;
 
+    E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ueCtxt->getAiaSecInfo().AiaSecInfo_mp);
+    memcpy (frReq.mm_cntxt.sec_vector, secVect, sizeof (*frReq.mm_cntxt.sec_vector));
+    //secinfo& secInfo = const_cast<secinfo&>(ueCtxt->getUeSecInfo().secinfo_m);
+    frReq.mm_cntxt.dl_count = ueCtxt->getUeSecInfo().getDownlinkCount();
+    frReq.mm_cntxt.ul_count = ueCtxt->getUeSecInfo().getUplinkCount();
+    frReq.mm_cntxt.security_encryption_algo = ueCtxt->getUeSecInfo().getSelectSecAlg();
+    frReq.mm_cntxt.security_integrity_algo = ueCtxt->getUeSecInfo().getSelectIntAlg();
 
+    memcpy(frReq.mm_cntxt.ue_network.u.octets, ueCtxt->getUeNetCapab().ue_net_capab_m.u.octets,ueCtxt->getUeNetCapab().ue_net_capab_m.len);
+    memcpy(&(frReq.mm_cntxt.ue_add_sec_capab), &(ueCtxt->getUeAddSecCapab()), sizeof(ue_add_sec_capabilities));
+    // subscribed and used ul/dl ambr
+    // ambr
+    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL = (ueCtxt->getAmbr().ambr_m).max_requested_bw_dl;
+    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL = (ueCtxt->getAmbr().ambr_m).max_requested_bw_ul;
+
+    frReq.mm_cntxt.drx = PAGINX_DRX256;
+    frReq.mm_cntxt.isNHIpresent = 0;
 
     /*Send message to S10-APP*/
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_REQUEST);

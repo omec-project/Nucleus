@@ -90,7 +90,8 @@ namespace mme
  enum HoType
  {
  	invalid_c,
- 	intraMmeS1Ho_c
+ 	intraMmeS1Ho_c,
+	interMneS1Ho_c
  };
 
  struct BearerStatusCompareById

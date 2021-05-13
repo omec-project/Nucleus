@@ -22,6 +22,7 @@ extern "C"{
 #include "s1ap_error.h"
 #include "defines.h"
 
+#define S10_FEATURE
 /**
  * MME main application configuration parameters structures.
  * All fields in this will be filled in from input json file.
