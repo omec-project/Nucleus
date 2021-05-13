@@ -168,7 +168,7 @@ void S10MsgHandler::handleForwardRelocationRequestMsg_v(IpcEMsgUnqPtr eMsg, uint
 	}
 
 	// Fire Identification resp from old MME, insert cb to procedure queue
-	SM::Event evt(IDENTIFICATION_RESPONSE_FROM_MME, cmn::IpcEMsgShPtr(std::move(eMsg)));
+	SM::Event evt(FR_REQ_FROM_SRC_MME, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 

@@ -1100,6 +1100,9 @@ ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 	struct ID_RESP_Q_msg id_resp_msg;
 	id_resp_msg.msg_type = identification_response;
 	id_resp_msg.ue_idx = ue_ctxt->getContextID();
+
+    uint8_t gtpCause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+    id_resp_msg.cause = gtpCause;
 	
 	ue_ctxt->getImsi().getImsiDigits(id_resp_msg.IMSI);
 	id_resp_msg.traceInformationIePresent = false;
