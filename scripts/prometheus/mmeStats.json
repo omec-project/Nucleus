@@ -100,6 +100,32 @@
             ]
         },
         { 
+            "name" : "s10_identification_request",
+            "help" : "number of identification request received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_response",
+            "help" : "number of identification response received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
             "name" : "nas_authentication_response",
             "help" : "number of authentication response received from UE",
             "label_0": [
@@ -563,7 +589,7 @@
             "dynamic_label_0": [
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
-        }, 
+        },
         { 
             "name" : "nas_authentication_request",
             "help" : "number of authentication request sent by MME",
@@ -1022,6 +1048,32 @@
             ],
             "dynamic_label_0": [
                 {"hss_addr" : "HSS address of s6a connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_request",
+            "help" : "number of identification request sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_response",
+            "help" : "number of identification response sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
             ]
         }
         ]

@@ -133,6 +133,9 @@ message ProcedureStatsRespBuf
 	uint32 num_of_ded_act_complete = 74;
 	uint32 num_of_create_bearer_proc_complete = 75;
 	uint32 num_of_act_ded_br_ctxt_req_sent = 76;
+	uint32 num_of_processed_identification_resp = 77;
+	uint32 num_of_identification_req_sent = 78;
+	uint32 num_of_identification_resp_sent = 79;
 }
 
 message Empty

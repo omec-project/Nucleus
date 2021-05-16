@@ -191,8 +191,8 @@ void AttachWfImsiValidateAction::initialize()
         }
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::send_identity_request_to_ue);
-                actionTable.setNextState(AttachWfIdentityResponse::Instance());
+                actionTable.addAction(&ActionHandlers::send_identification_request_to_old_mme);
+                actionTable.setNextState(AttachWfIdentificationResponse::Instance());
                 eventToActionsMap[IMSI_VALIDATION_FAILURE] = actionTable;
         }
         {
@@ -360,6 +360,77 @@ uint16_t AttachWfIdentityResponse::getStateId()const
 const char* AttachWfIdentityResponse::getStateName()const
 {
 	return "attach_wf_identity_response";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+AttachWfIdentificationResponse::AttachWfIdentificationResponse(): AttachState()
+{
+        stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+AttachWfIdentificationResponse::~AttachWfIdentificationResponse()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+AttachWfIdentificationResponse* AttachWfIdentificationResponse::Instance()
+{
+        static AttachWfIdentificationResponse state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void AttachWfIdentificationResponse::initialize()
+{
+        AttachState::initialize();
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_identification_response);
+                actionTable.addAction(&ActionHandlers::send_air_to_hss);
+                actionTable.setNextState(AttachWfAia::Instance());
+                eventToActionsMap[IDENTIFICATION_RESPONSE_FROM_MME] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t AttachWfIdentificationResponse::getStateId()const
+{
+	return attach_wf_identification_response;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* AttachWfIdentificationResponse::getStateName()const
+{
+	return "attach_wf_identification_response";
 }
 
 /******************************************************************************
