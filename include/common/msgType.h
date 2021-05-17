@@ -17,6 +17,7 @@ extern "C"{
 #include "s11_structs.h"
 #include "s1ap_structs.h"
 #include "s1ap_ie.h"
+#include "s10_structs.h"
 
 #define REQ_ARGS 0x0000
 
@@ -721,6 +722,110 @@ struct ID_RESP_Q_msg{
     bool privateExtensionIePresent;
 
 };
+struct forward_relocation_req_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    int target_enb_context_id;
+    struct F_Cause_t cause;
+    enum hoType handoverType;
+    struct src_target_transparent_container srcToTargetTranspContainer;
+    struct TAI tai;
+    unsigned char IMSI[BINARY_IMSI_LEN];
+    struct apn_name selected_apn;
+    uint8_t bearer_id;
+    bearer_ctx_list_t bearer_ctx_list;
+    uint32_t sgw_ip;
+    uint32_t pgw_ip;
+    mm_context_t mm_cntxt;
+    struct sockaddr neigh_mme_ip;
+};
+struct forward_relocation_resp_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    teid_t teid;  ///< Tunnel Endpoint Identifier
+
+    // here fields listed in 3GPP TS 29.274
+    struct gtp_cause cause;  ///< If the MME could successfully establish the UE
+                            ///< context and the beaers.
+
+    fteid_t s10_target_mme_teid;  ///< Target MME S10 control plane (sender fteid)
+    ///< This IE shall be sent on the S10 interfaces.
+
+    // todo: Indication : This IE shall be included if any of the flags are set
+    // to 1. SGW Change Indication:   - This flag shall be set to 1 if the target
+    // MME/SGSN   has selected a new SGW.
+
+    // todo: list of bearer contexts (todo: after RAB has been established?)
+    bearer_contexts_created_t handovered_bearers;
+
+    // todo: This IE is included if cause value is contained in S1-AP message.
+    // Refer to the 3GPP TS 29.010 [42] for the mapping of cause values between
+    // S1AP, RANAP and BSSGP.
+
+    struct src_target_transparent_container eutran_container;
+
+    F_Cause_t f_cause;
+
+    // EPC_Timer pgw_back_off_time                ///< This IE may be included on
+    // the S5/S8 and S4/S11
+    ///< interfaces when the PDN GW rejects the Create Session
+    ///< Request with the cause "APN congestion". It indicates the
+    ///< time during which the MME or S4-SGSN should refrain
+    ///< from sending subsequent PDN connection establishment
+    ///< requests to the PGW for the congested APN for services
+    ///< other than Service Users/emergency services.
+    ///< See NOTE 3:
+    ///< The last received value of the PGW Back-Off Time IE shall supersede any
+    ///< previous values received from that PGW and for this APN in the MME/SGSN.
+
+    // Private Extension                          ///< This IE may be sent on the
+    // S5/S8, S4/S11 and S2b
+    ///< interfaces.
+
+    unsigned int mme_ip_addr;
+    
+};
+
+
+#ifndef s10_FEATURE
+#define s10_FEATURE
+/*
+* The Forward Relocation Complete Notification will be sent on S10 interface as
+ * part of these procedures:
+ * - E-UTRAN Tracking Area Update with MME Change
+ * - S1-based Handover with MME change
+ * - todo: also sent at attach with MME change with GUTI!! (without getting
+ * security context from HSS by new MME)
+ */
+struct forward_relocation_complete_notification_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    
+    /** Destination TEID. */
+    teid_t teid;
+
+    /** Sender TEID. */
+    teid_t local_teid;  ///< not in specs for inner MME use
+
+    // todo: Indication : This IE shall be included if any of the flags are set
+    // to 1. SGW Change Indication:   - This flag shall be set to 1 if the target
+    // MME/SGSN   has selected a new SGW.
+
+    // Private Extension   Private Extension
+
+    /* GTPv2-C specific parameters */
+    void* trxn;  ///< Transaction identifier
+    //  struct sockaddr           peer_ip;             ///< MME ipv4 address for
+    //  S-GW or S-GW ipv4 address for MME
+    union {
+        struct sockaddr_in
+            addr_v4;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+        struct sockaddr_in6
+            addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+    } mme_peer_ip;
+};
+#endif
+
 #define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
  
 /*************************
@@ -818,7 +923,104 @@ struct ID_req_Q_msg{
     int s10_mme_cp_teid;
     guti _guti;
 };
+struct forward_relocation_req_BQ_msg {
+    gtp_incoming_msg_data_t header;
+    int target_enb_context_id;
+    struct F_Cause_t cause;
+    enum hoType handoverType;
+    struct src_target_transparent_container srcToTargetTranspContainer;
+    struct TAI tai;
+    unsigned char IMSI[BINARY_IMSI_LEN];
+    struct apn_name selected_apn;
+    uint8_t bearer_id;
+    bearer_ctx_list_t bearer_ctx_list;
+    uint32_t sgw_ip;
+    uint32_t pgw_ip;
+    mm_context_t mm_cntxt;
+    struct sockaddr neigh_mme_ip;
+};
+struct forward_relocation_resp_BQ_msg {
+    gtp_incoming_msg_data_t header;
+    teid_t teid;  ///< Tunnel Endpoint Identifier
 
+    // here fields listed in 3GPP TS 29.274
+    struct gtp_cause cause;  ///< If the MME could successfully establish the UE
+                            ///< context and the beaers.
+
+    fteid_t s10_target_mme_teid;  ///< Target MME S10 control plane (sender fteid)
+    ///< This IE shall be sent on the S10 interfaces.
+
+    // todo: Indication : This IE shall be included if any of the flags are set
+    // to 1. SGW Change Indication:   - This flag shall be set to 1 if the target
+    // MME/SGSN   has selected a new SGW.
+
+    // todo: list of bearer contexts (todo: after RAB has been established?)
+    bearer_contexts_created_t handovered_bearers;
+
+    // todo: This IE is included if cause value is contained in S1-AP message.
+    // Refer to the 3GPP TS 29.010 [42] for the mapping of cause values between
+    // S1AP, RANAP and BSSGP.
+
+    struct src_target_transparent_container eutran_container;
+
+    F_Cause_t f_cause;
+
+    // EPC_Timer pgw_back_off_time                ///< This IE may be included on
+    // the S5/S8 and S4/S11
+    ///< interfaces when the PDN GW rejects the Create Session
+    ///< Request with the cause "APN congestion". It indicates the
+    ///< time during which the MME or S4-SGSN should refrain
+    ///< from sending subsequent PDN connection establishment
+    ///< requests to the PGW for the congested APN for services
+    ///< other than Service Users/emergency services.
+    ///< See NOTE 3:
+    ///< The last received value of the PGW Back-Off Time IE shall supersede any
+    ///< previous values received from that PGW and for this APN in the MME/SGSN.
+
+    // Private Extension                          ///< This IE may be sent on the
+    // S5/S8, S4/S11 and S2b
+    ///< interfaces.
+
+    unsigned int mme_ip_addr;
+    
+};
+
+#ifndef s10_FEATURE
+#define s10_FEATURE
+/*
+* The Forward Relocation Complete Notification will be sent on S10 interface as
+ * part of these procedures:
+ * - E-UTRAN Tracking Area Update with MME Change
+ * - S1-based Handover with MME change
+ * - todo: also sent at attach with MME change with GUTI!! (without getting
+ * security context from HSS by new MME)
+ */
+struct forward_relocation_complete_notification_Q_msg {
+    gtp_incoming_msg_data_t header;
+    /** Destination TEID. */
+    teid_t teid;
+
+    /** Sender TEID. */
+    teid_t local_teid;  ///< not in specs for inner MME use
+
+    // todo: Indication : This IE shall be included if any of the flags are set
+    // to 1. SGW Change Indication:   - This flag shall be set to 1 if the target
+    // MME/SGSN   has selected a new SGW.
+
+    // Private Extension   Private Extension
+
+    /* GTPv2-C specific parameters */
+    void* trxn;  ///< Transaction identifier
+    //  struct sockaddr           peer_ip;             ///< MME ipv4 address for
+    //  S-GW or S-GW ipv4 address for MME
+    union {
+        struct sockaddr_in
+            addr_v4;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+        struct sockaddr_in6
+            addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+    } mme_peer_ip;
+};
+#endif
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 
