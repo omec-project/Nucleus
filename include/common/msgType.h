@@ -720,6 +720,7 @@ struct ID_RESP_Q_msg{
     bool ueUsageTypeIePresent;
     bool monitoringEventInformationIePresent;
     bool privateExtensionIePresent;
+<<<<<<< HEAD
 
 };
 struct forward_relocation_req_Q_msg {
@@ -743,6 +744,8 @@ struct forward_relocation_resp_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
     teid_t teid;  ///< Tunnel Endpoint Identifier
+=======
+>>>>>>> 0288e89f47dbfb084f5f254039f87c030a5ed8ed
 
     // here fields listed in 3GPP TS 29.274
     struct gtp_cause cause;  ///< If the MME could successfully establish the UE
