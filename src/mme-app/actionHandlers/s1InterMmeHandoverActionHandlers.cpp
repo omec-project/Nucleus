@@ -56,60 +56,6 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_fr_res(ControlBlock& cb)
 {
-    //////////////Complete after msg structure creation is done//////////////////////
-    log_msg(LOG_DEBUG, "Entering process_fr_res ");
-
-	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
-	
-	S1HandoverProcedureContext *interMmeHoProcCtxt =
-            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
-	if (interMmeHoProcCtxt == NULL)
-    {
-        log_msg(LOG_DEBUG,
-                "process_fr_res: MmeS1HandoverProcedureCtxt is NULL");
-        return ActStatus::HALT;
-    }
-
-	MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
-	VERIFY(msgBuf, return ActStatus::ABORT, "Invalid message buffer ");
-	VERIFY(msgBuf->getLength() >= sizeof(struct id_resp_Q_msg), return ActStatus::ABORT, "Invalid CSRsp message length ");
-
-	const struct id_resp_Q_msg* id_resp_info = static_cast<const struct id_resp_Q_msg*>(msgBuf->getDataPointer());
-
-    /*if(id_resp_info->status != GTPV2C_CAUSE_REQUEST_ACCEPTED)
-    {
-		log_msg(LOG_DEBUG, "IDRsp rejected by MME with cause %d ",id_resp_info->status);
-        std::ostringstream reason;
-        reason<<"IDRsp_reject_cause_"<<id_resp_info->status;
-        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_ATTACH_PROC_FAILURE, {{"failure_reason", reason.str()}});
-       	return ActStatus::ABORT;
-    }*/
-
-	uint8_t imsi[BINARY_IMSI_LEN] = {0};
-	memcpy( imsi, id_resp_info->IMSI, BINARY_IMSI_LEN );
-
-	// Only upper nibble of first octect in imsi need to be considered
-	// Changing the lower nibble to 0x0f for handling
-	uint8_t first = imsi[0] >> 4;
-	imsi[0] = (uint8_t)(( first << 4 ) | 0x0f );
-
-	DigitRegister15 IMSIInfo;
-	IMSIInfo.convertFromBcdArray(imsi);
-	ue_ctxt->setImsi(IMSIInfo);
-
-	SubsDataGroupManager::Instance()->addimsikey(ue_ctxt->getImsi(), ue_ctxt->getContextID());	
-	ProcedureStats::num_of_processed_identification_resp++;
-	log_msg(LOG_DEBUG, "Leaving process_identification_response");
-
-    return ActStatus::PROCEED;
-}
-
-/***************************************
-* Action handler : process_enb_status_transfer
-***************************************/
-ActStatus ActionHandlers::process_enb_status_transfer(ControlBlock& cb)
-{
     return ActStatus::PROCEED;
 }
 
@@ -149,6 +95,9 @@ ActStatus ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_fwd_acc_ctxt_ack(ControlBlock& cb)
 {
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+
     return ActStatus::PROCEED;
 }
 
@@ -201,14 +150,6 @@ ActStatus ActionHandlers::send_fwd_rel_resp_to_src_mme(ControlBlock& cb)
 }
 
 /***************************************
-* Action handler : process_ho_fwd_acc_cntx_noti
-***************************************/
-ActStatus ActionHandlers::process_ho_fwd_acc_cntx_noti(ControlBlock& cb)
-{
-    return ActStatus::PROCEED;
-}
-
-/***************************************
 * Action handler : send_ho_fwd_acc_cntx_ack_to_src_mme
 ***************************************/
 ActStatus ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme(ControlBlock& cb)
@@ -243,6 +184,50 @@ ActStatus ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb(ControlBlock& cb)
 {
+	log_msg(LOG_DEBUG, "Inside send_from_target_mme_status_tranfer_to_target_enb");
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_from_target_mme_status_tranfer_to_target_enb: ue ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "send_from_target_mme_status_tranfer_to_target_enb: procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
+        return ActStatus::HALT;
+    }
+
+    const enb_status_transfer_Q_msg_t *enb_status_trans = static_cast<const enb_status_transfer_Q_msg_t*>(msgBuf->getDataPointer());
+
+    mme_status_transfer_Q_msg_t mme_status_trans;
+    memset(&mme_status_trans, 0, sizeof(struct mme_status_transfer_Q_msg));
+
+    mme_status_trans.msg_type = mme_status_transfer;
+    mme_status_trans.target_enb_context_id = ho_ctxt->getTargetEnbContextId();
+    mme_status_trans.s1ap_enb_ue_id = ho_ctxt->getTargetS1apEnbUeId();
+    mme_status_trans.s1ap_mme_ue_id = ue_ctxt->getContextID();
+    mme_status_trans.enB_status_transfer_transparent_containerlist.count =
+    	enb_status_trans->enB_status_transfer_transparent_containerlist.count;
+    memcpy(&(mme_status_trans.enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container) ,
+    	&(enb_status_trans->enB_status_transfer_transparent_containerlist.enB_status_transfer_transparent_container),
+	sizeof(struct enB_status_transfer_transparent_container));
+
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S1AP_MME_STATUS_TRANSFER);
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s1apAppInstanceNum_c};
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &mme_status_trans, sizeof(mme_status_trans), destAddr);
+
+	log_msg(LOG_DEBUG, "Leaving send_from_target_mme_status_tranfer_to_target_enb");
     return ActStatus::PROCEED;
 }
 
@@ -251,6 +236,47 @@ ActStatus ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb(Cont
 ***************************************/
 ActStatus ActionHandlers::process_s1_ho_notify_from_target_enb(ControlBlock& cb)
 {
+	log_msg(LOG_DEBUG, "Inside process_s1_ho_notify_from_target_enb");
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_s1_ho_notify_from_target_enb: ue ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_s1_ho_notify_from_target_enb: procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
+        return ActStatus::HALT;
+    }
+
+    const handover_notify_Q_msg_t *ho_notify = static_cast<const handover_notify_Q_msg_t*>(msgBuf->getDataPointer());
+
+    // The UE has synced to target cell. Set the current enb
+    // to target enb.
+    ue_ctxt->setEnbFd(ho_ctxt->getTargetEnbContextId());
+    ue_ctxt->setS1apEnbUeId(ho_ctxt->getTargetS1apEnbUeId());
+
+    // Wait till TAU complete to overwrite TAI?
+    //TAI and CGI obtained from s1ap ies.
+    //Convert the PLMN in s1ap format to nas format before storing in procedure context.
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify->tai.plmn_id));
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&ho_notify->utran_cgi.plmn_id));
+    ho_ctxt->setTargetTai(Tai(ho_notify->tai));
+    ho_ctxt->setTargetCgi(Cgi(ho_notify->utran_cgi));
+
+    ProcedureStats::num_of_ho_notify_received++;
+    log_msg(LOG_DEBUG, "Leaving process_ho_notify");
+
     return ActStatus::PROCEED;
 }
 

@@ -1520,10 +1520,10 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 	id_msg.msg_type = identification_request;
 	id_msg.ue_idx = ue_ctxt->getContextID();
 
-	memcpy(&(id_msg._guti.plmn_id), &(ue_ctxt->getTai().tai_m.plmn_id), 3);
-	id_msg._guti.mme_grp_id = htons(mme_cfg->mme_group_id);
-	id_msg._guti.mme_code = mme_cfg->mme_code;
-    id_msg._guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
+	memcpy(&(id_msg.guti.plmn_id), &(ue_ctxt->getTai().tai_m.plmn_id), 3);
+	id_msg.guti.mme_grp_id = htons(mme_cfg->mme_group_id);
+	id_msg.guti.mme_code = mme_cfg->mme_code;
+    id_msg.guti.m_TMSI = htonl(ue_ctxt->getMTmsi());
 
 	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;

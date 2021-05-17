@@ -132,7 +132,7 @@ void S10MsgHandler::handleIdentificationRequestMsg_v(IpcEMsgUnqPtr eMsg, uint32_
 	}
 
 	// Fire Identification req event, insert cb to procedure queue
-	SM::Event evt(IDENTIFICATION_REQ_FROM_UE, cmn::IpcEMsgShPtr(std::move(eMsg)));
+	SM::Event evt(IDENTIFICATION_REQ_FROM_MME, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
 

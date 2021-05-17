@@ -704,7 +704,7 @@ struct DB_RESP_Q_msg {
 struct ID_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
-    guti _guti;
+    guti guti;
 };
 #define S10_IDREQ_STAGE5_BUF_SIZE sizeof(struct ID_Q_msg)
 
@@ -834,7 +834,7 @@ struct id_resp_Q_msg{
 struct ID_req_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
-    guti _guti;
+    guti guti;
 };
 
 struct Fwd_Acc_Ctxt_Notif_Q_msg{

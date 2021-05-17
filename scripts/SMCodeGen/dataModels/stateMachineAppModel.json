@@ -16,7 +16,7 @@
                                 "NextState":"end_state"
                             },
                             {
-                                "Name":"IDENTIFICATION_REQ_FROM_UE",
+                                "Name":"IDENTIFICATION_REQ_FROM_MME",
                                 "Actions":[
                                     "DEFAULT_IDENTIFICATION_REQ_HANDLER"
                                 ],
@@ -1591,7 +1591,6 @@
                             {
                                 "Name":"ENB_STATUS_TRANSFER_RECV_FROM_ENB",
                                 "Actions":[
-                                    "PROCESS_ENB_STATUS_TRANSFER",
                                     "SEND_FWD_ACC_CTXT_NOTI_TO_TARGET_MME"
                                 ],
                                 "NextState":"s1_ho_wf_fwd_acc_ctxt_ack"
@@ -1655,7 +1654,6 @@
                             {
                                 "Name":"HO_FWD_ACC_CNTX_NOTI",
                                 "Actions":[
-                                    "PROCESS_HO_FWD_ACC_CNTX_NOTI",
                                     "SEND_HO_FWD_ACC_CNTX_ACK_TO_SRC_MME",
                                     "SEND_FROM_TARGET_MME_STATUS_TRANFER_TO_TARGET_ENB"
                                 ],

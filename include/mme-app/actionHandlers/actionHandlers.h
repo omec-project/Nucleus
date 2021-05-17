@@ -344,11 +344,6 @@ namespace mme
         static SM::ActStatus process_detach_accept_from_ue(SM::ControlBlock& cb);                
 
         /**********************************************
-        * Action handler : process_enb_status_transfer
-        ***********************************************/
-        static SM::ActStatus process_enb_status_transfer(SM::ControlBlock& cb);                
-
-        /**********************************************
         * Action handler : process_erab_release_response
         ***********************************************/
         static SM::ActStatus process_erab_release_response(SM::ControlBlock& cb);                
@@ -387,11 +382,6 @@ namespace mme
         * Action handler : process_ho_failure
         ***********************************************/
         static SM::ActStatus process_ho_failure(SM::ControlBlock& cb);                
-
-        /**********************************************
-        * Action handler : process_ho_fwd_acc_cntx_noti
-        ***********************************************/
-        static SM::ActStatus process_ho_fwd_acc_cntx_noti(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : process_ho_notify

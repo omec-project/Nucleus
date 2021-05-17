@@ -174,7 +174,6 @@ void S1HoWfEnbStatusTransfer::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_enb_status_transfer);
                 actionTable.addAction(&ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme);
                 actionTable.setNextState(S1HoWfFwdAccCtxtAck::Instance());
                 eventToActionsMap[ENB_STATUS_TRANSFER_RECV_FROM_ENB] = actionTable;
@@ -457,7 +456,6 @@ void S1HoWfHoFwdAccCntxNoti::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_ho_fwd_acc_cntx_noti);
                 actionTable.addAction(&ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme);
                 actionTable.addAction(&ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb);
                 actionTable.setNextState(S1HoWfHoNotifyFromTargetEnb::Instance());
