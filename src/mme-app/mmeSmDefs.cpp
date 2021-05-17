@@ -70,6 +70,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(INTRA_S1HO_START,"INTRA_S1HO_START");      
     smUtil->addEventToStrEntry(MB_RESP_FROM_SGW,"MB_RESP_FROM_SGW");      
     smUtil->addEventToStrEntry(MME_INIT_DETACH,"MME_INIT_DETACH");      
+    smUtil->addEventToStrEntry(NAS_PDU_PARSE_FAILURE,"NAS_PDU_PARSE_FAILURE");      
     smUtil->addEventToStrEntry(PAGING_COMPLETE,"PAGING_COMPLETE");      
     smUtil->addEventToStrEntry(PAGING_FAILURE,"PAGING_FAILURE");      
     smUtil->addEventToStrEntry(PGW_INIT_DETACH,"PGW_INIT_DETACH");      

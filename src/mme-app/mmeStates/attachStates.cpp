@@ -67,6 +67,14 @@ void AttachState::initialize()
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[S1_REL_REQ_FROM_UE] = actionTable;
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
+                actionTable.addAction(&ActionHandlers::send_attach_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_attach);
+                eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
 }
 
 /******************************************************************************

@@ -157,7 +157,9 @@ void S6MsgHandler::handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg)
 	if(controlBlk_p == NULL)
 	{
 		log_msg(LOG_ERROR, "handleCancelLocationRequest_v: "
-				   "Failed to find UE Context using IMSI in CLR");
+				   "Failed to find UE Context using IMSI %s in CLR", IMSI.getDigitsArray());
+		// Deleting stale IMSI -> cbIdx mapping.
+		SubsDataGroupManager::Instance()->deleteimsikey(IMSI);
 		return;
 	}
 	//Fire CLR event, insert CB to Procedure Queue

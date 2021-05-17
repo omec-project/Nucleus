@@ -30,7 +30,65 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachStart::NiDetachStart():State()
+NiDetachState::NiDetachState():State()
+{
+        stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+NiDetachState::~NiDetachState()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+NiDetachState* NiDetachState::Instance()
+{
+        static NiDetachState state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void NiDetachState::initialize()
+{
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_detach);
+                eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t NiDetachState::getStateId()const
+{
+	return ni_detach_state;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* NiDetachState::getStateName()const
+{
+	return "ni_detach_state";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+NiDetachStart::NiDetachStart(): NiDetachState()
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -59,6 +117,7 @@ NiDetachStart* NiDetachStart::Instance()
 ******************************************************************************/
 void NiDetachStart::initialize()
 {
+        NiDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
@@ -106,7 +165,7 @@ const char* NiDetachStart::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp():State()
+NiDetachWfDetAccptDelSessResp::NiDetachWfDetAccptDelSessResp(): NiDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -136,6 +195,7 @@ NiDetachWfDetAccptDelSessResp* NiDetachWfDetAccptDelSessResp::Instance()
 ******************************************************************************/
 void NiDetachWfDetAccptDelSessResp::initialize()
 {
+        NiDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_detach_accept_from_ue);
@@ -180,7 +240,7 @@ const char* NiDetachWfDetAccptDelSessResp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDelSessResp::NiDetachWfDelSessResp():State()
+NiDetachWfDelSessResp::NiDetachWfDelSessResp(): NiDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -210,6 +270,7 @@ NiDetachWfDelSessResp* NiDetachWfDelSessResp::Instance()
 ******************************************************************************/
 void NiDetachWfDelSessResp::initialize()
 {
+        NiDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_del_session_resp);
@@ -249,7 +310,7 @@ const char* NiDetachWfDelSessResp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfDetachAccept::NiDetachWfDetachAccept():State()
+NiDetachWfDetachAccept::NiDetachWfDetachAccept(): NiDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -279,6 +340,7 @@ NiDetachWfDetachAccept* NiDetachWfDetachAccept::Instance()
 ******************************************************************************/
 void NiDetachWfDetachAccept::initialize()
 {
+        NiDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_detach_accept_from_ue);
@@ -318,7 +380,7 @@ const char* NiDetachWfDetachAccept::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-NiDetachWfS1RelComp::NiDetachWfS1RelComp():State()
+NiDetachWfS1RelComp::NiDetachWfS1RelComp(): NiDetachState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -348,6 +410,7 @@ NiDetachWfS1RelComp* NiDetachWfS1RelComp::Instance()
 ******************************************************************************/
 void NiDetachWfS1RelComp::initialize()
 {
+        NiDetachState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_ue_ctxt_rel_comp_for_detach);

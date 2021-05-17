@@ -119,6 +119,11 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::handle_detach_failure);
                 eventToActionsMap[DETACH_FAILURE] = actionTable;
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
+                eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
 }
 
 /******************************************************************************

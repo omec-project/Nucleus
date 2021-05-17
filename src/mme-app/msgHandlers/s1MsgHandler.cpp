@@ -93,14 +93,21 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
         assert(MAX_NAS_MSG_SIZE > nasMsgSize);
         memcpy(nasMsgBuf, startNasPtr, nasMsgSize);
 
-	    if(E_FAIL == MmeNasUtils::parse_nas_pdu(msgData_p,
-                                    nasMsgBuf, 
-                                    nasMsgSize, &nas))
+        uint32_t rc = MmeNasUtils::parse_nas_pdu(msgData_p,
+                                    nasMsgBuf,
+                                    nasMsgSize, &nas);
+        if(SUCCESS != rc)
         {
+            uint32_t s1ap_enb_ue_id = msgData_p->s1ap_enb_ue_id;
+            NasPduParseFailureIndEMsgShPtr eMsg = std::make_shared<
+                    NasPduParseFailureIndEMsg>(nas.header.message_type, s1ap_enb_ue_id, rc);
+            handleNasPduParseFailureInd_v(eMsg, msgData_p->ue_idx);
+
             free(nas.elements);
-            log_msg(LOG_ERROR,"NAS pdu parse failed.");
+            log_msg(LOG_ERROR, "NAS pdu parse failed.");
             return;
         }
+
 	    MmeNasUtils::copy_nas_to_s1msg(&nas, msgData_p);
         free(nas.elements);
     } while(0);
@@ -741,4 +748,36 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
         mmeStats::Instance()->decrement(mmeStatsCounter::ENB_NUM_ACTIVE, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
     return;
 
+}
+
+void S1MsgHandler::handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr eMsg, uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleNasPduParseFailureInd_v");
+
+    if (ueIdx == 0) {
+        // We havent identified the UE. Nothing left to do.
+        return;
+    }
+
+    if (eMsg)
+    {
+        if (eMsg->getNasMsgType() == ServiceRequest) {
+            ueIdx = SubsDataGroupManager::Instance()->findCBWithmTmsi(ueIdx);
+        }
+
+        SM::ControlBlock* cb =
+                SubsDataGroupManager::Instance()->findControlBlock(ueIdx);
+        if (cb == NULL) {
+            log_msg(LOG_ERROR, "handleNasPduParseFailureInd_v: "
+                    "Failed to find UE Context using idx %d", ueIdx);
+            return;
+        }
+
+        SM::Event evt(NAS_PDU_PARSE_FAILURE, eMsg);
+        cb->addEventToProcQ(evt);
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "NasPduParseFailureInd Message is NULL");
+    }
 }
