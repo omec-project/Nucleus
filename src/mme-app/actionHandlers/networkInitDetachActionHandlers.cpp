@@ -173,33 +173,3 @@ ActStatus ActionHandlers::process_ue_ctxt_rel_comp_for_detach(ControlBlock& cb)
     return ActStatus::PROCEED;
 
 }
-
-/***************************************
-* Action handler : trigger_nwk_init_detach
-***************************************/
-ActStatus ActionHandlers::trigger_nwk_init_detach(ControlBlock& cb)
-{
-    log_msg(LOG_DEBUG, "trigger_nwk_init_detach : Entry");
-
-    MmeDetachProcedureCtxt *procCtxt = dynamic_cast<MmeDetachProcedureCtxt*>(cb.getTempDataBlock());
-    VERIFY(procCtxt, return ActStatus::ABORT, "Procedure Context is NULL ");
-
-    uint32_t detachType = procCtxt->getDetachType();
-
-    switch (detachType)
-    {
-        case hssInitDetach_c:
-        {
-            SM::Event evt(HSS_INIT_DETACH, NULL);
-            cb.qInternalEvent(evt);
-        }break;
-        default:
-        {
-            log_msg(LOG_DEBUG, "Unknown Detach Type %d", detachType);
-        }
-    }
-
-    log_msg(LOG_DEBUG, "trigger_nwk_init_detach : Exit");
-    return ActStatus::PROCEED;
-}
-

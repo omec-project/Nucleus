@@ -121,6 +121,11 @@ void DefaultMmeState::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
+                eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_delete_subs_req_handler);
                 eventToActionsMap[DSR_FROM_HSS] = actionTable;
         }

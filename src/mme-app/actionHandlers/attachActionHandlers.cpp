@@ -1363,7 +1363,8 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
 		nas.header.security_header_type = Plain;
 		nas.header.proto_discriminator = EPSMobilityManagementMessages;
 		nas.header.message_type = AttachReject;
-		nas.elements[0].pduElement.attach_res = 0x09;
+		//Removed the hard-coded value "0x09", to set the appropriate EMM Cause
+		nas.elements[0].pduElement.attach_res = attach_rej.cause;
 		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
 		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 		attach_rej.nasMsgSize = nasBuffer.pos;

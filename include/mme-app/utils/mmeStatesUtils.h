@@ -47,6 +47,11 @@ namespace mme
         static SM::EventStatus validate_event(SM::ControlBlock& cb,
                 SM::TempDataBlock* tempDataBlock,
                 SM::Event& evt);
+
+        /**********************************************
+        * MmeStatesUtils : handle_sm_exception
+        ***********************************************/
+        static void handle_sm_exception(SM::ControlBlock& cb, uint8_t err_code);
     };
 };
 #endif /* INCLUDE_MME_APP_UTILS_MMESTATESUTILS_H_ */

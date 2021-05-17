@@ -30,7 +30,66 @@ using namespace SM;
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingStart::PagingStart():State()
+ServiceRequestState::ServiceRequestState():State()
+{
+        stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+ServiceRequestState::~ServiceRequestState()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+ServiceRequestState* ServiceRequestState::Instance()
+{
+        static ServiceRequestState state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void ServiceRequestState::initialize()
+{
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t ServiceRequestState::getStateId()const
+{
+	return service_request_state;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* ServiceRequestState::getStateName()const
+{
+	return "service_request_state";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+PagingStart::PagingStart(): ServiceRequestState()
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -59,6 +118,7 @@ PagingStart* PagingStart::Instance()
 ******************************************************************************/
 void PagingStart::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_paging_req_to_ue);
@@ -104,7 +164,7 @@ const char* PagingStart::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-PagingWfServiceReq::PagingWfServiceReq():State()
+PagingWfServiceReq::PagingWfServiceReq(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -134,6 +194,7 @@ PagingWfServiceReq* PagingWfServiceReq::Instance()
 ******************************************************************************/
 void PagingWfServiceReq::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_service_request);
@@ -174,7 +235,7 @@ const char* PagingWfServiceReq::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestStart::ServiceRequestStart():State()
+ServiceRequestStart::ServiceRequestStart(): ServiceRequestState()
 {
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
@@ -203,6 +264,7 @@ ServiceRequestStart* ServiceRequestStart::Instance()
 ******************************************************************************/
 void ServiceRequestStart::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::auth_req_to_ue);
@@ -244,7 +306,7 @@ const char* ServiceRequestStart::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse():State()
+ServiceRequestWfAuthResponse::ServiceRequestWfAuthResponse(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -274,6 +336,7 @@ ServiceRequestWfAuthResponse* ServiceRequestWfAuthResponse::Instance()
 ******************************************************************************/
 void ServiceRequestWfAuthResponse::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::auth_response_validate);
@@ -318,7 +381,7 @@ const char* ServiceRequestWfAuthResponse::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAuthRespValidate::ServiceRequestWfAuthRespValidate():State()
+ServiceRequestWfAuthRespValidate::ServiceRequestWfAuthRespValidate(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -348,6 +411,7 @@ ServiceRequestWfAuthRespValidate* ServiceRequestWfAuthRespValidate::Instance()
 ******************************************************************************/
 void ServiceRequestWfAuthRespValidate::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::sec_mode_cmd_to_ue);
@@ -397,7 +461,7 @@ const char* ServiceRequestWfAuthRespValidate::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfSecCmp::ServiceRequestWfSecCmp():State()
+ServiceRequestWfSecCmp::ServiceRequestWfSecCmp(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -427,6 +491,7 @@ ServiceRequestWfSecCmp* ServiceRequestWfSecCmp::Instance()
 ******************************************************************************/
 void ServiceRequestWfSecCmp::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_sec_mode_resp);
@@ -472,7 +537,7 @@ const char* ServiceRequestWfSecCmp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfAia::ServiceRequestWfAia():State()
+ServiceRequestWfAia::ServiceRequestWfAia(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -502,6 +567,7 @@ ServiceRequestWfAia* ServiceRequestWfAia::Instance()
 ******************************************************************************/
 void ServiceRequestWfAia::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_aia);
@@ -547,7 +613,7 @@ const char* ServiceRequestWfAia::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfInitCtxtResp::ServiceRequestWfInitCtxtResp():State()
+ServiceRequestWfInitCtxtResp::ServiceRequestWfInitCtxtResp(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -577,6 +643,7 @@ ServiceRequestWfInitCtxtResp* ServiceRequestWfInitCtxtResp::Instance()
 ******************************************************************************/
 void ServiceRequestWfInitCtxtResp::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_init_ctxt_resp_svc_req);
@@ -622,7 +689,7 @@ const char* ServiceRequestWfInitCtxtResp::getStateName()const
 /******************************************************************************
 * Constructor
 ******************************************************************************/
-ServiceRequestWfMbResp::ServiceRequestWfMbResp():State()
+ServiceRequestWfMbResp::ServiceRequestWfMbResp(): ServiceRequestState()
 {
         stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
@@ -652,6 +719,7 @@ ServiceRequestWfMbResp* ServiceRequestWfMbResp::Instance()
 ******************************************************************************/
 void ServiceRequestWfMbResp::initialize()
 {
+        ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_mb_resp_svc_req);

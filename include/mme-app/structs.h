@@ -350,4 +350,39 @@ private:
 
 using BearerStatusEMsgShPtr = std::shared_ptr<BearerStatusEMsg>;
 
+class NasPduParseFailureIndEMsg : public cmn::EventMessage
+{
+public:
+    NasPduParseFailureIndEMsg(unsigned char msgType, uint32_t s1ap_enb_ue_id, uint32_t errCode):
+        EventMessage(NAS_PDU_PARSE_FAILURE_IND_EMSG),
+        nasMsgType_m(msgType),
+        s1ap_enb_ue_id_m(s1ap_enb_ue_id),
+        errorCode_m(errCode)
+    { }
+
+    ~NasPduParseFailureIndEMsg(){}
+
+    unsigned char getNasMsgType() const
+    {
+        return nasMsgType_m;
+    }
+
+    uint32_t getS1apEnbUeId() const
+    {
+        return s1ap_enb_ue_id_m;
+    }
+
+    uint32_t getErrorCode() const
+    {
+        return errorCode_m;
+    }
+
+private:
+    unsigned char nasMsgType_m;
+    uint32_t s1ap_enb_ue_id_m;
+    uint32_t errorCode_m;
+};
+
+using NasPduParseFailureIndEMsgShPtr = std::shared_ptr<NasPduParseFailureIndEMsg>;
+
 #endif

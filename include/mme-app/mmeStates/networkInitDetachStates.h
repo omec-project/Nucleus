@@ -19,20 +19,20 @@
  #include "state.h"
 
  namespace mme {
-	class NetworkInitDetachState : public SM::State
+	class NiDetachState : public SM::State
 	{
 		public:
 			/******************************************
 			* Instance 
 			*    Creates static instance for the state
 			*******************************************/
-			static NetworkInitDetachState* Instance();
+			static NiDetachState* Instance();
 
 			/****************************************
-			* NetworkInitDetachState
+			* NiDetachState
 			*    Destructor
 			****************************************/
-			~NetworkInitDetachState();			
+			~NiDetachState();			
 			
 			/******************************************
 			* initialize
@@ -53,13 +53,13 @@
 
 		protected:
 			/****************************************
-			* NetworkInitDetachState
+			* NiDetachState
 			*    Protected constructor
 			****************************************/
-			NetworkInitDetachState();  
+			NiDetachState();  
 	};
 	
-	class NiDetachStart : public NetworkInitDetachState
+	class NiDetachStart : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -99,7 +99,7 @@
 			NiDetachStart();  
 	};
 	
-	class NiDetachWfPagingComplete : public NetworkInitDetachState
+	class NiDetachWfPagingComplete : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -139,7 +139,7 @@
 			NiDetachWfPagingComplete();  
 	};
 	
-	class NiDetachWfDetAccptDelSessResp : public NetworkInitDetachState
+	class NiDetachWfDetAccptDelSessResp : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -179,7 +179,7 @@
 			NiDetachWfDetAccptDelSessResp();  
 	};
 	
-	class NiDetachWfDelSessResp : public NetworkInitDetachState
+	class NiDetachWfDelSessResp : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -219,7 +219,7 @@
 			NiDetachWfDelSessResp();  
 	};
 	
-	class NiDetachWfDetachAccept : public NetworkInitDetachState
+	class NiDetachWfDetachAccept : public NiDetachState
 	{
 		public:
 			/******************************************
@@ -259,7 +259,7 @@
 			NiDetachWfDetachAccept();  
 	};
 	
-	class NiDetachWfS1RelComp : public NetworkInitDetachState
+	class NiDetachWfS1RelComp : public NiDetachState
 	{
 		public:
 			/******************************************

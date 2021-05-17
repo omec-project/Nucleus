@@ -244,6 +244,11 @@ namespace mme
         static SM::ActStatus handle_dsr_during_detach(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_nas_pdu_parse_failure
+        ***********************************************/
+        static SM::ActStatus handle_nas_pdu_parse_failure(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : handle_paging_failure
         ***********************************************/
         static SM::ActStatus handle_paging_failure(SM::ControlBlock& cb);                
@@ -622,11 +627,6 @@ namespace mme
         * Action handler : svc_req_state_guard_timeout
         ***********************************************/
         static SM::ActStatus svc_req_state_guard_timeout(SM::ControlBlock& cb);                
-
-        /**********************************************
-        * Action handler : trigger_nwk_init_detach
-        ***********************************************/
-        static SM::ActStatus trigger_nwk_init_detach(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : validate_imsi_in_ue_context

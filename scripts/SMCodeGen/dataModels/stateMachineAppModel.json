@@ -93,6 +93,13 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"NAS_PDU_PARSE_FAILURE",
+                                "Actions":[
+                                    "HANDLE_NAS_PDU_PARSE_FAILURE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"DSR_FROM_HSS",
                                 "Actions":[
                                     "DEFAULT_DELETE_SUBS_REQ_HANDLER"
@@ -122,6 +129,16 @@
                                 "Name":"S1_REL_REQ_FROM_UE",
                                 "Actions":[
                                     "HANDLE_S1_REL_REQ_DURING_ATTACH",
+                                    "SEND_ATTACH_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_ATTACH"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"NAS_PDU_PARSE_FAILURE",
+                                "Actions":[
+                                    "HANDLE_NAS_PDU_PARSE_FAILURE",
                                     "SEND_ATTACH_REJECT",
                                     "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
@@ -893,13 +910,22 @@
                 "Properties": [
                     {
                         "stateGuardTimerFeature" : "enabled",
-                        "defaultState" : "network_init_detach_state"
+                        "defaultState" : "ni_detach_state"
                     }
                 ],
                 "States":[
                     {
-                        "Name":"network_init_detach_state",
+                        "Name":"ni_detach_state",
                         "Events":[
+                            {
+                                "Name":"NAS_PDU_PARSE_FAILURE",
+                                "Actions":[
+                                    "HANDLE_NAS_PDU_PARSE_FAILURE",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_DETACH"
+                                ],
+                                "NextState":"end_state"
+                            },
                             {
                                 "Name":"DSR_FROM_HSS",
                                 "Actions":[
@@ -961,9 +987,10 @@
                             {
                                 "Name": "PAGING_COMPLETE",
                                 "Actions": [
-                                    "TRIGGER_NWK_INIT_DETACH"
+                                    "NI_DETACH_REQ_TO_UE",
+                                    "DEL_SESSION_REQ"
                                 ],
-                                "NextState": "ni_detach_start"
+                                "NextState": "ni_detach_wf_det_accpt_del_sess_resp"
                             },
                             {
                                 "Name": "PAGING_FAILURE",
@@ -1115,10 +1142,26 @@
                 "Name":"SERVICE_REQUEST",
                 "Properties": [
                     {
-                        "stateGuardTimerFeature" : "enabled"
+                        "stateGuardTimerFeature" : "enabled",
+                        "defaultState" : "service_request_state"
                     }
                 ],
                 "States":[
+                    {
+                        "Name":"service_request_state",
+                        "Events":[
+                            {
+                                "Name":"NAS_PDU_PARSE_FAILURE",
+                                "Actions":[
+                                    "HANDLE_NAS_PDU_PARSE_FAILURE",
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
                     {
                         "Name":"paging_start",
                         "Events":[

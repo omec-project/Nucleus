@@ -1046,6 +1046,52 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 }
 
 /***************************************
+* Action handler : handle_nas_pdu_parse_failure
+***************************************/
+ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Entry \n");
+
+    UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL \n");
+
+    MmeProcedureCtxt *procCtxt_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if(procCtxt_p != NULL)
+    {
+        NasPduParseFailureIndEMsgShPtr eMsg = std::dynamic_pointer_cast<NasPduParseFailureIndEMsg>(
+                            cb.getEventMessage());
+        if (eMsg)
+        {
+            uint8_t msgType = eMsg->getNasMsgType();
+            procCtxt_p->setMmeErrorCause(ERROR_CODES(eMsg->getErrorCode()));
+            ueCtxt->setS1apEnbUeId(eMsg->getS1apEnbUeId());
+
+            //Handle parse failures of UE Initiated Service Request
+            if(procCtxt_p->getCtxtType() == defaultMmeProcedure_c)
+            {
+                switch(msgType)
+                {
+                    case ServiceRequest:
+                    {
+                        send_service_reject(cb);
+                        send_s1_rel_cmd_to_ue(cb);
+                    }
+                    break;
+                    default:
+                    {
+                        log_msg(LOG_DEBUG, "NAS PDU Parse Failure not handled for the msgType %d\n", msgType);
+                    }
+                }
+            }
+        }
+    }
+
+    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Exit \n");
+    return ActStatus::PROCEED;
+}
+
+/***************************************
 * Action handler : default_delete_subs_req_handler
 ***************************************/
 ActStatus ActionHandlers::default_delete_subs_req_handler(ControlBlock& cb)
