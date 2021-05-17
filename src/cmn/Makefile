@@ -30,6 +30,7 @@ CMNUTILS_SRCS := ./cTime.cpp \
 		 ./msgBuffer.cpp \
 		 ./timerQueue.cpp \
 		 ./timeoutManager.cpp \
+		 ./transactionDb.cpp \
 		 ./componentDb.cpp
 		 
 

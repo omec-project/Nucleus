@@ -558,6 +558,21 @@ namespace mme
     		}
     		return NULL;
 	}
+	
+	/******************************************************************************
+	* find SessionContext ByApnConfigProfileCtxId
+	******************************************************************************/
+	SessionContext* UEContext::findSessionContextByApnConfigProfileCtxId( uint32_t apnConfigProfileCtxId_i)
+	{
+		for( auto &it : SessionContext_m)
+    		{
+        		if(it->getApnConfigProfileCtxId() == apnConfigProfileCtxId_i)
+        		{
+            			return it;
+        		}
+    		}
+    		return NULL;
+	}
 
 	/******************************************************************************
 	*******************************************************************************

@@ -164,6 +164,11 @@ namespace mme
         static SM::ActStatus default_delete_bearer_req_handler(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : default_delete_subs_req_handler
+        ***********************************************/
+        static SM::ActStatus default_delete_subs_req_handler(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : default_detach_req_handler
         ***********************************************/
         static SM::ActStatus default_detach_req_handler(SM::ControlBlock& cb);                
@@ -232,6 +237,11 @@ namespace mme
         * Action handler : handle_detach_failure
         ***********************************************/
         static SM::ActStatus handle_detach_failure(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : handle_dsr_during_detach
+        ***********************************************/
+        static SM::ActStatus handle_dsr_during_detach(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : handle_nas_pdu_parse_failure

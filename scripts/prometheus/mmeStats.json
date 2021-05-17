@@ -450,6 +450,19 @@
                 {"hss_addr" : "hss address of diameter connection "}
             ]
         },
+        {
+            "name" : "s6a_delete_subscriber_request",
+            "help" : "number of delete subscriber data request received by MME",
+            "label_0": [
+                { "interface":"s6a"}
+            ],
+            "label_1": [
+                {"msg_type": "delete_subscriber_data_request"}
+            ],
+            "dynamic_label_0": [
+                {"hss_addr" : "hss address of diameter connection "}
+            ]
+        },
         { 
             "name" : "s11_create_session_response",
             "help" : "number of CSRsp received by MME",
@@ -1023,6 +1036,19 @@
             "dynamic_label_0": [
                 {"hss_addr" : "HSS address of s6a connection "}
             ]
+        },
+        {
+            "name" : "s6a_delete_subscriber_answer",
+            "help" : "number of delete subscriber data answer sent by MME",
+            "label_0": [
+                { "interface":"s6a"}
+            ],
+            "label_1": [
+                {"msg_type": "delete_subscriber_data_answer"}
+            ],
+            "dynamic_label_0": [
+                {"hss_addr" : "HSS address of s6a connection "}
+            ]
         }
         ]
     },
@@ -1133,6 +1159,7 @@
             "label_1": [
                 { "init_by":"ddn_init"},
                 { "init_by":"pgw_init"},
+                { "init_by":"hss_init"},
                 { "init_by":"ue_init"}
             ],
             "dynamic_label_0": [

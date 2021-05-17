@@ -19,7 +19,47 @@
  #include "state.h"
 
  namespace mme {
-	class DetachStart : public SM::State
+	class UeInitDetachState : public SM::State
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static UeInitDetachState* Instance();
+
+			/****************************************
+			* UeInitDetachState
+			*    Destructor
+			****************************************/
+			~UeInitDetachState();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* UeInitDetachState
+			*    Protected constructor
+			****************************************/
+			UeInitDetachState();  
+	};
+	
+	class DetachStart : public UeInitDetachState
 	{
 		public:
 			/******************************************
@@ -59,7 +99,7 @@
 			DetachStart();  
 	};
 	
-	class DetachWfPurgeRespDelSessionResp : public SM::State
+	class DetachWfPurgeRespDelSessionResp : public UeInitDetachState
 	{
 		public:
 			/******************************************
@@ -99,7 +139,7 @@
 			DetachWfPurgeRespDelSessionResp();  
 	};
 	
-	class DetachWfDelSessionResp : public SM::State
+	class DetachWfDelSessionResp : public UeInitDetachState
 	{
 		public:
 			/******************************************
@@ -139,7 +179,7 @@
 			DetachWfDelSessionResp();  
 	};
 	
-	class DetachWfPurgeResp : public SM::State
+	class DetachWfPurgeResp : public UeInitDetachState
 	{
 		public:
 			/******************************************

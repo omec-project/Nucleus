@@ -280,3 +280,40 @@ ActStatus ActionHandlers::handle_s1_rel_req_during_detach(ControlBlock& cb)
     return ActStatus::ABORT;
 }
 
+/***************************************
+* Action handler : handle_dsr_during_detach
+***************************************/
+ActStatus ActionHandlers::handle_dsr_during_detach(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "handle_dsr_during_detach : Entry");
+
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    VERIFY(msgBuf, return ActStatus::PROCEED, "Invalid message buffer\n");
+
+    const dsr_Q_msg_t* msgData_p = static_cast<const dsr_Q_msg_t *>(msgBuf->getDataPointer());
+
+    DigitRegister15 IMSI;
+    IMSI.setImsiDigits((unsigned char *)msgData_p->header.IMSI);
+
+    s6a_dsa_Q_msg dsa;
+    dsa.msg_type = delete_subscriber_data_answer;
+    dsa.eteId = msgData_p->eteId;
+    //Responding with the result code "DIAMETER_SUCCESS", since detach is already in progress
+    dsa.res_code = DIAMETER_SUCCESS;
+
+    /* Send message to S6app in S6q*/
+    cmn::ipc::IpcAddress destAddr;
+    destAddr.u32 = TipcServiceInstance::s6AppInstanceNum_c;
+
+    mmeStats::Instance()->increment(
+		mmeStatsCounter::MME_MSG_TX_S6A_DELETE_SUBSCRIBER_DATA_ANSWER);
+    MmeIpcInterface &mmeIpcIf =
+                static_cast<MmeIpcInterface&>(compDb.getComponent(
+                        MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char*) &dsa, sizeof(dsa), destAddr);
+
+    log_msg(LOG_DEBUG, "handle_dsr_during_detach : Exit");
+
+    return ActStatus::PROCEED;
+}
+

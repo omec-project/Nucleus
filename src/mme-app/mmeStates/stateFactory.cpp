@@ -102,6 +102,7 @@ void StateFactory::initialize()
 	NiDetachWfDelSessResp::Instance()->initialize();
 	NiDetachWfDetAccptDelSessResp::Instance()->initialize();
 	NiDetachWfDetachAccept::Instance()->initialize();
+	NiDetachWfPagingComplete::Instance()->initialize();
 	NiDetachWfS1RelComp::Instance()->initialize();
 	PagingStart::Instance()->initialize();
 	PagingWfServiceReq::Instance()->initialize();
@@ -122,6 +123,7 @@ void StateFactory::initialize()
 	ServiceRequestWfMbResp::Instance()->initialize();
 	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
+	UeInitDetachState::Instance()->initialize();
 
         populateEventStringMap();
 }

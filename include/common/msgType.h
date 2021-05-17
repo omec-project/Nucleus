@@ -95,6 +95,8 @@ typedef enum msg_type_t {
     activate_dedicated_eps_bearer_ctxt_reject,
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
+    delete_subscriber_data_request,
+    delete_subscriber_data_answer,
     enb_status_msg,
     max_msg_type
 } msg_type_t;
@@ -793,6 +795,12 @@ struct s6a_purge_Q_msg {
 	unsigned char IMSI[BINARY_IMSI_LEN];
 };
 
+struct s6a_dsa_Q_msg {
+        msg_type_t msg_type;
+        uint32_t res_code;
+        uint32_t eteId;
+};
+
 /*************************
  * Incoming S6 Messages
  *************************/
@@ -854,13 +862,17 @@ enum CancellationType {
 
 struct clr_Q_msg {
     s6_incoming_msg_header_t header;
-    msg_type_t msg_type;
-    char origin_host[18];
-    char origin_realm[15];
-    uint8_t imsi[15];   
     enum CancellationType c_type;
 }__attribute__ ((packed));
 typedef struct clr_Q_msg clr_Q_msg_t;
+
+struct dsr_Q_msg {
+    s6_incoming_msg_header_t header;
+    uint32_t dsr_flags;
+    uint32_t eteId;
+    uint32_t apn_conf_prof_id;
+}__attribute__ ((packed));
+typedef struct dsr_Q_msg dsr_Q_msg_t;
 
 #ifdef __cplusplus
 }

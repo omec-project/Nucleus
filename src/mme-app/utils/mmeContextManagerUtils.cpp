@@ -82,6 +82,11 @@ MmeContextManagerUtils::allocateServiceRequestProcedureCtxt(SM::ControlBlock& cb
             mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_PGW_INIT);
             prcdCtxt_p->setNextState(PagingStart::Instance());
         }
+        else if(pagingTrigger == hssInit_c)
+        {
+            mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_HSS_INIT);
+            prcdCtxt_p->setNextState(PagingStart::Instance());
+        }
         else
         {
             mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_SERVICE_REQUEST_PROC_UE_INIT);

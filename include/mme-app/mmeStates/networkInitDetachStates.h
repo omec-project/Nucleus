@@ -99,6 +99,46 @@
 			NiDetachStart();  
 	};
 	
+	class NiDetachWfPagingComplete : public NiDetachState
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static NiDetachWfPagingComplete* Instance();
+
+			/****************************************
+			* NiDetachWfPagingComplete
+			*    Destructor
+			****************************************/
+			~NiDetachWfPagingComplete();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* NiDetachWfPagingComplete
+			*    Protected constructor
+			****************************************/
+			NiDetachWfPagingComplete();  
+	};
+	
 	class NiDetachWfDetAccptDelSessResp : public NiDetachState
 	{
 		public:

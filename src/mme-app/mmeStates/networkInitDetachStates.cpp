@@ -32,7 +32,6 @@ using namespace SM;
 ******************************************************************************/
 NiDetachState::NiDetachState():State()
 {
-        stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
         stateEntryAction = &MmeStatesUtils::on_state_entry;
         stateExitAction = &MmeStatesUtils::on_state_exit;
         eventValidator = &MmeStatesUtils::validate_event;
@@ -66,6 +65,11 @@ void NiDetachState::initialize()
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_detach);
                 eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_dsr_during_detach);
+                eventToActionsMap[DSR_FROM_HSS] = actionTable;
         }
 }
 
@@ -123,7 +127,7 @@ void NiDetachStart::initialize()
                 actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.setNextState(NiDetachWfDetAccptDelSessResp::Instance());
-                eventToActionsMap[CLR_FROM_HSS] = actionTable;
+                eventToActionsMap[HSS_INIT_DETACH] = actionTable;
         }
         {
                 ActionTable actionTable;
@@ -137,6 +141,11 @@ void NiDetachStart::initialize()
                 actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
                 actionTable.setNextState(NiDetachWfDetachAccept::Instance());
                 eventToActionsMap[PGW_INIT_DETACH] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.setNextState(NiDetachWfPagingComplete::Instance());
+                eventToActionsMap[HSS_INIT_PAGING] = actionTable;
         }
         {
                 ActionTable actionTable;
@@ -160,6 +169,80 @@ uint16_t NiDetachStart::getStateId()const
 const char* NiDetachStart::getStateName()const
 {
 	return "ni_detach_start";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+NiDetachWfPagingComplete::NiDetachWfPagingComplete(): NiDetachState()
+{
+        stateGuardTimeoutDuration_m = 12000;
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+NiDetachWfPagingComplete::~NiDetachWfPagingComplete()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+NiDetachWfPagingComplete* NiDetachWfPagingComplete::Instance()
+{
+        static NiDetachWfPagingComplete state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void NiDetachWfPagingComplete::initialize()
+{
+        NiDetachState::initialize();
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::ni_detach_req_to_ue);
+                actionTable.addAction(&ActionHandlers::del_session_req);
+                actionTable.setNextState(NiDetachWfDetAccptDelSessResp::Instance());
+                eventToActionsMap[PAGING_COMPLETE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_paging_failure);
+                eventToActionsMap[PAGING_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::handle_state_guard_timeouts);
+                eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::abort_detach);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t NiDetachWfPagingComplete::getStateId()const
+{
+	return ni_detach_wf_paging_complete;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* NiDetachWfPagingComplete::getStateName()const
+{
+	return "ni_detach_wf_paging_complete";
 }
 
 /******************************************************************************

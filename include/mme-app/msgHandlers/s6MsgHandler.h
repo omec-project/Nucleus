@@ -24,6 +24,7 @@ private:
 	void handleUpdateLocationAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 	void handlePurgeAnswer_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 	void handleCancelLocationRequest_v(cmn::IpcEMsgUnqPtr eMsg);
+	void handleDeleteSubscriberRequest_v(cmn::IpcEMsgUnqPtr eMsg);
 
 };
 

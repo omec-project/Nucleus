@@ -40,12 +40,13 @@ LIBS :=  \
 	-lpthread \
 	-lfdproto \
 	-lfdcore \
+	-lcmnUtils \
 	-lmonitor_config
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	@mkdir -p $(BINDIR)
-	$(CC) $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
+	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
 
 $(OBJDIR)/s6a/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(OBJDIR)/s6a/handlers
