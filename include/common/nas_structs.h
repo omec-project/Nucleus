@@ -596,6 +596,20 @@ typedef struct nas_pdu_header_long {
         unsigned char message_type;
 }nas_pdu_header_long;
 
+#ifdef S10_FEATURE
+typedef enum security_mode {
+    EPSsecurityContext = 0,
+    GSMsecurityContext,
+    UMTSsecurityContext,
+}security_mode;
+typedef struct E_UTRAN_security_vector {
+    struct RAND rand;
+    struct XRES xres;
+    struct AUTN autn;
+    struct KASME kasme;
+} E_UTRAN_security_vector;
+#endif
+
 enum ie_fail_internal_cause {
 	AIA_FAIL,
 	SECURITY_MOD_REJECT_FAIL,

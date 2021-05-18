@@ -22,16 +22,67 @@ extern mme_config_t *mme_cfg;
 
 bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
 {
-	bool rc = false;
+    bool rc = false;
 
-	if (guti_r.mme_grp_id == mme_cfg->mme_group_id &&
-			guti_r.mme_code == mme_cfg->mme_code)
-	{
-		rc = true;
-	}
+    if (guti_r.mme_grp_id == mme_cfg->mme_group_id &&
+            guti_r.mme_code == mme_cfg->mme_code)
+    {
+        rc = true;
+    }
 
-	return rc;
+    return rc;
 }
+#ifdef S10_FEATURE
+bool MmeCommonUtils::compare_plmn_id(const struct PLMN *plmn)
+{
+    bool rc = false;
+    //need to check whether this comparison will work or not, else need to decode idx to mcc and mnc
+    int config_plmn;
+    for(config_plmn = 0; config_plmn < mme_cfg->num_plmns; config_plmn++)
+    {
+        if((mme_cfg->plmns[config_plmn].idx[0] == plmn->idx[0]) &&
+          (mme_cfg->plmns[config_plmn].idx[1] == plmn->idx[1]) &&
+          (mme_cfg->plmns[config_plmn].idx[2] == plmn->idx[2]) &&
+          (mme_cfg->plmns[config_plmn].mnc_digits == plmn->mnc_digits))
+            rc = true;
+    }
+    return rc;
+}
+
+bool MmeCommonUtils::compare_tac(const uint16_t tac)
+{
+    bool rc = false;
+    int i = 0;
+
+    for(i = 0; i < mme_cfg->num_tai; i++)
+    {
+        if(mme_cfg.served_tai.tac[i] == tac)
+            rc = true;
+    }
+    return rc;
+}
+
+bool MmeCommonUtils::isLocalTAI(const struct PLMN *plmn, const short target_tac)
+{
+    bool rc = false;
+    if(true == compare_plmn_id(plmn))
+    {
+        if(true == compare_tac(target_tac))
+        {
+            log_msg(LOG_DEBUG, "TAC and PLMN are matching");
+            rc = true;
+        }
+    }
+    log_msg(LOG_DEBUG, "TAC and PLMN are not matching");
+    return rc;
+}
+
+void MmeCommonUtils::select_neighboring_mme(const struct TAI *tai, int *service_ip_addr)
+{
+    *service_ip_addr = mme_cfg->target_mme_ip;
+    return;
+}
+#endif
 
 uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)
 {
