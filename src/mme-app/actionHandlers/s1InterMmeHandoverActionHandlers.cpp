@@ -106,6 +106,27 @@ ActStatus ActionHandlers::process_fwd_acc_ctxt_ack(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 {
+	log_msg(LOG_DEBUG, "Inside send_fwd_rel_comp_ack_to_target_mme");
+
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+	
+	struct FWD_REL_CMP_ACK_Q_msg fwd_rel_cmp_ack_msg;
+	fwd_rel_cmp_ack_msg.msg_type = forward_relocation_complete_acknowledgement;
+	fwd_rel_cmp_ack_msg.ue_idx = ue_ctxt->getContextID();
+	uint8_t cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+	fwd_rel_cmp_ack_msg.cause = cause;
+	
+	cmn::ipc:IpcAddress destAddr;
+	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
+	
+	mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGEMENT);
+	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId)); 
+	mmeIpcIf.dispatchIpcMsg((char *) &fwd_rel_cmp_ack_msg,sizeof(fwd_rel_cmp_ack_msg), destAddr); 
+
+	//ProcedureStats::num_of_fwd_access_context_notify_sent ++;
+	log_msg(LOG_DEBUG, "Leaving send_fwd_rel_comp_ack_to_target_mme ");
+	
     return ActStatus::PROCEED;
 }
 
