@@ -1104,6 +1104,75 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::fwd_rel_req_handler(ControlBlock& cb)
 {
+    log_msg(LOG_DEBUG, "Inside fwd_rel_req_handler");
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG,"process_forward_relocation_request: msgBuf is NULL ");
+        return ActStatus::HALT;
+    }
+
+    const fwd_rel_req_Q_msg *frReq =
+            static_cast<const fwd_rel_req_Q_msg*>(msgBuf->getDataPointer());
+    if (frReq == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext* frReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+    if (frReqProc_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to allocate procedure context"
+                " for forward relocation request cbIndex %d", cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+
+    UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "ue context is NULL ");
+        return ActStatus::HALT;
+    }
+
+    ueCtxt->setContextID(cb.getCBIndex());
+    frReqProc_p->setS1HoCause(frReq->cause);
+    frReqProc_p->setTargetEnbContextId(frReq->target_enb_context_id);
+    frReqProc_p->setSrcToTargetTransContainer(frReq->srcToTargetTranspContainer);
+
+    struct AMBR ambr;
+    ambr.max_requested_bw_dl = frReq->max_requested_bw_dl;
+    ambr.max_requested_bw_ul = frReq->max_requested_bw_ul;
+    if(frReq->max_requested_bw_dl > 0 || frReq->max_requested_bw_ul > 0)
+    {
+        ambr.ext_max_requested_bw_dl = frReq->extended_max_requested_bw_dl;
+        ambr.ext_max_requested_bw_ul = frReq->extended_max_requested_bw_ul;
+    }
+    ueCtxt->setAmbr(Ambr(ambr));
+
+    SessionContext* sessionCtxt = MmeContextManagerUtils::allocateSessionContext(cb, *ueCtxt);
+    BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+    if (bearerCtxt == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve Bearer context for UE IDx %d",
+                cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+    bearerCtxt->setS1uSgwUserFteid(Fteid(frReq->s1u_sgw_fteid));
+
+    ueCtxt->setTai(Tai(frReq->tai));
+
+    struct secinfo secInfo;
+    secInfo.next_hop_chaining_count = frReq->security_context.next_hop_chaining_count;
+    memcpy(secInfo.next_hop_nh , frReq->security_context.next_hop_nh, KENB_SIZE);
+
+    ueCtxt->setUeSecInfo(Secinfo(secInfo));
+
+    //ProcedureStats:: ++;
+
+    SM::Event evt(HO_REQ_TO_TARGET_ENB, NULL);
+    cb.qInternalEvent(evt);
+
     return ActStatus::PROCEED;
 }
 

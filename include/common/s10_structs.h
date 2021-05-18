@@ -30,6 +30,7 @@ typedef struct mm_context {
     ue_add_sec_capabilities ue_add_sec_capab;
     UE_net_capab ue_network;
     bool isNHIpresent;
+    struct security_context security_context;
     ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
 } mm_context_t;
 #endif

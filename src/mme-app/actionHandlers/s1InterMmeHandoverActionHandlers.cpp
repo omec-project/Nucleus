@@ -167,11 +167,23 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     memcpy(&(frReq.mm_cntxt.ue_add_sec_capab), &(ueCtxt->getUeAddSecCapab()), sizeof(ue_add_sec_capabilities));
     // subscribed and used ul/dl ambr
     // ambr
-    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL = (ueCtxt->getAmbr().ambr_m).max_requested_bw_dl;
-    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL = (ueCtxt->getAmbr().ambr_m).max_requested_bw_ul;
+    const AMBR& ambr = ueCtxt->getAmbr().ambr_m;
+    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateDL = ambr.max_requested_bw_dl;
+    frReq.mm_cntxt.ue_aggrt_max_bit_rate.uEaggregateMaxBitRateUL = ambr.max_requested_bw_ul;
+
+    if (ambr.ext_max_requested_bw_dl > 0)
+        frReq.mm_cntxt.ue_aggrt_max_bit_rate.ext_ue_ambr.ext_ue_ambr_DL = ambr.ext_max_requested_bw_dl;
+    if (ambr.ext_max_requested_bw_ul > 0)
+        frReq.mm_cntxt.ue_aggrt_max_bit_rate.ext_ue_ambr.ext_ue_ambr_UL = ambr.ext_max_requested_bw_ul;
 
     frReq.mm_cntxt.drx = PAGINX_DRX256;
-    frReq.mm_cntxt.isNHIpresent = 0;
+    uint8_t kenb_key[KENB_SIZE];
+    SecUtils::create_kenb_key(secVect->kasme.val, kenb_key, 0);
+    unsigned char nh[SECURITY_KEY_SIZE] = { 0 };
+    frReq.mm_cntxt.security_context.next_hop_chaining_count = ueCtxt->getUeSecInfo().secinfo_m.next_hop_chaining_count;
+    SecUtils::create_nh_key(secVect->kasme.val, nh, kenb_key);
+    memcpy(frReq.mm_cntxt.security_context.next_hop_nh , nh, KENB_SIZE);
+    frReq.mm_cntxt.isNHIpresent = 1;
 
     /*Send message to S10-APP*/
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_REQUEST);
