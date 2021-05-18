@@ -279,3 +279,61 @@ ActStatus ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme(ControlBl
 {
     return ActStatus::PROCEED;
 }
+
+/***************************************
+* Action handler : send_ho_mb_req_to_sgw
+***************************************/
+ActStatus ActionHandlers::send_ho_mb_req_to_sgw(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside send_ho_mb_req_to_sgw");
+
+    UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ue_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_ho_mb_req_to_sgw: ue context or procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext *ho_ctxt =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (ho_ctxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "process_ho_notify: procedure ctxt is NULL ");
+        return ActStatus::HALT;
+    }
+    auto& sessionCtxtContainer = ue_ctxt->getSessionContextContainer();
+    if(sessionCtxtContainer.size() < 1)
+    {
+        log_msg(LOG_DEBUG, "send_ho_mb_req_to_sgw:Session context list empty");
+        return ActStatus::HALT;
+    }
+
+    SessionContext* sessionCtxt = sessionCtxtContainer.front();
+
+    struct MB_Q_msg mb_msg;
+    memset(&mb_msg, 0, sizeof(struct MB_Q_msg));
+    MmeGtpMsgUtils::populateModifyBearerRequestHo(
+            cb, *ue_ctxt, *sessionCtxt, *ho_ctxt, mb_msg);
+
+    mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S11_MODIFY_BEARER_REQUEST);
+    cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s11AppInstanceNum_c};
+    MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
+    mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
+
+    ProcedureStats::num_of_mb_req_to_sgw_sent++;
+    log_msg(LOG_DEBUG, "Leaving send_ho_mb_req_to_sgw");
+    return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : process_mb_resp_from_sgw
+***************************************/
+ActStatus ActionHandlers::process_mb_resp_from_sgw(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside process_mb_resp_from_sgw ");
+
+    ProcedureStats::num_of_processed_mb_resp ++;
+    return ActStatus::PROCEED;
+}
+

@@ -78,21 +78,22 @@ const uint16_t s1_ho_wf_ho_notify = 54;
 const uint16_t s1_ho_wf_ho_notify_from_target_enb = 55;     
 const uint16_t s1_ho_wf_ho_req_ack = 56;     
 const uint16_t s1_ho_wf_ho_request_ack = 57;     
-const uint16_t s1_ho_wf_modify_bearer_response = 58;     
-const uint16_t s1_ho_wf_tau_check = 59;     
-const uint16_t s1_ho_wf_tau_request = 60;     
-const uint16_t s1_release_start = 61;     
-const uint16_t s1_release_wf_release_access_bearer_resp = 62;     
-const uint16_t s1_release_wf_ue_ctxt_release_comp = 63;     
-const uint16_t service_request_start = 64;     
-const uint16_t service_request_wf_aia = 65;     
-const uint16_t service_request_wf_auth_resp_validate = 66;     
-const uint16_t service_request_wf_auth_response = 67;     
-const uint16_t service_request_wf_init_ctxt_resp = 68;     
-const uint16_t service_request_wf_mb_resp = 69;     
-const uint16_t service_request_wf_sec_cmp = 70;     
-const uint16_t tau_start = 71;
-const uint16_t END_STATE = 72;
+const uint16_t s1_ho_wf_mb_resp_from_sgw = 58;     
+const uint16_t s1_ho_wf_modify_bearer_response = 59;     
+const uint16_t s1_ho_wf_tau_check = 60;     
+const uint16_t s1_ho_wf_tau_request = 61;     
+const uint16_t s1_release_start = 62;     
+const uint16_t s1_release_wf_release_access_bearer_resp = 63;     
+const uint16_t s1_release_wf_ue_ctxt_release_comp = 64;     
+const uint16_t service_request_start = 65;     
+const uint16_t service_request_wf_aia = 66;     
+const uint16_t service_request_wf_auth_resp_validate = 67;     
+const uint16_t service_request_wf_auth_response = 68;     
+const uint16_t service_request_wf_init_ctxt_resp = 69;     
+const uint16_t service_request_wf_mb_resp = 70;     
+const uint16_t service_request_wf_sec_cmp = 71;     
+const uint16_t tau_start = 72;
+const uint16_t END_STATE = 73;
 
 /******************************************
 * MME-APP Specific Events - ID

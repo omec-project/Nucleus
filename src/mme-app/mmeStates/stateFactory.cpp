@@ -117,6 +117,7 @@ void StateFactory::initialize()
 	S1HoWfHoNotifyFromTargetEnb::Instance()->initialize();
 	S1HoWfHoReqAck::Instance()->initialize();
 	S1HoWfHoRequestAck::Instance()->initialize();
+	S1HoWfMbRespFromSgw::Instance()->initialize();
 	S1HoWfModifyBearerResponse::Instance()->initialize();
 	S1HoWfTauCheck::Instance()->initialize();
 	S1HoWfTauRequest::Instance()->initialize();

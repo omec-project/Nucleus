@@ -1667,9 +1667,22 @@
                                 "Name":"S1_HO_NOTIFY_FROM_TARGET_ENB",
                                 "Actions":[
                                     "PROCESS_S1_HO_NOTIFY_FROM_TARGET_ENB",
+                                    "SEND_HO_MB_REQ_TO_SGW"
+                                ],
+                                "NextState":"s1_ho_wf_mb_resp_from_sgw"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_mb_resp_from_sgw",
+                        "Events":[
+                            {
+                                "Name":"MB_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_MB_RESP_FROM_SGW",
                                     "SEND_HO_FWD_REL_COMP_NOTIFICATION_TO_SRC_MME"
                                 ],
-                                "NextState":"end_state"
+                                "NextState":"s1_ho_wf_mb_resp_from_sgw"
                             }
                         ]
                     }                   

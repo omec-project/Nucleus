@@ -379,5 +379,45 @@
 			S1HoWfHoNotifyFromTargetEnb();  
 	};
 	
+	class S1HoWfMbRespFromSgw : public SM::State
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static S1HoWfMbRespFromSgw* Instance();
+
+			/****************************************
+			* S1HoWfMbRespFromSgw
+			*    Destructor
+			****************************************/
+			~S1HoWfMbRespFromSgw();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* S1HoWfMbRespFromSgw
+			*    Protected constructor
+			****************************************/
+			S1HoWfMbRespFromSgw();  
+	};
+	
 };
 #endif // __S1_INTER_MME_HANDOVER__

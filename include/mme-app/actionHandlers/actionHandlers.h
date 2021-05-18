@@ -424,6 +424,11 @@ namespace mme
         static SM::ActStatus process_mb_resp_for_ho(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : process_mb_resp_from_sgw
+        ***********************************************/
+        static SM::ActStatus process_mb_resp_from_sgw(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : process_mb_resp_svc_req
         ***********************************************/
         static SM::ActStatus process_mb_resp_svc_req(SM::ControlBlock& cb);                
@@ -582,6 +587,11 @@ namespace mme
         * Action handler : send_ho_fwd_rel_comp_notification_to_src_mme
         ***********************************************/
         static SM::ActStatus send_ho_fwd_rel_comp_notification_to_src_mme(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_ho_mb_req_to_sgw
+        ***********************************************/
+        static SM::ActStatus send_ho_mb_req_to_sgw(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_ho_prep_failure_to_src_enb
