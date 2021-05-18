@@ -643,28 +643,30 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
 
 #ifdef S10_FEATURE
 
-    ////////////////////////////////////in case the format is different than config, formates1ap plmn id is called
+    ////////////////////////////////////in case the format is different than config, formats1ap plmn id is called
     MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&hoReq->target_id.selected_tai.plmn_id));
-    //////////////////////////////// check if target tai is served by same mme
-    if (MmeCommonUtils::isLocalTAI(&hoReq.target_id.selected_tai.plmn_id, hoReq.target_id.selected_tai.tac ))
+    // check if target tai is served by same mme
+    if (MmeCommonUtils::isLocalTAI(&hoReq->target_id.selected_tai.plmn_id, hoReq->target_id.selected_tai.tac ))
     {
-        //can add check for enodeb also
+        // can add check for enodeb also
         log_msg(LOG_DEBUG,"Target TAI is served by current mme ");
 #endif
         ProcedureStats::num_of_ho_required_received++;
 
         SM::Event evt(INTRA_S1HO_START, NULL);
+        cb.qInternalEvent(evt);
+        return ActStatus::PROCEED;
 
 #ifdef S10_FEATURE
     }
     else
     {
         log_msg(LOG_DEBUG,"Target TAI is NOT served by current mme, Checking for neighboring MME ");
-        struct sockaddr_in neigh_mme_ip_addr = {0};
+        int neigh_mme_ip_addr = 0;
 
-        select_neighboring_mme(&hoReq.target_id.selected_tai, &neigh_mme_ip_addr);
+        MmeCommonUtils::select_neighboring_mme(&hoReq->target_id.selected_tai, &neigh_mme_ip_addr);
 
-        if (!neigh_mme_ip_addr)
+        if (neigh_mme_ip_addr == NULL)
         {
             // failure case need to handle ()HO_FAILURE_FROM_TARGET_ENB
         }
@@ -676,12 +678,11 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
             ProcedureStats::num_of_ho_required_received++;
 
             SM::Event evt(INTER_S1HO_START, NULL);
+            cb.qInternalEvent(evt);
+            return ActStatus::PROCEED;
         }
     }
-
 #endif
-    cb.qInternalEvent(evt);
-    return ActStatus::PROCEED;
 }
 
 /******************************************************

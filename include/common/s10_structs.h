@@ -19,23 +19,18 @@
 
 #pragma pack(1)
 #ifdef S10_FEATURE
-typedef enum hoType {
- 	invalid_c,
- 	intraMmeS1Ho_c,
-	interMmeS1Ho_c
-}hoType;
 typedef struct mm_context {
-	security_mode security_mode;
-	E_UTRAN_sec_vector sec_vector;
-	drx_params drx;
-	unsigned int dl_count;
-	unsigned int ul_count;
-	unsigned int security_encryption_algo;
-	unsigned int security_integrity_algo;
-	ue_add_sec_capabilities ue_add_sec_capab;
-	UE_net_capab ue_network;
-	bool isNHIpresent;
-	ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
+    security_mode security_mode;
+    E_UTRAN_security_vector sec_vector;
+    enum drx_params drx;
+    unsigned int dl_count;
+    unsigned int ul_count;
+    unsigned int security_encryption_algo;
+    unsigned int security_integrity_algo;
+    ue_add_sec_capabilities ue_add_sec_capab;
+    UE_net_capab ue_network;
+    bool isNHIpresent;
+    ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
 } mm_context_t;
 #endif
 

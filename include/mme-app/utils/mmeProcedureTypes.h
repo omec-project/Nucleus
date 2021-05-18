@@ -91,7 +91,7 @@ namespace mme
  {
  	invalid_c,
  	intraMmeS1Ho_c,
-	interMneS1Ho_c
+ 	interMmeS1Ho_c
  };
 
  struct BearerStatusCompareById

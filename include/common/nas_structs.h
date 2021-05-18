@@ -602,6 +602,12 @@ typedef enum security_mode {
     GSMsecurityContext,
     UMTSsecurityContext,
 }security_mode;
+typedef struct E_UTRAN_security_vector {
+    struct RAND rand;
+    struct XRES xres;
+    struct AUTN autn;
+    struct KASME kasme;
+} E_UTRAN_security_vector;
 #endif
 
 enum ie_fail_internal_cause {

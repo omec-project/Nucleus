@@ -33,7 +33,6 @@ bool MmeCommonUtils::isLocalGuti(const guti &guti_r)
     return rc;
 }
 #ifdef S10_FEATURE
-///// handover required code changes
 bool MmeCommonUtils::compare_plmn_id(const struct PLMN *plmn)
 {
     bool rc = false;
@@ -41,10 +40,10 @@ bool MmeCommonUtils::compare_plmn_id(const struct PLMN *plmn)
     int config_plmn;
     for(config_plmn = 0; config_plmn < mme_cfg->num_plmns; config_plmn++)
     {
-        if((mme_cfg->plmns[config_plmn].idx[0] == plmn.idx[0]) &&
-          (mme_cfg->plmns[config_plmn].idx[1] == plmn.idx[1]) &&
-          (mme_cfg->plmns[config_plmn].idx[2] == plmn.idx[2]) &&
-          (mme_cfg->plmns[config_plmn].mnc_digits == plmn.mnc_digits))
+        if((mme_cfg->plmns[config_plmn].idx[0] == plmn->idx[0]) &&
+          (mme_cfg->plmns[config_plmn].idx[1] == plmn->idx[1]) &&
+          (mme_cfg->plmns[config_plmn].idx[2] == plmn->idx[2]) &&
+          (mme_cfg->plmns[config_plmn].mnc_digits == plmn->mnc_digits))
             rc = true;
     }
     return rc;
@@ -78,12 +77,11 @@ bool MmeCommonUtils::isLocalTAI(const struct PLMN *plmn, const short target_tac)
     return rc;
 }
 
-void select_neighboring_mme(const struct TAI *tai, struct sockaddr** const service_ip_addr)
+void MmeCommonUtils::select_neighboring_mme(const struct TAI *tai, int *service_ip_addr)
 {
-    service_ip_addr.sin_addr.s_addr = mme_config_t->target_mme_ip;
+    *service_ip_addr = mme_cfg->target_mme_ip;
     return;
 }
-///////////////////
 #endif
 
 uint8_t MmeCommonUtils::select_preferred_int_algo(uint8_t &val)

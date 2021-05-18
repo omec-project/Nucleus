@@ -43,6 +43,7 @@ using namespace cmn::utils;
 using namespace mme;
 using namespace SM;
 
+extern mmeConfig *mme_tables;
 /***************************************
 * Action handler : send_fr_request_to_target_mme
 ***************************************/
@@ -85,9 +86,8 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     frReq.msg_type = forward_relocation_request;
     frReq.ue_idx = ueCtxt->getContextID();
     frReq.target_enb_context_id = hoProcCtxt->getTargetEnbContextId();
-    frReq.handoverType = hoProcCtxt->getHoType();
-    frReq.cause = hoProcCtxt->getS1HoCause();
-    memcpy(&(frReq.src_to_target_transparent_container),
+    frReq.cause.choice = hoProcCtxt->getS1HoCause().s1apCause_m.choice;
+    memcpy(&(frReq.srcToTargetTranspContainer),
                 &(hoProcCtxt->getSrcToTargetTransContainer()),
                 sizeof(struct src_target_transparent_container));
     memcpy(&frReq.tai, &(hoProcCtxt->getTargetTai().tai_m), sizeof(struct TAI));
@@ -105,7 +105,6 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     apn_config *temp = mme_tables->find_apn(temp_str);
     if(temp != NULL)
     {
-        log_msg(LOG_DEBUG, "Found APN mapping in static table %x ",cs_msg.sgw_ip);
         frReq.sgw_ip = temp->get_sgw_addr();
         frReq.pgw_ip = temp->get_pgw_addr();
     }
@@ -125,11 +124,16 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
         return ActStatus::HALT;
     }
     frReq.bearer_id = bearerCtxt->getBearerId();
+    frReq.bearer_qos = bearerCtxt->getBearerQos();
 
     //Bearer Contexts
     //Support dedicated bearers
     auto& bearerCtxtCont = sessionCtxt->getBearerContextContainer();
-    if (bearerCtxtCont != NULL)
+    if (bearerCtxtCont.size() < 1)
+    {
+        log_msg(LOG_ERROR, "Bearer context list is empty");
+    }
+    else
     {
         uint8_t i =0;
         frReq.bearer_ctx_list.bearers_count = bearerCtxtCont.size();
@@ -139,9 +143,9 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
             {
                 frReq.bearer_ctx_list.bearer_ctxt[i].eps_bearer_id = bearerCtxtC->getBearerId();
                 frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.qci = bearerCtxt->getBearerQos().qci;
-                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pl = bearerCtxt->getBearerQos().arp.prioLevel;
-                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pci = bearerCtxt->getBearerQos().arp.preEmptionCapab;
-                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.ARP.pvi = bearerCtxt->getBearerQos().arp.preEmptionVulnebility;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.arp.prioLevel = bearerCtxt->getBearerQos().arp.prioLevel;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.arp.preEmptionCapab = bearerCtxt->getBearerQos().arp.preEmptionCapab;
+                frReq.bearer_ctx_list.bearer_ctxt[i].bearer_qos.arp.preEmptionVulnebility = bearerCtxt->getBearerQos().arp.preEmptionVulnebility;
             }
         }
     }
@@ -152,7 +156,7 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     frReq.mm_cntxt.security_mode = EPSsecurityContext;
 
     E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ueCtxt->getAiaSecInfo().AiaSecInfo_mp);
-    memcpy (frReq.mm_cntxt.sec_vector, secVect, sizeof (*frReq.mm_cntxt.sec_vector));
+    memcpy (&(frReq.mm_cntxt.sec_vector), secVect, sizeof (E_UTRAN_security_vector));
     //secinfo& secInfo = const_cast<secinfo&>(ueCtxt->getUeSecInfo().secinfo_m);
     frReq.mm_cntxt.dl_count = ueCtxt->getUeSecInfo().getDownlinkCount();
     frReq.mm_cntxt.ul_count = ueCtxt->getUeSecInfo().getUplinkCount();
@@ -173,7 +177,7 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_REQUEST);
     cmn::ipc::IpcAddress destAddr = {TipcServiceInstance::s10AppInstanceNum_c};
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
-    mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(frReq), destAddr);
+    mmeIpcIf.dispatchIpcMsg((char *) &frReq, sizeof(frReq), destAddr);
 
     log_msg(LOG_DEBUG, "Leaving send_fr_request_to_target_mme ");
 
