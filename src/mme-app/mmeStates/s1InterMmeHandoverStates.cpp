@@ -286,7 +286,6 @@ void S1HoWfFwdRelComp::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_fwd_rel_comp_notify);
                 actionTable.addAction(&ActionHandlers::send_fwd_rel_comp_ack_to_target_mme);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue_for_ho);
                 eventToActionsMap[FWD_REL_COMP_NOTIFY_RCVD_FROM_TGT_MME] = actionTable;

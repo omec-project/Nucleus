@@ -1615,7 +1615,6 @@
                             {
                                 "Name":"FWD_REL_COMP_NOTIFY_RCVD_FROM_TGT_MME",
                                 "Actions":[
-                                    "PROCESS_FWD_REL_COMP_NOTIFY",
                                     "SEND_FWD_REL_COMP_ACK_TO_TARGET_MME",
                                     "SEND_S1_REL_CMD_TO_UE_FOR_HO"
                                 ],

@@ -369,11 +369,6 @@ namespace mme
         static SM::ActStatus process_fwd_acc_ctxt_ack(SM::ControlBlock& cb);                
 
         /**********************************************
-        * Action handler : process_fwd_rel_comp_notify
-        ***********************************************/
-        static SM::ActStatus process_fwd_rel_comp_notify(SM::ControlBlock& cb);                
-
-        /**********************************************
         * Action handler : process_ho_cancel_req
         ***********************************************/
         static SM::ActStatus process_ho_cancel_req(SM::ControlBlock& cb);                

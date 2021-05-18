@@ -102,14 +102,6 @@ ActStatus ActionHandlers::process_fwd_acc_ctxt_ack(ControlBlock& cb)
 }
 
 /***************************************
-* Action handler : process_fwd_rel_comp_notify
-***************************************/
-ActStatus ActionHandlers::process_fwd_rel_comp_notify(ControlBlock& cb)
-{
-    return ActStatus::PROCEED;
-}
-
-/***************************************
 * Action handler : send_fwd_rel_comp_ack_to_target_mme
 ***************************************/
 ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
