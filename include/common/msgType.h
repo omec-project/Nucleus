@@ -103,6 +103,7 @@ typedef enum msg_type_t {
     forward_access_context_notification,
     forward_access_context_ack,
     forward_relocation_complete_notification,
+forward_relocation_complete_acknowledgement,	
     max_msg_type
 } msg_type_t;
 
@@ -739,6 +740,13 @@ struct FWD_ACC_CTXT_ACK_Q_msg{
     int ue_idx;
     uint8_t cause;
 };
+
+struct FWD_REL_CMP_ACK_Q_msg{
+	msg_type_t msg_type;
+	int ue_idx;
+	uint8_t casue;
+};
+
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_ACK_Q_msg)
  
 /*************************
