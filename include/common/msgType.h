@@ -720,7 +720,7 @@ struct ID_RESP_Q_msg{
     bool ueUsageTypeIePresent;
     bool monitoringEventInformationIePresent;
     bool privateExtensionIePresent;
-<<<<<<< HEAD
+
 
 };
 struct forward_relocation_req_Q_msg {
@@ -733,7 +733,7 @@ struct forward_relocation_req_Q_msg {
     struct TAI tai;
     unsigned char IMSI[BINARY_IMSI_LEN];
     struct apn_name selected_apn;
-    uint8_t bearer_id;
+    uint16_t bearer_id;
     bearer_ctx_list_t bearer_ctx_list;
     uint32_t sgw_ip;
     uint32_t pgw_ip;
@@ -744,8 +744,7 @@ struct forward_relocation_resp_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
     teid_t teid;  ///< Tunnel Endpoint Identifier
-=======
->>>>>>> 0288e89f47dbfb084f5f254039f87c030a5ed8ed
+
 
     // here fields listed in 3GPP TS 29.274
     struct gtp_cause cause;  ///< If the MME could successfully establish the UE
@@ -767,7 +766,7 @@ struct forward_relocation_resp_Q_msg {
 
     struct src_target_transparent_container eutran_container;
 
-    F_Cause_t f_cause;
+    s1apCause_t f_cause;
 
     // EPC_Timer pgw_back_off_time                ///< This IE may be included on
     // the S5/S8 and S4/S11
@@ -929,7 +928,7 @@ struct ID_req_Q_msg{
 struct forward_relocation_req_BQ_msg {
     gtp_incoming_msg_data_t header;
     int target_enb_context_id;
-    struct F_Cause_t cause;
+    struct s1apCause_t cause;
     enum hoType handoverType;
     struct src_target_transparent_container srcToTargetTranspContainer;
     struct TAI tai;
@@ -966,7 +965,7 @@ struct forward_relocation_resp_BQ_msg {
 
     struct src_target_transparent_container eutran_container;
 
-    F_Cause_t f_cause;
+    s1apCause_t f_cause;
 
     // EPC_Timer pgw_back_off_time                ///< This IE may be included on
     // the S5/S8 and S4/S11
@@ -988,7 +987,6 @@ struct forward_relocation_resp_BQ_msg {
     
 };
 
-#ifndef s10_FEATURE
 #define s10_FEATURE
 /*
 * The Forward Relocation Complete Notification will be sent on S10 interface as
@@ -1006,16 +1004,9 @@ struct forward_relocation_complete_notification_Q_msg {
     /** Sender TEID. */
     teid_t local_teid;  ///< not in specs for inner MME use
 
-    // todo: Indication : This IE shall be included if any of the flags are set
-    // to 1. SGW Change Indication:   - This flag shall be set to 1 if the target
-    // MME/SGSN   has selected a new SGW.
-
-    // Private Extension   Private Extension
-
-    /* GTPv2-C specific parameters */
+    
     void* trxn;  ///< Transaction identifier
-    //  struct sockaddr           peer_ip;             ///< MME ipv4 address for
-    //  S-GW or S-GW ipv4 address for MME
+    
     union {
         struct sockaddr_in
             addr_v4;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
