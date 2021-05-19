@@ -54,11 +54,11 @@ bool MmeCommonUtils::compare_tac(const uint16_t tac)
     bool rc = false;
     int i = 0;
 
-    for(i = 0; i < mme_cfg->num_tai; i++)
+    /*for(i = 0; i < mme_cfg->num_tai; i++)
     {
-        if(mme_cfg.served_tai.tac[i] == tac)
+        if(mme_cfg->served_tai.tac[i] == tac)
             rc = true;
-    }
+    }*/
     return rc;
 }
 
@@ -79,7 +79,7 @@ bool MmeCommonUtils::isLocalTAI(const struct PLMN *plmn, const short target_tac)
 
 void MmeCommonUtils::select_neighboring_mme(const struct TAI *tai, int *service_ip_addr)
 {
-    *service_ip_addr = mme_cfg->target_mme_ip;
+    //*service_ip_addr = mme_cfg->target_mme_ip;
     return;
 }
 #endif

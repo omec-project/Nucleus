@@ -1168,7 +1168,7 @@ ActStatus ActionHandlers::fwd_rel_req_handler(ControlBlock& cb)
 
     ueCtxt->setUeSecInfo(Secinfo(secInfo));
 
-    //ProcedureStats:: ++;
+	ProcedureStats::num_of_fwd_relocation_req_received ++;
 
     SM::Event evt(HO_REQ_TO_TARGET_ENB, NULL);
     cb.qInternalEvent(evt);
