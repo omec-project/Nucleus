@@ -301,7 +301,7 @@ namespace mme
 	/******************************************************************************
 	* sets ueSecInfo
 	******************************************************************************/
-	void UEContext::setUeSecInfo( Secinfo& ueSecInfo_i )
+	void UEContext::setUeSecInfo( const Secinfo& ueSecInfo_i )
 	{
 		ueSecInfo_m = ueSecInfo_i;
 	}

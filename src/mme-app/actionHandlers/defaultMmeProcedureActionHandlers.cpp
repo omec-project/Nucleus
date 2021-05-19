@@ -618,33 +618,71 @@ ActStatus ActionHandlers::default_s1_ho_handler(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
-	S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
-	if (hoReqProc_p == NULL)
-	{
-		log_msg(LOG_ERROR, "Failed to allocate procedure context"
-				" for ho required cbIndex %d", cb.getCBIndex());
-		return ActStatus::HALT;
-	}
+    S1HandoverProcedureContext* hoReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+    if (hoReqProc_p == NULL)
+    {
+            log_msg(LOG_ERROR, "Failed to allocate procedure context"
+                            " for ho required cbIndex %d", cb.getCBIndex());
+            return ActStatus::HALT;
+    }
 
-	UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-	if (ueCtxt == NULL)
-	{
-		log_msg(LOG_DEBUG, "ue context is NULL ");
-		return ActStatus::HALT;
-	}
 
-	hoReqProc_p->setS1HoCause(hoReq->cause);
-	hoReqProc_p->setTargetEnbContextId(hoReq->target_enb_context_id);
-	hoReqProc_p->setSrcToTargetTransContainer(hoReq->srcToTargetTranspContainer);
-	hoReqProc_p->setTargetTai(hoReq->target_id.selected_tai);
-	hoReqProc_p->setSrcS1apEnbUeId(hoReq->header.s1ap_enb_ue_id);
-	hoReqProc_p->setSrcEnbContextId(hoReq->src_enb_context_id);
+    UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "ue context is NULL ");
+        return ActStatus::HALT;
+    }
 
-	ProcedureStats::num_of_ho_required_received++;
+    hoReqProc_p->setS1HoCause(hoReq->cause);
+    hoReqProc_p->setTargetEnbContextId(hoReq->target_enb_context_id);
+    hoReqProc_p->setSrcToTargetTransContainer(hoReq->srcToTargetTranspContainer);
+    hoReqProc_p->setTargetTai(hoReq->target_id.selected_tai);
+    hoReqProc_p->setSrcS1apEnbUeId(hoReq->header.s1ap_enb_ue_id);
+    hoReqProc_p->setSrcEnbContextId(hoReq->src_enb_context_id);
 
-	SM::Event evt(INTRA_S1HO_START, NULL);
-	cb.qInternalEvent(evt);
-    return ActStatus::PROCEED;
+#ifdef S10_FEATURE
+
+    ////////////////////////////////////in case the format is different than config, formats1ap plmn id is called
+    MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&hoReq->target_id.selected_tai.plmn_id));
+    // check if target tai is served by same mme
+    if (MmeCommonUtils::isLocalTAI(&hoReq->target_id.selected_tai.plmn_id, hoReq->target_id.selected_tai.tac ))
+    {
+        // can add check for enodeb also
+        log_msg(LOG_DEBUG,"Target TAI is served by current mme ");
+#endif
+        ProcedureStats::num_of_ho_required_received++;
+
+        SM::Event evt(INTRA_S1HO_START, NULL);
+        cb.qInternalEvent(evt);
+        return ActStatus::PROCEED;
+
+#ifdef S10_FEATURE
+    }
+    else
+    {
+        log_msg(LOG_DEBUG,"Target TAI is NOT served by current mme, Checking for neighboring MME ");
+        int neigh_mme_ip_addr = 0;
+
+        MmeCommonUtils::select_neighboring_mme(&hoReq->target_id.selected_tai, &neigh_mme_ip_addr);
+
+        if (neigh_mme_ip_addr == NULL)
+        {
+            // failure case need to handle ()HO_FAILURE_FROM_TARGET_ENB
+        }
+        else
+        {
+            hoReqProc_p->setHoType(interMmeS1Ho_c);
+            // need to add ip for mme in handover context
+            // macro_enb_id can be added to the context to pass it to the
+            ProcedureStats::num_of_ho_required_received++;
+
+            SM::Event evt(INTER_S1HO_START, NULL);
+            cb.qInternalEvent(evt);
+            return ActStatus::PROCEED;
+        }
+    }
+#endif
 }
 
 /******************************************************
@@ -1068,6 +1106,75 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::fwd_rel_req_handler(ControlBlock& cb)
 {
+    log_msg(LOG_DEBUG, "Inside fwd_rel_req_handler");
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_DEBUG,"process_forward_relocation_request: msgBuf is NULL ");
+        return ActStatus::HALT;
+    }
+
+    const fwd_rel_req_Q_msg *frReq =
+            static_cast<const fwd_rel_req_Q_msg*>(msgBuf->getDataPointer());
+    if (frReq == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve data buffer ");
+        return ActStatus::HALT;
+    }
+
+    S1HandoverProcedureContext* frReqProc_p = MmeContextManagerUtils::allocateHoContext(cb);
+    if (frReqProc_p == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to allocate procedure context"
+                " for forward relocation request cbIndex %d", cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+
+    UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt == NULL)
+    {
+        log_msg(LOG_DEBUG, "ue context is NULL ");
+        return ActStatus::HALT;
+    }
+
+    ueCtxt->setContextID(cb.getCBIndex());
+    frReqProc_p->setS1HoCause(frReq->cause);
+    frReqProc_p->setTargetEnbContextId(frReq->target_enb_context_id);
+    frReqProc_p->setSrcToTargetTransContainer(frReq->srcToTargetTranspContainer);
+
+    struct AMBR ambr;
+    ambr.max_requested_bw_dl = frReq->max_requested_bw_dl;
+    ambr.max_requested_bw_ul = frReq->max_requested_bw_ul;
+    if(frReq->max_requested_bw_dl > 0 || frReq->max_requested_bw_ul > 0)
+    {
+        ambr.ext_max_requested_bw_dl = frReq->extended_max_requested_bw_dl;
+        ambr.ext_max_requested_bw_ul = frReq->extended_max_requested_bw_ul;
+    }
+    ueCtxt->setAmbr(Ambr(ambr));
+
+    SessionContext* sessionCtxt = MmeContextManagerUtils::allocateSessionContext(cb, *ueCtxt);
+    BearerContext *bearerCtxt = sessionCtxt->findBearerContextByBearerId(sessionCtxt->getLinkedBearerId());
+    if (bearerCtxt == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve Bearer context for UE IDx %d",
+                cb.getCBIndex());
+        return ActStatus::HALT;
+    }
+    bearerCtxt->setS1uSgwUserFteid(Fteid(frReq->s1u_sgw_fteid));
+
+    ueCtxt->setTai(Tai(frReq->tai));
+
+    struct secinfo secInfo;
+    secInfo.next_hop_chaining_count = frReq->security_context.next_hop_chaining_count;
+    memcpy(secInfo.next_hop_nh , frReq->security_context.next_hop_nh, KENB_SIZE);
+
+    ueCtxt->setUeSecInfo(Secinfo(secInfo));
+
+	ProcedureStats::num_of_fwd_relocation_req_received ++;
+
+    SM::Event evt(HO_REQ_TO_TARGET_ENB, NULL);
+    cb.qInternalEvent(evt);
+
     return ActStatus::PROCEED;
 }
 
@@ -1100,6 +1207,9 @@ ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 	struct ID_RESP_Q_msg id_resp_msg;
 	id_resp_msg.msg_type = identification_response;
 	id_resp_msg.ue_idx = ue_ctxt->getContextID();
+
+    uint8_t gtpCause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
+    id_resp_msg.cause = gtpCause;
 	
 	ue_ctxt->getImsi().getImsiDigits(id_resp_msg.IMSI);
 	id_resp_msg.traceInformationIePresent = false;

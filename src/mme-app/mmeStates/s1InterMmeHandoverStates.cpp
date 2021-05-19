@@ -174,7 +174,6 @@ void S1HoWfEnbStatusTransfer::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_enb_status_transfer);
                 actionTable.addAction(&ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme);
                 actionTable.setNextState(S1HoWfFwdAccCtxtAck::Instance());
                 eventToActionsMap[ENB_STATUS_TRANSFER_RECV_FROM_ENB] = actionTable;
@@ -287,7 +286,6 @@ void S1HoWfFwdRelComp::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_fwd_rel_comp_notify);
                 actionTable.addAction(&ActionHandlers::send_fwd_rel_comp_ack_to_target_mme);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue_for_ho);
                 eventToActionsMap[FWD_REL_COMP_NOTIFY_RCVD_FROM_TGT_MME] = actionTable;
@@ -457,7 +455,6 @@ void S1HoWfHoFwdAccCntxNoti::initialize()
 {
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::process_ho_fwd_acc_cntx_noti);
                 actionTable.addAction(&ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme);
                 actionTable.addAction(&ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb);
                 actionTable.setNextState(S1HoWfHoNotifyFromTargetEnb::Instance());
@@ -516,7 +513,8 @@ void S1HoWfHoNotifyFromTargetEnb::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_s1_ho_notify_from_target_enb);
-                actionTable.addAction(&ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme);
+                actionTable.addAction(&ActionHandlers::send_ho_mb_req_to_sgw);
+                actionTable.setNextState(S1HoWfMbRespFromSgw::Instance());
                 eventToActionsMap[S1_HO_NOTIFY_FROM_TARGET_ENB] = actionTable;
         }
 }
@@ -535,4 +533,61 @@ uint16_t S1HoWfHoNotifyFromTargetEnb::getStateId()const
 const char* S1HoWfHoNotifyFromTargetEnb::getStateName()const
 {
 	return "s1_ho_wf_ho_notify_from_target_enb";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+S1HoWfMbRespFromSgw::S1HoWfMbRespFromSgw():State()
+{
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+S1HoWfMbRespFromSgw::~S1HoWfMbRespFromSgw()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+S1HoWfMbRespFromSgw* S1HoWfMbRespFromSgw::Instance()
+{
+        static S1HoWfMbRespFromSgw state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void S1HoWfMbRespFromSgw::initialize()
+{
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::process_mb_resp_from_sgw);
+                actionTable.addAction(&ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme);
+                actionTable.setNextState(S1HoWfMbRespFromSgw::Instance());
+                eventToActionsMap[MB_RESP_FROM_SGW] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t S1HoWfMbRespFromSgw::getStateId()const
+{
+	return s1_ho_wf_mb_resp_from_sgw;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* S1HoWfMbRespFromSgw::getStateName()const
+{
+	return "s1_ho_wf_mb_resp_from_sgw";
 }

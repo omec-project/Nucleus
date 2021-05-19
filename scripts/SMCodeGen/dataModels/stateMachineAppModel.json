@@ -16,7 +16,7 @@
                                 "NextState":"end_state"
                             },
                             {
-                                "Name":"IDENTIFICATION_REQ_FROM_UE",
+                                "Name":"IDENTIFICATION_REQ_FROM_MME",
                                 "Actions":[
                                     "DEFAULT_IDENTIFICATION_REQ_HANDLER"
                                 ],
@@ -1591,7 +1591,6 @@
                             {
                                 "Name":"ENB_STATUS_TRANSFER_RECV_FROM_ENB",
                                 "Actions":[
-                                    "PROCESS_ENB_STATUS_TRANSFER",
                                     "SEND_FWD_ACC_CTXT_NOTI_TO_TARGET_MME"
                                 ],
                                 "NextState":"s1_ho_wf_fwd_acc_ctxt_ack"
@@ -1616,7 +1615,6 @@
                             {
                                 "Name":"FWD_REL_COMP_NOTIFY_RCVD_FROM_TGT_MME",
                                 "Actions":[
-                                    "PROCESS_FWD_REL_COMP_NOTIFY",
                                     "SEND_FWD_REL_COMP_ACK_TO_TARGET_MME",
                                     "SEND_S1_REL_CMD_TO_UE_FOR_HO"
                                 ],
@@ -1655,7 +1653,6 @@
                             {
                                 "Name":"HO_FWD_ACC_CNTX_NOTI",
                                 "Actions":[
-                                    "PROCESS_HO_FWD_ACC_CNTX_NOTI",
                                     "SEND_HO_FWD_ACC_CNTX_ACK_TO_SRC_MME",
                                     "SEND_FROM_TARGET_MME_STATUS_TRANFER_TO_TARGET_ENB"
                                 ],
@@ -1670,9 +1667,22 @@
                                 "Name":"S1_HO_NOTIFY_FROM_TARGET_ENB",
                                 "Actions":[
                                     "PROCESS_S1_HO_NOTIFY_FROM_TARGET_ENB",
+                                    "SEND_HO_MB_REQ_TO_SGW"
+                                ],
+                                "NextState":"s1_ho_wf_mb_resp_from_sgw"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"s1_ho_wf_mb_resp_from_sgw",
+                        "Events":[
+                            {
+                                "Name":"MB_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_MB_RESP_FROM_SGW",
                                     "SEND_HO_FWD_REL_COMP_NOTIFICATION_TO_SRC_MME"
                                 ],
-                                "NextState":"end_state"
+                                "NextState":"s1_ho_wf_mb_resp_from_sgw"
                             }
                         ]
                     }                   
