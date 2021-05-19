@@ -36,6 +36,12 @@ namespace mme
 	{
 	public:
 		static bool isLocalGuti(const guti& guti_r);
+#ifdef S10_FEATURE
+        static bool compare_plmn_id(const struct PLMN *plmn);
+        static bool compare_tac(const uint16_t tac);
+        static bool isLocalTAI(const struct PLMN *plmn, const short target_tac);
+        static void select_neighboring_mme(const struct TAI *tai, int* service_ip_addr);
+#endif
 		static uint32_t allocateMtmsi();
 
 		static SM::ControlBlock* findControlBlock(cmn::utils::MsgBuffer* msgData_p);

@@ -231,7 +231,7 @@ namespace mme
 			* setUeSecInfo
 			*    set ueSecInfo to UEContext
 			****************************************/
-			void setUeSecInfo(Secinfo& ueSecInfo_i);
+			void setUeSecInfo(const Secinfo& ueSecInfo_i);
 			
 			/****************************************
 			* getUeSecInfo

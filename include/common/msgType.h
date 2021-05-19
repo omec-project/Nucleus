@@ -16,6 +16,7 @@ extern "C"{
 #include "s6_common_types.h"
 #include "s11_structs.h"
 #include "s1ap_structs.h"
+#include "s10_structs.h"
 #include "s1ap_ie.h"
 
 #define REQ_ARGS 0x0000
@@ -105,6 +106,10 @@ typedef enum msg_type_t {
     forward_relocation_complete_notification,
     forward_relocation_complete_acknowledgement,	
     max_msg_type
+#ifdef S10_FEATURE
+	,
+	forward_relocation_request
+#endif
 } msg_type_t;
 
 struct s1_incoming_msg_header {
@@ -702,6 +707,28 @@ struct DB_RESP_Q_msg {
  };
 #define S11_DBRESP_BUF_SIZE sizeof(struct DB_RESP_Q_msg)
 
+#ifdef S10_FEATURE
+struct forward_relocation_req_Q_msg {
+    msg_type_t msg_type;
+    int ue_idx;
+    int target_enb_context_id;
+    s1apCause_t cause;
+    struct src_target_transparent_container srcToTargetTranspContainer;
+    struct TAI tai;
+    unsigned char IMSI[BINARY_IMSI_LEN];
+    struct apn_name selected_apn;
+    unsigned int  paa_v4_addr;
+    uint8_t bearer_id;
+    bearer_qos_t bearer_qos;
+    bearer_ctx_list_t bearer_ctx_list;
+    uint32_t sgw_ip;
+    uint32_t pgw_ip;
+    mm_context_t mm_cntxt;
+    uint32_t neigh_mme_ip;
+};
+#define S10_FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
+#endif
+
 struct ID_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
@@ -850,7 +877,23 @@ struct Fwd_Acc_Ctxt_Notif_Q_msg{
     int s10_mme_cp_teid;
     struct enB_status_transfer_transparent_container f_container;
 };
-
+  
+#ifdef S10_FEATURE
+struct fwd_rel_req_Q_msg {
+    gtp_incoming_msg_data_t header;
+    int target_enb_context_id;
+    s1apCause_t cause;
+    struct src_target_transparent_container srcToTargetTranspContainer;
+    struct TAI tai;
+    uint32_t max_requested_bw_dl;
+    uint32_t max_requested_bw_ul;
+    uint32_t extended_max_requested_bw_dl;
+    uint32_t extended_max_requested_bw_ul;
+    struct fteid s1u_sgw_fteid;
+    struct security_context security_context;
+};
+#endif
+  
 struct Fwd_Acc_Ctxt_Ack_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
