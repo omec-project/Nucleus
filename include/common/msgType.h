@@ -18,7 +18,6 @@ extern "C"{
 #include "s1ap_structs.h"
 #include "s10_structs.h"
 #include "s1ap_ie.h"
-#include "s10_structs.h"
 
 #define REQ_ARGS 0x0000
 
@@ -107,10 +106,7 @@ typedef enum msg_type_t {
     forward_relocation_complete_notification,
     forward_relocation_complete_acknowledgement,	
     max_msg_type
-#ifdef S10_FEATURE
-	,
-	forward_relocation_request
-#endif
+
 } msg_type_t;
 
 struct s1_incoming_msg_header {
@@ -755,23 +751,8 @@ struct ID_RESP_Q_msg{
 
 
 };
-struct forward_relocation_req_Q_msg {
-    msg_type_t msg_type;
-    int ue_idx;
-    int target_enb_context_id;
-    struct F_Cause_t cause;
-    enum hoType handoverType;
-    struct src_target_transparent_container srcToTargetTranspContainer;
-    struct TAI tai;
-    unsigned char IMSI[BINARY_IMSI_LEN];
-    struct apn_name selected_apn;
-    uint16_t bearer_id;
-    bearer_ctx_list_t bearer_ctx_list;
-    uint32_t sgw_ip;
-    uint32_t pgw_ip;
-    mm_context_t mm_cntxt;
-    struct sockaddr neigh_mme_ip;
-};
+
+
 struct forward_relocation_resp_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
@@ -879,9 +860,15 @@ struct FWD_ACC_CTXT_ACK_Q_msg{
 struct FWD_REL_CMP_ACK_Q_msg{
 	msg_type_t msg_type;
 	int ue_idx;
-	uint8_t casue;
+	uint8_t cause;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_REL_CMP_ACK_Q_msg)
+
+struct FWD_REL_CMP_NOT_Q_msg{
+	msg_type_t msg_type;
+	int ue_idx;
+};
+#define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_REL_CMP_NOT_Q_msg)
  
 /*************************
  * Incoming GTP Messages
@@ -978,25 +965,11 @@ struct ID_req_Q_msg{
     int s10_mme_cp_teid;
     guti guti;
 };
-struct forward_relocation_req_BQ_msg {
-    gtp_incoming_msg_data_t header;
-    int target_enb_context_id;
-    struct s1apCause_t cause;
-    enum hoType handoverType;
-    struct src_target_transparent_container srcToTargetTranspContainer;
-    struct TAI tai;
-    unsigned char IMSI[BINARY_IMSI_LEN];
-    struct apn_name selected_apn;
-    uint8_t bearer_id;
-    bearer_ctx_list_t bearer_ctx_list;
-    uint32_t sgw_ip;
-    uint32_t pgw_ip;
-    mm_context_t mm_cntxt;
-    struct sockaddr neigh_mme_ip;
-};
+
 struct forward_relocation_resp_BQ_msg {
     gtp_incoming_msg_data_t header;
     teid_t teid;  ///< Tunnel Endpoint Identifier
+    int s10_mme_cp_teid;
 
     // here fields listed in 3GPP TS 29.274
     struct gtp_cause cause;  ///< If the MME could successfully establish the UE
@@ -1040,34 +1013,7 @@ struct forward_relocation_resp_BQ_msg {
     
 };
 
-#define s10_FEATURE
-/*
-* The Forward Relocation Complete Notification will be sent on S10 interface as
- * part of these procedures:
- * - E-UTRAN Tracking Area Update with MME Change
- * - S1-based Handover with MME change
- * - todo: also sent at attach with MME change with GUTI!! (without getting
- * security context from HSS by new MME)
- */
-struct forward_relocation_complete_notification_Q_msg {
-    gtp_incoming_msg_data_t header;
-    /** Destination TEID. */
-    teid_t teid;
 
-    /** Sender TEID. */
-    teid_t local_teid;  ///< not in specs for inner MME use
-
-    
-    void* trxn;  ///< Transaction identifier
-    
-    union {
-        struct sockaddr_in
-            addr_v4;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
-        struct sockaddr_in6
-            addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
-    } mme_peer_ip;
-};
-#endif
 struct Fwd_Acc_Ctxt_Notif_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
@@ -1077,6 +1023,7 @@ struct Fwd_Acc_Ctxt_Notif_Q_msg{
 #ifdef S10_FEATURE
 struct fwd_rel_req_Q_msg {
     gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
     int target_enb_context_id;
     s1apCause_t cause;
     struct src_target_transparent_container srcToTargetTranspContainer;
@@ -1094,6 +1041,34 @@ struct Fwd_Acc_Ctxt_Ack_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
     uint8_t cause;
+};
+
+/*
+* The Forward Relocation Complete Notification will be sent on S10 interface as
+ * part of these procedures:
+ * - E-UTRAN Tracking Area Update with MME Change
+ * - S1-based Handover with MME change
+ * - todo: also sent at attach with MME change with GUTI!! (without getting
+ * security context from HSS by new MME)
+ */
+struct forward_relocation_complete_notification_BQ_msg {
+    gtp_incoming_msg_data_t header;
+    int s10_mme_cp_teid;
+    /** Destination TEID. */
+    teid_t teid;
+
+    /** Sender TEID. */
+    teid_t local_teid;  ///< not in specs for inner MME use
+
+    
+    void* trxn;  ///< Transaction identifier
+    
+    union {
+        struct sockaddr_in
+            addr_v4;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+        struct sockaddr_in6
+            addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
+    } mme_peer_ip;
 };
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)

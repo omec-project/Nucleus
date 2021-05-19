@@ -136,20 +136,19 @@ message ProcedureStatsRespBuf
 	uint32 num_of_processed_identification_resp = 77;
 	uint32 num_of_identification_req_sent = 78;
 	uint32 num_of_identification_resp_sent = 79;
-	uint32 num_of_processed_identification_resp = 80;
-	uint32 num_of_fwd_relocation_req_sent = 81;
-	uint32 num_of_fwd_relocation_resp_sent = 82;
-	uint32 num_of_fwd_relocation_complete_sent = 83;
-	uint32 num_of_fwd_access_context_notify_sent = 84;
-	uint32 num_of_fwd_access_context_ack_sent = 85;
-	uint32 num_of_identification_req_received = 86;
-	uint32 num_of_identification_resp_received = 87;
-	uint32 num_of_processed_identification_received = 88;
-	uint32 num_of_fwd_relocation_req_received = 89;
-	uint32 num_of_fwd_relocation_resp_received = 90;
-	uint32 num_of_fwd_relocation_complete_received = 91;
-	uint32 num_of_fwd_access_context_notify_received = 92;
-	uint32 num_of_fwd_access_context_ack_received = 93;
+	uint32 num_of_fwd_relocation_req_sent = 80;
+	uint32 num_of_fwd_relocation_resp_sent = 81;
+	uint32 num_of_fwd_relocation_complete_sent = 82;
+	uint32 num_of_fwd_access_context_notify_sent = 83;
+	uint32 num_of_fwd_access_context_ack_sent = 84;
+	uint32 num_of_identification_req_received = 85;
+	uint32 num_of_identification_resp_received = 86;
+	uint32 num_of_processed_identification_received = 87;
+	uint32 num_of_fwd_relocation_req_received = 88;
+	uint32 num_of_fwd_relocation_resp_received = 89;
+	uint32 num_of_fwd_relocation_complete_received = 90;
+	uint32 num_of_fwd_access_context_notify_received = 91;
+	uint32 num_of_fwd_access_context_ack_received = 92;
 }
 
 message Empty

@@ -75,24 +75,24 @@ void S10MsgHandler::handleS10Message_v(IpcEMsgUnqPtr eMsg)
 		case msg_type_t::forward_relocation_request:
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_RESPONSE);
-			const struct id_resp_Q_msg* id_resp_info= (const struct id_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleForwardRelocationRequestMsg_v(std::move(eMsg), id_resp_info->s10_mme_cp_teid);
+			const struct fwd_rel_req_Q_msg* fwd_rel_req_info = (const struct fwd_rel_req_Q_msg*) (msgBuf->getDataPointer());
+			handleForwardRelocationRequestMsg_v(std::move(eMsg), fwd_rel_req_info->s10_mme_cp_teid);
 		}
 		break;
 
 		case msg_type_t::forward_relocation_response:
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_RESPONSE);
-			const struct id_resp_Q_msg* id_resp_info= (const struct id_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleForwardRelocationResponseMsg_v(std::move(eMsg), id_resp_info->s10_mme_cp_teid);
+			const struct forward_relocation_resp_BQ_msg* fwd_rel_resp_info= (const struct forward_relocation_resp_BQ_msg*) (msgBuf->getDataPointer());
+			handleForwardRelocationResponseMsg_v(std::move(eMsg), fwd_rel_resp_info->s10_mme_cp_teid);
 		}
 		break;
 
 		case msg_type_t::forward_relocation_complete_notification:
 		{
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S10_IDENTIFICATION_RESPONSE);
-			const struct id_resp_Q_msg* id_resp_info= (const struct id_resp_Q_msg*) (msgBuf->getDataPointer());
-			handleForwardRelocationCompleteNotificationMsg_v(std::move(eMsg), id_resp_info->s10_mme_cp_teid);
+			const struct forward_relocation_complete_notification_BQ_msg* fwd_rel_cmp_not_info= (const struct forward_relocation_complete_notification_BQ_msg*) (msgBuf->getDataPointer());
+			handleForwardRelocationCompleteNotificationMsg_v(std::move(eMsg), fwd_rel_cmp_not_info->s10_mme_cp_teid);
 		}
 		break;
 

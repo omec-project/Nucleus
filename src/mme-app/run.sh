@@ -17,3 +17,5 @@ sleep 1
 ./bin/s6a-app > /dev/null &
 sleep 1
 ./bin/s11-app > /dev/null &
+sleep 1
+./bin/s10-app > /dev/null &

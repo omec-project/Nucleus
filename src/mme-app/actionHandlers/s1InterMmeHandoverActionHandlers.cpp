@@ -39,6 +39,8 @@
 #include <contextManager/dataBlocks.h>
 #include <utils/mmeContextManagerUtils.h>
 #include "mmeStatsPromClient.h"
+#include "gtpCauseTypes.h"
+
 
 using namespace cmn;
 using namespace cmn::utils;
@@ -251,6 +253,13 @@ ActStatus ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme(ControlBlock& cb)
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
+    MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    if (msgBuf == NULL)
+    {
+        log_msg(LOG_ERROR, "Failed to retrieve message buffer ");
+        return ActStatus::HALT;
+    }
+
 	struct FWD_ACC_CTXT_NOTIF_Q_msg fwd_acc_ctxt_msg;
 	fwd_acc_ctxt_msg.msg_type = forward_access_context_notification;
 	fwd_acc_ctxt_msg.ue_idx = ue_ctxt->getContextID();
@@ -299,10 +308,10 @@ ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 	uint8_t cause = GTPV2C_CAUSE_REQUEST_ACCEPTED;
 	fwd_rel_cmp_ack_msg.cause = cause;
 	
-	cmn::ipc:IpcAddress destAddr;
+	cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
 	
-	mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGEMENT);
+	//mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_COMPLETE_ACKNOWLEDGEMENT);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId)); 
 	mmeIpcIf.dispatchIpcMsg((char *) &fwd_rel_cmp_ack_msg,sizeof(fwd_rel_cmp_ack_msg), destAddr); 
 
@@ -460,23 +469,32 @@ ActStatus ActionHandlers::send_fwd_rel_resp_to_src_mme(ControlBlock& cb)
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
-    struct forward_relocation_resp_Q_msg forward_relocation_resp;
-     
-    forward_relocation_resp.msg_type = identification_request;
+
+    S1HandoverProcedureContext *prcdCtxt_p =
+            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+    if (prcdCtxt_p == NULL)
+    {
+        log_msg(LOG_DEBUG,
+                "send_fwd_rel_resp_to_src_mme: MmeS1HandoverProcedureCtxt is NULL");
+        return ActStatus::HALT;
+    }
+
+    struct forward_relocation_resp_Q_msg forward_relocation_resp; 
+    forward_relocation_resp.msg_type = forward_relocation_response;
 	forward_relocation_resp.ue_idx = ue_ctxt->getContextID();
 
-    forward_relocation_resp.f_cause = prcdCtxt_p->getS1apCause();
-    memcpy(&(forward_relocation_resp.eutran_container),&(procCtxt.getSrcToTargetTransContainer()),sizeof(struct src_target_transparent_container));
+    forward_relocation_resp.f_cause.choice = prcdCtxt_p->getS1HoCause().s1apCause_m.choice;
+    memcpy(&(forward_relocation_resp.eutran_container),&(prcdCtxt_p->getSrcToTargetTransContainer()),sizeof(struct src_target_transparent_container));
     
     cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_RESPONSE);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &id_msg, sizeof(id_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &forward_relocation_resp, sizeof(forward_relocation_resp), destAddr);
 		
 	ProcedureStats::num_of_fwd_relocation_resp_sent++;
-	log_msg(LOG_DEBUG, "Leaving send_identification_request_to_old_mme ");
+	log_msg(LOG_DEBUG, "Leaving send_fwd_rel_resp_to_src_mme ");
 
     
     return ActStatus::PROCEED;
@@ -623,12 +641,17 @@ ActStatus ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme(ControlBl
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
     
+    struct FWD_REL_CMP_NOT_Q_msg fwd_rel_cmp_not_msg;
+    fwd_rel_cmp_not_msg.msg_type = forward_relocation_complete_notification;
+    fwd_rel_cmp_not_msg.ue_idx = ue_ctxt->getContextID();
+
+
     cmn::ipc::IpcAddress destAddr;
 	destAddr.u32 = TipcServiceInstance::s10AppInstanceNum_c;
 
     mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_TX_S10_FORWARD_RELOCATION_COMPLETE);
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
-	mmeIpcIf.dispatchIpcMsg((char *) &id_msg, sizeof(id_msg), destAddr);
+	mmeIpcIf.dispatchIpcMsg((char *) &fwd_rel_cmp_not_msg, sizeof(fwd_rel_cmp_not_msg), destAddr);
 		
 	ProcedureStats::num_of_fwd_relocation_complete_sent++;
 	log_msg(LOG_DEBUG, "Leaving send_ho_fwd_rel_comp_notification_to_src_mme ");

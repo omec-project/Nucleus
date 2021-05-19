@@ -22,6 +22,12 @@ private:
 
 	void handleIdentificationRequestMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 	void handleIdentificationResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleForwardRelocationRequestMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleForwardRelocationResponseMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleForwardRelocationCompleteNotificationMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleForwardAccessContextNotificationMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
+	void handleForwardAccessContextAckMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 };
+
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_GTPMSGHANDLER_H_ */
