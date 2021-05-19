@@ -88,7 +88,22 @@ namespace mme
                 static int num_of_ded_act_complete;
                 static int num_of_create_bearer_proc_complete;
                 static int num_of_identification_req_sent;
-
+                static int num_of_identification_resp_sent;
+                static int num_of_processed_identification_resp;
+                static int num_of_fwd_relocation_req_sent;
+                static int num_of_fwd_relocation_resp_sent;
+                static int num_of_fwd_relocation_complete_sent;
+                static int num_of_fwd_access_context_notify_sent;
+                static int num_of_fwd_access_context_ack_sent;
+                static int num_of_identification_req_received;
+                static int num_of_identification_resp_received;
+                static int num_of_processed_identification_received;
+                static int num_of_fwd_relocation_req_received;
+                static int num_of_fwd_relocation_resp_received;
+                static int num_of_fwd_relocation_complete_received;
+                static int num_of_fwd_access_context_notify_received;
+                static int num_of_fwd_access_context_ack_received;
+              
         };
 };
 #endif

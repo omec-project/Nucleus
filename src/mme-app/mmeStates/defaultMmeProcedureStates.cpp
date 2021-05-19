@@ -66,6 +66,11 @@ void DefaultMmeState::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_identification_req_handler);
+                eventToActionsMap[IDENTIFICATION_REQ_FROM_MME] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_detach_req_handler);
                 eventToActionsMap[DETACH_REQ_FROM_UE] = actionTable;
         }

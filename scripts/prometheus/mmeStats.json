@@ -540,6 +540,97 @@
             "dynamic_label_0": [
                 {"sgw_addr" : "sgw address of s11 connection "}
             ]
+        },
+        { 
+            "name" : "s10_identification_request",
+            "help" : "number of identification request received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_response",
+            "help" : "number of identification response received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_request",
+            "help" : "number of forward relocation request received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_response",
+            "help" : "number of forward relocation response received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_complete",
+            "help" : "number of forward relocation complete received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_complete"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_access_context_notify",
+            "help" : "number of forward access context notify received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_access_context_notify"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_access_context_ack",
+            "help" : "number of forward access context ack received from new MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_access_context_ack"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
         }
         ]
     },
@@ -563,7 +654,7 @@
             "dynamic_label_0": [
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
-        }, 
+        },
         { 
             "name" : "nas_authentication_request",
             "help" : "number of authentication request sent by MME",
@@ -1022,6 +1113,97 @@
             ],
             "dynamic_label_0": [
                 {"hss_addr" : "HSS address of s6a connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_request",
+            "help" : "number of identification request sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_identification_response",
+            "help" : "number of identification response sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "identification_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_request",
+            "help" : "number of forward relocation request sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_request"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_response",
+            "help" : "number of forward relocation response sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_response"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_relocation_complete",
+            "help" : "number of forward relocation complete sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_relocation_complete"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_access_context_notify",
+            "help" : "number of forward access context notify sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_access_context_notify"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
+            ]
+        },
+        { 
+            "name" : "s10_forward_access_context_ack",
+            "help" : "number of forward access context ack sent from MME",
+            "label_0": [
+                { "interface":"s10"}
+            ],
+            "label_1": [
+                {"msg_type": "forward_access_context_ack"}
+            ],
+            "dynamic_label_0": [
+                {"mme_addr" : "mme address of s10 connection "}
             ]
         }
         ]

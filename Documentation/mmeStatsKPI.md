@@ -65,6 +65,13 @@
 |Counter|number_of_messages_received|s11_downlink_notification_indication|number of DDN Ind received by MME|[{'interface': 's11'}, {'msg_type': 'downlink_notification_indication'}]|['sgw_addr']|
 |Counter|number_of_messages_received|s11_create_bearer_request|number of create bearer request received by MME|[{'interface': 's11'}, {'msg_type': 'create_bearer_request'}]|['sgw_addr']|
 |Counter|number_of_messages_received|s11_delete_bearer_request|number of delete bearer request received by MME|[{'interface': 's11'}, {'msg_type': 'delete_bearer_request'}]|['sgw_addr']|
+|Counter|number_of_messages_received|s10_identification_request|number of identification request received from new MME|[{'interface': 's10'}, {'msg_type': 'identification_request'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_identification_response|number of identification response received from new MME|[{'interface': 's10'}, {'msg_type': 'identification_response'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_forward_relocation_request|number of forward relocation request received from new MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_request'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_forward_relocation_response|number of forward relocation response received from new MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_response'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_forward_relocation_complete|number of forward relocation complete received from new MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_complete'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_forward_access_context_notify|number of forward access context notify received from new MME|[{'interface': 's10'}, {'msg_type': 'forward_access_context_notify'}]|['mme_addr']|
+|Counter|number_of_messages_received|s10_forward_access_context_ack|number of forward access context ack received from new MME|[{'interface': 's10'}, {'msg_type': 'forward_access_context_ack'}]|['mme_addr']|
 
 
 # mme_msg_tx
@@ -99,12 +106,20 @@
 |Counter|number_of_messages_sent|s11_modify_bearer_request|number of MBReq sent by MME|[{'interface': 's11'}, {'msg_type': 'modify_bearer_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_delete_session_request|number of DSReq sent by MME|[{'interface': 's11'}, {'msg_type': 'delete_session_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_downlink_data_notification_ack|number of DDN Ack sent by MME|[{'interface': 's11'}, {'msg_type': 'downlink_data_notification_ack'}]|['sgw_addr']|
+|Counter|number_of_messages_sent|s11_downlink_data_notification_failure_ind|number of DDN Failure Indication sent by MME|[{'interface': 's11'}, {'msg_type': 'downlink_data_notification_failure_ind'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_release_bearer_request|number of RAB request sent by MME|[{'interface': 's11'}, {'msg_type': 'release_bearer_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_create_bearer_response|number of create bearer response sent by MME|[{'interface': 's11'}, {'msg_type': 'create_bearer_response'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_delete_bearer_response|number of delete bearer response sent by MME|[{'interface': 's11'}, {'msg_type': 'delete_bearer_response'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s6a_authentication_info_request|number of authentication information request sent by MME|[{'interface': 's6a'}, {'msg_type': 'authentication_info_request'}]|['hss_addr']|
 |Counter|number_of_messages_sent|s6a_update_location_request|number of ULR request sent by MME |[{'interface': 's6a'}, {'msg_type': 'update_location_request'}]|['hss_addr']|
 |Counter|number_of_messages_sent|s6a_purge_request|number of Purge request sent by MME|[{'interface': 's6a'}, {'msg_type': 'purge_request'}]|['hss_addr']|
+|Counter|number_of_messages_sent|s10_identification_request|number of identification request sent from MME|[{'interface': 's10'}, {'msg_type': 'identification_request'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_identification_response|number of identification response sent from MME|[{'interface': 's10'}, {'msg_type': 'identification_response'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_forward_relocation_request|number of forward relocation request sent from MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_request'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_forward_relocation_response|number of forward relocation response sent from MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_response'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_forward_relocation_complete|number of forward relocation complete sent from MME|[{'interface': 's10'}, {'msg_type': 'forward_relocation_complete'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_forward_access_context_notify|number of forward access context notify sent from MME|[{'interface': 's10'}, {'msg_type': 'forward_access_context_notify'}]|['mme_addr']|
+|Counter|number_of_messages_sent|s10_forward_access_context_ack|number of forward access context ack sent from MME|[{'interface': 's10'}, {'msg_type': 'forward_access_context_ack'}]|['mme_addr']|
 
 
 # mme_procedures
