@@ -12,7 +12,7 @@
 include ../../Makefile.common
 
 CC := g++
-CFLAGS += -Wall -DSTATS -I/usr/include/openssl -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11 -DS10_FEATURE
+CFLAGS += -Wall -DSTATS -I/usr/include/openssl -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11 
 LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf
 
 ifeq ($(DEBUG),true)
