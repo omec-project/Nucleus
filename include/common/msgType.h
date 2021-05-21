@@ -724,7 +724,6 @@ struct forward_relocation_req_Q_msg {
     uint32_t neigh_mme_ip;
 };
 #define S10_FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
-#endif
 
 struct ID_Q_msg{
     msg_type_t msg_type;
@@ -748,21 +747,17 @@ struct ID_RESP_Q_msg{
     bool ueUsageTypeIePresent;
     bool monitoringEventInformationIePresent;
     bool privateExtensionIePresent;
-
-
 };
-
+#define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
 
 struct forward_relocation_resp_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
     teid_t teid;  ///< Tunnel Endpoint Identifier
 
-
     // here fields listed in 3GPP TS 29.274
     struct gtp_cause cause;  ///< If the MME could successfully establish the UE
                             ///< context and the beaers.
-
     fteid_t s10_target_mme_teid;  ///< Target MME S10 control plane (sender fteid)
     ///< This IE shall be sent on the S10 interfaces.
 
@@ -797,21 +792,17 @@ struct forward_relocation_resp_Q_msg {
     // S5/S8, S4/S11 and S2b
     ///< interfaces.
 
-    unsigned int mme_ip_addr;
-    
+    unsigned int mme_ip_addr; 
 };
+#define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct forward_relocation_resp_Q_msg)
 
-
-#ifndef s10_FEATURE
-#define s10_FEATURE
 /*
 * The Forward Relocation Complete Notification will be sent on S10 interface as
  * part of these procedures:
  * - E-UTRAN Tracking Area Update with MME Change
  * - S1-based Handover with MME change
  * - todo: also sent at attach with MME change with GUTI!! (without getting
- * security context from HSS by new MME)
- */
+ * security context from HSS by new MME) */
 struct forward_relocation_complete_notification_Q_msg {
     msg_type_t msg_type;
     int ue_idx;
@@ -839,9 +830,7 @@ struct forward_relocation_complete_notification_Q_msg {
             addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
     } mme_peer_ip;
 };
-#endif
-
-#define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
+#define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct forward_relocation_complete_notification_Q_msg)
 
 struct FWD_ACC_CTXT_NOTIF_Q_msg{
     msg_type_t msg_type;
@@ -869,7 +858,8 @@ struct FWD_REL_CMP_NOT_Q_msg{
 	int ue_idx;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_REL_CMP_NOT_Q_msg)
- 
+#endif
+
 /*************************
  * Incoming GTP Messages
  *************************/
@@ -948,6 +938,8 @@ struct db_req_Q_msg {
     uint8_t eps_bearer_ids[DED_BEARER_COUNT];
     struct pco pco;
 };
+
+#ifdef S10_FEATURE
 struct id_resp_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
@@ -1013,14 +1005,12 @@ struct forward_relocation_resp_BQ_msg {
     
 };
 
-
 struct Fwd_Acc_Ctxt_Notif_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
     struct enB_status_transfer_transparent_container f_container;
 };
-  
-#ifdef S10_FEATURE
+
 struct fwd_rel_req_Q_msg {
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
@@ -1035,8 +1025,7 @@ struct fwd_rel_req_Q_msg {
     struct fteid s1u_sgw_fteid;
     struct security_context security_context;
 };
-#endif
-  
+
 struct Fwd_Acc_Ctxt_Ack_Q_msg{
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
@@ -1070,6 +1059,7 @@ struct forward_relocation_complete_notification_BQ_msg {
             addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
     } mme_peer_ip;
 };
+#endif
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
 

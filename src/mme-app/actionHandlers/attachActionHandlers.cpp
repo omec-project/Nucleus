@@ -1502,15 +1502,12 @@ ActStatus ActionHandlers::handle_s1_rel_req_during_attach(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
-#define S10_FEATURE
-
-#ifdef S10_FEATURE
-
 /***************************************
 * Action handler : send_identification_request_to_old_mme
 ***************************************/
 ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	log_msg(LOG_DEBUG, "Inside send_identification_request_to_old_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -1534,7 +1531,7 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 		
 	ProcedureStats::num_of_identification_req_sent++;
 	log_msg(LOG_DEBUG, "Leaving send_identification_request_to_old_mme ");
-	
+#endif	
     return ActStatus::PROCEED;
 }
 
@@ -1543,6 +1540,7 @@ ActStatus ActionHandlers::send_identification_request_to_old_mme(ControlBlock& c
 ***************************************/
 ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	log_msg(LOG_DEBUG, "Entering process_identification_response ");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -1581,9 +1579,7 @@ ActStatus ActionHandlers::process_identification_response(ControlBlock& cb)
 	SubsDataGroupManager::Instance()->addimsikey(ue_ctxt->getImsi(), ue_ctxt->getContextID());	
 	ProcedureStats::num_of_processed_identification_resp++;
 	log_msg(LOG_DEBUG, "Leaving process_identification_response");
-
+#endif
     return ActStatus::PROCEED;
 }
-
-#endif
 

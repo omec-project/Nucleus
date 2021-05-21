@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
+#ifdef S10_FEATURE
 #include <msgHandlers/s10MsgHandler.h>
 
 #include <contextManager/subsDataGroupManager.h>
@@ -243,3 +243,5 @@ void S10MsgHandler::handleForwardAccessContextAckMsg_v(IpcEMsgUnqPtr eMsg, uint3
 	SM::Event evt(FWD_ACC_CTXT_ACK_RCVD, cmn::IpcEMsgShPtr(std::move(eMsg)));
 	controlBlk_p->addEventToProcQ(evt);
 }
+#endif
+
