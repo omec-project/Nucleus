@@ -1098,14 +1098,13 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 
     return rc;
 }
-#define S10_FEATURE
 
-#ifdef S10_FEATURE
 /***************************************
 * Action handler : fwd_rel_req_handler
 ***************************************/
 ActStatus ActionHandlers::fwd_rel_req_handler(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside fwd_rel_req_handler");
     MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     if (msgBuf == NULL)
@@ -1174,7 +1173,7 @@ ActStatus ActionHandlers::fwd_rel_req_handler(ControlBlock& cb)
 
     SM::Event evt(HO_REQ_TO_TARGET_ENB, NULL);
     cb.qInternalEvent(evt);
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -1199,6 +1198,7 @@ ActStatus ActionHandlers::send_overload_stop(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside default_identification_req_handler");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -1226,8 +1226,6 @@ ActStatus ActionHandlers::default_identification_req_handler(ControlBlock& cb)
 		
 	ProcedureStats::num_of_identification_resp_sent ++;
 	log_msg(LOG_DEBUG, "Leaving default_identification_req_handler ");
+#endif
     return ActStatus::PROCEED;
 }
-
-#endif
-

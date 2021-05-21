@@ -53,7 +53,7 @@ extern mmeConfig *mme_tables;
 ***************************************/
 ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 {
-    // S10_FEATURE
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_fr_request_to_target_mme");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -196,9 +196,8 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char *) &frReq, sizeof(frReq), destAddr);
 
     log_msg(LOG_DEBUG, "Leaving send_fr_request_to_target_mme ");
-
     ProcedureStats::num_of_fwd_relocation_req_sent++;
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -207,6 +206,7 @@ ActStatus ActionHandlers::send_fr_request_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_fr_res(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside forward_relocation_reponse ");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -238,7 +238,7 @@ ActStatus ActionHandlers::process_fr_res(ControlBlock& cb)
     const forward_relocation_resp_BQ_msg *forward_rel_resp = static_cast<const forward_relocation_resp_BQ_msg*>(msgBuf->getDataPointer());
     s1HoPrCtxt->setTargetToSrcTransContainer(forward_rel_resp->eutran_container);
     ProcedureStats::num_of_fwd_relocation_resp_received++;
-
+#endif
     return ActStatus::PROCEED;
     
 }
@@ -248,6 +248,7 @@ ActStatus ActionHandlers::process_fr_res(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_fwd_acc_ctxt_noti_to_target_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -277,7 +278,7 @@ ActStatus ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme(ControlBlock& cb)
 		
 	ProcedureStats::num_of_fwd_access_context_notify_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_fwd_acc_ctxt_noti_to_target_mme ");
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -286,9 +287,10 @@ ActStatus ActionHandlers::send_fwd_acc_ctxt_noti_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_fwd_acc_ctxt_ack(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
 	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -297,6 +299,7 @@ ActStatus ActionHandlers::process_fwd_acc_ctxt_ack(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	log_msg(LOG_DEBUG, "Inside send_fwd_rel_comp_ack_to_target_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -317,7 +320,7 @@ ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 
 	//ProcedureStats::num_of_fwd_access_context_notify_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_fwd_rel_comp_ack_to_target_mme ");
-	
+#endif	
     return ActStatus::PROCEED;
 }
 
@@ -326,6 +329,7 @@ ActStatus ActionHandlers::send_fwd_rel_comp_ack_to_target_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_s1_rel_cmd_to_ue_for_ho");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if(ue_ctxt == NULL)
@@ -359,6 +363,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
 
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
     log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue_for_ho ");
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -367,7 +372,7 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_ue_for_ho(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_ho_req_to_target_enb(ControlBlock& cb)
 {
-
+#ifdef S10_FEATURE
     log_msg(LOG_INFO, "Inside send_ho_req_to_target_enb");
 
     UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -400,8 +405,8 @@ ActStatus ActionHandlers::send_ho_req_to_target_enb(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
 
     log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb ");
-
     ProcedureStats::num_of_ho_request_to_target_enb_sent++;
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -410,7 +415,7 @@ ActStatus ActionHandlers::send_ho_req_to_target_enb(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_ho_req_ack(ControlBlock& cb)
 {
-
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside process_ho_request_ack");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -455,8 +460,8 @@ ActStatus ActionHandlers::process_ho_req_ack(ControlBlock& cb)
             ho_request_ack->erab_admitted_list.erab_admitted[0]);
 
     ProcedureStats::num_of_ho_request_ack_received++;
-
     log_msg(LOG_DEBUG, "Leaving process_ho_request_ack");
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -465,6 +470,7 @@ ActStatus ActionHandlers::process_ho_req_ack(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_fwd_rel_resp_to_src_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_fwd_rel_resp_to_src_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -495,8 +501,7 @@ ActStatus ActionHandlers::send_fwd_rel_resp_to_src_mme(ControlBlock& cb)
 		
 	ProcedureStats::num_of_fwd_relocation_resp_sent++;
 	log_msg(LOG_DEBUG, "Leaving send_fwd_rel_resp_to_src_mme ");
-
-    
+#endif  
     return ActStatus::PROCEED;
 }
 
@@ -505,6 +510,7 @@ ActStatus ActionHandlers::send_fwd_rel_resp_to_src_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_ho_fwd_acc_cntx_ack_to_src_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -526,7 +532,7 @@ ActStatus ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme(ControlBlock& cb)
 		
 	ProcedureStats::num_of_fwd_access_context_ack_sent ++;
 	log_msg(LOG_DEBUG, "Leaving send_ho_fwd_acc_cntx_ack_to_src_mme ");
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -535,6 +541,7 @@ ActStatus ActionHandlers::send_ho_fwd_acc_cntx_ack_to_src_mme(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	log_msg(LOG_DEBUG, "Inside send_from_target_mme_status_tranfer_to_target_enb");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
@@ -579,6 +586,7 @@ ActStatus ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb(Cont
     mmeIpcIf.dispatchIpcMsg((char *) &mme_status_trans, sizeof(mme_status_trans), destAddr);
 
 	log_msg(LOG_DEBUG, "Leaving send_from_target_mme_status_tranfer_to_target_enb");
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -587,6 +595,7 @@ ActStatus ActionHandlers::send_from_target_mme_status_tranfer_to_target_enb(Cont
 ***************************************/
 ActStatus ActionHandlers::process_s1_ho_notify_from_target_enb(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
 	log_msg(LOG_DEBUG, "Inside process_s1_ho_notify_from_target_enb");
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
@@ -627,7 +636,7 @@ ActStatus ActionHandlers::process_s1_ho_notify_from_target_enb(ControlBlock& cb)
 
     ProcedureStats::num_of_ho_notify_received++;
     log_msg(LOG_DEBUG, "Leaving process_ho_notify");
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -636,6 +645,7 @@ ActStatus ActionHandlers::process_s1_ho_notify_from_target_enb(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_ho_fwd_rel_comp_notification_to_src_mme");
 
 	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
@@ -655,7 +665,7 @@ ActStatus ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme(ControlBl
 		
 	ProcedureStats::num_of_fwd_relocation_complete_sent++;
 	log_msg(LOG_DEBUG, "Leaving send_ho_fwd_rel_comp_notification_to_src_mme ");
-
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -664,6 +674,7 @@ ActStatus ActionHandlers::send_ho_fwd_rel_comp_notification_to_src_mme(ControlBl
 ***************************************/
 ActStatus ActionHandlers::send_ho_mb_req_to_sgw(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside send_ho_mb_req_to_sgw");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
@@ -702,6 +713,7 @@ ActStatus ActionHandlers::send_ho_mb_req_to_sgw(ControlBlock& cb)
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
     log_msg(LOG_DEBUG, "Leaving send_ho_mb_req_to_sgw");
+#endif
     return ActStatus::PROCEED;
 }
 
@@ -710,9 +722,10 @@ ActStatus ActionHandlers::send_ho_mb_req_to_sgw(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::process_mb_resp_from_sgw(ControlBlock& cb)
 {
+#ifdef S10_FEATURE
     log_msg(LOG_DEBUG, "Inside process_mb_resp_from_sgw ");
 
     ProcedureStats::num_of_processed_mb_resp ++;
+#endif
     return ActStatus::PROCEED;
 }
-
