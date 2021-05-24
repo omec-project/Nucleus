@@ -845,6 +845,7 @@ struct FWD_ACC_CTXT_ACK_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     uint8_t cause;
+    uint32_t mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_ACK_Q_msg)
 
@@ -1063,6 +1064,11 @@ struct forward_relocation_complete_notification_BQ_msg {
         struct sockaddr_in6
             addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
     } mme_peer_ip;
+};
+struct FWD_REL_CMP_ACK_BQ_msg{
+	gtp_incoming_msg_data_t header;
+	int ue_idx;
+	uint8_t cause;
 };
 #endif
 

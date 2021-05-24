@@ -184,6 +184,14 @@ handle_s10_message(void *message)
 		break;
 	case GTP_FORWARD_ACCESS_CONTEXT_NOTIFICATION:
 		S10_fwd_acc_ctxt_noti_handler(msgBuf_p,&msgHeader,tmme_ip);
+	case GTP_FORWARD_RELOCATION_CMP_ACK:
+		s10_FWD_relocation_cmp_ack_handler(msgBuf_p, &msgHeader, tmme_ip);
+		break;
+	case GTP_FORWARD_ACCESS_CONTEXT_ACKNOWLEDGE:
+		s10_Fwd_acc_ctxt_ack_handler(msgBuf_p, &msgHeader, tmme_ip);
+		break;
+	
+
 /*
 	case GTP_MODIFY_BEARER_RSP:
 		s11_MB_resp_handler(msgBuf_p, &msgHeader, sgw_ip);
