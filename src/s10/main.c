@@ -72,14 +72,15 @@ void handle_mmeapp_message_s10(void *data)
 	case identification_response:
 		identification_response_handler(msg);
 		break;
-		
+	case forward_access_context_notification:
+		forward_access_context_notification_handler(msg);
+		break;
 	case forward_relocation_complete_acknowledgement:
 		forward_relocation_complete_acknowledgement_handler(msg);
 		break;
 	case forward_access_context_ack:
 		forward_access_context_ack_handler(msg);
 		break;
-
 
 	default:
 		break;
