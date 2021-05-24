@@ -46,6 +46,8 @@ struct thread_pool *g_tpool_tipc_reader_s10;
 /**End: global and externs**/
 
 extern char processName[255];
+uint32_t gtp_seq;
+pthread_mutex_t seq_lock;
 extern int pid;
 
 #define S10_IPC_MSG_BUF_LEN 4096
@@ -62,6 +64,12 @@ handle_mmeapp_message_s10(void * data)
 	/*case forward_relocation_request:
 		forward_relocation_req_handler(msg);
 		break;*/
+	case forward_relocation_request:
+		forward_relocation_handler(msg);
+		break;
+	case identification_request:
+		identification_request_handler(msg);
+		break;
 	default:
 		break;
 	}
@@ -183,6 +191,17 @@ s10_reader()
 	}
 }
 
+void get_sequence(uint32_t *seq)
+{
+    pthread_mutex_lock(&seq_lock);
+    gtp_seq = gtp_seq + 1;
+    if(gtp_seq == 0xffffff) {
+        gtp_seq = 0;
+    }
+    *seq = gtp_seq;
+    pthread_mutex_unlock(&seq_lock);
+    return;
+}
 
 int
 main(int argc, char **argv)

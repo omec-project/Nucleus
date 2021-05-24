@@ -598,6 +598,98 @@ typedef struct
 
 }NodeFeaturesIeData;
 
+typedef struct
+{
+    Uint8 targetType;    
+    Uint8 targetId;    
+
+}TargetIdentificationIeData;
+
+typedef struct
+{
+    Uint8 plmnId;    
+
+}PlmnIdIeData;
+
+typedef struct
+{
+    Uint8 securityMode;    
+    bool nhiPresent;    
+    bool drxiPresent;    
+    Uint8 ksiAsme;    
+    Uint8 numberOfQuintuplets;    
+    Uint8 numberOfQuadruplet;    
+    bool uambriPresent;    
+    bool osciPresent;    
+    bool sambriPresent;    
+    Uint8 usedNasIntegrity;    
+    Uint8 usedNasCipher;    
+    Uint32 nasDownlinkCount;    
+    Uint32 nasUplinkCount;    
+    Uint8 kAsme;    
+    AuthenticationQuadrupletArray5 authenticationQuadruplet;    
+    AuthenticationQuintupletArray5 authenticationQuintuplet;    
+    Uint8 drxParameter;    
+    Uint8 nh;    
+    Uint8 ncc;    
+    Uint8 uplinkSubscribedUeAmbr;    
+    Uint8 downlinkSubscribedUeAmbr;    
+    Uint8 uplinkUsedUeAmbr;    
+    Uint8 downlinkUsedUeAmbr;    
+    Uint8 lengthOfUeNetworkCapability;    
+    Uint8 ueNetworkCapability;    
+    Uint8 lengthOfMsNetworkCapability;    
+    Uint8 msNetworkCapability;    
+    Uint8 lengthOfMobileEquipmentIdentity;    
+    Uint8 mobileEquipmentIdentity;    
+    bool ecna;    
+    bool nbna;    
+    bool hnna;    
+    bool ena;    
+    bool ina;    
+    bool gana;    
+    bool gena;    
+    bool una;    
+    bool nhiOIdPresent;    
+    Uint8 oldKsiAsme;    
+    Uint8 oldNcc;    
+    Uint8 oldKasme;    
+    Uint8 oldNh;    
+    Uint8 lengthOfVoiceDomainPreferenceAndUesUsageSetting;    
+    Uint8 voiceDomainPreferenceAndUesUsageSetting;    
+    Uint8 lengthOfUeRadioCapabilityForPagingInformation;    
+    Uint8 ueRadioCapabilityForPagingInformation;    
+    Uint8 lengthOfExtendedAccessRestrictionData;    
+    bool ussrna;    
+    bool nrsrna;    
+    Uint8 lengthOfUeAdditionalSecurityCapability;    
+    Uint8 ueAdditionalSecurityCapability;    
+    Uint8 lengthOfUeNrSecurityCapability;    
+    Uint8 ueNrSecurityCapability;    
+
+}MmContextIeData;
+
+typedef struct
+{
+    Uint8 mccDigit2;    
+    Uint8 mccDigit1;    
+    Uint8 mncDigit3;    
+    Uint8 mccDigit3;    
+    Uint8 mncDigit2;    
+    Uint8 mncDigit1;    
+    Uint16 mmeGroupID;    
+    Uint8 mmeCode;    
+    Uint8 mTimsiType;    
+
+}GutiIeData;
+
+typedef struct
+{
+    Uint8 completeRequestMessageType;    
+    Uint8 completeRequestMessage;    
+
+}CompleteRequestMessageIeData;
+
 
 //Ie Type Constants
 static const  Uint8  ImsiIeType = 1;    
@@ -669,6 +761,11 @@ static const  Uint8  ArpIeType = 155;
 static const  Uint8  ThrottlingIeType = 154;    
 static const  Uint8  PagingAndServiceInformationIeType = 186;    
 static const  Uint8  NodeFeaturesIeType = 152;    
+static const  Uint8  TargetIdentificationIeType = 121;    
+static const  Uint8  PlmnIdIeType = 120;    
+static const  Uint8  MmContextIeType = 107;    
+static const  Uint8  GutiIeType = 117;    
+static const  Uint8  CompleteRequestMessageIeType = 116;    
 
 
 #endif 

@@ -609,12 +609,52 @@ typedef struct
     EpcTimerIeData periodOfValidity;    
 }SgwsOverloadControlInformationInDownlinkDataNotificationData;
 
+typedef struct
+{
+    bool apnRestrictionIePresent;    
+    bool selectionModeIePresent;    
+
+    ApnIeData apn;    
+    EbiIeData defaultEpsBearerId;    
+    ApnRestrictionIeData apnRestriction;    
+    SelectionModeIeData selectionMode;    
+    AmbrIeData aggregateMaximumBitRate;    
+}MmeSgsnUeScefPdnConnectionsInForwardRelocationRequestData;
+
+typedef struct
+{
+    bool epsBearerIdIePresent;    
+    bool sgsnFTeidForDlDataForwardingIePresent;    
+
+    EbiIeData epsBearerId;    
+    FTeidIeData sgsnFTeidForDlDataForwarding;    
+}ListOfSetUpBearersInForwardRelocationResponseData;
+
+typedef struct
+{
+    bool epsBearerIdIePresent;    
+    bool sgsnFTeidForDlDataForwardingIePresent;    
+
+    EbiIeData epsBearerId;    
+    FTeidIeData sgsnFTeidForDlDataForwarding;    
+}ListOfSetUpRabsInForwardRelocationResponseData;
+
+typedef struct
+{
+    bool epsBearerIdIePresent;    
+    bool sgsnFTeidForDlDataForwardingIePresent;    
+
+    EbiIeData epsBearerId;    
+    FTeidIeData sgsnFTeidForDlDataForwarding;    
+}ListOfSetUpPfcsInForwardRelocationResponseData;
+
 
 //Ie Type Constants
 static const  Uint8  BearerContextIeType = 93;    
 static const  Uint8  OverloadControlInformationIeType = 180;    
 static const  Uint8  RemoteUeContextIeType = 191;    
 static const  Uint8  LoadControlInformationIeType = 181;    
+static const  Uint8  ScefPdnConnectionIeType = 195;    
 
 
 #endif 

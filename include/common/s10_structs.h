@@ -15,6 +15,7 @@
 #include <nas_structs.h>
 #include"s11_structs.h"
 
+#define S10_MSGBUF_SIZE 2048
 
 typedef struct tagbstring* bstring;
 typedef uint32_t teid_t;
@@ -202,5 +203,7 @@ typedef struct mm_context {
     ue_aggregate_maximum_bitrate ue_aggrt_max_bit_rate;
 } mm_context_t;
 #endif
+
+
 
 #endif /* S10_STRUCTS_H */

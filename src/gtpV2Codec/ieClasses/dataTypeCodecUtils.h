@@ -82,6 +82,16 @@ public:
                  Uint16 length);
     static void displayIpAddressV6_v(IpAddressV6 const &data, Debug &stream);
 
+    static bool encodeAuthenticationQuadruplet(MsgBuffer &buffer, AuthenticationQuadruplet const &data);
+    static bool decodeAuthenticationQuadruplet(MsgBuffer &buffer, AuthenticationQuadruplet &data,
+                 Uint16 length);
+    static void displayAuthenticationQuadruplet_v(AuthenticationQuadruplet const &data, Debug &stream);
+
+    static bool encodeAuthenticationQuintuplet(MsgBuffer &buffer, AuthenticationQuintuplet const &data);
+    static bool decodeAuthenticationQuintuplet(MsgBuffer &buffer, AuthenticationQuintuplet &data,
+                 Uint16 length);
+    static void displayAuthenticationQuintuplet_v(AuthenticationQuintuplet const &data, Debug &stream);
+
 
     // The following methods are generated to encode, decode and display array types
 
@@ -155,6 +165,18 @@ public:
     static bool decodeRaiFieldArray15(MsgBuffer &buffer, RaiFieldArray15 &data,
                  Uint16 length, Uint16 count);
     static void displayRaiFieldArray15_v(RaiFieldArray15 const &data, Debug &stream);
+
+
+    static bool encodeAuthenticationQuadrupletArray5(MsgBuffer &buffer, AuthenticationQuadrupletArray5 const &data);
+    static bool decodeAuthenticationQuadrupletArray5(MsgBuffer &buffer, AuthenticationQuadrupletArray5 &data,
+                 Uint16 length, Uint16 count);
+    static void displayAuthenticationQuadrupletArray5_v(AuthenticationQuadrupletArray5 const &data, Debug &stream);
+
+
+    static bool encodeAuthenticationQuintupletArray5(MsgBuffer &buffer, AuthenticationQuintupletArray5 const &data);
+    static bool decodeAuthenticationQuintupletArray5(MsgBuffer &buffer, AuthenticationQuintupletArray5 &data,
+                 Uint16 length, Uint16 count);
+    static void displayAuthenticationQuintupletArray5_v(AuthenticationQuintupletArray5 const &data, Debug &stream);
 
 
     // The following methods are to be written manually

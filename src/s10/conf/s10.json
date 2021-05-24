@@ -29,6 +29,8 @@
 	},
 	"s10": {
 		"egtp_local_addr": "192.168.1.55",
+		"egtp_default_port": 2123,
+		"target_mme_ip": "new mme"
 		"egtp_default_port": 2125
 	},
 	"s6a": {
