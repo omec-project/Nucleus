@@ -848,13 +848,11 @@ typedef struct
 typedef struct
 {
     bool imsiIePresent;   
-    bool traceInformationIePresent;   
     bool ueUsageTypeIePresent;   
 
 
     CauseIeData cause;
     ImsiIeData imsi;
-    TraceInformationIeData traceInformation;
     IntegerNumberIeData ueUsageType;
 }IdentificationResponseMsgData;
 
