@@ -46,7 +46,9 @@ s10_transation(char * buf, unsigned int len);
 
 void* forward_relocation_handler(void *);
 int s10_ID_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s10_Fwd_acc_ctxt_ack_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t mme_ip);
 void* identification_request_handler(void *);
+void* forward_access_context_ack_handler(void *);
 void get_sequence(uint32_t *seq);
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len);

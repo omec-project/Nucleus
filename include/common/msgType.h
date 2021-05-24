@@ -845,6 +845,7 @@ struct FWD_ACC_CTXT_ACK_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     uint8_t cause;
+    uint32_t mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_ACK_Q_msg)
 
