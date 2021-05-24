@@ -17,7 +17,6 @@
 #include "../ieClasses/gtpV2IeFactory.h"
 #include "../ieClasses/causeIe.h"
 #include "../ieClasses/imsiIe.h"
-#include "../ieClasses/traceInformationIe.h"
 #include "../ieClasses/integerNumberIe.h"
 
 IdentificationResponseMsg::IdentificationResponseMsg()
@@ -93,34 +92,6 @@ bool IdentificationResponseMsg::encodeIdentificationResponseMsg(MsgBuffer &buffe
         if (!(rc))
         { 
             errorStream.add((char *)"Failed to encode IE: imsi\n");
-            return false;
-        }
-    }
-
-    if (data.traceInformationIePresent)
-    {
-        
-        // Encode the Ie Header
-        header.ieType = TraceInformationIeType;
-        header.instance = 0;
-        header.length = 0; // We will encode the IE first and then update the length
-        GtpV2Ie::encodeGtpV2IeHeader(buffer, header);
-        startIndex = buffer.getCurrentIndex(); 
-        TraceInformationIe traceInformation=
-        dynamic_cast<
-        TraceInformationIe&>(GtpV2IeFactory::getInstance().getIeObject(TraceInformationIeType));
-        rc = traceInformation.encodeTraceInformationIe(buffer, data.traceInformation);
-        endIndex = buffer.getCurrentIndex();
-        length = endIndex - startIndex;
-        
-        // encode the length value now
-        buffer.goToIndex(startIndex - 3);
-        buffer.writeUint16(length, false);
-        buffer.goToIndex(endIndex);
-
-        if (!(rc))
-        { 
-            errorStream.add((char *)"Failed to encode IE: traceInformation\n");
             return false;
         }
     }
@@ -241,35 +212,6 @@ bool IdentificationResponseMsg::decodeIdentificationResponseMsg(MsgBuffer &buffe
                 break;
             }
      
-            case TraceInformationIeType:
-            {
-                TraceInformationIe ieObject =
-                dynamic_cast<
-                TraceInformationIe&>(GtpV2IeFactory::getInstance().getIeObject(TraceInformationIeType));
-
-                if(ieHeader.instance == 0)
-                {
-                    rc = ieObject.decodeTraceInformationIe(buffer, data.traceInformation, ieHeader.length);
-
-                    data.traceInformationIePresent = true;
-                    if (!(rc))
-                    {
-                        errorStream.add((char *)"Failed to decode IE: traceInformation\n");
-                        return false;
-                    }
-                }
-
-                else
-                {
-                    // Unknown IE instance print error
-                    errorStream.add((char *)"Unknown IE Type: ");
-                    errorStream.add(ieHeader.ieType);
-                    errorStream.endOfLine();
-                    buffer.skipBytes(ieHeader.length);
-                }
-                break;
-            }
-     
             case IntegerNumberIeType:
             {
                 IntegerNumberIe ieObject =
@@ -338,18 +280,6 @@ displayIdentificationResponseMsgData_v(IdentificationResponseMsgData const &data
         dynamic_cast<
         ImsiIe&>(GtpV2IeFactory::getInstance().getIeObject(ImsiIeType));
         imsi.displayImsiIe_v(data.imsi, stream);
-
-    }
-    if (data.traceInformationIePresent)
-    {
-
-
-        stream.add((char *)"IE - traceInformation:");
-        stream.endOfLine();
-        TraceInformationIe traceInformation=
-        dynamic_cast<
-        TraceInformationIe&>(GtpV2IeFactory::getInstance().getIeObject(TraceInformationIeType));
-        traceInformation.displayTraceInformationIe_v(data.traceInformation, stream);
 
     }
     if (data.ueUsageTypeIePresent)
