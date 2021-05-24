@@ -118,6 +118,27 @@ typedef struct
 
 typedef struct
 {
+    Uint8 rand;
+    Uint8 xresLength;
+    Uint8 xres;
+    Uint8 autnLength;
+    Uint8 autn;
+    Uint8 kAsme;
+}AuthenticationQuadruplet;
+
+typedef struct
+{
+    Uint8 rand;
+    Uint8 xresLength;
+    Uint8 xres;
+    Uint8 ck;
+    Uint8 ik;
+    Uint8 autnLength;
+    Uint8 autn;
+}AuthenticationQuintuplet;
+
+typedef struct
+{
     Uint16 count;
     Uint16 values[16];
 
@@ -192,6 +213,20 @@ typedef struct
     RaiField values[15];
 
 }RaiFieldArray15;
+
+typedef struct
+{
+    Uint16 count;
+    AuthenticationQuadruplet values[5];
+
+}AuthenticationQuadrupletArray5;
+
+typedef struct
+{
+    Uint16 count;
+    AuthenticationQuintuplet values[5];
+
+}AuthenticationQuintupletArray5;
 
 
 #endif 

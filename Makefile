@@ -22,6 +22,7 @@ SUBDIRS 		 := src/cmn \
 					src/s1ap \
 					src/s11/cpp_utils/ \
 					src/s11 \
+					src/s10/cpp_utils/ \
 					src/s10 \
 					src/s6a
 

@@ -94,6 +94,11 @@ gtpV2CodecOBJS := $(addprefix $(gtpV2CodecOBJDIR), \
 	ieClasses/throttlingIe.o \
 	ieClasses/pagingAndServiceInformationIe.o \
 	ieClasses/nodeFeaturesIe.o \
+	ieClasses/targetIdentificationIe.o \
+	ieClasses/plmnIdIe.o \
+	ieClasses/mmContextIe.o \
+	ieClasses/gutiIe.o \
+	ieClasses/completeRequestMessageIe.o \
 	msgClasses/createSessionRequestMsg.o \
 	msgClasses/gtpV2MsgFactory.o \
 	gtpV2Stack.o \
@@ -114,6 +119,19 @@ gtpV2CodecOBJS := $(addprefix $(gtpV2CodecOBJDIR), \
 	msgClasses/downlinkDataNotificationFailureIndicationMsg.o \
 	msgClasses/echoRequestMsg.o \
 	msgClasses/echoResponseMsg.o \
+	msgClasses/forwardRelocationRequestMsg.o \
+	msgClasses/forwardRelocationResponseMsg.o \
+	msgClasses/forwardRelocationCompleteNotificationMsg.o \
+	msgClasses/forwardRelocationCompleteAcknowledgeMsg.o \
+	msgClasses/forwardAccessContextNotificationMsg.o \
+	msgClasses/forwardAccessContextAcknowledgeMsg.o \
+	msgClasses/relocationCancelRequestMsg.o \
+	msgClasses/relocationCancelResponseMsg.o \
+	msgClasses/configurationTransferTunnelMsg.o \
+	msgClasses/identificationRequestMsg.o \
+	msgClasses/identificationResponseMsg.o \
+	msgClasses/contextRequestMsg.o \
+	msgClasses/contextResponseMsg.o \
 	ieClasses/bearerContextsToBeModifiedInModifyBearerRequest.o \
 	ieClasses/bearerContextIe.o \
 	ieClasses/manual/gtpV2GroupedIe.o \
@@ -176,6 +194,11 @@ gtpV2CodecOBJS := $(addprefix $(gtpV2CodecOBJDIR), \
 	ieClasses/twanEpdgsOverloadControlInformationInDeleteBearerResponse.o \
 	ieClasses/sgwsNodeLevelLoadControlInformationInDownlinkDataNotification.o \
 	ieClasses/sgwsOverloadControlInformationInDownlinkDataNotification.o \
+	ieClasses/mmeSgsnUeScefPdnConnectionsInForwardRelocationRequest.o \
+	ieClasses/scefPdnConnectionIe.o \
+	ieClasses/listOfSetUpBearersInForwardRelocationResponse.o \
+	ieClasses/listOfSetUpRabsInForwardRelocationResponse.o \
+	ieClasses/listOfSetUpPfcsInForwardRelocationResponse.o \
 	ieClasses/manual/dataTypeCodecUtils_manual.o \
 	gtpV2StackWrappers.o )
 all :  $(gtpV2CodecLIB)

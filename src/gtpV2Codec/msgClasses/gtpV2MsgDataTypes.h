@@ -727,6 +727,176 @@ typedef struct
     NodeFeaturesIeData sendingNodeFeatures;
 }EchoResponseMsgData;
 
+typedef struct
+{
+    bool imsiIePresent;   
+    bool sgwS11S4IpAddressAndTeidForControlPlaneIePresent;   
+    bool sgwNodeNameIePresent;   
+    bool indicationFlagsIePresent;   
+    bool targetIdentificationIePresent;   
+    bool selectedPlmnIdIePresent;   
+    bool eUtranTransparentContainerIePresent;   
+    bool mmeSgsnUeScefPdnConnectionsIePresent;   
+
+
+    ImsiIeData imsi;
+    FTeidIeData senderFTeidForControlPlane;
+    FTeidIeData sgwS11S4IpAddressAndTeidForControlPlane;
+    FqdnIeData sgwNodeName;
+    MmContextIeData mmeSgsnAmfUeMmContext;
+    IndicationIeData indicationFlags;
+    TargetIdentificationIeData targetIdentification;
+    PlmnIdIeData selectedPlmnId;
+    FContainerIeData eUtranTransparentContainer;
+    MmeSgsnUeScefPdnConnectionsInForwardRelocationRequestData mmeSgsnUeScefPdnConnections;
+}ForwardRelocationRequestMsgData;
+
+typedef struct
+{
+    bool indicationFlagsIePresent;   
+    bool eUtranTransparentContainerIePresent;   
+
+
+    CauseIeData cause;
+    FTeidIeData senderFTeidForControlPlane;
+    IndicationIeData indicationFlags;
+    FContainerIeData eUtranTransparentContainer;
+
+    Uint16 listOfSetUpBearersCount;
+    ListOfSetUpBearersInForwardRelocationResponseData listOfSetUpBearers[11];
+
+    Uint16 listOfSetUpRabsCount;
+    ListOfSetUpRabsInForwardRelocationResponseData listOfSetUpRabs[11];
+
+    Uint16 listOfSetUpPfcsCount;
+    ListOfSetUpPfcsInForwardRelocationResponseData listOfSetUpPfcs[11];
+}ForwardRelocationResponseMsgData;
+
+typedef struct
+{
+    bool indicationFlagsIePresent;   
+
+
+    FTeidIeData indicationFlags;
+}ForwardRelocationCompleteNotificationMsgData;
+
+typedef struct
+{
+    bool recoveryIePresent;   
+    bool secondaryRatUsageDataReportIePresent;   
+
+
+    CauseIeData cause;
+    RecoveryIeData recovery;
+    SecondaryRatUsageDataReportIeData secondaryRatUsageDataReport;
+}ForwardRelocationCompleteAcknowledgeMsgData;
+
+typedef struct
+{
+    bool eUtranTransparentContainerIePresent;   
+
+
+    FContainerIeData eUtranTransparentContainer;
+}ForwardAccessContextNotificationMsgData;
+
+typedef struct
+{
+    bool causeIePresent;   
+
+
+    CauseIeData cause;
+}ForwardAccessContextAcknowledgeMsgData;
+
+typedef struct
+{
+    bool imsiIePresent;   
+    bool meIdentityIePresent;   
+    bool indicationFlagsIePresent;   
+
+
+    ImsiIeData imsi;
+    MeiIeData meIdentity;
+    IndicationIeData indicationFlags;
+}RelocationCancelRequestMsgData;
+
+typedef struct
+{
+    bool causeIePresent;   
+
+
+    CauseIeData cause;
+}RelocationCancelResponseMsgData;
+
+typedef struct
+{
+
+
+    FContainerIeData eUtranTransparentContainer;
+    TargetIdentificationIeData targetEnodebId;
+}ConfigurationTransferTunnelMsgData;
+
+typedef struct
+{
+    bool gutiIePresent;   
+    bool completeAttachRequestMessageIePresent;   
+
+
+    GutiIeData guti;
+    CompleteRequestMessageIeData completeAttachRequestMessage;
+}IdentificationRequestMsgData;
+
+typedef struct
+{
+    bool imsiIePresent;   
+    bool traceInformationIePresent;   
+    bool ueUsageTypeIePresent;   
+
+
+    CauseIeData cause;
+    ImsiIeData imsi;
+    TraceInformationIeData traceInformation;
+    IntegerNumberIeData ueUsageType;
+}IdentificationResponseMsgData;
+
+typedef struct
+{
+    bool imsiIePresent;   
+    bool gutiIePresent;   
+    bool s3S16S10N26AddressAndTeidForControlPlaneIePresent;   
+    bool ratTypeIePresent;   
+    bool indicationIePresent;   
+    bool mmeS4SgsnLdnIePresent;   
+
+
+    ImsiIeData imsi;
+    GutiIeData guti;
+    FTeidIeData s3S16S10N26AddressAndTeidForControlPlane;
+    RatTypeIeData ratType;
+    IndicationIeData indication;
+    LocalDistinguishedNameIeData mmeS4SgsnLdn;
+}ContextRequestMsgData;
+
+typedef struct
+{
+    bool imsiIePresent;   
+    bool traceInformationIePresent;   
+    bool mmeS4SgsnLdnIePresent;   
+    bool ueUsageTypeIePresent;   
+    bool ratTypeIePresent;   
+    bool moExceptionDataCounterIePresent;   
+    bool remainingRunningServiceGapTimerIePresent;   
+
+
+    CauseIeData cause;
+    ImsiIeData imsi;
+    TraceInformationIeData traceInformation;
+    LocalDistinguishedNameIeData mmeS4SgsnLdn;
+    IntegerNumberIeData ueUsageType;
+    RatTypeIeData ratType;
+    CounterIeData moExceptionDataCounter;
+    IntegerNumberIeData remainingRunningServiceGapTimer;
+}ContextResponseMsgData;
+
 
 //Ie Type Constants
 static const  Uint8  CreateSessionRequestMsgType = 32;    
@@ -746,6 +916,19 @@ static const  Uint8  DownlinkDataNotificationAcknowledgeMsgType = 177;
 static const  Uint8  DownlinkDataNotificationFailureIndicationMsgType = 70;    
 static const  Uint8  EchoRequestMsgType = 1;    
 static const  Uint8  EchoResponseMsgType = 2;    
+static const  Uint8  ForwardRelocationRequestMsgType = 133;    
+static const  Uint8  ForwardRelocationResponseMsgType = 134;    
+static const  Uint8  ForwardRelocationCompleteNotificationMsgType = 135;    
+static const  Uint8  ForwardRelocationCompleteAcknowledgeMsgType = 136;    
+static const  Uint8  ForwardAccessContextNotificationMsgType = 137;    
+static const  Uint8  ForwardAccessContextAcknowledgeMsgType = 138;    
+static const  Uint8  RelocationCancelRequestMsgType = 139;    
+static const  Uint8  RelocationCancelResponseMsgType = 140;    
+static const  Uint8  ConfigurationTransferTunnelMsgType = 141;    
+static const  Uint8  IdentificationRequestMsgType = 128;    
+static const  Uint8  IdentificationResponseMsgType = 129;    
+static const  Uint8  ContextRequestMsgType = 130;    
+static const  Uint8  ContextResponseMsgType = 131;    
 
 
 #endif 

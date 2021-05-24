@@ -31,6 +31,10 @@
 #define GTP_CREATE_BEARER_RSP                                96
 #define GTP_DELETE_BEARER_REQ                                99
 #define GTP_DELETE_BEARER_RESP                              100
+#define GTP_IDENTIFICATION_REQ                              128
+#define GTP_IDENTIFICATION_RES                      129
+#define GTP_FORWARD_RELOCATION_REQ							133
+#define GTP_FORWARD_RELOCATION_CMP_ACK						136
 #define GTP_RABR_REQ                                        170
 #define GTP_RABR_RSP                                        171
 #define GTP_DOWNLINK_DATA_NOTIFICATION			    176

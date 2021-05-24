@@ -40,6 +40,7 @@ RUN make -C src/s11
 COPY src/s6a ./src/s6a
 RUN make -C src/s6a
 COPY src/s10 ./src/s10
+RUN make -C src/s10/cpp_utils --debug
 RUN make -C src/s10
 COPY src/mme-app ./src/mme-app
 RUN make -C src/mme-app

@@ -32,18 +32,20 @@ parse_s10_conf()
 	g_s10_cfg.egtp_def_port = get_int_scalar("s10.egtp_default_port");
 	if(-1 == g_s10_cfg.egtp_def_port) return -1;
 
-	/*
 	struct local_config { char *name; unsigned int *addr;};
 	struct local_config config_addr[] = 
 	{
 		{ 
-		  .name = "s10.sgw_addr",
-		  .addr = &g_s10_cfg.sgw_ip,
+
+		  .name = "s10.target_mme_ip",
+		  .addr = &g_s10_cfg.target_mme_ip,
 		},
+		/*
 		{ 
 		  .name = "s10.pgw_addr",
 		  .addr = &g_s10_cfg.pgw_ip,
-		}
+		}*/
+
 	};
 	for(int i=0; i<sizeof(config_addr)/sizeof(struct local_config); i++)
 	{
@@ -84,7 +86,7 @@ parse_s10_conf()
 	  	}
 	  }
 	}
-	*/
+
 
 	return SUCCESS;
 }

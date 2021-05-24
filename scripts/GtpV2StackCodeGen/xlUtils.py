@@ -55,7 +55,7 @@ class xlUtils:
         return (varName,varType,encodeCondition,decodeCondition,validation,count)
     
     def lengthToType(byteLength):
-        lTdict = {1:'Uint8',2:'Uint16',3:'Uint32',4:'Uint32',5:'Uint64',6:'Uint64',7:'Uint64',8:'Uint64',65535:'Uint8',9:'Uint8',12:'Uint8'}
+        lTdict = {1:'Uint8',2:'Uint16',3:'Uint32',4:'Uint32',5:'Uint64',6:'Uint64',7:'Uint64',8:'Uint64',65535:'Uint8',9:'Uint8',12:'Uint8',16:'Uint8',32:'Uint8'}
         return lTdict[byteLength]
      
     def getByteLength(sheet,i): 
