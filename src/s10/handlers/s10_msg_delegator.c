@@ -182,6 +182,10 @@ handle_s10_message(void *message)
 	case GTP_IDENTIFICATION_RES:
 		s10_ID_resp_handler(msgBuf_p, &msgHeader, tmme_ip);
 		break;
+	case GTP_FORWARD_RELOCATION_CMP_ACK:
+		s10_FWD_relocation_cmp_ack_handler(msgBuf_p, &msgHeader, tmme_ip);
+		break;
+	
 
 /*
 	case GTP_MODIFY_BEARER_RSP:

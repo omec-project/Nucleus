@@ -1064,6 +1064,11 @@ struct forward_relocation_complete_notification_BQ_msg {
             addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
     } mme_peer_ip;
 };
+struct FWD_REL_CMP_ACK_BQ_msg{
+	gtp_incoming_msg_data_t header;
+	int ue_idx;
+	uint8_t cause;
+};
 #endif
 
 #define GTP_READ_MSG_BUF_SIZE sizeof(gtp_incoming_msg_data_t)
