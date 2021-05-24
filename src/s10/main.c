@@ -70,6 +70,9 @@ handle_mmeapp_message_s10(void * data)
 	case identification_request:
 		identification_request_handler(msg);
 		break;
+	case forward_access_context_notification:
+		forward_access_context_notification_handler(msg);
+		break;
 	default:
 		break;
 	}
