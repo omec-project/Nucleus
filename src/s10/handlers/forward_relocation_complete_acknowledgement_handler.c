@@ -59,6 +59,7 @@ struct FR_Q_msg *g_frReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;
 
+/*
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
@@ -92,6 +93,8 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 	return num_of_digits;
 }
 
+
+*/
 
 /**
 * Stage specific message processing.
@@ -131,10 +134,7 @@ forward_relocation_complete_acknowledgement_processing(struct FWD_REL_CMP_ACK_Q_
     ForwardRelocationCompleteAcknowledgeMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
 
-	
-	msgData.indicationFlagsIePresent = true;
-
-	msgData.cause = g_frRelCmpAckInfo->cause;
+	msgData.cause.causeValue = g_frRelCmpAckInfo->cause;
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, frRelCmpAckMsgBuf_p, &gtpHeader, &msgData);
 

@@ -68,7 +68,7 @@ static int forward_access_context_notification_processing(struct FWD_ACC_CTXT_NO
 	 	log_msg(LOG_INFO,"In Forward Access Context Notification handler->ue_idx:%d",g_fAcCtNotInfo->ue_idx);
 
 	 	add_gtp_transaction(gtpHeader.sequenceNumber,
-	 	                          g_frReqInfo->ue_idx);
+	 			g_fAcCtNotInfo->ue_idx);
 
 	 ForwardAccessContextNotificationMsgData msgData;
 

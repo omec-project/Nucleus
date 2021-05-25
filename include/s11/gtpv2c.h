@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "s11_structs.h"
+#include "s10_structs.h"
 
 #define MAX_GTPV2C_UDP_LEN                                   4096
 
@@ -35,6 +36,8 @@
 #define GTP_IDENTIFICATION_RES                      129
 #define GTP_FORWARD_RELOCATION_REQ							133
 #define GTP_FORWARD_RELOCATION_CMP_ACK						136
+#define GTP_FORWARD_ACCESS_CONTEXT_NOTIFICATION             137
+#define GTP_FORWARD_ACCESS_CONTEXT_ACKNOWLEDGE              138
 #define GTP_RABR_REQ                                        170
 #define GTP_RABR_RSP                                        171
 #define GTP_DOWNLINK_DATA_NOTIFICATION			    176

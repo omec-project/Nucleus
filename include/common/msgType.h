@@ -723,7 +723,7 @@ struct forward_relocation_req_Q_msg {
     uint32_t pgw_ip;
     mm_context_t mm_cntxt;
     uint32_t neigh_mme_ip;
-	uint32_t target_mme_ip;
+    uint32_t target_mme_ip;
 };
 #define S10_FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
 
@@ -749,6 +749,7 @@ struct ID_RESP_Q_msg{
     bool ueUsageTypeIePresent;
     bool monitoringEventInformationIePresent;
     bool privateExtensionIePresent;
+    uint32_t target_mme_ip;
 };
 #define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
 
@@ -838,6 +839,7 @@ struct FWD_ACC_CTXT_NOTIF_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     struct enB_status_transfer_transparent_container f_container;
+    uint32_t target_mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_NOTIF_Q_msg)
 
@@ -853,6 +855,7 @@ struct FWD_REL_CMP_ACK_Q_msg{
 	msg_type_t msg_type;
 	int ue_idx;
 	uint8_t cause;
+	uint32_t target_mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_REL_CMP_ACK_Q_msg)
 

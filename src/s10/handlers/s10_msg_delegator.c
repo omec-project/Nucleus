@@ -187,8 +187,8 @@ handle_s10_message(void *message)
 		s10_ID_request_handler(msgBuf_p, &msgHeader, tmme_ip);
 		break;
 	case GTP_FORWARD_ACCESS_CONTEXT_NOTIFICATION:
-		S10_fwd_acc_ctxt_noti_handler(msgBuf_p,&msgHeader,tmme_ip);
-		break;	
+		S10_fwd_acc_ctxt_noti_handler(msgBuf_p, &msgHeader, tmme_ip);
+		break;
 	case GTP_FORWARD_RELOCATION_CMP_ACK:
 		s10_FWD_relocation_cmp_ack_handler(msgBuf_p, &msgHeader, tmme_ip);
 		break;

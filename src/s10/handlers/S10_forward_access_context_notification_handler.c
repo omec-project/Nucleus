@@ -6,17 +6,18 @@
 #include <pthread.h>
 
 #include "err_codes.h"
-#include "s11_options.h"
+#include "s10_options.h"
 #include "ipc_api.h"
-#include "s11.h"
 #include "s10.h"
-#include "s11_config.h"
+#include "s10.h"
+#include "s10_config.h"
 #include "msgType.h"
 
 #include <gtpV2StackWrappers.h>
 #include "gtp_cpp_wrapper.h"
 
 extern int g_s10_fd;
+extern int g_resp_fd;
 
 extern struct GtpV2Stack* gtpStack_gp;
 
@@ -45,7 +46,7 @@ S10_fwd_acc_ctxt_noti_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint3
 				return E_PARSING_FAILED;
 		}
 
-	fAcCtxtNot_info.f_container=msgData.eUtranTransparentContainer;
+//	fAcCtxtNot_info.f_container=msgData.eUtranTransparentContainer;  -- need to change in GTP datasheet.
 
 	fAcCtxtNot_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 
