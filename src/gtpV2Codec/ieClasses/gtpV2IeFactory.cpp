@@ -85,6 +85,11 @@
 #include "throttlingIe.h"
 #include "pagingAndServiceInformationIe.h"
 #include "nodeFeaturesIe.h"
+#include "targetIdentificationIe.h"
+#include "plmnIdIe.h"
+#include "mmContextIe.h"
+#include "gutiIe.h"
+#include "completeRequestMessageIe.h"
 #include "bearerContextIe.h"
 #include "overloadControlInformationIe.h"
 #include "loadControlInformationIe.h"
@@ -299,6 +304,21 @@ GtpV2IeFactory::GtpV2IeFactory()
 
     NodeFeaturesIe* nodeFeaturesIe_p = new (NodeFeaturesIe);
     ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(NodeFeaturesIeType, nodeFeaturesIe_p));
+
+    TargetIdentificationIe* targetIdentificationIe_p = new (TargetIdentificationIe);
+    ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(TargetIdentificationIeType, targetIdentificationIe_p));
+
+    PlmnIdIe* plmnIdIe_p = new (PlmnIdIe);
+    ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(PlmnIdIeType, plmnIdIe_p));
+
+    MmContextIe* mmContextIe_p = new (MmContextIe);
+    ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(MmContextIeType, mmContextIe_p));
+
+    GutiIe* gutiIe_p = new (GutiIe);
+    ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(GutiIeType, gutiIe_p));
+
+    CompleteRequestMessageIe* completeRequestMessageIe_p = new (CompleteRequestMessageIe);
+    ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(CompleteRequestMessageIeType, completeRequestMessageIe_p));
 
     BearerContextIe* bearerContextIe_p = new (BearerContextIe);
     ieObjectContainer.insert(std::pair<Uint8, GtpV2Ie*>(BearerContextIeType, bearerContextIe_p));

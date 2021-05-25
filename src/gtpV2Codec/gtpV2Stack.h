@@ -50,6 +50,19 @@ public:
     DownlinkDataNotificationFailureIndicationMsgData downlinkDataNotificationFailureIndicationStackData;
     EchoRequestMsgData echoRequestStackData;
     EchoResponseMsgData echoResponseStackData;
+    ForwardRelocationRequestMsgData forwardRelocationRequestStackData;
+    ForwardRelocationResponseMsgData forwardRelocationResponseStackData;
+    ForwardRelocationCompleteNotificationMsgData forwardRelocationCompleteNotificationStackData;
+    ForwardRelocationCompleteAcknowledgeMsgData forwardRelocationCompleteAcknowledgeStackData;
+    ForwardAccessContextNotificationMsgData forwardAccessContextNotificationStackData;
+    ForwardAccessContextAcknowledgeMsgData forwardAccessContextAcknowledgeStackData;
+    RelocationCancelRequestMsgData relocationCancelRequestStackData;
+    RelocationCancelResponseMsgData relocationCancelResponseStackData;
+    ConfigurationTransferTunnelMsgData configurationTransferTunnelStackData;
+    IdentificationRequestMsgData identificationRequestStackData;
+    IdentificationResponseMsgData identificationResponseStackData;
+    ContextRequestMsgData contextRequestStackData;
+    ContextResponseMsgData contextResponseStackData;
 
     bool encodeMessage(GtpV2MessageHeader& msgHeader, MsgBuffer& buffer,
                  void* data_p = NULL);

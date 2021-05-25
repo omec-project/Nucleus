@@ -30,6 +30,19 @@
 #include "downlinkDataNotificationFailureIndicationMsg.h"
 #include "echoRequestMsg.h"
 #include "echoResponseMsg.h"
+#include "forwardRelocationRequestMsg.h"
+#include "forwardRelocationResponseMsg.h"
+#include "forwardRelocationCompleteNotificationMsg.h"
+#include "forwardRelocationCompleteAcknowledgeMsg.h"
+#include "forwardAccessContextNotificationMsg.h"
+#include "forwardAccessContextAcknowledgeMsg.h"
+#include "relocationCancelRequestMsg.h"
+#include "relocationCancelResponseMsg.h"
+#include "configurationTransferTunnelMsg.h"
+#include "identificationRequestMsg.h"
+#include "identificationResponseMsg.h"
+#include "contextRequestMsg.h"
+#include "contextResponseMsg.h"
 
 static GtpV2MsgFactory gtpV2MsgFactory;
 
@@ -87,6 +100,45 @@ GtpV2MsgFactory::GtpV2MsgFactory()
 
     EchoResponseMsg* echoResponseMsg_p = new (EchoResponseMsg);
     msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(EchoResponseMsgType, echoResponseMsg_p));
+
+    ForwardRelocationRequestMsg* forwardRelocationRequestMsg_p = new (ForwardRelocationRequestMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardRelocationRequestMsgType, forwardRelocationRequestMsg_p));
+
+    ForwardRelocationResponseMsg* forwardRelocationResponseMsg_p = new (ForwardRelocationResponseMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardRelocationResponseMsgType, forwardRelocationResponseMsg_p));
+
+    ForwardRelocationCompleteNotificationMsg* forwardRelocationCompleteNotificationMsg_p = new (ForwardRelocationCompleteNotificationMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardRelocationCompleteNotificationMsgType, forwardRelocationCompleteNotificationMsg_p));
+
+    ForwardRelocationCompleteAcknowledgeMsg* forwardRelocationCompleteAcknowledgeMsg_p = new (ForwardRelocationCompleteAcknowledgeMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardRelocationCompleteAcknowledgeMsgType, forwardRelocationCompleteAcknowledgeMsg_p));
+
+    ForwardAccessContextNotificationMsg* forwardAccessContextNotificationMsg_p = new (ForwardAccessContextNotificationMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardAccessContextNotificationMsgType, forwardAccessContextNotificationMsg_p));
+
+    ForwardAccessContextAcknowledgeMsg* forwardAccessContextAcknowledgeMsg_p = new (ForwardAccessContextAcknowledgeMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ForwardAccessContextAcknowledgeMsgType, forwardAccessContextAcknowledgeMsg_p));
+
+    RelocationCancelRequestMsg* relocationCancelRequestMsg_p = new (RelocationCancelRequestMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(RelocationCancelRequestMsgType, relocationCancelRequestMsg_p));
+
+    RelocationCancelResponseMsg* relocationCancelResponseMsg_p = new (RelocationCancelResponseMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(RelocationCancelResponseMsgType, relocationCancelResponseMsg_p));
+
+    ConfigurationTransferTunnelMsg* configurationTransferTunnelMsg_p = new (ConfigurationTransferTunnelMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ConfigurationTransferTunnelMsgType, configurationTransferTunnelMsg_p));
+
+    IdentificationRequestMsg* identificationRequestMsg_p = new (IdentificationRequestMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(IdentificationRequestMsgType, identificationRequestMsg_p));
+
+    IdentificationResponseMsg* identificationResponseMsg_p = new (IdentificationResponseMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(IdentificationResponseMsgType, identificationResponseMsg_p));
+
+    ContextRequestMsg* contextRequestMsg_p = new (ContextRequestMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ContextRequestMsgType, contextRequestMsg_p));
+
+    ContextResponseMsg* contextResponseMsg_p = new (ContextResponseMsg);
+    msgObjectContainer.insert(std::pair<Uint8, GtpV2Message*>(ContextResponseMsgType, contextResponseMsg_p));
 
 
 }

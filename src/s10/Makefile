@@ -20,7 +20,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
 
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/s10/%,$(SOURCES:.$(SRCEXT)=.o))
 
-CFLAGS += -Wall
+CFLAGS += -Wall -DS10_FEATURE
 
 ifeq ($(DEBUG),true)
 	CFLAGS += -g
@@ -44,7 +44,7 @@ LIBS := \
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	@mkdir -p $(BINDIR)
-	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
+	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS) -Lcpp_utils/ -ls10cpputil
 
 $(OBJDIR)/s10/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(OBJDIR)/s10/handlers

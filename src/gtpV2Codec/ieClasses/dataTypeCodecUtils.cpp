@@ -773,6 +773,197 @@ void DataTypeCodecUtils::displayIpAddressV6_v(IpAddressV6 const &data, Debug &st
     stream.decrIndent();
 }
 
+bool DataTypeCodecUtils::encodeAuthenticationQuadruplet(MsgBuffer &buffer, AuthenticationQuadruplet const &data)
+{
+    buffer.writeUint8(data.rand);
+    buffer.writeUint8(data.xresLength);
+    buffer.writeUint8(data.xres);
+    buffer.writeUint8(data.autnLength);
+    buffer.writeUint8(data.autn);
+    buffer.writeUint8(data.kAsme);
+    return true;
+}
+
+bool DataTypeCodecUtils::decodeAuthenticationQuadruplet(MsgBuffer &buffer,AuthenticationQuadruplet &data,
+                         Uint16 length)
+{
+    
+    Uint16 typeBoundary = buffer.getCurrentIndex() + length;
+
+    buffer.readUint8(data.rand);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: rand\n");
+         return false;
+    }
+
+    buffer.readUint8(data.xresLength);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: xresLength\n");
+         return false;
+    }
+
+    buffer.readUint8(data.xres);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: xres\n");
+         return false;
+    }
+
+    buffer.readUint8(data.autnLength);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: autnLength\n");
+         return false;
+    }
+
+    buffer.readUint8(data.autn);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: autn\n");
+         return false;
+    }
+
+    buffer.readUint8(data.kAsme);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: kAsme\n");
+         return false;
+    }
+
+  return true;
+}
+
+void DataTypeCodecUtils::displayAuthenticationQuadruplet_v(AuthenticationQuadruplet const &data, Debug &stream)
+{
+    stream.incrIndent();
+    stream.add((char *)"AuthenticationQuadruplet:");
+    stream.incrIndent();
+    stream.endOfLine();
+    stream.add((char *)"rand = ");
+    stream.add(data.rand);
+    stream.endOfLine();
+    stream.add((char *)"xresLength = ");
+    stream.add(data.xresLength);
+    stream.endOfLine();
+    stream.add((char *)"xres = ");
+    stream.add(data.xres);
+    stream.endOfLine();
+    stream.add((char *)"autnLength = ");
+    stream.add(data.autnLength);
+    stream.endOfLine();
+    stream.add((char *)"autn = ");
+    stream.add(data.autn);
+    stream.endOfLine();
+    stream.add((char *)"kAsme = ");
+    stream.add(data.kAsme);
+    stream.endOfLine();
+    stream.decrIndent();
+    stream.decrIndent();
+}
+
+bool DataTypeCodecUtils::encodeAuthenticationQuintuplet(MsgBuffer &buffer, AuthenticationQuintuplet const &data)
+{
+    buffer.writeUint8(data.rand);
+    buffer.writeUint8(data.xresLength);
+    buffer.writeUint8(data.xres);
+    buffer.writeUint8(data.ck);
+    buffer.writeUint8(data.ik);
+    buffer.writeUint8(data.autnLength);
+    buffer.writeUint8(data.autn);
+    return true;
+}
+
+bool DataTypeCodecUtils::decodeAuthenticationQuintuplet(MsgBuffer &buffer,AuthenticationQuintuplet &data,
+                         Uint16 length)
+{
+    
+    Uint16 typeBoundary = buffer.getCurrentIndex() + length;
+
+    buffer.readUint8(data.rand);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: rand\n");
+         return false;
+    }
+
+    buffer.readUint8(data.xresLength);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: xresLength\n");
+         return false;
+    }
+
+    buffer.readUint8(data.xres);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: xres\n");
+         return false;
+    }
+
+    buffer.readUint8(data.ck);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: ck\n");
+         return false;
+    }
+
+    buffer.readUint8(data.ik);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: ik\n");
+         return false;
+    }
+
+    buffer.readUint8(data.autnLength);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: autnLength\n");
+         return false;
+    }
+
+    buffer.readUint8(data.autn);
+    if (buffer.getCurrentIndex() > typeBoundary)
+    {
+         errorStream.add((char *)"Attempt to read beyond type boundary: autn\n");
+         return false;
+    }
+
+  return true;
+}
+
+void DataTypeCodecUtils::displayAuthenticationQuintuplet_v(AuthenticationQuintuplet const &data, Debug &stream)
+{
+    stream.incrIndent();
+    stream.add((char *)"AuthenticationQuintuplet:");
+    stream.incrIndent();
+    stream.endOfLine();
+    stream.add((char *)"rand = ");
+    stream.add(data.rand);
+    stream.endOfLine();
+    stream.add((char *)"xresLength = ");
+    stream.add(data.xresLength);
+    stream.endOfLine();
+    stream.add((char *)"xres = ");
+    stream.add(data.xres);
+    stream.endOfLine();
+    stream.add((char *)"ck = ");
+    stream.add(data.ck);
+    stream.endOfLine();
+    stream.add((char *)"ik = ");
+    stream.add(data.ik);
+    stream.endOfLine();
+    stream.add((char *)"autnLength = ");
+    stream.add(data.autnLength);
+    stream.endOfLine();
+    stream.add((char *)"autn = ");
+    stream.add(data.autn);
+    stream.endOfLine();
+    stream.decrIndent();
+    stream.decrIndent();
+}
+
 
 
 bool DataTypeCodecUtils::encodeUint16Array16(MsgBuffer &buffer,
@@ -1400,6 +1591,116 @@ void DataTypeCodecUtils::displayRaiFieldArray15_v(RaiFieldArray15 const &data, D
 {
     stream.incrIndent();
     stream.add((char *)"RaiFieldArray15: Count: ");
+    stream.add(data.count);
+    stream.incrIndent();
+    stream.endOfLine();
+    stream.decrIndent();
+    stream.decrIndent();
+}
+
+bool DataTypeCodecUtils::encodeAuthenticationQuadrupletArray5(MsgBuffer &buffer,
+ AuthenticationQuadrupletArray5 const &data)
+{
+    Uint16 i;
+    for (i = 0; i < data.count; i++)
+    {
+        if (!(DataTypeCodecUtils::encodeAuthenticationQuadruplet(buffer, data.values[i])))
+        {
+            errorStream.add((char *)"Failed to encode AuthenticationQuadrupletArray5\n");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool DataTypeCodecUtils::decodeAuthenticationQuadrupletArray5(MsgBuffer &buffer,
+ AuthenticationQuadrupletArray5 &data, Uint16 length, Uint16 count)
+{
+    Uint16 i = 0;
+    data.count = 0;
+    bool readTillEnd = (count == 0);
+    Uint16 startIndex = buffer.getCurrentIndex();
+    Uint16 typeBoundary = startIndex+length;
+    
+    while ((i < count)||(readTillEnd && (buffer.getCurrentIndex() < typeBoundary)))
+    {
+        Uint16 lengthLeft = typeBoundary - buffer.getCurrentIndex();
+                 if (!(DataTypeCodecUtils::decodeAuthenticationQuadruplet(buffer, data.values[i], lengthLeft)))
+                 
+        {
+            errorStream.add((char *)"Failed to encode AuthenticationQuadrupletArray5\n");
+            return false;
+        }
+        if (buffer.getCurrentIndex() > typeBoundary)
+        {
+            errorStream.add((char *)"Attempt to read beyond type boundary:AuthenticationQuadrupletArray5\n");
+            return false;
+        }
+        data.count++;
+        i++;
+    }
+	return true;
+}
+
+void DataTypeCodecUtils::displayAuthenticationQuadrupletArray5_v(AuthenticationQuadrupletArray5 const &data, Debug &stream)
+{
+    stream.incrIndent();
+    stream.add((char *)"AuthenticationQuadrupletArray5: Count: ");
+    stream.add(data.count);
+    stream.incrIndent();
+    stream.endOfLine();
+    stream.decrIndent();
+    stream.decrIndent();
+}
+
+bool DataTypeCodecUtils::encodeAuthenticationQuintupletArray5(MsgBuffer &buffer,
+ AuthenticationQuintupletArray5 const &data)
+{
+    Uint16 i;
+    for (i = 0; i < data.count; i++)
+    {
+        if (!(DataTypeCodecUtils::encodeAuthenticationQuintuplet(buffer, data.values[i])))
+        {
+            errorStream.add((char *)"Failed to encode AuthenticationQuintupletArray5\n");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool DataTypeCodecUtils::decodeAuthenticationQuintupletArray5(MsgBuffer &buffer,
+ AuthenticationQuintupletArray5 &data, Uint16 length, Uint16 count)
+{
+    Uint16 i = 0;
+    data.count = 0;
+    bool readTillEnd = (count == 0);
+    Uint16 startIndex = buffer.getCurrentIndex();
+    Uint16 typeBoundary = startIndex+length;
+    
+    while ((i < count)||(readTillEnd && (buffer.getCurrentIndex() < typeBoundary)))
+    {
+        Uint16 lengthLeft = typeBoundary - buffer.getCurrentIndex();
+                 if (!(DataTypeCodecUtils::decodeAuthenticationQuintuplet(buffer, data.values[i], lengthLeft)))
+                 
+        {
+            errorStream.add((char *)"Failed to encode AuthenticationQuintupletArray5\n");
+            return false;
+        }
+        if (buffer.getCurrentIndex() > typeBoundary)
+        {
+            errorStream.add((char *)"Attempt to read beyond type boundary:AuthenticationQuintupletArray5\n");
+            return false;
+        }
+        data.count++;
+        i++;
+    }
+	return true;
+}
+
+void DataTypeCodecUtils::displayAuthenticationQuintupletArray5_v(AuthenticationQuintupletArray5 const &data, Debug &stream)
+{
+    stream.incrIndent();
+    stream.add((char *)"AuthenticationQuintupletArray5: Count: ");
     stream.add(data.count);
     stream.incrIndent();
     stream.endOfLine();

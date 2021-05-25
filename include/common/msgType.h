@@ -18,6 +18,7 @@ extern "C"{
 #include "s1ap_structs.h"
 #include "s10_structs.h"
 #include "s1ap_ie.h"
+#include "basicTypes.h"
 
 #define REQ_ARGS 0x0000
 
@@ -722,6 +723,7 @@ struct forward_relocation_req_Q_msg {
     uint32_t pgw_ip;
     mm_context_t mm_cntxt;
     uint32_t neigh_mme_ip;
+    uint32_t target_mme_ip;
 };
 #define S10_FORWARD_RELOCATION_REQ_BUF_SIZE sizeof(struct forward_relocation_req_Q_msg)
 
@@ -747,6 +749,7 @@ struct ID_RESP_Q_msg{
     bool ueUsageTypeIePresent;
     bool monitoringEventInformationIePresent;
     bool privateExtensionIePresent;
+    uint32_t target_mme_ip;
 };
 #define S10_IDRESP_STAGE5_BUF_SIZE sizeof(struct ID_RESP_Q_msg)
 
@@ -836,6 +839,7 @@ struct FWD_ACC_CTXT_NOTIF_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     struct enB_status_transfer_transparent_container f_container;
+    uint32_t target_mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_NOTIF_Q_msg)
 
@@ -843,6 +847,7 @@ struct FWD_ACC_CTXT_ACK_Q_msg{
     msg_type_t msg_type;
     int ue_idx;
     uint8_t cause;
+    uint32_t mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_ACC_CTXT_ACK_Q_msg)
 
@@ -850,6 +855,7 @@ struct FWD_REL_CMP_ACK_Q_msg{
 	msg_type_t msg_type;
 	int ue_idx;
 	uint8_t cause;
+	uint32_t target_mme_ip;
 };
 #define S10_FRREQ_STAGE5_BUF_SIZE sizeof(struct FWD_REL_CMP_ACK_Q_msg)
 
@@ -950,9 +956,12 @@ struct id_resp_Q_msg{
     uint8_t ue_usage_type;
     uint8_t monitoring_event_information;
     uint8_t private_extension;
+    Uint64 integer_number ;
 };
 
 struct ID_req_Q_msg{
+	int ue_idx;
+	uint32_t target_mme_ip;
     gtp_incoming_msg_data_t header;
     int s10_mme_cp_teid;
     guti guti;
@@ -1058,6 +1067,11 @@ struct forward_relocation_complete_notification_BQ_msg {
         struct sockaddr_in6
             addr_v6;  ///< MME ipv4 address for S-GW or S-GW ipv4 address for MME
     } mme_peer_ip;
+};
+struct FWD_REL_CMP_ACK_BQ_msg{
+	gtp_incoming_msg_data_t header;
+	int ue_idx;
+	uint8_t cause;
 };
 #endif
 
