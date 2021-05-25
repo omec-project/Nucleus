@@ -45,7 +45,6 @@ $(TARGET): $(OBJECTS)
 	@echo " Linking..."
 	@mkdir -p $(BINDIR)
 	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS) -Lcpp_utils/ -ls10cpputil
-	g++ $(LFLAGS) $^ -o $(TARGET) $(LIB_PATH) $(LIBS)
 
 $(OBJDIR)/s10/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(OBJDIR)/s10/handlers

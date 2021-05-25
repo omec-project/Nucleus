@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <nas_structs.h>
+#include "s1ap_structs.h"
 #include"s11_structs.h"
 
 #define S10_MSGBUF_SIZE 2048

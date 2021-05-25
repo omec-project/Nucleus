@@ -29,12 +29,6 @@
 #define S10_IE_BEARER_CTX	93
 #define S10_IE_EPS_BEARER_ID	73
 
-/*int
-init_s10();
-
-void
-handle_s10_message(void *message);
-*/
 int
 init_s10();
 
@@ -46,9 +40,14 @@ s10_transation(char * buf, unsigned int len);
 
 void* forward_relocation_handler(void *);
 int s10_ID_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s10_ID_request_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
+int s10_FWD_relocation_cmp_ack_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s10_Fwd_acc_ctxt_ack_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t mme_ip);
+int S10_fwd_acc_ctxt_noti_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t mme_ip);
 void* identification_request_handler(void *);
 void* identification_response_handler(void *);
+void* forward_access_context_notification_handler(void *);
+void* forward_relocation_complete_acknowledgement_handler(void *);
 void* forward_access_context_ack_handler(void *);
 void get_sequence(uint32_t *seq);
 void
