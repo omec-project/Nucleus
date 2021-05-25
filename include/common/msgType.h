@@ -1032,6 +1032,7 @@ struct fwd_rel_req_Q_msg {
     uint32_t extended_max_requested_bw_dl;
     uint32_t extended_max_requested_bw_ul;
     struct fteid s1u_sgw_fteid;
+    struct fteid s10_mme_fteid; //akr
     struct security_context security_context;
 };
 

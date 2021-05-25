@@ -176,7 +176,8 @@ typedef struct bearer_context_created_s {
 
   /* This parameter is received only if the QoS parameters have been modified */
   bearer_qos_t bearer_level_qos;
-
+  /*parameter for s10 interface */
+  fteid_t s10_sgs_teid_dl;
   //traffic_flow_template_t tft;  ///< Bearer TFT   TODO this IE is skup for now
 } bearer_context_created_t;
 
