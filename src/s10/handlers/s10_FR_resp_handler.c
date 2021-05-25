@@ -64,18 +64,18 @@ s10_FR_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t new_mm
 	}
 
 
-	frr_info.cause = msgData.cause.causeValue;
+	frr_info.cause.cause = (unsigned char)msgData.cause.causeValue;
 
-	frr_info.s10_mme_cp_teid.header.iface_type =12;
-	frr_info.s10_mme_cp_teid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
-	frr_info.s10_mme_cp_teid.header.v4 = 1;
-	frr_info.s10_mme_cp_teid.ip.ipv4.s_addr = msgData.senderFTeidForControlPlane.ipV4Address.ipValue;
+	frr_info.s10_target_mme_teid.header.iface_type =12;
+	frr_info.s10_target_mme_teid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
+	frr_info.s10_target_mme_teid.header.v4 = 1;
+	frr_info.s10_target_mme_teid.ip.ipv4.s_addr = msgData.senderFTeidForControlPlane.ipV4Address.ipValue;
 
 
 ///// need to check from here/// all parameters are not present
 
     //frr_info.FContainer = msgData.eUtranTransparentContainer.containerType;
-	frr_info.eutran_container = 3;
+	frr_info.eutran_container.count = 3;
     //frr_info.Fcontainer_Fteid = msgData.eUtranTransparentContainer.fContainerField;
 
 

@@ -100,7 +100,7 @@ static int
 forward_relocation_complete_notifi_handler_processing(struct forward_relocation_complete_notification_Q_msg * g_frRelCmpnotifInfo)
 {
 	struct MsgBuffer*  frRelCmpNotifMsgBuf_p = createMsgBuffer(S10_MSGBUF_SIZE);
-    if(frRelCmpAckMsgBuf_p == NULL)
+    if(frRelCmpNotifMsgBuf_p == NULL)
     {
         log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
         return -1;
@@ -117,13 +117,13 @@ forward_relocation_complete_notifi_handler_processing(struct forward_relocation_
 	tmme_addr.sin_family = AF_INET;
 	tmme_addr.sin_port = htons(g_s10_cfg.egtp_def_port);
 
-    if(g_frRelCmpnotifInfo->mme_peer_ip != 0) {
-    	tmme_addr.sin_addr.s_addr = g_frRelCmpnotifInfo->mme_peer_ip;
+    if(g_frRelCmpnotifInfo->mme_peer_ip.addr_v4.sin_addr.s_addr != 0) {
+    	tmme_addr.sin_addr.s_addr = g_frRelCmpnotifInfo->mme_peer_ip.addr_v4.sin_addr.s_addr;
     } else {
     	tmme_addr = g_s10_cp_addr;
     }
 
-	log_msg(LOG_INFO,"In Forward Relocation Complete acknowledgement handler->ue_idx:%d",g_frRelCmpAckInfo->ue_idx);
+	log_msg(LOG_INFO,"In Forward Relocation Complete acknowledgement handler->ue_idx:%d",g_frRelCmpnotifInfo->ue_idx);
 
     add_gtp_transaction(gtpHeader.sequenceNumber, 
     					g_frRelCmpnotifInfo->ue_idx);
