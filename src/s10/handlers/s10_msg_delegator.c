@@ -179,6 +179,19 @@ handle_s10_message(void *message)
 		log_msg(LOG_ERROR,"Failed to decode the GTP Message");
 
 	switch(msgHeader.msgType){
+	
+	case GTP_FORWARD_RELOCATION_REQ:
+		s10_FR_req_handler(msgBuf_p, &msgHeader, tmme_ip);
+	     break;
+		 
+	case GTP_FORWARD_RELOCATION_RES:
+		 s10_FR_resp_handler(msgBuf_p, &msgHeader, tmme_ip);
+		 break;
+	
+	case GTP_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
+		 s10_FR_relocation_complete_notification(msgBuf_p, &msgHeader, tmme_ip);
+		 break;
+	
 	case GTP_IDENTIFICATION_RES:
 		s10_ID_resp_handler(msgBuf_p, &msgHeader, tmme_ip);
 		break;

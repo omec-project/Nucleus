@@ -34,6 +34,9 @@
 #define GTP_IDENTIFICATION_REQ                              128
 #define GTP_IDENTIFICATION_RES                              129
 #define GTP_FORWARD_RELOCATION_REQ                 		    133
+#define GTP_FORWARD_RELOCATION_RES                          134
+#define GTP_FORWARD_RELOCATION_COMPLETE_NOTIFICATION        135
+#define GTP_FORWARD_RELOCATION_CMP_ACK                      136
 #define GTP_FORWARD_ACCESS_CONTEXT_NOTIFICATION             137
 #define GTP_FORWARD_ACCESS_CONTEXT_ACKNOWLEDGE              138
 #define GTP_RABR_REQ                                        170

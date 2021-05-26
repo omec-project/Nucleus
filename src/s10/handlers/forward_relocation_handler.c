@@ -58,7 +58,7 @@ struct CS_Q_msg *g_csReqInfo;
 struct FR_Q_msg *g_frReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;
-
+/*
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
@@ -67,7 +67,7 @@ bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return;
 }
-
+*/
 uint32_t
 convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
