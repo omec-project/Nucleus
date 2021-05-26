@@ -64,27 +64,27 @@ s10_FR_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t new_mm
 	}
 
 
-	frr_info.cause = msgData.cause.causeValue;
+	frr_info.cause.cause = (unsigned char)msgData.cause.causeValue;
 
-	frr_info.s10_mme_cp_teid.header.iface_type =12;
-	frr_info.s10_mme_cp_teid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
-	frr_info.s10_mme_cp_teid.header.v4 = 1;
-	frr_info.s10_mme_cp_teid.ip.ipv4.s_addr = msgData.senderFTeidForControlPlane.ipV4Address.ipValue;
+	frr_info.s10_target_mme_teid.header.iface_type =12;
+	frr_info.s10_target_mme_teid.header.teid_gre = msgData.senderFTeidForControlPlane.teidGreKey;
+	frr_info.s10_target_mme_teid.header.v4 = 1;
+	frr_info.s10_target_mme_teid.ip.ipv4.s_addr = msgData.senderFTeidForControlPlane.ipV4Address.ipValue;
 
 
 ///// need to check from here/// all parameters are not present
 
     //frr_info.FContainer = msgData.eUtranTransparentContainer.containerType;
-	frr_info.eutran_container = 3;
+	frr_info.eutran_container.count = 3;
     //frr_info.Fcontainer_Fteid = msgData.eUtranTransparentContainer.fContainerField;
 
 
-    frr_info.epsid = msgData.listOfSetUpBearers[0].epsBearerId.epsBearerId;
+    frr_info.handovered_bearers.bearer_context[0].eps_bearer_id = msgData.listOfSetUpBearers[0].epsBearerId.epsBearerId;
 
-    frr_info.s10_sgsn_fteid.header.iface_type = 12;
-    frr_info.s10_sgsn_fteid.header.teid_gre = msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.teidGreKey;
-    frr_info.s10_sgsn_fteid.header.v4 = 1;
-    frr_info.s10_sgsn_fteid.ip.ipv4.s_addr  = msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.ipV4Address.ipValue;
+//    frr_info.s10_sgsn_fteid.header.iface_type = 12;
+    frr_info.handovered_bearers.bearer_context[0].s10_sgs_teid_dl.header.teid_gre = msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.teidGreKey;
+    frr_info.handovered_bearers.bearer_context[0].s10_sgs_teid_dl.header.v4 = 1;
+    frr_info.handovered_bearers.bearer_context[0].s10_sgs_teid_dl.ip.ipv4.s_addr  = msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.ipV4Address.ipValue;
 
 /*
     frr_info.s10_sgsn_fteid.header.iface_type = 12;
@@ -153,7 +153,7 @@ frr_info.header.srcInstAddr = htonl(s10AppInstanceNum_c);
 
 	/*Send FR_response msg*/
 	log_msg(LOG_INFO, "Send FR resp to mme-app stage6.");
-	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&frr_info, sizeof(struct FR_RES_Q_msg));
+	send_tipc_message(g_resp_fd, mmeAppInstanceNum_c, (char *)&frr_info, sizeof(struct forward_relocation_resp_BQ_msg));
 
 	return SUCCESS;
 }

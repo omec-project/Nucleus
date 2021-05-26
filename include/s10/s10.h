@@ -39,6 +39,7 @@ int
 s10_transation(char * buf, unsigned int len);
 
 void* forward_relocation_handler(void *);
+void* forward_relocation_resonse_handler(void *);
 int s10_ID_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s10_ID_request_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);
 int s10_FWD_relocation_cmp_ack_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip);

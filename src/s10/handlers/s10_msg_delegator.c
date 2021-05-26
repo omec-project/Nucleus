@@ -189,7 +189,7 @@ handle_s10_message(void *message)
 		 break;
 	
 	case GTP_FORWARD_RELOCATION_COMPLETE_NOTIFICATION:
-		 s10_FR_relocation_complete_notification();
+		 s10_FR_relocation_complete_notification(msgBuf_p, &msgHeader, tmme_ip);
 		 break;
 	
 	case GTP_IDENTIFICATION_RES:
