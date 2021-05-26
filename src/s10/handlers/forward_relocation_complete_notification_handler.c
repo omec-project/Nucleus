@@ -67,7 +67,7 @@ bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return;
 }
-
+/*
 uint32_t
 convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
@@ -91,7 +91,7 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return num_of_digits;
 }
-
+*/
 
 /**
 * Stage specific message processing.

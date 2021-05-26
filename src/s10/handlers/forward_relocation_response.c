@@ -57,7 +57,7 @@ struct CS_Q_msg *g_csReqInfo;
 struct FR_Q_msg *g_frReqInfo;
 
 extern struct GtpV2Stack* gtpStack_gp;
-
+/*
 void
 bswap8_array(uint8_t *src, uint8_t *dest, uint32_t len)
 {
@@ -90,7 +90,7 @@ convert_imsi_to_digits_array(uint8_t *src, uint8_t *dest, uint32_t len)
 
 	return num_of_digits;
 }
-
+*/
 
 /**
 * Stage specific message processing.
@@ -99,7 +99,7 @@ static int
 forward_relocation_response_processing(struct forward_relocation_resp_Q_msg * g_frResInfo)
 {
 	struct MsgBuffer*  frResMsgBuf_p = createMsgBuffer(S10_MSGBUF_SIZE);
-    if(frReqMsgBuf_p == NULL)
+    if(frResMsgBuf_p == NULL)
     {
         log_msg(LOG_ERROR, "Error in initializing msg buffers required by gtp codec.");
         return -1;
@@ -124,29 +124,29 @@ forward_relocation_response_processing(struct forward_relocation_resp_Q_msg * g_
 	log_msg(LOG_INFO,"In Forward Relocation response ->ue_idx:%d",g_frResInfo->ue_idx);
 
     add_gtp_transaction(gtpHeader.sequenceNumber, 
-                          g_frReqInfo->ue_idx);
+    		g_frResInfo->ue_idx);
 
     ForwardRelocationResponseMsgData msgData;
 	memset(&msgData, 0, sizeof(msgData));
 
-	msgData.cause.causeValue = g_frResInfo.cause;
+	msgData.cause.causeValue = g_frResInfo->cause.cause;
 
     msgData.senderFTeidForControlPlane.ipv4present = true;
 	msgData.senderFTeidForControlPlane.interfaceType = 12;
 	////need to modify the structure
 	msgData.senderFTeidForControlPlane.teidGreKey = g_frResInfo->s10_target_mme_teid.header.teid_gre;
-	msgData.senderFTeidForControlPlane.ipV4Address.ipValue = g_frResInfo->s10_target_mme_teid.ip.ipv4;
+	msgData.senderFTeidForControlPlane.ipV4Address.ipValue = g_frResInfo->s10_target_mme_teid.ip.ipv4.s_addr;
 
-	msgData.eUtranTransparentContainer.containerType =  g_frResInfo->eutran_container;
+	msgData.eUtranTransparentContainer.containerType =  3;
 	//msgData.eUtranTransparentContainer.fContainerField = g_frResInfo->Fcontainer_Fteid; f container is not added in structure.
 
 	 /// Bearers data need to be added.
 
-	msgData.listOfSetUpBearers.epsBearerId.epsBearerId = g_frResInfo->handovered_bearers.bearer_context[0].eps_bearer_id;
-	msgData.listOfSetUpBearers.epsBearerIdIePresent = 1;
-	msgData.listOfSetUpBearers.sgsnFTeidForDlDataForwarding.interfaceType = 12;
-	msgData.listOfSetUpBearers.sgsnFTeidForDlDataForwarding.ipV4Address.ipValue = g_frResInfo->handovered_bearers.bearer_context[0].s10_sgs_teid_dl.ip.ipv4;
-	msgData.listOfSetUpBearers.sgsnFTeidForDlDataForwarding.teidGreKey = g_frResInfo->handovered_bearers.bearer_context[0].s10_sgs_teid_dl.header.eid_gre;
+	msgData.listOfSetUpBearers[0].epsBearerId.epsBearerId = g_frResInfo->handovered_bearers.bearer_context[0].eps_bearer_id;
+	msgData.listOfSetUpBearers[0].epsBearerIdIePresent = 1;
+	msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.interfaceType = 12;
+	msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.ipV4Address.ipValue = g_frResInfo->handovered_bearers.bearer_context[0].s10_sgs_teid_dl.ip.ipv4.s_addr;
+	msgData.listOfSetUpBearers[0].sgsnFTeidForDlDataForwarding.teidGreKey = g_frResInfo->handovered_bearers.bearer_context[0].s10_sgs_teid_dl.header.teid_gre;
 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, frResMsgBuf_p, &gtpHeader, &msgData);
 
