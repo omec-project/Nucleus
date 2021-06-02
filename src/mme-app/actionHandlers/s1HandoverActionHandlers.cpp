@@ -390,12 +390,11 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
-    S1HandoverProcedureContext* s1HoPrCtxt =
-            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
-    if (s1HoPrCtxt == NULL)
+    MmeProcedureCtxt* procCtxt =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if (procCtxt == NULL)
     {
-        log_msg(LOG_DEBUG,
-                "process_tau_request: S1HandoverProcedureContext is NULL");
+        log_msg(LOG_DEBUG, "process_tau_request: MmeProcedureContext is NULL");
         return ActStatus::HALT;
     }
 
@@ -423,8 +422,21 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
     MmeCommonUtils::formatS1apPlmnId(const_cast<PLMN*>(&tauReq->tai.plmn_id));
     MmeCommonUtils::formatS1apPlmnId(
             const_cast<PLMN*>(&tauReq->eUtran_cgi.plmn_id));
-    s1HoPrCtxt->setTargetTai(Tai(tauReq->tai));
-    s1HoPrCtxt->setTargetCgi(Cgi(tauReq->eUtran_cgi));
+
+    if (procCtxt->getCtxtType() == s1Handover_c)
+    {
+        S1HandoverProcedureContext* s1HoPrCtxt =
+                dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
+        s1HoPrCtxt->setTargetTai(Tai(tauReq->tai));
+        s1HoPrCtxt->setTargetCgi(Cgi(tauReq->eUtran_cgi));
+    }
+    else if (procCtxt->getCtxtType() == x2HandoverMm_c)
+    {
+        X2HOMmProcedureContext* x2HoPrCtxt =
+            dynamic_cast<X2HOMmProcedureContext*>(cb.getTempDataBlock());
+        x2HoPrCtxt->setTargetTai(Tai(tauReq->tai));
+        x2HoPrCtxt->setTargetCgi(Cgi(tauReq->eUtran_cgi));
+    }
 
     return ActStatus::PROCEED;
 }
@@ -460,16 +472,37 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
         return ActStatus::HALT;
     }
 
-    S1HandoverProcedureContext *s1HoPrcdCtxt_p =
-            dynamic_cast<S1HandoverProcedureContext*>(cb.getTempDataBlock());
-    if (s1HoPrcdCtxt_p == NULL)
+    MmeProcedureCtxt *procCtxt_p =
+            dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
+    if(procCtxt_p == NULL)
     {
         log_msg(LOG_DEBUG,
-                "is_tau_required: S1HandoverProcedureContext is NULL");
+                "is_tau_required: MmeProcedureContext is NULL");
         return ActStatus::HALT;
     }
 
-    if (ue_ctxt->getTai() == s1HoPrcdCtxt_p->getTargetTai())
+    bool same_tai = false;
+
+    if (procCtxt_p->getCtxtType() == s1Handover_c)
+    {
+        S1HandoverProcedureContext *s1HoPrCtxt =
+                static_cast<S1HandoverProcedureContext*>(procCtxt_p);
+        if (ue_ctxt->getTai() == s1HoPrCtxt->getTargetTai())
+        {
+            same_tai = true;
+        }
+    }
+    else if(procCtxt_p->getCtxtType() == x2HandoverMm_c)
+    {
+        X2HOMmProcedureContext *x2HoPrCtxt =
+                static_cast<X2HOMmProcedureContext*>(procCtxt_p);
+        if (ue_ctxt->getTai() == x2HoPrCtxt->getTargetTai())
+        {
+            same_tai = true;
+        }
+    }
+
+    if (same_tai)
     {
         log_msg(LOG_DEBUG, "TAI is same, TAU not Required");
         SM::Event evt(TAU_NOT_REQUIRED, NULL);

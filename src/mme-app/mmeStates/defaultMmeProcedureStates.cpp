@@ -124,6 +124,11 @@ void DefaultMmeState::initialize()
                 actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
                 eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
         }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_path_switch_req_handler);
+                eventToActionsMap[PATH_SWITCH_REQ_FROM_ENB] = actionTable;
+        }
 }
 
 /******************************************************************************

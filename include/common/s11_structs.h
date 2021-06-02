@@ -148,6 +148,11 @@ typedef struct bearer_ctxt_mb_resp_list {
     bearer_ctxt_mb_resp_t bearer_ctxt[DED_BEARER_COUNT];
 } bearer_ctxt_mb_resp_list_t;
 
+typedef struct bearer_ctxt_to_be_removed_list {
+    uint8_t bearers_count;
+    uint8_t bearer_id[DED_BEARER_COUNT];
+}bearer_ctxt_to_be_removed_list_t;
+
 typedef struct failed_bearer_ctxt
 {
     uint8_t eps_bearer_id;

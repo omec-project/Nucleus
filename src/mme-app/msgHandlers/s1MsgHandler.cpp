@@ -244,6 +244,12 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_NAS_DEACT_EPS_BR_CTXT_ACPT);
 			handleS1apEnbStatusMsg_v(std::move(eMsg));
 			break;
+
+		case msg_type_t::path_switch_request:
+			mmeStats::Instance()->increment(mmeStatsCounter::MME_MSG_RX_S1AP_PATH_SWITCH_REQUEST);
+			handleS1apPathSwitchReqMsg_v(std::move(eMsg), msgData_p->ue_idx);
+			break;
+
 		default:
 			log_msg(LOG_ERROR, "Unhandled S1 Message %d ", msgData_p->msg_type);
 	}
@@ -780,4 +786,23 @@ void S1MsgHandler::handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr 
     {
         log_msg(LOG_ERROR, "NasPduParseFailureInd Message is NULL");
     }
+}
+
+void S1MsgHandler::handleS1apPathSwitchReqMsg_v(IpcEMsgUnqPtr eMsg, uint32_t ueIdx)
+{
+    log_msg(LOG_INFO, "S1 - handleS1apPathSwitchReqMsg_v");
+
+    utils::MsgBuffer* msgData_p = eMsg->getMsgBuffer();
+    SM::ControlBlock* controlBlk_p = MmeCommonUtils::findControlBlock(msgData_p);
+
+    if(controlBlk_p == NULL)
+    {
+        log_msg(LOG_ERROR, "handleS1apPathSwitchReqMsg_v: "
+                "Failed to find UE Context using idx %d", ueIdx);
+        return;
+    }
+
+    // Fire path_switch_req event, insert cb to procedure queue
+    SM::Event evt(PATH_SWITCH_REQ_FROM_ENB, cmn::IpcEMsgShPtr(std::move(eMsg)));
+    controlBlk_p->addEventToProcQ(evt);
 }

@@ -55,6 +55,106 @@ void MmeGtpMsgUtils::populateModifyBearerRequestHo(SM::ControlBlock& cb,
 
 }
 
+bool MmeGtpMsgUtils::populateModifyBearerRequestForX2Ho(SM::ControlBlock& cb,
+        UEContext& ueCtxt,
+        SessionContext& sessionCtxt,
+        X2HOSmProcedureContext& procCtxt,
+        struct MB_Q_msg& mbMsg)
+{
+    bool rc = false;
+
+    pathSwitchRequest_Msg_t *pathSwReq = NULL;
+
+    cmn::IpcEventMessage *ipcMsg =
+            const_cast<cmn::IpcEventMessage*>(
+                    dynamic_cast<const cmn::IpcEventMessage*>(procCtxt.getPathSwitchReqMsgRaw()));
+    if (ipcMsg)
+    {
+        MsgBuffer *msgBuf = static_cast<MsgBuffer*>(ipcMsg->getMsgBuffer());
+        pathSwReq =
+                static_cast<pathSwitchRequest_Msg_t*>(msgBuf->getDataPointer());
+    }
+    if (pathSwReq == NULL)
+    {
+        procCtxt.setMmeErrorCause(INVALID_MSG_BUFFER);
+        return rc;
+    }
+
+    mbMsg.msg_type = modify_bearer_request;
+    mbMsg.ue_idx = ueCtxt.getContextID();
+    memset(mbMsg.indication, 0, S11_MB_INDICATION_FLAG_SIZE);
+
+    uint8_t bearersToBeModifiedCount = 0;
+    uint8_t bearersToBeRemovedCount = 0;
+
+    auto &bearerCtxtCont = sessionCtxt.getBearerContextContainer();
+    for (auto bearerCtxt : bearerCtxtCont)
+    {
+        if (bearerCtxt)
+        {
+            bool bearerFound = false;
+
+            for (int i = 0;
+                    i < pathSwReq->erab_to_be_switched_dl_list.count;
+                    i++)
+            {
+                erab_switch_item *erabItem = &(pathSwReq->erab_to_be_switched_dl_list.erab_item[i]);
+                bearer_ctxt_t *bearerToBeModified = &(mbMsg.bearer_ctx_list.bearer_ctxt[bearersToBeModifiedCount]);
+
+                if (erabItem->e_RAB_ID == bearerCtxt->getBearerId())
+                {
+                    bearerFound = true;
+
+                    bearerToBeModified->eps_bearer_id = erabItem->e_RAB_ID;
+
+                    bearerToBeModified->s1u_enb_fteid.header.iface_type = 0;
+                    bearerToBeModified->s1u_enb_fteid.header.v4 = 1;
+                    bearerToBeModified->s1u_enb_fteid.header.teid_gre = erabItem->gtp_teid;
+                    bearerToBeModified->s1u_enb_fteid.ip.ipv4.s_addr = erabItem->transportLayerAddress;
+
+                    bearerCtxt->setS1uEnbUserFteid(Fteid(bearerToBeModified->s1u_enb_fteid));
+
+                    bearersToBeModifiedCount++;
+                }
+            }
+
+            if (!bearerFound)
+            {
+                if (bearerCtxt->getBearerId() == sessionCtxt.getLinkedBearerId())
+                {
+                    rc = false;
+                    procCtxt.setMmeErrorCause(X2HO_PSREQ_MISSING_DEF_BEARER);
+                    break;
+                }
+                else
+                {
+                    mbMsg.bearers_to_be_removed_list.bearer_id[bearersToBeRemovedCount] = bearerCtxt->getBearerId();
+		    bearersToBeRemovedCount++;
+
+                    log_msg(LOG_ERROR,
+                            "Dedicated Bearer with erab_id %d isn't accepted "
+                            "by the target eNB in X2 HO for the UE with IMSI %s ",
+                            bearerCtxt->getBearerId(),
+                            ueCtxt.getImsi().getDigitsArray());
+                }
+            }
+        }
+    }
+    if (bearersToBeModifiedCount)
+    {
+        mbMsg.bearer_ctx_list.bearers_count = bearersToBeModifiedCount;
+	mbMsg.bearers_to_be_removed_list.bearers_count = bearersToBeRemovedCount;
+        memcpy(&(mbMsg.s11_sgw_c_fteid),
+            &(sessionCtxt.getS11SgwCtrlFteid().fteid_m), sizeof(struct fteid));
+        mbMsg.userLocationInformationIePresent = true;
+        memcpy(&(mbMsg.tai), &(pathSwReq->tai), sizeof(struct TAI));
+        memcpy(&(mbMsg.utran_cgi), &(pathSwReq->cgi), sizeof(struct CGI));
+        mbMsg.servingNetworkIePresent = true;
+	rc = true;
+    }
+    return rc;
+}
+
 bool MmeGtpMsgUtils::populateCreateBearerResponse(SM::ControlBlock &cb,
         MmeSmCreateBearerProcCtxt &createBearerProc, struct CB_RESP_Q_msg &cb_resp)
 {

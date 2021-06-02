@@ -455,6 +455,18 @@ typedef struct erab_list {
     erab_list_item erab_item[MAX_ERAB_SIZE];
 }erab_list;
 
+
+typedef struct erab_to_be_switched_item {
+    uint8_t e_RAB_ID;
+    uint32_t transportLayerAddress;
+    uint32_t gtp_teid;
+}erab_switch_item;
+
+typedef struct erab_to_be_switched_list {
+    uint8_t count;
+    erab_switch_item erab_item[MAX_ERAB_SIZE];
+}erab_switch_list;
+
 #define SECURITY_KEY_SIZE 32
 typedef struct proto_IE_data {
 	int 			IE_type;
@@ -485,6 +497,7 @@ typedef struct proto_IE_data {
         struct ERAB_admitted_list erab_admittedlist;
         erab_release_list erab_releaselist;
         erab_list erab_failed_to_release_list;
+        erab_switch_list erab_to_be_switched_list;
     }val;
 }proto_IEs;
 

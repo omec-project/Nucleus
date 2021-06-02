@@ -36,6 +36,8 @@ namespace mme
 			SmDedActProcCtxtManagerm_p = NULL;
 			MmeSmDeleteBearerProcCtxtManagerm_p = NULL;
 			SmDedDeActProcCtxtManagerm_p = NULL;
+			X2HOMmProcedureContextManagerm_p = NULL;
+			X2HOSmProcedureContextManagerm_p = NULL;
 
 			initialize();
 	}
@@ -61,6 +63,8 @@ namespace mme
 			delete SmDedActProcCtxtManagerm_p;
 			delete MmeSmDeleteBearerProcCtxtManagerm_p;
 			delete SmDedDeActProcCtxtManagerm_p;
+			delete X2HOMmProcedureContextManagerm_p;
+			delete X2HOSmProcedureContextManagerm_p;
 	}
 	
 	/******************************************
@@ -86,6 +90,8 @@ namespace mme
 		SmDedActProcCtxtManagerm_p = new SmDedActProcCtxtManager(8000);
 		MmeSmDeleteBearerProcCtxtManagerm_p = new MmeSmDeleteBearerProcCtxtManager(8000);
 		SmDedDeActProcCtxtManagerm_p = new SmDedDeActProcCtxtManager(8000);
+		X2HOMmProcedureContextManagerm_p = new X2HOMmProcedureContextManager(8000);
+		X2HOSmProcedureContextManagerm_p = new X2HOSmProcedureContextManager(8000);
 	}
 	
 	/******************************************************************************
@@ -240,6 +246,24 @@ namespace mme
 	void SubsDataGroupManager::deleteSmDedDeActProcCtxt(SmDedDeActProcCtxt* SmDedDeActProcCtxtp )
 	{
 		SmDedDeActProcCtxtManagerm_p->deallocateSmDedDeActProcCtxt( SmDedDeActProcCtxtp );
+	}
+	X2HOMmProcedureContext* SubsDataGroupManager::getX2HOMmProcedureContext()
+	{
+		return X2HOMmProcedureContextManagerm_p->allocateX2HOMmProcedureContext();
+	}
+
+	void SubsDataGroupManager::deleteX2HOMmProcedureContext(X2HOMmProcedureContext* X2HOMmProcedureContextp )
+	{
+		X2HOMmProcedureContextManagerm_p->deallocateX2HOMmProcedureContext( X2HOMmProcedureContextp );
+	}
+	X2HOSmProcedureContext* SubsDataGroupManager::getX2HOSmProcedureContext()
+	{
+		return X2HOSmProcedureContextManagerm_p->allocateX2HOSmProcedureContext();
+	}
+
+	void SubsDataGroupManager::deleteX2HOSmProcedureContext(X2HOSmProcedureContext* X2HOSmProcedureContextp )
+	{
+		X2HOSmProcedureContextManagerm_p->deallocateX2HOSmProcedureContext( X2HOSmProcedureContextp );
 	}
 	
 	/******************************************

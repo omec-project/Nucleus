@@ -141,6 +141,7 @@ const uint16_t TimeoutManagerCompId = 2;
 // Message Ids used for the cmn::EventMessage
 const uint16_t BEARER_STATUS_EMSG = 0x64;
 const uint16_t NAS_PDU_PARSE_FAILURE_IND_EMSG = 0x65;
+const uint16_t PDN_HO_STATUS_EMSG = 0x66;
 
 void stat_init();
 

@@ -321,7 +321,6 @@ s1ap_mme_decode_successfull_outcome (SuccessfulOutcome_t* msg)
     case S1AP_ERAB_RELEASE_CODE:
         erab_release_response_handler(msg);
         break;
-		
 	default:
 		log_msg(LOG_ERROR, "Unknown procedure code - %lu", msg->procedureCode & 0x00FF);
 		break;
@@ -386,6 +385,10 @@ s1ap_mme_decode_initiating (InitiatingMessage_t *initiating_p, int enb_fd)
         
 	case S1AP_ERAB_MODIFICATION_INDICATION_CODE:
 		erab_mod_indication_handler(initiating_p);
+		break;
+
+	case S1AP_PATH_SWITCH_REQUEST_CODE:
+		path_switch_req_handler(initiating_p, enb_fd);
 		break;
 
 	default:
@@ -2409,6 +2412,197 @@ int convertErabRelRespToProtoIe(SuccessfulOutcome_t *msg,
                     proto_ies->data[i].IE_type = ie_p->id;
                     log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
                 }
+            }
+        }
+    }
+    return 0;
+}
+
+int convertPathSwitchReqToProtoIe(InitiatingMessage_t *msg, struct proto_IE *proto_ies)
+{
+    proto_ies->procedureCode = msg->procedureCode;
+    proto_ies->criticality = msg->criticality;
+    int no_of_IEs = 0;
+
+    if (msg->value.present
+            == InitiatingMessage__value_PR_PathSwitchRequest) {
+        ProtocolIE_Container_129P7_t *protocolIes =
+                &msg->value.choice.PathSwitchRequest.protocolIEs;
+        no_of_IEs = protocolIes->list.count;
+        proto_ies->no_of_IEs = no_of_IEs;
+
+        proto_ies->data = calloc(sizeof(struct proto_IE_data), no_of_IEs);
+
+        for (int i = 0; i < protocolIes->list.count; i++) {
+            PathSwitchRequestIEs_t *ie_p;
+            ie_p = protocolIes->list.array[i];
+            switch (ie_p->id) {
+            case ProtocolIE_ID_id_eNB_UE_S1AP_ID: {
+                ENB_UE_S1AP_ID_t *s1apENBUES1APID_p = NULL;
+                if (PathSwitchRequestIEs__value_PR_ENB_UE_S1AP_ID
+                        == ie_p->value.present) {
+                    s1apENBUES1APID_p = &ie_p->value.choice.ENB_UE_S1AP_ID;
+                }
+
+                if (s1apENBUES1APID_p != NULL) {
+                    proto_ies->data[i].IE_type = S1AP_IE_ENB_UE_ID;
+                    memcpy(&proto_ies->data[i].val.enb_ue_s1ap_id,
+                            s1apENBUES1APID_p, sizeof(ENB_UE_S1AP_ID_t));
+                } else {
+                    log_msg(LOG_ERROR, "Decoding of IE eNB_UE_S1AP_ID failed");
+                    return -1;
+                }
+            }
+                break;
+            case ProtocolIE_ID_id_SourceMME_UE_S1AP_ID: {
+                MME_UE_S1AP_ID_t *s1apMMEUES1APID_p = NULL;
+                if (PathSwitchRequestIEs__value_PR_MME_UE_S1AP_ID
+                        == ie_p->value.present) {
+                    s1apMMEUES1APID_p = &ie_p->value.choice.MME_UE_S1AP_ID;
+                }
+
+                if (s1apMMEUES1APID_p != NULL) {
+                    proto_ies->data[i].IE_type = S1AP_IE_SRC_MME_UE_ID;
+                    memcpy(&proto_ies->data[i].val.mme_ue_s1ap_id,
+                            s1apMMEUES1APID_p, sizeof(MME_UE_S1AP_ID_t));
+                } else {
+                    log_msg(LOG_ERROR, "Decoding of IE MME_UE_S1AP_ID failed");
+                    return -1;
+                }
+            }
+                break;
+            case ProtocolIE_ID_id_TAI: {
+                TAI_t *s1apTAI_p = NULL;
+                if (PathSwitchRequestIEs__value_PR_TAI == ie_p->value.present) {
+                    s1apTAI_p = &ie_p->value.choice.TAI;
+                } else {
+                    log_msg(LOG_ERROR, "Decoding of IE TAI failed");
+                    return -1;
+                }
+
+                log_msg(LOG_DEBUG, "TAI decode Success");
+                proto_ies->data[i].IE_type = S1AP_IE_TAI;
+                memcpy(&proto_ies->data[i].val.tai.tac, s1apTAI_p->tAC.buf,
+                        s1apTAI_p->tAC.size);
+                memcpy(proto_ies->data[i].val.tai.plmn_id.idx,
+                        s1apTAI_p->pLMNidentity.buf,
+                        s1apTAI_p->pLMNidentity.size);
+                s1apTAI_p = NULL;
+            }
+                break;
+            case ProtocolIE_ID_id_EUTRAN_CGI: {
+                EUTRAN_CGI_t* s1apCGI_p = NULL;
+                ;
+                if (PathSwitchRequestIEs__value_PR_EUTRAN_CGI
+                        == ie_p->value.present) {
+                    s1apCGI_p = &ie_p->value.choice.EUTRAN_CGI;
+                }
+
+                if (s1apCGI_p == NULL) {
+                    log_msg(LOG_ERROR, "Decoding of IE CGI failed");
+                    return -1;
+                }
+
+                log_msg(LOG_DEBUG, "CGI decode Success");
+                proto_ies->data[i].IE_type = S1AP_IE_UTRAN_CGI;
+                memcpy(&proto_ies->data[i].val.utran_cgi.cell_id,
+                        s1apCGI_p->cell_ID.buf, s1apCGI_p->cell_ID.size);
+                memcpy(proto_ies->data[i].val.utran_cgi.plmn_id.idx,
+                        s1apCGI_p->pLMNidentity.buf,
+                        s1apCGI_p->pLMNidentity.size);
+                s1apCGI_p = NULL;
+            }
+                break;
+            case ProtocolIE_ID_id_E_RABToBeSwitchedDLList: {
+                E_RABToBeSwitchedDLList_t *e_RABToBeSwitchedDLList_p =
+                        NULL;
+                if (PathSwitchRequestIEs__value_PR_E_RABToBeSwitchedDLList
+                        == ie_p->value.present) {
+                    e_RABToBeSwitchedDLList_p =
+                            &ie_p->value.choice.E_RABToBeSwitchedDLList;
+                }
+
+                if (e_RABToBeSwitchedDLList_p != NULL) {
+                    proto_ies->data[i].IE_type =
+                            S1AP_IE_E_RAB_TO_BE_SWITCHED_DL_LIST;
+                    proto_ies->data[i].val.erab_to_be_switched_list.count =
+                            e_RABToBeSwitchedDLList_p->list.count;
+
+                    for (int j = 0; j < e_RABToBeSwitchedDLList_p->list.count;
+                            j++) {
+                        E_RABToBeSwitchedDLItemIEs_t *ie_p;
+                        ie_p =
+                                (E_RABToBeSwitchedDLItemIEs_t*) e_RABToBeSwitchedDLList_p->list.array[j];
+                        switch (ie_p->id) {
+                        case ProtocolIE_ID_id_E_RABToBeSwitchedDLItem: {
+                            E_RABToBeSwitchedDLItem_t *eRabToBeSwitchedDLItem_p =
+                                    NULL;
+                            if (E_RABToBeSwitchedDLItemIEs__value_PR_E_RABToBeSwitchedDLItem
+                                    == ie_p->value.present) {
+                                eRabToBeSwitchedDLItem_p =
+                                        &ie_p->value.choice.E_RABToBeSwitchedDLItem;
+                            }
+
+                            if (eRabToBeSwitchedDLItem_p != NULL) {
+                                proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].e_RAB_ID =
+                                        (uint8_t) eRabToBeSwitchedDLItem_p->e_RAB_ID;
+
+                                if (eRabToBeSwitchedDLItem_p->gTP_TEID.buf
+                                        != NULL) {
+                                    memcpy(
+                                            &(proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].gtp_teid),
+                                            eRabToBeSwitchedDLItem_p->gTP_TEID.buf,
+                                            eRabToBeSwitchedDLItem_p->gTP_TEID.size);
+
+                                    proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].gtp_teid =
+                                            ntohl(
+                                                    proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].gtp_teid);
+                                } else {
+                                    log_msg(LOG_ERROR,
+                                            "Decoding of IE E_RABToBeSwitchedDLItem->GTP_TEID failed");
+                                    return -1;
+                                }
+
+                                if (eRabToBeSwitchedDLItem_p->transportLayerAddress.buf
+                                        != NULL) {
+                                    memcpy(
+                                            &(proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].transportLayerAddress),
+                                            eRabToBeSwitchedDLItem_p->transportLayerAddress.buf,
+                                            eRabToBeSwitchedDLItem_p->transportLayerAddress.size);
+
+                                    proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].transportLayerAddress =
+                                            ntohl(
+                                                    proto_ies->data[i].val.erab_to_be_switched_list.erab_item[j].transportLayerAddress);
+                                } else {
+                                    log_msg(LOG_ERROR,
+                                            "Decoding of IE E_RABToBeSwitchedDLItem->transportLayerAddress failed");
+                                    return -1;
+                                }
+                            } else {
+                                log_msg(LOG_ERROR,
+                                        "Decoding of IE E_RABToBeSwitchedDLItem failed");
+                                return -1;
+                            }
+                        }
+                            break;
+                        default: {
+                            log_msg(LOG_WARNING, "Unhandled List item %lu",
+                                    ie_p->id);
+                        }
+                        }
+                    }
+                } else {
+                    log_msg(LOG_ERROR,
+                            "Decoding of IE E_RABToBeSwitchedDLList failed");
+                    return -1;
+                }
+            }
+                break;
+            default: {
+                proto_ies->data[i].IE_type = ie_p->id;
+                log_msg(LOG_WARNING, "Unhandled IE %lu", ie_p->id);
+            }
+
             }
         }
     }

@@ -49,6 +49,7 @@ private:
     void handleDeActBearerCtxtAcceptMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
     void handleS1apEnbStatusMsg_v(cmn::IpcEMsgUnqPtr eMsg);
     void handleNasPduParseFailureInd_v(NasPduParseFailureIndEMsgShPtr eMsg, uint32_t ueIdx);
+    void handleS1apPathSwitchReqMsg_v(cmn::IpcEMsgUnqPtr eMsg, uint32_t ueIdx);
 };
 
 #endif /* INCLUDE_MME_APP_MSGHANDLERS_S1MSGHANDLER_H_ */

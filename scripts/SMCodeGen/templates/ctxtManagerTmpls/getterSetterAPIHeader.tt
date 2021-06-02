@@ -56,6 +56,12 @@
          	[%- END -%]
                 [%- END %]
 			[%-UNLESS Item.Cardinality=='' %]
+			
+			/****************************************
+			* set[% String.new(Item.Name).capital.text() %]Len
+			*    set [% Item.Name %]Len from [% dataBlockClassName %]
+			****************************************/
+			void set[% String.new(Item.Name).capital.text() %]Len(uint16_t [% Item.Name %]Len_i);
 
 			/****************************************
 			* get[% String.new(Item.Name).capital.text() %]Len

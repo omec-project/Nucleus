@@ -566,3 +566,19 @@ bool BearerCtxtDBResp::operator==(const BearerCtxtDBResp& bearer_ctxt_db_resp_i)
 {
     return (bearer_ctxt_db_resp_i.eps_bearer_id == eps_bearer_id);
 }
+
+/*******************************************************
+*PdnHoStatus
+********************************************************/
+PdnHoStatus::PdnHoStatus()
+{
+}
+
+PdnHoStatus::~PdnHoStatus()
+{
+}
+
+bool PdnHoStatus::operator==(const PdnHoStatus& pdn_ho_status_i) const
+{
+    return (pdn_ho_status_i.def_bearer_id == def_bearer_id);
+}

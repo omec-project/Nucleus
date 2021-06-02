@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <list>
 #include <memory>
+#include <vector>
 #include <err_codes.h>
 #include <eventMessage.h>
 #include <structs.h>
@@ -42,6 +43,8 @@ namespace mme
 	class SmDedActProcCtxt;
 	class MmeSmDeleteBearerProcCtxt;
 	class SmDedDeActProcCtxt;
+	class X2HOMmProcedureContext;
+	class X2HOSmProcedureContext;
 	 
 	class UEContext:public SM::PermDataBlock
 	{
@@ -807,13 +810,19 @@ namespace mme
 			* setBearerTft
 			*    set bearerTft to BearerContext
 			****************************************/
-			void setBearerTft(const uint8_t* bearerTft_i,uint16_t len);
+			void setBearerTft(const uint8_t* bearerTft_i);
 			
 			/****************************************
 			* getBearerTft
 			*    get bearerTft from BearerContext
 			****************************************/
 			const uint8_t* getBearerTft()const;
+			
+			/****************************************
+			* setBearerTftLen
+			*    set bearerTftLen from BearerContext
+			****************************************/
+			void setBearerTftLen(uint16_t bearerTftLen_i);
 
 			/****************************************
 			* getBearerTftLen
@@ -1031,13 +1040,19 @@ namespace mme
 			* setPcoOptions
 			*    set pcoOptions to MmeAttachProcedureCtxt
 			****************************************/
-			void setPcoOptions(const uint8_t* pcoOptions_i,uint16_t len);
+			void setPcoOptions(const uint8_t* pcoOptions_i);
 			
 			/****************************************
 			* getPcoOptions
 			*    get pcoOptions from MmeAttachProcedureCtxt
 			****************************************/
 			const uint8_t* getPcoOptions()const;
+			
+			/****************************************
+			* setPcoOptionsLen
+			*    set pcoOptionsLen from MmeAttachProcedureCtxt
+			****************************************/
+			void setPcoOptionsLen(uint16_t pcoOptionsLen_i);
 
 			/****************************************
 			* getPcoOptionsLen
@@ -1609,13 +1624,19 @@ namespace mme
 			* setErabToBeModifiedList
 			*    set erabToBeModifiedList to MmeErabModIndProcedureCtxt
 			****************************************/
-			void setErabToBeModifiedList(const erab_to_be_modified_item* erabToBeModifiedList_i,uint16_t len);
+			void setErabToBeModifiedList(const erab_to_be_modified_item* erabToBeModifiedList_i);
 			
 			/****************************************
 			* getErabToBeModifiedList
 			*    get erabToBeModifiedList from MmeErabModIndProcedureCtxt
 			****************************************/
 			const erab_to_be_modified_item* getErabToBeModifiedList()const;
+			
+			/****************************************
+			* setErabToBeModifiedListLen
+			*    set erabToBeModifiedListLen from MmeErabModIndProcedureCtxt
+			****************************************/
+			void setErabToBeModifiedListLen(uint16_t erabToBeModifiedListLen_i);
 
 			/****************************************
 			* getErabToBeModifiedListLen
@@ -1627,13 +1648,19 @@ namespace mme
 			* setErabModifiedList
 			*    set erabModifiedList to MmeErabModIndProcedureCtxt
 			****************************************/
-			void setErabModifiedList(const uint8_t* erabModifiedList_i,uint16_t len);
+			void setErabModifiedList(const uint8_t* erabModifiedList_i);
 			
 			/****************************************
 			* getErabModifiedList
 			*    get erabModifiedList from MmeErabModIndProcedureCtxt
 			****************************************/
 			const uint8_t* getErabModifiedList()const;
+			
+			/****************************************
+			* setErabModifiedListLen
+			*    set erabModifiedListLen from MmeErabModIndProcedureCtxt
+			****************************************/
+			void setErabModifiedListLen(uint16_t erabModifiedListLen_i);
 
 			/****************************************
 			* getErabModifiedListLen
@@ -1677,6 +1704,12 @@ namespace mme
 			*    set createBearerReqEMsg to MmeSmCreateBearerProcCtxt
 			****************************************/
 			void setCreateBearerReqEMsg(std::shared_ptr<cmn::EventMessage> createBearerReqEMsg_i);
+			
+			/****************************************
+			* resetCreateBearerReqEMsg
+			*    reset createBearerReqEMsg in MmeSmCreateBearerProcCtxt
+			****************************************/
+			void resetCreateBearerReqEMsgPtr();
 					
 			/****************************************
 			* getCreateBearerReqEMsg
@@ -1798,6 +1831,12 @@ namespace mme
 			*    set deleteBearerReqEMsg to MmeSmDeleteBearerProcCtxt
 			****************************************/
 			void setDeleteBearerReqEMsg(std::shared_ptr<cmn::EventMessage> deleteBearerReqEMsg_i);
+			
+			/****************************************
+			* resetDeleteBearerReqEMsg
+			*    reset deleteBearerReqEMsg in MmeSmDeleteBearerProcCtxt
+			****************************************/
+			void resetDeleteBearerReqEMsgPtr();
 					
 			/****************************************
 			* getDeleteBearerReqEMsg
@@ -1910,6 +1949,176 @@ namespace mme
 			
 			// DataName
 			ProcedureType triggerProc_m;
+			
+	};
+	 
+	class X2HOMmProcedureContext:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* X2HOMmProcedureContext
+			*    constructor
+			****************************************/
+			X2HOMmProcedureContext();
+			
+			/****************************************
+			* ~X2HOMmProcedureContext
+			*    destructor
+			****************************************/
+			~X2HOMmProcedureContext();		
+		
+			/****************************************
+			* setPathSwitchReqEMsg
+			*    set pathSwitchReqEMsg to X2HOMmProcedureContext
+			****************************************/
+			void setPathSwitchReqEMsg(std::shared_ptr<cmn::EventMessage> pathSwitchReqEMsg_i);
+			
+			/****************************************
+			* resetPathSwitchReqEMsg
+			*    reset pathSwitchReqEMsg in X2HOMmProcedureContext
+			****************************************/
+			void resetPathSwitchReqEMsgPtr();
+					
+			/****************************************
+			* getPathSwitchReqEMsg
+			*    get pathSwitchReqEMsg from X2HOMmProcedureContext
+			****************************************/
+			std::shared_ptr<cmn::EventMessage> getPathSwitchReqEMsg() const;
+					
+			/****************************************
+			* getPathSwitchReqEMsgRaw
+			*    get pathSwitchReqEMsgRaw from X2HOMmProcedureContext
+			****************************************/
+			cmn::EventMessage* getPathSwitchReqEMsgRaw()const;
+
+			
+			/****************************************
+			* setTargetTai
+			*    set targetTai to X2HOMmProcedureContext
+			****************************************/
+			void setTargetTai(const Tai& targetTai_i);
+			
+			/****************************************
+			* getTargetTai
+			*    get targetTai from X2HOMmProcedureContext
+			****************************************/
+			const Tai& getTargetTai()const;			
+			
+			/****************************************
+			* setTargetCgi
+			*    set targetCgi to X2HOMmProcedureContext
+			****************************************/
+			void setTargetCgi(const Cgi& targetCgi_i);
+			
+			/****************************************
+			* getTargetCgi
+			*    get targetCgi from X2HOMmProcedureContext
+			****************************************/
+			const Cgi& getTargetCgi()const;			
+
+			/****************************************
+			* addBearerStatus
+			*    add bearerStatus to X2HOMmProcedureContext
+			****************************************/
+	        	void addBearerStatus(PdnHoStatus& bearerStatus_i);
+			
+			/****************************************
+			* removeBearerStatus
+			*    remove bearerStatus from X2HOMmProcedureContext
+			****************************************/
+			void removeBearerStatus(PdnHoStatus& bearerStatus_i);
+			
+			/****************************************
+			* findBearerStatus
+			*    find bearerStatus
+			****************************************/
+			std::vector<PdnHoStatus>::iterator findBearerStatus(PdnHoStatus& bearerStatus_i);
+			
+			/****************************************
+			* getBearerStatusContainer
+			*    get bearerStatusContainer to X2HOMmProcedureContext
+			****************************************/
+			std::vector<PdnHoStatus>& getBearerStatusContainer();
+			
+		
+		private:
+		
+			// DataName
+			std::shared_ptr<cmn::EventMessage> pathSwitchReqEMsg_m;
+			
+			// DataName
+			Tai targetTai_m;
+			
+			// DataName
+			Cgi targetCgi_m;
+			
+			// DataName
+			std::vector<PdnHoStatus> bearerStatus_m;
+			
+	};
+	 
+	class X2HOSmProcedureContext:public MmeProcedureCtxt
+	{
+		public:
+	
+			/****************************************
+			* X2HOSmProcedureContext
+			*    constructor
+			****************************************/
+			X2HOSmProcedureContext();
+			
+			/****************************************
+			* ~X2HOSmProcedureContext
+			*    destructor
+			****************************************/
+			~X2HOSmProcedureContext();		
+		
+			/****************************************
+			* setPathSwitchReqMsg
+			*    set pathSwitchReqMsg to X2HOSmProcedureContext
+			****************************************/
+			void setPathSwitchReqMsg(std::shared_ptr<cmn::EventMessage> pathSwitchReqMsg_i);
+			
+			/****************************************
+			* resetPathSwitchReqMsg
+			*    reset pathSwitchReqMsg in X2HOSmProcedureContext
+			****************************************/
+			void resetPathSwitchReqMsgPtr();
+					
+			/****************************************
+			* getPathSwitchReqMsg
+			*    get pathSwitchReqMsg from X2HOSmProcedureContext
+			****************************************/
+			std::shared_ptr<cmn::EventMessage> getPathSwitchReqMsg() const;
+					
+			/****************************************
+			* getPathSwitchReqMsgRaw
+			*    get pathSwitchReqMsgRaw from X2HOSmProcedureContext
+			****************************************/
+			cmn::EventMessage* getPathSwitchReqMsgRaw()const;
+
+			
+			/****************************************
+			* setErabFailedList
+			*    set erabFailedList to X2HOSmProcedureContext
+			****************************************/
+			void setErabFailedList(erab_list& erabFailedList_i);
+			
+			/****************************************
+			* getErabFailedList
+			*    get erabFailedList from X2HOSmProcedureContext
+			****************************************/
+			erab_list& getErabFailedList();			
+			
+		
+		private:
+		
+			// DataName
+			std::shared_ptr<cmn::EventMessage> pathSwitchReqMsg_m;
+			
+			// DataName
+			erab_list erabFailedList_m;
 			
 	};
 	
