@@ -122,6 +122,8 @@ void MmeS1MsgUtils::populateHoCommand(SM::ControlBlock& cb,
 
 }
 
+
+
 bool MmeS1MsgUtils::populateErabSetupAndActDedBrReq(SM::ControlBlock &cb,
         UEContext &ueCtxt, MmeSmCreateBearerProcCtxt &procCtxt,
         struct erabsu_ctx_req_Q_msg &erab_su_req)
@@ -243,4 +245,44 @@ bool MmeS1MsgUtils::populateErabRelAndDeActDedBrReq(SM::ControlBlock &cb,
     }
 
     return status;
+}
+
+bool MmeS1MsgUtils::populatePathSwitchReqAck(SM::ControlBlock &cb,
+        UEContext &ueCtxt, X2HOMmProcedureContext &procCtxt,
+        struct path_switch_req_ack_Q_msg &path_sw_ack)
+{
+    path_sw_ack.msg_type = path_switch_request_ack;
+    path_sw_ack.mme_ue_s1ap_id = ueCtxt.getContextID();
+    path_sw_ack.enb_context_id = ueCtxt.getEnbFd();
+    path_sw_ack.enb_s1ap_ue_id = ueCtxt.getS1apEnbUeId();
+
+    auto &brStatusContainer = procCtxt.getBearerStatusContainer();
+
+    for (auto &brStatus : brStatusContainer)
+    {
+        for (int i = 0; i < brStatus.failed_br_count; i++)
+        {
+            path_sw_ack.erab_to_be_released_list.erab_item[i] =
+                    brStatus.failed_br_list[i];
+            path_sw_ack.erab_to_be_released_list.count++;
+        }
+    }
+
+    secinfo &secInfo = const_cast<secinfo&>(ueCtxt.getUeSecInfo().secinfo_m);
+    secInfo.next_hop_chaining_count = secInfo.next_hop_chaining_count + 1;
+    path_sw_ack.security_context.next_hop_chaining_count =
+            secInfo.next_hop_chaining_count;
+
+    unsigned char currentNhKey[SECURITY_KEY_SIZE] =
+    { 0 };
+    memcpy(currentNhKey, secInfo.next_hop_nh, SECURITY_KEY_SIZE);
+    const E_UTRAN_sec_vector *secVect = ueCtxt.getAiaSecInfo().AiaSecInfo_mp;
+
+    unsigned char nh[SECURITY_KEY_SIZE] =
+    { 0 };
+    SecUtils::create_nh_key(secVect->kasme.val, nh, currentNhKey);
+    memcpy(path_sw_ack.security_context.next_hop_nh, nh, SECURITY_KEY_SIZE);
+    memcpy(secInfo.next_hop_nh, nh, SECURITY_KEY_SIZE);
+
+    return true;
 }

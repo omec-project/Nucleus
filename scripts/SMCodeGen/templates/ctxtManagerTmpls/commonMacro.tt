@@ -60,7 +60,7 @@
  [%- END %]
  [%- IF Data.Cardinality != '' %]
  [%-    IF str == "set" %]
- [%-            argument = "const $Data.Type* $Data.Name/_i,uint16_t len" -%]
+ [%-            argument = "const $Data.Type* $Data.Name/_i" -%]
  [%-    ELSE%]
  [%-        argument = "const $Data.Type*" -%]
  [%-    END %]

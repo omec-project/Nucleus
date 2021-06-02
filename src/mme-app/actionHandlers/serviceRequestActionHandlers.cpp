@@ -496,7 +496,8 @@ ActStatus ActionHandlers::process_mb_resp_svc_req(ControlBlock &cb)
                     "Procedure Context is NULL ");
 
             uint8_t eRabsModifiedList[1] = { bearerCtxt->getBearerId() };
-            procCtxt->setErabModifiedList(eRabsModifiedList, 1);
+            procCtxt->setErabModifiedListLen(1);
+            procCtxt->setErabModifiedList(eRabsModifiedList);
         }
     }
 

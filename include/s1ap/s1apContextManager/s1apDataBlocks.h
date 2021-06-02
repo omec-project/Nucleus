@@ -113,13 +113,19 @@ namespace mme
 			* setEnbname
 			*    set enbname to EnbContext
 			****************************************/
-			void setEnbname(const char* enbname_i,uint16_t len);
+			void setEnbname(const char* enbname_i);
 			
 			/****************************************
 			* getEnbname
 			*    get enbname from EnbContext
 			****************************************/
 			const char* getEnbname()const;
+			
+			/****************************************
+			* setEnbnameLen
+			*    set enbnameLen from EnbContext
+			****************************************/
+			void setEnbnameLen(uint16_t enbnameLen_i);
 
 			/****************************************
 			* getEnbnameLen

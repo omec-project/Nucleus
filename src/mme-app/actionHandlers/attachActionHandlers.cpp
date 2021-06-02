@@ -868,7 +868,8 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	VERIFY(bearerCtxt, return ActStatus::ABORT, "Bearer Context is NULL ");
 
 	bearerCtxt->setBearerQos(csr_info->bearerQos);
-	procedure_p->setPcoOptions(csr_info->pco_options,csr_info->pco_length);
+	procedure_p->setPcoOptionsLen(csr_info->pco_length);
+	procedure_p->setPcoOptions(csr_info->pco_options);
 	
 	sessionCtxt->setS11SgwCtrlFteid(Fteid(csr_info->s11_sgw_fteid));
 	sessionCtxt->setS5S8PgwCtrlFteid(Fteid(csr_info->s5s8_pgwc_fteid));

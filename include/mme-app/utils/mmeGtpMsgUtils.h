@@ -19,6 +19,7 @@ namespace SM
 namespace mme
 {
 	class S1HandoverProcedureContext;
+	class X2HOSmProcedureContext;
 	class MmeSmCreateBearerProcCtxt;
 	class MmeSmDeleteBearerProcCtxt;
 	class UEContext;
@@ -31,6 +32,12 @@ namespace mme
 		        SessionContext& sessCtxt,
 				S1HandoverProcedureContext& procCtxt,
 				struct MB_Q_msg& mbMsg);
+
+        static bool populateModifyBearerRequestForX2Ho(SM::ControlBlock& cb,
+                UEContext& ueCtxt,
+                SessionContext& sessCtxt,
+                X2HOSmProcedureContext& procCtxt,
+                struct MB_Q_msg& mbMsg);
 
         static bool populateCreateBearerResponse(SM::ControlBlock& cb,
                 MmeSmCreateBearerProcCtxt& procCtxt, struct CB_RESP_Q_msg& cb_resp);

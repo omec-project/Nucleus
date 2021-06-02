@@ -580,6 +580,49 @@
 								"DefaultVal": "invalidProcedureType_c"
 							}
 						]
+					},
+					{
+						"BlockName": "X2HOMmProcedureContext",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+							{
+								"Name": "pathSwitchReqEMsg",
+								"Type": "std::shared_ptr<cmn::EventMessage>"							
+							},
+							{
+								"Name": "targetTai",
+								"Type": "Tai"
+							},
+							{
+								"Name": "targetCgi",
+								"Type": "Cgi"
+							},
+							{
+								"Name":"bearerStatus",
+								"Type": "std::vector<PdnHoStatus>"
+							}
+						]
+					},
+					{
+						"BlockName": "X2HOSmProcedureContext",
+						"BlockType": "Temporary",
+						"Parent": "MmeProcedureCtxt",
+						"PoolSize": "8000",
+						"Cardinality": "1",
+						"Data": [
+                            {
+                                "Name": "pathSwitchReqMsg",
+                                "Type": "std::shared_ptr<cmn::EventMessage>"
+                            },
+							{
+								"Name": "erabFailedList",
+								"Type": "erab_list",
+								"Properties" : {"accessor":"mutable"}
+							}
+						]
 					}
 				]
 			}
