@@ -78,11 +78,26 @@ install_prometheus() {
 	/tmp/cmake-3.18.0-Linux-x86_64/bin/cmake .. -DBUILD_SHARED_LIBS=ON && make -j 4 && $SUDO make install && $SUDO make DESTDIR=`pwd`/deploy install
 }
 
+install_pistache() {
+    cat /openmme/tmp/patches/pistache.patch.1.txt
+    cd /tmp
+    echo "Installing pistache"
+    git clone https://github.com/pistacheio/pistache.git
+    cd pistache
+    git checkout 270bbefeb25a402153a55053f845e9c7674ab713
+    patch -p1 < /openmme/tmp/patches/pistache.patch.1.txt
+    mkdir build && cd build
+    /tmp/cmake-3.18.0-Linux-x86_64/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../
+    make 
+    $SUDO make install
+}
+
 install_build_deps() {
 	install_build_pkg_deps
 	install_freediameter
 	install_grpc
     install_prometheus
+    install_pistache
 }
 
 (return 2>/dev/null) && echo "Sourced" && return

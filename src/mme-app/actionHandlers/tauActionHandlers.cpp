@@ -57,7 +57,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
-		log_msg(LOG_ERROR, "send_tau_response_to_ue: ue context is NULL",cb.getCBIndex());
+		log_msg(LOG_ERROR, "cb index = %u send_tau_response_to_ue: ue context is NULL",cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 

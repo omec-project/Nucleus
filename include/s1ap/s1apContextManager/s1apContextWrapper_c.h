@@ -23,6 +23,9 @@ extern "C" {
                                 bool update);
 
     bool clearControlBlockDetailsEnbFd(uint32_t sd, struct EnbStruct *temp);
+    void runRestServer(uint32_t port);
+    int  getConfigVersion();
+    int getConfigPlmns(char *plmns[]);
 
 #ifdef __cplusplus
 }

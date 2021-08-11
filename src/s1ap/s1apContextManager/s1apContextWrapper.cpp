@@ -10,6 +10,9 @@
 #include "s1apContextManager/s1apDataGroupManager.h"
 #include "log.h"
 #include "err_codes.h"
+#include <pistache/endpoint.h>
+#include <pistache/net.h>
+#include "s1apResthandler.h"
 
 using namespace mme;
 using namespace SM;
@@ -209,6 +212,47 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
     }
 
     return SUCCESS;
+}
+
+void runRestServer_cpp(uint32_t port)
+{
+    Pistache::Http::Endpoint *m_endpoint;
+    try
+    {
+       Pistache::Address addr( Pistache::Ipv4::any(), Pistache::Port(port) );
+       auto opts = Pistache::Http::Endpoint::options()
+          .maxRequestSize(16000)
+          .threads(1)
+          .flags( Pistache::Tcp::Options::ReuseAddr );
+
+       m_endpoint = new Pistache::Http::Endpoint( addr );
+       m_endpoint->init( opts );
+       m_endpoint->setHandler( Pistache::Http::make_handler<RestHandler>() );
+       m_endpoint->serveThreaded();
+     }
+     catch ( std::runtime_error &e )
+     {
+        std::cout << "Exception starting REST server - " << e.what() << std::endl;
+        return ;
+     }
+     while(1)
+     {
+         std::this_thread::sleep_for(std::chrono::seconds(1));
+     }
+}
+
+int getConfigVersion_cpp()
+{
+    return configVersion;
+}
+
+int getConfigPlmns_cpp(char *plmns[]) 
+{
+    for (int i=0; i< num_plmns_cpp; i++)
+    {
+        plmns[i] = plmns_cpp[i]; 
+    }
+    return num_plmns_cpp;
 }
 
 //}

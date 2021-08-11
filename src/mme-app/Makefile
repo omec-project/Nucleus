@@ -12,7 +12,7 @@
 include ../../Makefile.common
 
 CC := g++
-CFLAGS += -Wall -DSTATS -I/usr/include/openssl -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++11
+CFLAGS += -Wall -DSTATS -I/usr/include/openssl -I$(GRPC_ROOT)/include -I$(GRPC_ROOT)/third_party/protobuf/src -std=c++14
 LFLAGS += -L$(GRPC_ROOT)/libs/opt -L$(GRPC_ROOT)/libs/opt/protobuf
 
 ifeq ($(DEBUG),true)
@@ -41,6 +41,7 @@ LIBS :=	-lpthread \
         -lgrpc \
         -lgpr \
         -lprotobuf \
+        -lpistache\
         -lprometheus-cpp-pull -lprometheus-cpp-core -lz \
 	-lsecutil
 

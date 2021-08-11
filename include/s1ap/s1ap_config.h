@@ -29,10 +29,8 @@ typedef struct s1ap_config
 	unsigned char rel_cap;
 	unsigned char mme_code;
 	char  sctp_type; /* sctp, udp */
-	struct PLMN mme_plmn_id;
 	uint16_t num_plmns;
 	struct PLMN plmns[MAX_PLMN];
-	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
 } s1ap_config_t;
 
 void
@@ -53,5 +51,8 @@ switch_config(s1ap_config_t *new_config);
 s1ap_config_t *get_s1ap_config();
 
 void register_config_updates(void);
+
+void 
+update_mcc_mnc(s1ap_config_t *config, char *plmns[], int num_plmns);
 
 #endif /*__S1AP_CONFIG_H_*/
