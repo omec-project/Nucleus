@@ -7,7 +7,7 @@
 include ../../../Makefile.common
 
 CC := g++
-CFLAGS += -std=c++11 
+CFLAGS += -std=c++14
 
 ifeq ($(DEBUG),true)
         CFLAGS += -g
@@ -22,6 +22,7 @@ S1APCTXMGR_SRCS := ./s1apContextWrapper.cpp \
                    ./s1apContextWrapper_c.cpp \
                    ./s1apDataGroupManager.cpp \
                    ./s1apDataBlocks.cpp \
+                   ./s1apResthandler.cpp \
                    ./enbContextManager.cpp
 
 SRCDIR := .
@@ -35,7 +36,7 @@ all : buildCommonLIBS
 buildCommonLIBS : $(OBJS)
 	@echo "Linking"
 	@mkdir -p $(LIBDIR)
-	$(CC) $(CFLAGS) $(S1APCTXMGR_OBJS) -shared -o $(S1APCTXMGR_LIBNAME)
+	$(CC) $(CFLAGS) $(S1APCTXMGR_OBJS) -shared -lpistache -o $(S1APCTXMGR_LIBNAME)
 
 $(OBJS) : $(OBJDIR)/s1ap/s1apContextManager/%.o : $(SRCDIR)/%.cpp
 	@mkdir -p $(OBJDIR)/s1ap/s1apContextManager

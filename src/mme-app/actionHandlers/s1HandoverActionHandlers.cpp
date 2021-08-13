@@ -385,7 +385,7 @@ ActStatus ActionHandlers::process_tau_request(ControlBlock& cb)
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_ERROR, "process_tau_request: ue context is NULL",
+        log_msg(LOG_ERROR, "index %d, process_tau_request: ue context is NULL",
                 cb.getCBIndex());
         return ActStatus::HALT;
     }
@@ -455,7 +455,7 @@ ActStatus ActionHandlers::is_tau_required(ControlBlock& cb)
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
     if (ue_ctxt == NULL)
     {
-        log_msg(LOG_ERROR, "is_tau_required: ue context is NULL",
+        log_msg(LOG_ERROR, "index = %d is_tau_required: ue context is NULL",
                 cb.getCBIndex());
         return ActStatus::HALT;
     }
