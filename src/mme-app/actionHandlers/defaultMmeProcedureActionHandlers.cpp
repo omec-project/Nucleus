@@ -189,7 +189,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		}
 		default:
 		{
-			log_msg(LOG_ERROR, "Unhandled attach type %s", attachType);
+			log_msg(LOG_ERROR, "Unhandled attach type %u", attachType);
 
 			MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			status = ActStatus::HALT;

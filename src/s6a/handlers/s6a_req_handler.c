@@ -158,7 +158,7 @@ void
 dump_s6a_msg(struct s6a_Q_msg *air_msg)
 {
 	log_msg(LOG_INFO, "Received index= %d",air_msg->ue_idx);
-	log_msg(LOG_INFO, "Received plmn %x %x %x= %d",air_msg->tai.plmn_id.idx[0],
+	log_msg(LOG_INFO, "Received plmn %x %x %x ",air_msg->tai.plmn_id.idx[0],
 			air_msg->tai.plmn_id.idx[1], air_msg->tai.plmn_id.idx[2]);
 }
 

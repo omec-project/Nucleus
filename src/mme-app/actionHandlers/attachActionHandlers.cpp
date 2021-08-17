@@ -371,7 +371,7 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v sent message of length %d",sizeof(authreq));
+	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v sent message of length %lu",sizeof(authreq));
 		
 	return ActStatus::PROCEED;
 }
