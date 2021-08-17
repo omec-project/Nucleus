@@ -55,7 +55,7 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_header_t))
 	{
 	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
-	            "Received %d but should be %d", msgBuf->getLength(),
+	            "Received %d but should be %lu", msgBuf->getLength(),
 	            sizeof (s1_incoming_msg_header_t));
 	    return;
 	}

@@ -41,4 +41,20 @@ extern "C"
         return clearControlBlockDetailsEnbFd_cpp(enbFd, enb);
     }
 
+    void runRestServer(uint32_t port)
+    {
+        return runRestServer_cpp(port);
+    }
+
+    int getConfigVersion()
+    {
+        return getConfigVersion_cpp();
+    }
+
+    int getConfigPlmns(char *plmns[])
+    {
+        return getConfigPlmns_cpp(plmns);
+    }
+
+
 }

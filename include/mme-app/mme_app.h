@@ -48,22 +48,13 @@ typedef struct mme_config
     char  logging[16];
     uint8_t integrity_alg_order[3];
     uint8_t ciphering_alg_order[3];
-	char  mcc_dig1;
-	char  mcc_dig2;
-	char  mcc_dig3;
-	char  mnc_dig1;
-	char  mnc_dig2;
-	char  mnc_dig3;
 	struct PLMN plmn_id;
 	unsigned int mme_s1ap_ip;
 	unsigned int mme_egtp_ip;
 	unsigned short mme_group_id;
 	unsigned char mme_code;
-	uint16_t num_plmns;
-	struct PLMN plmns[MAX_PLMN];
-	struct PLMN_C plmn_mcc_mnc[MAX_PLMN];
 	mme_feature_list feature_list; 
-    	uint16_t prom_port;
+    uint16_t prom_port;
 } mme_config_t;
 
 class apn_config

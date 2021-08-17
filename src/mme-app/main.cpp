@@ -27,6 +27,9 @@
 #include <utils/mmeTimerUtils.h>
 #include <utils/mmeStatesUtils.h>
 #include "mmeStatsPromClient.h"
+#include <pistache/endpoint.h>
+#include <pistache/net.h>
+#include "mmeappResthandler.h"
 
 using namespace std;
 using namespace mme;
@@ -147,6 +150,27 @@ int main(int argc, char *argv[])
 
 	SM::StateMachineEngine::Instance()->registerSMExceptionCb(
 	        &mme::MmeStatesUtils::handle_sm_exception);
+
+   Pistache::Http::Endpoint *m_endpoint;
+   try
+   {
+      Pistache::Address addr( Pistache::Ipv4::any(), Pistache::Port(8080) );
+      auto opts = Pistache::Http::Endpoint::options()
+         .maxRequestSize(16000)
+         .threads(1)
+         .flags( Pistache::Tcp::Options::ReuseAddr );
+
+      m_endpoint = new Pistache::Http::Endpoint( addr );
+      m_endpoint->init( opts );
+      m_endpoint->setHandler( Pistache::Http::make_handler<RestHandler>() );
+      m_endpoint->serveThreaded();
+    }
+    catch ( std::runtime_error &e )
+    {
+       std::cout << "Exception starting REST server - " << e.what() << std::endl;
+       return false;
+    }
+
 
 	while(1)
 	{
