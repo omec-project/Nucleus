@@ -3,6 +3,12 @@
 	*    set [% Item.Name %] to [% dataBlockClassName %]
 	****************************************/
 	void set[% String.new(Item.Name).capital.text() %]([% ARG(Item,"set") %]);
+	
+	/****************************************
+	* reset[% String.new(Item.Name).capital.text() %]
+	*    reset [% Item.Name %] in [% dataBlockClassName %]
+	****************************************/
+	void reset[% String.new(Item.Name).capital.text() %]Ptr();
 			
 	/****************************************
 	* get[% String.new(Item.Name).capital.text() %]

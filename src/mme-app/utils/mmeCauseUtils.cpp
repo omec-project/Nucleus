@@ -120,6 +120,31 @@ S1apCause MmeCauseUtils::convertToS1apCause(ERROR_CODES mmeErrorCause)
     return s1apCause;
 }
 
+S1apCause MmeCauseUtils::convertToS1apCause(uint32_t gtpCause)
+{
+    log_msg(LOG_DEBUG, "GTP Cause %d", gtpCause);
+
+    S1apCause s1apCause;
+
+    switch (gtpCause)
+    {
+        case GTPV2C_CAUSE_CONTEXT_NOT_FOUND:
+        {
+            s1apCause.s1apCause_m.present = s1apCause_PR_radioNetwork;
+            s1apCause.s1apCause_m.choice.radioNetwork = s1apCauseRadioNetwork_unknown_E_RAB_ID;
+            break;
+        }
+        default:
+        {
+            s1apCause.s1apCause_m.present = s1apCause_PR_misc;
+            s1apCause.s1apCause_m.choice.nas = s1apCauseRadioNetwork_unspecified;
+            break;
+        }
+    }
+
+    return s1apCause;
+}
+
 uint32_t MmeCauseUtils::convertToGtpCause(s1apCause_t s1apCause)
 {
 	uint32_t gtpCause = 0;

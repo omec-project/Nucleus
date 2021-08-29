@@ -183,7 +183,8 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
                 enbCbCtx->setEnbId(enbCtx->enbId_m);
                 enbCbCtx->setS1apEnbUeId(enbCtx->s1apEnbUeId_m);
                 enbCbCtx->setTai(enbCtx->tai_m);
-                enbCbCtx->setEnbname(enbCtx->eNbName, strlen(enbCtx->eNbName));
+		enbCbCtx->setEnbnameLen(strlen(enbCtx->eNbName));
+                enbCbCtx->setEnbname(enbCtx->eNbName);
                 enbCbCtx->setRestartCounter(enbCbCtx->getRestartCounter()+1);
                 enbCtx->restart_counter = enbCbCtx->getRestartCounter();
                 log_msg(LOG_DEBUG,"setValuesForEnb : Enbs accessing context tacNew : %d, tacOld : %d name = %s .", enbCbCtx->getTai().tac, enbCtx->tai_m.tac, enbCtx->eNbName);

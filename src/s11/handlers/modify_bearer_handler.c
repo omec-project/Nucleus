@@ -136,6 +136,12 @@ modify_bearer_processing(struct MB_Q_msg *mb_msg)
 		msgData.bearerContextsToBeModified[i].s1EnodebFTeid.ipV4Address.ipValue = mb_msg->bearer_ctx_list.bearer_ctxt[i].s1u_enb_fteid.ip.ipv4.s_addr;
 	}
 
+        msgData.bearerContextsToBeRemovedCount = mb_msg->bearers_to_be_removed_list.bearers_count;
+        for(int i = 0; i < mb_msg->bearers_to_be_removed_list.bearers_count; i++)
+        {
+                msgData.bearerContextsToBeRemoved[i].epsBearerId.epsBearerId = mb_msg->bearers_to_be_removed_list.bearer_id[i];
+        }
+
     add_gtp_transaction(gtpHeader.sequenceNumber, mb_msg->ue_idx); 
 	GtpV2Stack_buildGtpV2Message(gtpStack_gp, mbReqMsgBuf_p, &gtpHeader, &msgData);
 	sendto(g_s11_fd,

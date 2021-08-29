@@ -50,11 +50,18 @@ public:
     static SmDedDeActProcCtxt*
         allocateDedBrDeActivationProcedureCtxt(SM::ControlBlock& cb_r, uint8_t bearerId);
 
+    static X2HOMmProcedureContext*
+    allocateX2HoMmContext(SM::ControlBlock& cb_r);
+
+    static X2HOSmProcedureContext*
+    allocateX2HoSmContext(SM::ControlBlock& cb_r, uint8_t bearerId);
+
     static MmeProcedureCtxt* findProcedureCtxt(SM::ControlBlock& cb_r, ProcedureType procType, uint8_t bearerId = 0);
 
 	static bool deleteProcedureCtxt(MmeProcedureCtxt* procedure_p);
 	static bool deallocateProcedureCtxt(SM::ControlBlock& cb_r, MmeProcedureCtxt* procedure_p);
 	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r);
+	static bool deallocateAllProcedureCtxts(SM::ControlBlock& cb_r, ProcedureType procType);
 
 	static void deleteUEContext(uint32_t cbIndex, bool deleteControlBlockFlag=true);
 	static void deleteAllSessionContext(SM::ControlBlock& cb_r);

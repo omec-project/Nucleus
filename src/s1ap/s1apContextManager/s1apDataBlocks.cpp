@@ -149,9 +149,8 @@ namespace mme
 	/******************************************************************************
 	* sets enbname
 	******************************************************************************/
-	void EnbContext::setEnbname( const char* enbname_i,uint16_t len )
+	void EnbContext::setEnbname( const char* enbname_i )
 	{
-		enbnameLen_m=len;
 		memcpy(enbname_m, enbname_i, (enbnameLen_m * sizeof(char)));
 	}
 	
@@ -161,6 +160,14 @@ namespace mme
         const char* EnbContext::getEnbname() const
         {
                 return enbname_m;
+        }
+
+	/******************************************************************************
+        * set enbnameLen
+        ******************************************************************************/
+        void EnbContext::setEnbnameLen(uint16_t enbnameLen_i)
+        {
+                enbnameLen_m = enbnameLen_i;
         }
 
 	/******************************************************************************

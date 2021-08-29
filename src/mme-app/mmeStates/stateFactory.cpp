@@ -30,6 +30,8 @@
 #include "mmeStates/dedBearerActProcedureStates.h"
 #include "mmeStates/deleteBearerProcedureStates.h"
 #include "mmeStates/dedBearerDeactProcedureStates.h"
+#include "mmeStates/x2HandoverMmStates.h"
+#include "mmeStates/x2HandoverSmStates.h"
 
 using namespace mme;
 
@@ -122,6 +124,13 @@ void StateFactory::initialize()
 	ServiceRequestWfMbResp::Instance()->initialize();
 	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
+	X2HoMmStart::Instance()->initialize();
+	X2HoMmWfSmComplete::Instance()->initialize();
+	X2HoMmWfTauCheck::Instance()->initialize();
+	X2HoMmWfTauReq::Instance()->initialize();
+	X2HoSmStart::Instance()->initialize();
+	X2HoSmWfHoComplete::Instance()->initialize();
+	X2HoSmWfMbResp::Instance()->initialize();
 
         populateEventStringMap();
 }

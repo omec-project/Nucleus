@@ -96,6 +96,9 @@ typedef enum msg_type_t {
     deactivate_eps_bearer_context_request,
     deactivate_eps_bearer_context_accept,
     enb_status_msg,
+    path_switch_request,
+    path_switch_request_ack,
+    path_switch_request_fail,
     max_msg_type
 } msg_type_t;
 
@@ -319,6 +322,16 @@ struct s1apEnbStatus_Msg {
     char eNbName[128];
 }__attribute__ ((packed));
 typedef struct s1apEnbStatus_Msg s1apEnbStatus_Msg_t;
+
+struct pathSwitchRequest_Msg {
+    s1_incoming_msg_header_t header;
+    uint32_t enb_context_id;
+    erab_switch_list erab_to_be_switched_dl_list;
+    struct TAI tai;
+    struct CGI cgi;
+    ue_sec_capabilities ue_sec_capab;
+}__attribute__ ((packed));
+typedef struct pathSwitchRequest_Msg pathSwitchRequest_Msg_t;
 
 /*************************
  * Outgoing S1AP Messages
@@ -565,6 +578,26 @@ struct erab_release_command_Q_msg {
 };
 #define S1AP_ERAB_RELEASE_COMMAND_BUF_SIZE sizeof(struct erab_release_command_Q_msg)
 
+struct path_switch_req_ack_Q_msg {
+    msg_type_t msg_type;
+    uint32_t mme_ue_s1ap_id;
+    uint32_t enb_s1ap_ue_id;
+    uint32_t enb_context_id;
+    erab_switch_list erab_to_be_switched_ul_list;
+    erab_list erab_to_be_released_list;
+    struct security_context security_context;
+};
+#define S1AP_PATH_SWITCH_REQ_ACK_BUF_SIZE sizeof(struct path_switch_req_ack_Q_msg)
+
+struct path_switch_req_fail_Q_msg {
+    msg_type_t msg_type;
+    uint32_t mme_ue_s1ap_id;
+    uint32_t enb_s1ap_ue_id;
+    uint32_t enb_context_id;
+    s1apCause_t cause;
+};
+#define S1AP_PATH_SWITCH_REQ_FAIL_BUF_SIZE sizeof(struct path_switch_req_fail_Q_msg)
+
 struct initial_ue_msg {
     s1_incoming_msg_header_t header;
     rawNas_Q_msg_t  nasMsg;
@@ -628,6 +661,7 @@ struct MB_Q_msg {
 	bool userLocationInformationIePresent;
 	bool servingNetworkIePresent;
 	bearer_ctx_list_t bearer_ctx_list;
+	bearer_ctxt_to_be_removed_list_t bearers_to_be_removed_list;
 };
 #define S11_MBREQ_STAGE7_BUF_SIZE sizeof(struct MB_Q_msg)
 
@@ -725,6 +759,7 @@ struct MB_resp_Q_msg {
     int s11_mme_cp_teid;
     uint8_t cause;
     bearer_ctxt_mb_resp_list_t bearer_ctxt_mb_resp_list;
+    failed_bearer_ctxt_list_t bearer_ctxt_removed_list;
 };
 
 struct DS_resp_Q_msg {

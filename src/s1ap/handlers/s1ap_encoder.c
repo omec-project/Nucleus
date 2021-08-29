@@ -1976,3 +1976,272 @@ int s1ap_mme_encode_erab_release_command(
     return enc_ret;
 }
 
+int s1ap_mme_encode_path_switch_req_ack(
+  struct path_switch_req_ack_Q_msg *s1apPDU,
+  uint8_t **buffer,
+  uint32_t *length)
+{
+    S1AP_PDU_t pdu = { (S1AP_PDU_PR_NOTHING) };
+    SuccessfulOutcome_t *successfulOutcome_msg = NULL;
+    S1AP_PDU_t *pdu_p = &pdu;
+    int enc_ret = -1;
+    memset((void*) pdu_p, 0, sizeof(S1AP_PDU_t));
+
+    pdu.present = S1AP_PDU_PR_successfulOutcome;
+    pdu.choice.successfulOutcome = calloc(sizeof(SuccessfulOutcome_t), sizeof(uint8_t));
+
+    successfulOutcome_msg = pdu.choice.successfulOutcome;
+    successfulOutcome_msg->procedureCode = ProcedureCode_id_PathSwitchRequest;
+    successfulOutcome_msg->criticality = 0;
+    successfulOutcome_msg->value.present = SuccessfulOutcome__value_PR_PathSwitchRequestAcknowledge;
+
+    PathSwitchRequestAcknowledgeIEs_t val[5];
+    memset(val, 0, 5 * (sizeof(PathSwitchRequestAcknowledgeIEs_t)));
+
+    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0].criticality = 0;
+    val[0].value.present = PathSwitchRequestAcknowledgeIEs__value_PR_MME_UE_S1AP_ID;
+    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_ue_s1ap_id;
+
+    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1].criticality = 0;
+    val[1].value.present = PathSwitchRequestAcknowledgeIEs__value_PR_ENB_UE_S1AP_ID;
+    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+
+    val[2].id = ProtocolIE_ID_id_SecurityContext;
+    val[2].criticality = 0;
+    val[2].value.present = PathSwitchRequestAcknowledgeIEs__value_PR_SecurityContext;
+
+    val[2].value.choice.SecurityContext.nextHopChainingCount = s1apPDU->security_context.next_hop_chaining_count;
+    val[2].value.choice.SecurityContext.nextHopParameter.size =
+            SECURITY_KEY_SIZE;
+    val[2].value.choice.SecurityContext.nextHopParameter.buf = calloc(
+            SECURITY_KEY_SIZE, sizeof(uint8_t));
+    memcpy(val[2].value.choice.SecurityContext.nextHopParameter.buf,
+            s1apPDU->security_context.next_hop_nh, SECURITY_KEY_SIZE);
+
+    val[3].id = ProtocolIE_ID_id_E_RABToBeReleasedList;
+    val[3].criticality = 0;
+    val[3].value.present =
+            PathSwitchRequestAcknowledgeIEs__value_PR_E_RABList;
+
+    E_RABItemIEs_t *erab_item_list =
+            (E_RABItemIEs_t *)calloc(s1apPDU->erab_to_be_released_list.count,
+                    sizeof(E_RABItemIEs_t));
+
+    for (int i = 0; i < s1apPDU->erab_to_be_released_list.count; i++)
+    {
+        E_RABItemIEs_t *erab_to_be_released_item =
+                &(erab_item_list[i]);
+
+        E_RABItem_t *erab_to_be_released =
+                &(erab_to_be_released_item->value.choice.E_RABItem);
+
+        erab_to_be_released_item->id =
+                ProtocolIE_ID_id_E_RABItem;
+        erab_to_be_released_item->criticality = 0;
+        erab_to_be_released_item->value.present =
+                E_RABItemIEs__value_PR_E_RABItem;
+
+        erab_to_be_released->e_RAB_ID =
+                s1apPDU->erab_to_be_released_list.erab_item[i].e_RAB_ID;
+        erab_to_be_released->cause.present =
+                s1apPDU->erab_to_be_released_list.erab_item[i].cause.present;
+
+        switch (erab_to_be_released->cause.present)
+        {
+            case s1apCause_PR_radioNetwork:
+                erab_to_be_released->cause.choice.radioNetwork =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.radioNetwork;
+                break;
+            case s1apCause_PR_misc:
+                erab_to_be_released->cause.choice.misc =
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.choice.misc;
+                break;
+            default:
+                log_msg(LOG_WARNING, "Unknown Cause type:%d",
+                        s1apPDU->erab_to_be_released_list.erab_item[i].cause.present);
+        }
+
+        ASN_SEQUENCE_ADD(
+                &val[3].value.choice.E_RABList.list,
+                erab_to_be_released_item);
+    }
+
+    val[4].id = ProtocolIE_ID_id_E_RABToBeSwitchedULList;
+    val[4].criticality = 0;
+    val[4].value.present =
+            PathSwitchRequestAcknowledgeIEs__value_PR_E_RABToBeSwitchedULList;
+
+    E_RABToBeSwitchedULItemIEs_t *erab_to_be_switched_ul_item_list =
+            (E_RABToBeSwitchedULItemIEs_t *)calloc(s1apPDU->erab_to_be_switched_ul_list.count,
+                    sizeof(E_RABToBeSwitchedULItemIEs_t));
+
+    for (int i = 0; i < s1apPDU->erab_to_be_switched_ul_list.count; i++)
+    {
+        E_RABToBeSwitchedULItemIEs_t *erab_to_be_switched_ul_item =
+                &(erab_to_be_switched_ul_item_list[i]);
+
+        E_RABToBeSwitchedULItem_t *erab_to_be_switched =
+                &(erab_to_be_switched_ul_item->value.choice.E_RABToBeSwitchedULItem);
+
+        erab_to_be_switched_ul_item->id =
+                ProtocolIE_ID_id_E_RABToBeSwitchedULItem;
+        erab_to_be_switched_ul_item->criticality = 0;
+        erab_to_be_switched_ul_item->value.present =
+                E_RABToBeSwitchedULItemIEs__value_PR_E_RABToBeSwitchedULItem;
+
+        erab_to_be_switched->e_RAB_ID =
+                s1apPDU->erab_to_be_switched_ul_list.erab_item[i].e_RAB_ID;
+
+        uint32_t transport_layer_address = htonl(
+                s1apPDU->erab_to_be_switched_ul_list.erab_item[i].transportLayerAddress);
+        erab_to_be_switched->transportLayerAddress.size = 4;
+        erab_to_be_switched->transportLayerAddress.buf = calloc(4,
+                sizeof(uint8_t));
+        memcpy(erab_to_be_switched->transportLayerAddress.buf,
+                &transport_layer_address, sizeof(uint32_t));
+
+        uint32_t gtp_teid = htonl(
+                s1apPDU->erab_to_be_switched_ul_list.erab_item[i].gtp_teid);
+        erab_to_be_switched->gTP_TEID.size = 4;
+        erab_to_be_switched->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
+        memcpy(erab_to_be_switched->gTP_TEID.buf, &gtp_teid, sizeof(uint32_t));
+
+        ASN_SEQUENCE_ADD(
+                &val[4].value.choice.E_RABToBeSwitchedULList.list,
+                erab_to_be_switched_ul_item);
+    }
+
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.PathSwitchRequestAcknowledge.protocolIEs.list,
+            &val[0]);
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.PathSwitchRequestAcknowledge.protocolIEs.list,
+            &val[1]);
+    ASN_SEQUENCE_ADD(
+            &successfulOutcome_msg->value.choice.PathSwitchRequestAcknowledge.protocolIEs.list,
+            &val[2]);
+
+    if(s1apPDU->erab_to_be_released_list.count)
+    {
+        ASN_SEQUENCE_ADD(
+                &successfulOutcome_msg->value.choice.PathSwitchRequestAcknowledge.protocolIEs.list,
+                &val[3]);
+    }
+
+    if(s1apPDU->erab_to_be_switched_ul_list.count)
+    {
+        ASN_SEQUENCE_ADD(
+                &successfulOutcome_msg->value.choice.PathSwitchRequestAcknowledge.protocolIEs.list,
+                &val[4]);
+    }
+
+    bool enc_error = false;
+    if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
+            (void**) buffer)) < 0) {
+        log_msg(LOG_ERROR, "Encoding of Path Switch Request Ack failed");
+        enc_error = true;
+    }
+
+    for (int i = 0; i < s1apPDU->erab_to_be_switched_ul_list.count; i++)
+    {
+        E_RABToBeSwitchedULItemIEs_t *erab_to_be_switched_item =
+                &(erab_to_be_switched_ul_item_list[i]);
+
+        E_RABToBeSwitchedULItem_t *erab_to_be_switched =
+                &(erab_to_be_switched_item->value.choice.E_RABToBeSwitchedULItem);
+
+        free(erab_to_be_switched->transportLayerAddress.buf);
+        free(erab_to_be_switched->gTP_TEID.buf);
+    }
+
+    free(erab_to_be_switched_ul_item_list);
+    free(erab_item_list);
+
+    free(pdu.choice.successfulOutcome);
+
+    if(enc_error) {
+        return -1;
+    }
+    *length = enc_ret;
+    return enc_ret;
+}
+
+int s1ap_mme_path_switch_req_failure(
+  struct path_switch_req_fail_Q_msg *s1apPDU,
+  uint8_t **buffer,
+  uint32_t *length)
+{
+    S1AP_PDU_t pdu = { (S1AP_PDU_PR_NOTHING) };
+    UnsuccessfulOutcome_t *UnsuccessfulOutcome_msg = NULL;
+    S1AP_PDU_t *pdu_p = &pdu;
+    int enc_ret = -1;
+    memset((void*) pdu_p, 0, sizeof(S1AP_PDU_t));
+
+    pdu.present = S1AP_PDU_PR_unsuccessfulOutcome;
+    pdu.choice.unsuccessfulOutcome = calloc(sizeof(UnsuccessfulOutcome_t), sizeof(uint8_t));
+
+    UnsuccessfulOutcome_msg = pdu.choice.unsuccessfulOutcome;
+    UnsuccessfulOutcome_msg->procedureCode = ProcedureCode_id_PathSwitchRequest;
+    UnsuccessfulOutcome_msg->criticality = 0;
+    UnsuccessfulOutcome_msg->value.present = UnsuccessfulOutcome__value_PR_PathSwitchRequestFailure;
+
+    PathSwitchRequestFailureIEs_t val[3];
+    memset(val, 0, 3 * (sizeof(PathSwitchRequestFailureIEs_t)));
+
+    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0].criticality = 0;
+    val[0].value.present = PathSwitchRequestFailureIEs__value_PR_MME_UE_S1AP_ID;
+    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_ue_s1ap_id;
+
+    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1].criticality = 0;
+    val[1].value.present = PathSwitchRequestFailureIEs__value_PR_ENB_UE_S1AP_ID;
+    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+
+    val[2].id = ProtocolIE_ID_id_Cause;
+    val[2].criticality = 0;
+    val[2].value.present = PathSwitchRequestFailureIEs__value_PR_Cause;
+    val[2].value.choice.Cause.present = s1apPDU->cause.present;
+
+    switch (s1apPDU->cause.present)
+    {
+        case s1apCause_PR_radioNetwork:
+            val[2].value.choice.Cause.choice.radioNetwork =
+                    s1apPDU->cause.choice.radioNetwork;
+            break;
+        case s1apCause_PR_misc:
+            val[2].value.choice.Cause.choice.misc =
+                    s1apPDU->cause.choice.misc;
+            break;
+        default:
+            log_msg(LOG_WARNING, "Unknown Cause type:%d",
+                    s1apPDU->cause.present);
+    }
+
+    ASN_SEQUENCE_ADD(
+            &UnsuccessfulOutcome_msg->value.choice.PathSwitchRequestFailure.protocolIEs.list,
+            &val[0]);
+    ASN_SEQUENCE_ADD(
+            &UnsuccessfulOutcome_msg->value.choice.PathSwitchRequestFailure.protocolIEs.list,
+            &val[1]);
+    ASN_SEQUENCE_ADD(
+            &UnsuccessfulOutcome_msg->value.choice.PathSwitchRequestFailure.protocolIEs.list,
+            &val[2]);
+
+    bool enc_error = false;
+    if ((enc_ret = aper_encode_to_new_buffer(&asn_DEF_S1AP_PDU, 0, &pdu,
+            (void**) buffer)) < 0) {
+        log_msg(LOG_ERROR, "Encoding of Path Switch Request Failure failed");
+        enc_error = true;
+    }
+
+    free(pdu.choice.unsuccessfulOutcome);
+
+    if(enc_error) {
+        return -1;
+    }
+    *length = enc_ret;
+    return enc_ret;
+}

@@ -89,6 +89,16 @@ namespace mme
         static SM::ActStatus abort_service_req_procedure(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : abort_x2_ho_mm
+        ***********************************************/
+        static SM::ActStatus abort_x2_ho_mm(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : abort_x2_ho_sm
+        ***********************************************/
+        static SM::ActStatus abort_x2_ho_sm(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : attach_done
         ***********************************************/
         static SM::ActStatus attach_done(SM::ControlBlock& cb);                
@@ -172,6 +182,11 @@ namespace mme
         * Action handler : default_erab_mod_indication_handler
         ***********************************************/
         static SM::ActStatus default_erab_mod_indication_handler(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : default_path_switch_req_handler
+        ***********************************************/
+        static SM::ActStatus default_path_switch_req_handler(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : default_s1_ho_handler
@@ -269,6 +284,11 @@ namespace mme
         static SM::ActStatus handle_state_guard_timeouts_for_erab_mod_ind(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : handle_x2_ho_sm_cmp_ind
+        ***********************************************/
+        static SM::ActStatus handle_x2_ho_sm_cmp_ind(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : ho_complete
         ***********************************************/
         static SM::ActStatus ho_complete(SM::ControlBlock& cb);                
@@ -287,6 +307,11 @@ namespace mme
         * Action handler : init_ue_detach_procedure
         ***********************************************/
         static SM::ActStatus init_ue_detach_procedure(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : init_x2_ho
+        ***********************************************/
+        static SM::ActStatus init_x2_ho(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : is_tau_required
@@ -397,6 +422,11 @@ namespace mme
         * Action handler : process_mb_resp_for_ho
         ***********************************************/
         static SM::ActStatus process_mb_resp_for_ho(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : process_mb_resp_for_x2_ho
+        ***********************************************/
+        static SM::ActStatus process_mb_resp_for_x2_ho(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : process_mb_resp_svc_req
@@ -554,6 +584,11 @@ namespace mme
         static SM::ActStatus send_mb_req_to_sgw_for_ho(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_mb_req_to_sgw_for_x2_ho
+        ***********************************************/
+        static SM::ActStatus send_mb_req_to_sgw_for_x2_ho(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_mb_req_to_sgw_svc_req
         ***********************************************/
         static SM::ActStatus send_mb_req_to_sgw_svc_req(SM::ControlBlock& cb);                
@@ -567,6 +602,16 @@ namespace mme
         * Action handler : send_paging_req_to_ue
         ***********************************************/
         static SM::ActStatus send_paging_req_to_ue(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_path_switch_ack_to_enb
+        ***********************************************/
+        static SM::ActStatus send_path_switch_ack_to_enb(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : send_path_switch_fail_to_enb
+        ***********************************************/
+        static SM::ActStatus send_path_switch_fail_to_enb(SM::ControlBlock& cb);                
 
         /**********************************************
         * Action handler : send_rel_ab_req_to_sgw
@@ -599,6 +644,11 @@ namespace mme
         static SM::ActStatus send_service_reject(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : send_sm_ho_complete
+        ***********************************************/
+        static SM::ActStatus send_sm_ho_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : send_tau_response_to_ue
         ***********************************************/
         static SM::ActStatus send_tau_response_to_ue(SM::ControlBlock& cb);                
@@ -622,6 +672,16 @@ namespace mme
         * Action handler : validate_imsi_in_ue_context
         ***********************************************/
         static SM::ActStatus validate_imsi_in_ue_context(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : x2_ho_mm_complete
+        ***********************************************/
+        static SM::ActStatus x2_ho_mm_complete(SM::ControlBlock& cb);                
+
+        /**********************************************
+        * Action handler : x2_ho_sm_complete
+        ***********************************************/
+        static SM::ActStatus x2_ho_sm_complete(SM::ControlBlock& cb);                
     };//ActionHandlers
 };//mme
 

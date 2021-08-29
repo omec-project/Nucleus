@@ -385,4 +385,39 @@ private:
 
 using NasPduParseFailureIndEMsgShPtr = std::shared_ptr<NasPduParseFailureIndEMsg>;
 
+class PdnHoStatus
+{
+    public:
+        PdnHoStatus();
+        PdnHoStatus(uint8_t bearerId, uint8_t hoStatus):
+            def_bearer_id(bearerId), ho_status(hoStatus),
+            failed_br_count(0)
+        {
+
+        }
+        ~PdnHoStatus();
+	bool operator == ( const PdnHoStatus& pdn_ho_status_i )const;
+
+        uint8_t def_bearer_id;
+        uint8_t ho_status;
+        uint8_t failed_br_count;
+        erab_list_item failed_br_list[4]; // tentative, change to 15 if supporting max bearers
+};
+
+class PdnHoStatusEMsg : public cmn::EventMessage
+{
+public:
+
+    PdnHoStatusEMsg(uint8_t lbi, uint8_t status):
+        EventMessage(PDN_HO_STATUS_EMSG), pdnHoStatus(lbi, status)
+    {
+    }
+
+    ~PdnHoStatusEMsg(){}
+
+    PdnHoStatus pdnHoStatus;
+};
+
+using PdnHoStatusEMsgShPtr = std::shared_ptr<PdnHoStatusEMsg>;
+
 #endif
