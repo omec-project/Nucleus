@@ -398,6 +398,19 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "s1ap_path_switch_request",
+            "help" : "number of s1ap Path switch request received by MME",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "path_switch_request"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s6a_authentication_information_answer",
             "help" : "number of authentication answer received from HSS",
@@ -894,6 +907,32 @@
                 {"enb_addr" : "enb address of s1ap connection "}
             ]
         },
+        {
+            "name" : "s1ap_path_switch_req_ack",
+            "help" : "number of path switch request ack sent to eNB",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "path_switch_request_ack"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "s1ap_path_switch_req_fail",
+            "help" : "number of path switch request failure sent to eNB",
+            "label_0": [
+                { "interface":"s1ap"}
+            ],
+            "label_1": [
+                {"msg_type": "path_switch_request_fail"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
         { 
             "name" : "s11_create_session_request",
             "help" : "number of CSReq sent by MME",
@@ -1225,6 +1264,33 @@
             "help" : "s1 enb handover procedure results",
             "label_0": [
                 { "procedure":"S1_ENB_HANDOVER_PROC"}
+            ],
+            "label_1": [
+                {"proc_result": "success"},
+                {"proc_result": "failure"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ],
+            "dynamic_label_1": [
+                {"failure_reason" : "Put failure reason here.String without space  "}
+            ]
+        },
+        {
+            "name" : "x2_enb_handover_proc",
+            "help" : "number of x2 enb handover procedure started by MME",
+            "label_0": [
+                { "procedure":"X2_ENB_HANDOVER_PROC"}
+            ],
+            "dynamic_label_0": [
+                {"enb_addr" : "enb address of s1ap connection "}
+            ]
+        },
+        {
+            "name" : "x2_enb_handover_proc_result",
+            "help" : "x2 enb handover procedure results",
+            "label_0": [
+                { "procedure":"X2_ENB_HANDOVER_PROC"}
             ],
             "label_1": [
                 {"proc_result": "success"},

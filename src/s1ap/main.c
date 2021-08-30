@@ -65,6 +65,11 @@ extern char processName[255];
 extern void
 handle_mmeapp_message(void * data);
 
+int s1ap_rest_port = 8081;
+void init_rest_server(void);
+void* rest_handler(void *data);
+void* rest_handler_poll(void *data);
+
 #define MAX_ENB     32
 #define BUFFER_LEN  4096
 #define AES_128_KEY_SIZE 16
@@ -497,6 +502,8 @@ main(int argc, char **argv)
 
 	register_config_updates();
 
+    init_rest_server();
+
 	while (1) {
 		sleep(10);
 	}
@@ -504,9 +511,56 @@ main(int argc, char **argv)
 	return SUCCESS;
 }
 
+void *
+rest_handler(void *data)
+{
+    uint32_t *port = (uint32_t *)data;
+    runRestServer(*port);
+    return NULL;
+}
+
+void *
+rest_handler_poll(void *data)
+{
+    int configVersion=0;
+    int new_configVersion=0;
+
+    char *plmns[1000];
+    while(1) {
+        // Get configtimestamp
+        new_configVersion = getConfigVersion();
+        if (new_configVersion == configVersion) {
+            sleep(3);
+            continue;
+        }
+        configVersion = new_configVersion;
+        // if its later config then get Plmn list from rest module 
+        int num;
+        num = getConfigPlmns(plmns);
+        // parse it.. and update s1ap_config 
+        update_mcc_mnc(s1ap_inst->s1ap_config, plmns, num);
+    }
+    return NULL;
+}
+
+void init_rest_server(void)
+{
+    pthread_attr_t attr;
+    pthread_t thread_id;
+    pthread_attr_init(&attr);
+    pthread_create(&thread_id, &attr, &rest_handler, &s1ap_rest_port);
+    pthread_attr_destroy(&attr);
+
+    pthread_attr_t attr1;
+    pthread_t thread_id1;
+    pthread_attr_init(&attr1);
+    pthread_create(&thread_id1, &attr1, &rest_handler_poll, NULL);
+    return;
+}
+
 void s1ap_parse_config(s1ap_config_t *config)
 {
-	/*Read MME configurations*/
+	/*Read configurations*/
 	init_parser("conf/s1ap.json");
 	parse_s1ap_conf(config);
 }

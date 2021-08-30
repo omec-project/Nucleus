@@ -38,6 +38,8 @@ namespace mme
         dedBrActivation_c,
         dbReq_c,
         dedBrDeActivation_c,
+        x2HandoverMm_c,
+        x2HandoverSm_c,
 
     	maxProcedureType_c
  };
@@ -90,7 +92,16 @@ namespace mme
  enum HoType
  {
  	invalid_c,
- 	intraMmeS1Ho_c
+ 	intraMmeS1Ho_c,
+ 	x2HoWoSgwReloc_c
+ };
+
+ enum HoStatus
+ {
+     invalidStatus_c,
+     inProgress_c,
+     success_c,
+     failure_c
  };
 
  struct BearerStatusCompareById

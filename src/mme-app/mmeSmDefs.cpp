@@ -76,6 +76,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(NAS_PDU_PARSE_FAILURE,"NAS_PDU_PARSE_FAILURE");      
     smUtil->addEventToStrEntry(PAGING_COMPLETE,"PAGING_COMPLETE");      
     smUtil->addEventToStrEntry(PAGING_FAILURE,"PAGING_FAILURE");      
+    smUtil->addEventToStrEntry(PATH_SWITCH_REQ_FROM_ENB,"PATH_SWITCH_REQ_FROM_ENB");      
     smUtil->addEventToStrEntry(PGW_INIT_DETACH,"PGW_INIT_DETACH");      
     smUtil->addEventToStrEntry(PURGE_RESP_FROM_HSS,"PURGE_RESP_FROM_HSS");      
     smUtil->addEventToStrEntry(REL_AB_RESP_FROM_SGW,"REL_AB_RESP_FROM_SGW");      
@@ -84,6 +85,8 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(SERVICE_REQUEST_FROM_UE,"SERVICE_REQUEST_FROM_UE");      
     smUtil->addEventToStrEntry(START_DED_DEACTIVATION,"START_DED_DEACTIVATION");      
     smUtil->addEventToStrEntry(START_UE_DETACH,"START_UE_DETACH");      
+    smUtil->addEventToStrEntry(START_X2_HO,"START_X2_HO");      
+    smUtil->addEventToStrEntry(START_X2_HO_SM,"START_X2_HO_SM");      
     smUtil->addEventToStrEntry(STATE_GUARD_TIMEOUT,"STATE_GUARD_TIMEOUT");      
     smUtil->addEventToStrEntry(TAU_NOT_REQUIRED,"TAU_NOT_REQUIRED");      
     smUtil->addEventToStrEntry(TAU_REQUEST_FROM_UE,"TAU_REQUEST_FROM_UE");      
@@ -91,4 +94,7 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(UE_CTXT_REL_COMP_FROM_ENB,"UE_CTXT_REL_COMP_FROM_ENB");      
     smUtil->addEventToStrEntry(ULA_FROM_HSS,"ULA_FROM_HSS");      
     smUtil->addEventToStrEntry(VALIDATE_IMSI,"VALIDATE_IMSI");      
+    smUtil->addEventToStrEntry(X2_HO_COMPLETE,"X2_HO_COMPLETE");      
+    smUtil->addEventToStrEntry(X2_HO_SM_COMPLETE,"X2_HO_SM_COMPLETE");      
+    smUtil->addEventToStrEntry(X2_HO_SM_FAILURE,"X2_HO_SM_FAILURE");      
 }

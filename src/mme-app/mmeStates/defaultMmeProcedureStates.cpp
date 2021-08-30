@@ -126,6 +126,11 @@ void DefaultMmeState::initialize()
         }
         {
                 ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::default_path_switch_req_handler);
+                eventToActionsMap[PATH_SWITCH_REQ_FROM_ENB] = actionTable;
+        }
+        {
+                ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::default_delete_subs_req_handler);
                 eventToActionsMap[DSR_FROM_HSS] = actionTable;
         }

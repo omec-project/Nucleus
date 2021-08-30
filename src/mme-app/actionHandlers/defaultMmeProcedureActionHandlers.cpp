@@ -29,6 +29,8 @@
 #include <mmeStates/serviceRequestStates.h>
 #include <mmeStates/tauStates.h>
 #include <mmeStates/s1HandoverStates.h>
+#include <mmeStates/x2HandoverMmStates.h>
+#include <mmeStates/x2HandoverSmStates.h>
 #include <msgBuffer.h>
 #include <msgType.h>
 #include <log.h>
@@ -143,7 +145,8 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	ueCtxt_p->setUeAddSecCapabPres(ue_info->ue_add_sec_cap_present);
     	ueCtxt_p->setUeAddSecCapab(ue_info->ue_add_sec_capab);
 	prcdCtxt_p->setPti(ue_info->pti);
-	prcdCtxt_p->setPcoOptions(ue_info->pco_options, ue_info->pco_length);
+	prcdCtxt_p->setPcoOptionsLen(ue_info->pco_length);
+	prcdCtxt_p->setPcoOptions(ue_info->pco_options);
 	prcdCtxt_p->setEsmInfoTxRequired(ue_info->esm_info_tx_required);
 	prcdCtxt_p->setAttachType(attachType);
 
@@ -189,7 +192,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		}
 		default:
 		{
-			log_msg(LOG_ERROR, "Unhandled attach type %s", attachType);
+			log_msg(LOG_ERROR, "Unhandled attach type %u", attachType);
 
 			MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
 			status = ActStatus::HALT;
@@ -682,9 +685,10 @@ ActStatus ActionHandlers::default_erab_mod_indication_handler(ControlBlock& cb)
             MmeContextManagerUtils::allocateErabModIndProcedureCtxt(cb);
     if (erabModIndProc_p != NULL)
     {
+	erabModIndProc_p->setErabToBeModifiedListLen(
+		erabModInd->erab_to_be_mod_list.count);
         erabModIndProc_p->setErabToBeModifiedList(
-                erabModInd->erab_to_be_mod_list.erab_to_be_mod_item,
-                erabModInd->erab_to_be_mod_list.count);
+                erabModInd->erab_to_be_mod_list.erab_to_be_mod_item);
 
         SM::Event evt(eRAB_MOD_IND_START, NULL);
         cb.qInternalEvent(evt);
@@ -830,9 +834,8 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
     if (procCtxt_p != NULL)
     {
-        procCtxt_p->setMmeErrorCause(PAGING_FAILED);
-
-        rc = ActStatus::ABORT;
+	procCtxt_p->setMmeErrorCause(PAGING_FAILED);
+	rc = ActStatus::ABORT;
     }
 
     log_msg(LOG_DEBUG, "handle_paging_failure: Exit ");
@@ -1089,6 +1092,91 @@ ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
 
     log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Exit \n");
     return ActStatus::PROCEED;
+}
+
+/***************************************
+* Action handler : default_path_switch_req_handler
+***************************************/
+ActStatus ActionHandlers::default_path_switch_req_handler(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "default_path_switch_req_handler: Entry ");
+
+    ActStatus rc = ActStatus::PROCEED;
+    s1apCause_t s1apCause = {};
+
+
+    MsgBuffer* msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
+    // Invalid buffer. Nothing to do, wait for enb to retry.
+    VERIFY(msgBuf, return rc,
+            "Invalid path switch request msg buffer");
+
+    const pathSwitchRequest_Msg_t *pathSwReq =
+            static_cast<const pathSwitchRequest_Msg_t*>(msgBuf->getDataPointer());
+    VERIFY(pathSwReq, return rc,
+            "Invalid path switch request data");
+
+    uint32_t mme_ue_s1ap_id = pathSwReq->header.ue_idx;
+    uint32_t enb_s1ap_ue_id = pathSwReq->header.s1ap_enb_ue_id;
+    uint32_t enb_ctxt_id = pathSwReq->enb_context_id;
+
+    UEContext *ueCtxt = static_cast<UEContext*>(cb.getPermDataBlock());
+    if (ueCtxt != NULL)
+    {
+        X2HOMmProcedureContext* x2HoMmProc_p = MmeContextManagerUtils::allocateX2HoMmContext(cb);
+        if (x2HoMmProc_p != NULL)
+        {
+            x2HoMmProc_p->setPathSwitchReqEMsg(cb.getEventMessage());
+            x2HoMmProc_p->setTargetTai(pathSwReq->tai);
+            x2HoMmProc_p->setTargetCgi(pathSwReq->cgi);
+
+            ueCtxt->setEnbFd(enb_ctxt_id);
+            ueCtxt->setS1apEnbUeId(enb_s1ap_ue_id);
+
+            SM::Event evt(START_X2_HO, NULL);
+            cb.qInternalEvent(evt);
+
+        }
+        else
+        {
+            log_msg(LOG_ERROR, "Failed to allocate procedure context"
+                                " for X2 HO MM with cbIndex %d", cb.getCBIndex());
+            s1apCause.present = s1apCause_PR_misc;
+            s1apCause.choice.radioNetwork = s1apCauseMisc_unspecified;
+        }
+    }
+    else
+    {
+        log_msg(LOG_ERROR, "UE context is NULL for the cb Index %d", cb.getCBIndex());
+        s1apCause.present = s1apCause_PR_radioNetwork;
+        s1apCause.choice.radioNetwork = s1apCauseRadioNetwork_unknown_mme_ue_s1ap_id;
+        MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
+    }
+
+    if (s1apCause.present)
+    {
+        struct path_switch_req_fail_Q_msg pathFail;
+        memset(&pathFail, 0, sizeof(pathFail));
+        pathFail.msg_type = path_switch_request_fail;
+        pathFail.mme_ue_s1ap_id = mme_ue_s1ap_id;
+        pathFail.enb_s1ap_ue_id = enb_s1ap_ue_id;
+        pathFail.enb_context_id = enb_ctxt_id;
+        pathFail.cause = s1apCause;
+
+        cmn::ipc::IpcAddress destAddr;
+        destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;
+
+        mmeStats::Instance()->increment(
+                mmeStatsCounter::MME_MSG_TX_S1AP_PATH_SWITCH_REQUEST_FAIL);
+        MmeIpcInterface &mmeIpcIf =
+                static_cast<MmeIpcInterface&>(compDb.getComponent(
+                        MmeIpcInterfaceCompId));
+        mmeIpcIf.dispatchIpcMsg((char *) &pathFail, sizeof(pathFail), destAddr);
+    }
+
+
+    log_msg(LOG_DEBUG, "default_path_switch_req_handler: Exit ");
+
+    return rc;
 }
 
 /***************************************

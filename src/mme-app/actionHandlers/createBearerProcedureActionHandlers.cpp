@@ -96,9 +96,10 @@ ActStatus ActionHandlers::init_ded_bearer_activation(ControlBlock &cb)
 
             bearerCtxt_p->setBearerQos(
                     cb_req->bearer_ctx_list.bearer_ctxt[i].bearer_qos);
+            bearerCtxt_p->setBearerTftLen(
+		    cb_req->bearer_ctx_list.bearer_ctxt[i].tft.len);
             bearerCtxt_p->setBearerTft(
-                    cb_req->bearer_ctx_list.bearer_ctxt[i].tft.data,
-                    cb_req->bearer_ctx_list.bearer_ctxt[i].tft.len);
+                    cb_req->bearer_ctx_list.bearer_ctxt[i].tft.data);
             bearerCtxt_p->setS1uSgwUserFteid(
                     Fteid(cb_req->bearer_ctx_list.bearer_ctxt[i].s1u_sgw_teid));
 

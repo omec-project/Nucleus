@@ -19,6 +19,7 @@ namespace SM
 namespace mme
 {
 	class S1HandoverProcedureContext;
+	class X2HOMmProcedureContext;
 	class MmeSmCreateBearerProcCtxt;
 	class MmeSmDeleteBearerProcCtxt;
 	class UEContext;
@@ -35,6 +36,8 @@ namespace mme
 				MmeSmCreateBearerProcCtxt& procCtxt, struct erabsu_ctx_req_Q_msg& erab_su_req);
 		static bool populateErabRelAndDeActDedBrReq(SM::ControlBlock &cb, UEContext &ueCtxt,
 				BearerContext &bearerCtxt, struct erab_release_command_Q_msg &erab_rel_cmd);
+        static bool populatePathSwitchReqAck(SM::ControlBlock& cb, UEContext& ueCtxt,
+                X2HOMmProcedureContext& procCtxt, struct path_switch_req_ack_Q_msg& path_sw_ack);
 
 	private:
 		MmeS1MsgUtils();

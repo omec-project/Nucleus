@@ -8,9 +8,9 @@ ARG BASE_OS=ubuntu:16.04
 
 FROM $BASE_OS AS builder
 WORKDIR /openmme
+COPY patches ./tmp/patches
 COPY install_builddeps.sh .
 RUN ./install_builddeps.sh
-#COPY . ./
 COPY Makefile Makefile.common ./
 COPY include/cmn ./include/cmn
 COPY include/common ./include/common

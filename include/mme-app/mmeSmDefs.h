@@ -85,8 +85,15 @@ const uint16_t service_request_wf_init_ctxt_resp = 61;
 const uint16_t service_request_wf_mb_resp = 62;     
 const uint16_t service_request_wf_sec_cmp = 63;     
 const uint16_t tau_start = 64;     
-const uint16_t ue_init_detach_state = 65;
-const uint16_t END_STATE = 66;
+const uint16_t ue_init_detach_state = 65;     
+const uint16_t x2_ho_mm_start = 66;     
+const uint16_t x2_ho_mm_wf_sm_complete = 67;     
+const uint16_t x2_ho_mm_wf_tau_check = 68;     
+const uint16_t x2_ho_mm_wf_tau_req = 69;     
+const uint16_t x2_ho_sm_start = 70;     
+const uint16_t x2_ho_sm_wf_ho_complete = 71;     
+const uint16_t x2_ho_sm_wf_mb_resp = 72;
+const uint16_t END_STATE = 73;
 
 /******************************************
 * MME-APP Specific Events - ID
@@ -144,21 +151,27 @@ const uint16_t MME_INIT_DETACH = 149;
 const uint16_t NAS_PDU_PARSE_FAILURE = 150; 
 const uint16_t PAGING_COMPLETE = 151; 
 const uint16_t PAGING_FAILURE = 152; 
-const uint16_t PGW_INIT_DETACH = 153; 
-const uint16_t PURGE_RESP_FROM_HSS = 154; 
-const uint16_t REL_AB_RESP_FROM_SGW = 155; 
-const uint16_t S1_REL_REQ_FROM_UE = 156; 
-const uint16_t SEC_MODE_RESP_FROM_UE = 157; 
-const uint16_t SERVICE_REQUEST_FROM_UE = 158; 
-const uint16_t START_DED_DEACTIVATION = 159; 
-const uint16_t START_UE_DETACH = 160; 
-const uint16_t TAU_NOT_REQUIRED = 161; 
-const uint16_t TAU_REQUEST_FROM_UE = 162; 
-const uint16_t TAU_REQUIRED = 163; 
-const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 164; 
-const uint16_t ULA_FROM_HSS = 165; 
-const uint16_t VALIDATE_IMSI = 166; 
-const uint16_t END_EVENT = 167;    
+const uint16_t PATH_SWITCH_REQ_FROM_ENB = 153; 
+const uint16_t PGW_INIT_DETACH = 154; 
+const uint16_t PURGE_RESP_FROM_HSS = 155; 
+const uint16_t REL_AB_RESP_FROM_SGW = 156; 
+const uint16_t S1_REL_REQ_FROM_UE = 157; 
+const uint16_t SEC_MODE_RESP_FROM_UE = 158; 
+const uint16_t SERVICE_REQUEST_FROM_UE = 159; 
+const uint16_t START_DED_DEACTIVATION = 160; 
+const uint16_t START_UE_DETACH = 161; 
+const uint16_t START_X2_HO = 162; 
+const uint16_t START_X2_HO_SM = 163; 
+const uint16_t TAU_NOT_REQUIRED = 164; 
+const uint16_t TAU_REQUEST_FROM_UE = 165; 
+const uint16_t TAU_REQUIRED = 166; 
+const uint16_t UE_CTXT_REL_COMP_FROM_ENB = 167; 
+const uint16_t ULA_FROM_HSS = 168; 
+const uint16_t VALIDATE_IMSI = 169; 
+const uint16_t X2_HO_COMPLETE = 170; 
+const uint16_t X2_HO_SM_COMPLETE = 171; 
+const uint16_t X2_HO_SM_FAILURE = 172; 
+const uint16_t END_EVENT = 173;    
 
 /******************************************
 * Maps Event Name to Event ID

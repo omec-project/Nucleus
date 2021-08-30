@@ -88,6 +88,17 @@ s11_MB_resp_handler(MsgBuffer* message, GtpV2MessageHeader* hdr, uint32_t sgw_ip
 
 		}
 	}
+
+	mbr_info.bearer_ctxt_removed_list.bearers_count = msgData.bearerContextsMarkedForRemovalCount;
+
+	for(int i =0; i < msgData.bearerContextsMarkedForRemovalCount; i++)
+	{
+	    mbr_info.bearer_ctxt_removed_list.bearer_ctxt[i].eps_bearer_id =
+	            msgData.bearerContextsMarkedForRemoval[i].epsBearerId.epsBearerId;
+	    mbr_info.bearer_ctxt_removed_list.bearer_ctxt[i].cause.cause =
+	            msgData.bearerContextsMarkedForRemoval[i].cause.causeValue;
+	}
+
 	mbr_info.header.destInstAddr = htonl(mmeAppInstanceNum_c);
 	mbr_info.header.srcInstAddr = htonl(s11AppInstanceNum_c);
 

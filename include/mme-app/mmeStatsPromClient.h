@@ -24,6 +24,47 @@ enum class mmeStatsCounter {
 	MME_NUM_IDLE_SUBSCRIBERS,
 	MME_NUM_PDNS,
 	MME_NUM_BEARERS,
+<<<<<<< HEAD
+=======
+	MME_MSG_TX_NAS_IDENTITY_REQUEST,
+	MME_MSG_TX_NAS_AUTHENTICATION_REQUEST,
+	MME_MSG_TX_NAS_SECURITY_MODE_COMMAND,
+	MME_MSG_TX_NAS_ESM_INFORMATION_REQUEST,
+	MME_MSG_TX_NAS_INITIAL_CONTEXT_REQUEST,
+	MME_MSG_TX_NAS_EMM_INFORMATION_REQ,
+	MME_MSG_TX_NAS_ATTACH_REJECT,
+	MME_MSG_TX_NAS_SERVICE_REJECT,
+	MME_MSG_TX_NAS_TAU_RESPONSE,
+	MME_MSG_TX_NAS_ACT_DED_BR_CTXT_REQUEST,
+	MME_MSG_TX_NAS_DEACT_EPS_BR_CTXT_REQUEST,
+	MME_MSG_TX_S1AP_ERAB_MODIFICATION_INDICATION,
+	MME_MSG_TX_NAS_NETWORK_INITIATED_DETACH,
+	MME_MSG_TX_S1AP_S1_RELEASE_COMMAND,
+	MME_MSG_TX_S1AP_HANDOVER_REQUEST,
+	MME_MSG_TX_S1AP_HANDOVER_COMMAND,
+	MME_MSG_TX_S1AP_MME_STATUS_TRANSFER,
+	MME_MSG_TX_S1AP_HANDOVER_PREPARATION_FAILURE,
+	MME_MSG_TX_S1AP_HANDOVER_CANCEL_ACK,
+	MME_MSG_TX_S1AP_PAGING_REQUEST,
+	MME_MSG_TX_S1AP_ICS_REQUEST_PAGING,
+	MME_MSG_TX_S1AP_DETACH_ACCEPT,
+	MME_MSG_TX_S1AP_ERAB_SETUP_REQUEST,
+	MME_MSG_TX_S1AP_ERAB_RELEASE_COMMAND,
+	MME_MSG_TX_S1AP_PATH_SWITCH_REQUEST_ACK,
+	MME_MSG_TX_S1AP_PATH_SWITCH_REQUEST_FAIL,
+	MME_MSG_TX_S11_CREATE_SESSION_REQUEST,
+	MME_MSG_TX_S11_MODIFY_BEARER_REQUEST,
+	MME_MSG_TX_S11_DELETE_SESSION_REQUEST,
+	MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_ACK,
+	MME_MSG_TX_S11_DOWNLINK_DATA_NOTIFICATION_FAILURE_IND,
+	MME_MSG_TX_S11_RELEASE_BEARER_REQUEST,
+	MME_MSG_TX_S11_CREATE_BEARER_RESPONSE,
+	MME_MSG_TX_S11_DELETE_BEARER_RESPONSE,
+	MME_MSG_TX_S6A_AUTHENTICATION_INFO_REQUEST,
+	MME_MSG_TX_S6A_UPDATE_LOCATION_REQUEST,
+	MME_MSG_TX_S6A_PURGE_REQUEST,
+	MME_MSG_TX_S6A_DELETE_SUBSCRIBER_DATA_ANSWER,
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 	MME_PROCEDURES_ATTACH_PROC_IMSI,
 	MME_PROCEDURES_ATTACH_PROC_GUTI,
 	MME_PROCEDURES_ATTACH_PROC_SUCCESS,
@@ -47,6 +88,9 @@ enum class mmeStatsCounter {
 	MME_PROCEDURES_S1_ENB_HANDOVER_PROC,
 	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_SUCCESS,
 	MME_PROCEDURES_S1_ENB_HANDOVER_PROC_FAILURE,
+	MME_PROCEDURES_X2_ENB_HANDOVER_PROC,
+	MME_PROCEDURES_X2_ENB_HANDOVER_PROC_SUCCESS,
+	MME_PROCEDURES_X2_ENB_HANDOVER_PROC_FAILURE,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC_SUCCESS,
 	MME_PROCEDURES_ERAB_MOD_IND_PROC_FAILURE,
@@ -62,6 +106,7 @@ enum class mmeStatsCounter {
 	MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC,
 	MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_SUCCESS,
 	MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_FAILURE,
+<<<<<<< HEAD
 	MME_MSG_TX_NAS_IDENTITY_REQUEST,
 	MME_MSG_TX_NAS_AUTHENTICATION_REQUEST,
 	MME_MSG_TX_NAS_SECURITY_MODE_COMMAND,
@@ -98,6 +143,8 @@ enum class mmeStatsCounter {
 	MME_MSG_TX_S6A_UPDATE_LOCATION_REQUEST,
 	MME_MSG_TX_S6A_PURGE_REQUEST,
 	MME_MSG_TX_S6A_DELETE_SUBSCRIBER_DATA_ANSWER,
+=======
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 	MME_MSG_RX_NAS_ATTACH_REQUEST,
 	MME_MSG_RX_NAS_IDENTITY_RESPONSE,
 	MME_MSG_RX_NAS_AUTHENTICATION_RESPONSE,
@@ -123,6 +170,10 @@ enum class mmeStatsCounter {
 	MME_MSG_RX_S1AP_ERAB_MODIFICATION_INDICATION,
 	MME_MSG_RX_S1AP_ERAB_SETUP_RESPONSE,
 	MME_MSG_RX_S1AP_ERAB_RELEASE_RESPONSE,
+<<<<<<< HEAD
+=======
+	MME_MSG_RX_S1AP_PATH_SWITCH_REQUEST,
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 	MME_MSG_RX_S6A_AUTHENTICATION_INFORMATION_ANSWER,
 	MME_MSG_RX_S6A_UPDATE_LOCATION_ANSWER,
 	MME_MSG_RX_S6A_PURGE_ANSWER,
@@ -175,6 +226,7 @@ class DynamicMetricObject {
 
 
 class enb_num_DynamicMetricObject1 : public DynamicMetricObject {
+<<<<<<< HEAD
 	public:
 		enb_num_DynamicMetricObject1(Family<Gauge> &enb_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0):
 		 DynamicMetricObject(),
@@ -339,6 +391,8 @@ class mme_num_gauges {
 
 
 class mme_procedures_DynamicMetricObject1 : public DynamicMetricObject {
+=======
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 	public:
 		mme_procedures_DynamicMetricObject1(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0):
 		 DynamicMetricObject(),
@@ -364,18 +418,60 @@ class mme_procedures_DynamicMetricObject2 : public DynamicMetricObject {
 		 counter(mme_procedures_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
 		{
 		}
+<<<<<<< HEAD
 		mme_procedures_DynamicMetricObject2(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
 		 DynamicMetricObject(),
 		 counter(mme_procedures_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
 		{
 		}
 		~mme_procedures_DynamicMetricObject2()
-		{
-		}
-		Counter &counter;
+=======
+		Gauge &gauge;
+};
+class enb_num_gauges {
+	public:
+	enb_num_gauges();
+	~enb_num_gauges();
+	Family<Gauge> &enb_num_family;
+	Gauge &current__Active;
+
+	enb_num_DynamicMetricObject1* add_dynamic1(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0) {
+		return new enb_num_DynamicMetricObject1(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0);
+ 	}
+
+	enb_num_DynamicMetricObject2* add_dynamic2(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new enb_num_DynamicMetricObject2(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	enb_num_DynamicMetricObject3* add_dynamic3(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2) {
+		return new enb_num_DynamicMetricObject3(enb_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2);
+ 	}
 };
 
 
+
+
+class mme_num_DynamicMetricObject1 : public DynamicMetricObject {
+	public:
+		mme_num_DynamicMetricObject1(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}}))
+		{
+		}
+		mme_num_DynamicMetricObject1(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}}))
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+		{
+		}
+		~mme_num_DynamicMetricObject1()
+		{
+		}
+		Gauge &gauge;
+};
+
+
+<<<<<<< HEAD
 class mme_procedures_DynamicMetricObject3 : public DynamicMetricObject {
 	public:
 		mme_procedures_DynamicMetricObject3(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2):
@@ -389,10 +485,49 @@ class mme_procedures_DynamicMetricObject3 : public DynamicMetricObject {
 		{
 		}
 		~mme_procedures_DynamicMetricObject3()
+=======
+
+
+class mme_num_DynamicMetricObject2 : public DynamicMetricObject {
+	public:
+		mme_num_DynamicMetricObject2(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
 		{
 		}
-		Counter &counter;
+		mme_num_DynamicMetricObject2(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
+		{
+		}
+		~mme_num_DynamicMetricObject2()
+		{
+		}
+		Gauge &gauge;
 };
+
+
+class mme_num_DynamicMetricObject3 : public DynamicMetricObject {
+	public:
+
+
+		mme_num_DynamicMetricObject3(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}, {dlabel_k2, dlabel_v2}}))
+		{
+		}
+		mme_num_DynamicMetricObject3(Family<Gauge> &mme_num_family,std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 gauge(mme_num_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}, {dlabel_k2, dlabel_v2}}))
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+		{
+		}
+		~mme_num_DynamicMetricObject3()
+		{
+		}
+		Gauge &gauge;
+};
+<<<<<<< HEAD
 class mme_procedures_counters {
 	public:
 	mme_procedures_counters();
@@ -459,8 +594,43 @@ class mme_procedures_counters {
 
 	mme_procedures_DynamicMetricObject3* add_dynamic3(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2) {
 		return new mme_procedures_DynamicMetricObject3(mme_procedures_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1,dlabel_k2, dlabel_v2);
+=======
+class mme_num_gauges {
+	public:
+	mme_num_gauges();
+	~mme_num_gauges();
+	Family<Gauge> &mme_num_family;
+	Gauge &current__Active_subscribers;
+	Gauge &current__Idle_subscribers;
+	Gauge &current__pdns;
+	Gauge &current__bearers;
+
+	mme_num_DynamicMetricObject1* add_dynamic1(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0) {
+		return new mme_num_DynamicMetricObject1(mme_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0);
+ 	}
+
+	mme_num_DynamicMetricObject1* add_dynamic1(std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
+		return new mme_num_DynamicMetricObject1(mme_num_family,label_k0, label_v0,label_k1, label_v1,dlabel_k0, dlabel_v0);
+ 	}
+
+	mme_num_DynamicMetricObject2* add_dynamic2(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new mme_num_DynamicMetricObject2(mme_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	mme_num_DynamicMetricObject2* add_dynamic2(std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new mme_num_DynamicMetricObject2(mme_num_family,label_k0, label_v0,label_k1, label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	mme_num_DynamicMetricObject3* add_dynamic3(std::string label_k0, std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2) {
+		return new mme_num_DynamicMetricObject3(mme_num_family,label_k0, label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2);
+ 	}
+
+	mme_num_DynamicMetricObject3* add_dynamic3(std::string label_k0, std::string label_v0,std::string label_k1, std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1, std::string dlabel_k2, std::string dlabel_v2) {
+		return new mme_num_DynamicMetricObject3(mme_num_family,label_k0, label_v0,label_k1, label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1, dlabel_k2, dlabel_v2);
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
  	}
 };
+
 
 
 
@@ -533,6 +703,8 @@ class mme_msg_tx_counters {
 	Counter &mme_msg_tx_s1ap_detach_accept;
 	Counter &mme_msg_tx_s1ap_erab_setup_request;
 	Counter &mme_msg_tx_s1ap_erab_release_command;
+	Counter &mme_msg_tx_s1ap_path_switch_request_ack;
+	Counter &mme_msg_tx_s1ap_path_switch_request_fail;
 	Counter &mme_msg_tx_s11_create_session_request;
 	Counter &mme_msg_tx_s11_modify_bearer_request;
 	Counter &mme_msg_tx_s11_delete_session_request;
@@ -559,6 +731,201 @@ class mme_msg_tx_counters {
  	}
 };
 
+
+
+class mme_msg_rx_DynamicMetricObject1 : public DynamicMetricObject {
+	public:
+<<<<<<< HEAD
+		mme_msg_rx_DynamicMetricObject1(Family<Counter> &mme_msg_rx_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 counter(mme_msg_rx_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}}))
+=======
+		mme_procedures_DynamicMetricObject1(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}}))
+		{
+		}
+		mme_procedures_DynamicMetricObject1(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}}))
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+		{
+		}
+		~mme_msg_rx_DynamicMetricObject1()
+		{
+		}
+		Counter &counter;
+};
+
+
+class mme_msg_rx_DynamicMetricObject2 : public DynamicMetricObject {
+	public:
+<<<<<<< HEAD
+		mme_msg_rx_DynamicMetricObject2(Family<Counter> &mme_msg_rx_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 counter(mme_msg_rx_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
+=======
+		mme_procedures_DynamicMetricObject2(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
+		{
+		}
+		mme_procedures_DynamicMetricObject2(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0}, {dlabel_k1, dlabel_v1}}))
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+		{
+		}
+		~mme_msg_rx_DynamicMetricObject2()
+		{
+		}
+		Counter &counter;
+};
+
+
+class mme_msg_rx_DynamicMetricObject3 : public DynamicMetricObject {
+	public:
+<<<<<<< HEAD
+		mme_msg_rx_DynamicMetricObject3(Family<Counter> &mme_msg_rx_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 counter(mme_msg_rx_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0},{dlabel_k1, dlabel_v1},{dlabel_k2, dlabel_v2}}))
+=======
+		mme_procedures_DynamicMetricObject3(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{dlabel_k0, dlabel_v0},{dlabel_k1, dlabel_v1},{dlabel_k2, dlabel_v2}}))
+		{
+		}
+		mme_procedures_DynamicMetricObject3(Family<Counter> &mme_procedures_family,std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2):
+		 DynamicMetricObject(),
+		 counter(mme_procedures_family.Add({{label_k0, label_v0},{label_k1, label_v1},{dlabel_k0, dlabel_v0},{dlabel_k1, dlabel_v1},{dlabel_k2, dlabel_v2}}))
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+		{
+		}
+		~mme_msg_rx_DynamicMetricObject3()
+		{
+		}
+		Counter &counter;
+};
+class mme_msg_rx_counters {
+	public:
+<<<<<<< HEAD
+	mme_msg_rx_counters();
+	~mme_msg_rx_counters();
+	Family<Counter> &mme_msg_rx_family;
+	Counter &mme_msg_rx_nas_attach_request;
+	Counter &mme_msg_rx_nas_identity_response;
+	Counter &mme_msg_rx_nas_authentication_response;
+	Counter &mme_msg_rx_nas_security_mode_response;
+	Counter &mme_msg_rx_nas_esm_response;
+	Counter &mme_msg_rx_s1ap_init_context_response;
+	Counter &mme_msg_rx_nas_attach_complete;
+	Counter &mme_msg_rx_nas_detach_request;
+	Counter &mme_msg_rx_nas_act_ded_br_ctxt_acpt;
+	Counter &mme_msg_rx_nas_act_ded_br_ctxt_rjct;
+	Counter &mme_msg_rx_nas_deact_eps_br_ctxt_acpt;
+	Counter &mme_msg_rx_s1ap_release_request;
+	Counter &mme_msg_rx_s1ap_release_complete;
+	Counter &mme_msg_rx_s1ap_detach_accept;
+	Counter &mme_msg_rx_s1ap_service_request;
+	Counter &mme_msg_rx_s1ap_tau_request;
+	Counter &mme_msg_rx_s1ap_handover_request_ack;
+	Counter &mme_msg_rx_s1ap_handover_notify;
+	Counter &mme_msg_rx_s1ap_handover_required;
+	Counter &mme_msg_rx_s1ap_enb_status_transfer;
+	Counter &mme_msg_rx_s1ap_handover_cancel;
+	Counter &mme_msg_rx_s1ap_handover_failure;
+	Counter &mme_msg_rx_s1ap_erab_modification_indication;
+	Counter &mme_msg_rx_s1ap_erab_setup_response;
+	Counter &mme_msg_rx_s1ap_erab_release_response;
+	Counter &mme_msg_rx_s6a_authentication_information_answer;
+	Counter &mme_msg_rx_s6a_update_location_answer;
+	Counter &mme_msg_rx_s6a_purge_answer;
+	Counter &mme_msg_rx_s6a_cancel_location_request;
+	Counter &mme_msg_rx_s6a_delete_subscriber_data_request;
+	Counter &mme_msg_rx_s11_create_session_response;
+	Counter &mme_msg_rx_s11_modify_bearer_response;
+	Counter &mme_msg_rx_s11_delete_session_response;
+	Counter &mme_msg_rx_s11_release_bearer_response;
+	Counter &mme_msg_rx_s11_downlink_notification_indication;
+	Counter &mme_msg_rx_s11_create_bearer_request;
+	Counter &mme_msg_rx_s11_delete_bearer_request;
+
+	mme_msg_rx_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
+		return new mme_msg_rx_DynamicMetricObject1(mme_msg_rx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0);
+=======
+	mme_procedures_counters();
+	~mme_procedures_counters();
+	Family<Counter> &mme_procedures_family;
+	Counter &mme_procedures_attach_proc_imsi;
+	Counter &mme_procedures_attach_proc_guti;
+	Counter &mme_procedures_attach_proc_success;
+	Counter &mme_procedures_attach_proc_failure;
+	Counter &mme_procedures_detach_proc_network_init;
+	Counter &mme_procedures_detach_proc_ue_init;
+	Counter &mme_procedures_detach_proc_success;
+	Counter &mme_procedures_detach_proc_failure;
+	Counter &mme_procedures_s1_release_proc;
+	Counter &mme_procedures_s1_release_proc_success;
+	Counter &mme_procedures_s1_release_proc_failure;
+	Counter &mme_procedures_service_request_proc_ddn_init;
+	Counter &mme_procedures_service_request_proc_pgw_init;
+	Counter &mme_procedures_service_request_proc_hss_init;
+	Counter &mme_procedures_service_request_proc_ue_init;
+	Counter &mme_procedures_service_request_proc_success;
+	Counter &mme_procedures_service_request_proc_failure;
+	Counter &mme_procedures_tau_proc;
+	Counter &mme_procedures_tau_proc_success;
+	Counter &mme_procedures_tau_proc_failure;
+	Counter &mme_procedures_s1_enb_handover_proc;
+	Counter &mme_procedures_s1_enb_handover_proc_success;
+	Counter &mme_procedures_s1_enb_handover_proc_failure;
+	Counter &mme_procedures_x2_enb_handover_proc;
+	Counter &mme_procedures_x2_enb_handover_proc_success;
+	Counter &mme_procedures_x2_enb_handover_proc_failure;
+	Counter &mme_procedures_erab_mod_ind_proc;
+	Counter &mme_procedures_erab_mod_ind_proc_success;
+	Counter &mme_procedures_erab_mod_ind_proc_failure;
+	Counter &mme_procedures_create_bearer_proc;
+	Counter &mme_procedures_create_bearer_proc_success;
+	Counter &mme_procedures_create_bearer_proc_failure;
+	Counter &mme_procedures_delete_bearer_proc;
+	Counter &mme_procedures_delete_bearer_proc_success;
+	Counter &mme_procedures_delete_bearer_proc_failure;
+	Counter &mme_procedures_ded_bearer_activation_proc;
+	Counter &mme_procedures_ded_bearer_activation_proc_success;
+	Counter &mme_procedures_ded_bearer_activation_proc_failure;
+	Counter &mme_procedures_ded_bearer_deactivation_proc;
+	Counter &mme_procedures_ded_bearer_deactivation_proc_success;
+	Counter &mme_procedures_ded_bearer_deactivation_proc_failure;
+
+	mme_procedures_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0) {
+		return new mme_procedures_DynamicMetricObject1(mme_procedures_family,label_k0,label_v0,dlabel_k0, dlabel_v0);
+ 	}
+
+	mme_procedures_DynamicMetricObject1* add_dynamic1(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0) {
+		return new mme_procedures_DynamicMetricObject1(mme_procedures_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0);
+ 	}
+
+	mme_procedures_DynamicMetricObject2* add_dynamic2(std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new mme_procedures_DynamicMetricObject2(mme_procedures_family,label_k0,label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	mme_procedures_DynamicMetricObject2* add_dynamic2(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new mme_procedures_DynamicMetricObject2(mme_procedures_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+
+	mme_procedures_DynamicMetricObject3* add_dynamic3(std::string label_k0,std::string label_v0,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2) {
+		return new mme_procedures_DynamicMetricObject3(mme_procedures_family,label_k0,label_v0,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1,dlabel_k2, dlabel_v2);
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
+ 	}
+
+	mme_msg_rx_DynamicMetricObject2* add_dynamic2(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1) {
+		return new mme_msg_rx_DynamicMetricObject2(mme_msg_rx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
+ 	}
+};
+
+<<<<<<< HEAD
+=======
 
 
 class mme_msg_rx_DynamicMetricObject1 : public DynamicMetricObject {
@@ -631,6 +998,7 @@ class mme_msg_rx_counters {
 	Counter &mme_msg_rx_s1ap_erab_modification_indication;
 	Counter &mme_msg_rx_s1ap_erab_setup_response;
 	Counter &mme_msg_rx_s1ap_erab_release_response;
+	Counter &mme_msg_rx_s1ap_path_switch_request;
 	Counter &mme_msg_rx_s6a_authentication_information_answer;
 	Counter &mme_msg_rx_s6a_update_location_answer;
 	Counter &mme_msg_rx_s6a_purge_answer;
@@ -652,6 +1020,7 @@ class mme_msg_rx_counters {
 		return new mme_msg_rx_DynamicMetricObject2(mme_msg_rx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1);
  	}
 
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 	mme_msg_rx_DynamicMetricObject3* add_dynamic3(std::string label_k0,std::string label_v0,std::string label_k1,std::string label_v1,std::string dlabel_k0, std::string dlabel_v0, std::string dlabel_k1, std::string dlabel_v1,std::string dlabel_k2, std::string dlabel_v2) {
 		return new mme_msg_rx_DynamicMetricObject3(mme_msg_rx_family,label_k0,label_v0,label_k1,label_v1,dlabel_k0, dlabel_v0, dlabel_k1, dlabel_v1,dlabel_k2, dlabel_v2);
  	}
@@ -669,8 +1038,13 @@ class mmeStats {
 	 public:
 		enb_num_gauges *enb_num_m;
 		mme_num_gauges *mme_num_m;
+<<<<<<< HEAD
 		mme_procedures_counters *mme_procedures_m;
 		mme_msg_tx_counters *mme_msg_tx_m;
+=======
+		mme_msg_tx_counters *mme_msg_tx_m;
+		mme_procedures_counters *mme_procedures_m;
+>>>>>>> 86d267872cd432e8e3801081caa1f6e4f32950fd
 		mme_msg_rx_counters *mme_msg_rx_m;
 		std::unordered_map<struct Node, DynamicMetricObject*, hash_fn> metrics_map;
 };

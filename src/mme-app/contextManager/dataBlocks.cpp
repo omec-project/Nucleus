@@ -986,9 +986,8 @@ namespace mme
 	/******************************************************************************
 	* sets bearerTft
 	******************************************************************************/
-	void BearerContext::setBearerTft( const uint8_t* bearerTft_i,uint16_t len )
+	void BearerContext::setBearerTft( const uint8_t* bearerTft_i )
 	{
-		bearerTftLen_m=len;
 		memcpy(bearerTft_m, bearerTft_i, (bearerTftLen_m * sizeof(uint8_t)));
 	}
 	
@@ -998,6 +997,14 @@ namespace mme
         const uint8_t* BearerContext::getBearerTft() const
         {
                 return bearerTft_m;
+        }
+
+	/******************************************************************************
+        * set bearerTftLen
+        ******************************************************************************/
+        void BearerContext::setBearerTftLen(uint16_t bearerTftLen_i)
+        {
+                bearerTftLen_m = bearerTftLen_i;
         }
 
 	/******************************************************************************
@@ -1236,9 +1243,8 @@ namespace mme
 	/******************************************************************************
 	* sets pcoOptions
 	******************************************************************************/
-	void MmeAttachProcedureCtxt::setPcoOptions( const uint8_t* pcoOptions_i,uint16_t len )
+	void MmeAttachProcedureCtxt::setPcoOptions( const uint8_t* pcoOptions_i )
 	{
-		pcoOptionsLen_m=len;
 		memcpy(pcoOptions_m, pcoOptions_i, (pcoOptionsLen_m * sizeof(uint8_t)));
 	}
 	
@@ -1248,6 +1254,14 @@ namespace mme
         const uint8_t* MmeAttachProcedureCtxt::getPcoOptions() const
         {
                 return pcoOptions_m;
+        }
+
+	/******************************************************************************
+        * set pcoOptionsLen
+        ******************************************************************************/
+        void MmeAttachProcedureCtxt::setPcoOptionsLen(uint16_t pcoOptionsLen_i)
+        {
+                pcoOptionsLen_m = pcoOptionsLen_i;
         }
 
 	/******************************************************************************
@@ -1897,9 +1911,8 @@ namespace mme
 	/******************************************************************************
 	* sets erabToBeModifiedList
 	******************************************************************************/
-	void MmeErabModIndProcedureCtxt::setErabToBeModifiedList( const erab_to_be_modified_item* erabToBeModifiedList_i,uint16_t len )
+	void MmeErabModIndProcedureCtxt::setErabToBeModifiedList( const erab_to_be_modified_item* erabToBeModifiedList_i )
 	{
-		erabToBeModifiedListLen_m=len;
 		memcpy(erabToBeModifiedList_m, erabToBeModifiedList_i, (erabToBeModifiedListLen_m * sizeof(erab_to_be_modified_item)));
 	}
 	
@@ -1909,6 +1922,14 @@ namespace mme
         const erab_to_be_modified_item* MmeErabModIndProcedureCtxt::getErabToBeModifiedList() const
         {
                 return erabToBeModifiedList_m;
+        }
+
+	/******************************************************************************
+        * set erabToBeModifiedListLen
+        ******************************************************************************/
+        void MmeErabModIndProcedureCtxt::setErabToBeModifiedListLen(uint16_t erabToBeModifiedListLen_i)
+        {
+                erabToBeModifiedListLen_m = erabToBeModifiedListLen_i;
         }
 
 	/******************************************************************************
@@ -1922,9 +1943,8 @@ namespace mme
 	/******************************************************************************
 	* sets erabModifiedList
 	******************************************************************************/
-	void MmeErabModIndProcedureCtxt::setErabModifiedList( const uint8_t* erabModifiedList_i,uint16_t len )
+	void MmeErabModIndProcedureCtxt::setErabModifiedList( const uint8_t* erabModifiedList_i )
 	{
-		erabModifiedListLen_m=len;
 		memcpy(erabModifiedList_m, erabModifiedList_i, (erabModifiedListLen_m * sizeof(uint8_t)));
 	}
 	
@@ -1934,6 +1954,14 @@ namespace mme
         const uint8_t* MmeErabModIndProcedureCtxt::getErabModifiedList() const
         {
                 return erabModifiedList_m;
+        }
+
+	/******************************************************************************
+        * set erabModifiedListLen
+        ******************************************************************************/
+        void MmeErabModIndProcedureCtxt::setErabModifiedListLen(uint16_t erabModifiedListLen_i)
+        {
+                erabModifiedListLen_m = erabModifiedListLen_i;
         }
 
 	/******************************************************************************
@@ -1972,6 +2000,14 @@ namespace mme
 	void MmeSmCreateBearerProcCtxt::setCreateBearerReqEMsg( std::shared_ptr<cmn::EventMessage> createBearerReqEMsg_i )
 	{
 		createBearerReqEMsg_m = std::move(createBearerReqEMsg_i);
+	}
+	
+	/******************************************************************************
+	* resets createBearerReqEMsg
+	******************************************************************************/
+	void MmeSmCreateBearerProcCtxt::resetCreateBearerReqEMsgPtr()
+	{
+		createBearerReqEMsg_m.reset();
 	}
 	
 	/******************************************************************************
@@ -2111,6 +2147,14 @@ namespace mme
 	}
 	
 	/******************************************************************************
+	* resets deleteBearerReqEMsg
+	******************************************************************************/
+	void MmeSmDeleteBearerProcCtxt::resetDeleteBearerReqEMsgPtr()
+	{
+		deleteBearerReqEMsg_m.reset();
+	}
+	
+	/******************************************************************************
 	* returns deleteBearerReqEMsg
 	******************************************************************************/
 	std::shared_ptr<cmn::EventMessage> MmeSmDeleteBearerProcCtxt::getDeleteBearerReqEMsg() const
@@ -2230,6 +2274,207 @@ namespace mme
         {
                 return triggerProc_m;
         }
+
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							X2HOMmProcedureContext
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	X2HOMmProcedureContext::X2HOMmProcedureContext():           
+            pathSwitchReqEMsg_m(),
+            targetTai_m(),
+            targetCgi_m(),
+            bearerStatus_m()
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	X2HOMmProcedureContext::~X2HOMmProcedureContext()
+	{
+	}	
+
+	/******************************************************************************
+	* sets pathSwitchReqEMsg
+	******************************************************************************/
+	void X2HOMmProcedureContext::setPathSwitchReqEMsg( std::shared_ptr<cmn::EventMessage> pathSwitchReqEMsg_i )
+	{
+		pathSwitchReqEMsg_m = std::move(pathSwitchReqEMsg_i);
+	}
+	
+	/******************************************************************************
+	* resets pathSwitchReqEMsg
+	******************************************************************************/
+	void X2HOMmProcedureContext::resetPathSwitchReqEMsgPtr()
+	{
+		pathSwitchReqEMsg_m.reset();
+	}
+	
+	/******************************************************************************
+	* returns pathSwitchReqEMsg
+	******************************************************************************/
+	std::shared_ptr<cmn::EventMessage> X2HOMmProcedureContext::getPathSwitchReqEMsg() const
+	{
+        	return pathSwitchReqEMsg_m;
+	}
+	
+	/******************************************************************************
+	* returns pathSwitchReqEMsgRaw
+	******************************************************************************/
+	cmn::EventMessage* X2HOMmProcedureContext::getPathSwitchReqEMsgRaw() const
+    	{
+        	return pathSwitchReqEMsg_m.get();
+    	}
+	
+	/******************************************************************************
+	* sets targetTai
+	******************************************************************************/
+	void X2HOMmProcedureContext::setTargetTai( const Tai& targetTai_i )
+	{
+		targetTai_m = targetTai_i;
+	}
+	
+	/******************************************************************************
+	* returns targetTai
+	******************************************************************************/	
+        const Tai& X2HOMmProcedureContext::getTargetTai() const
+        {
+                return targetTai_m;
+        }
+
+	
+	/******************************************************************************
+	* sets targetCgi
+	******************************************************************************/
+	void X2HOMmProcedureContext::setTargetCgi( const Cgi& targetCgi_i )
+	{
+		targetCgi_m = targetCgi_i;
+	}
+	
+	/******************************************************************************
+	* returns targetCgi
+	******************************************************************************/	
+        const Cgi& X2HOMmProcedureContext::getTargetCgi() const
+        {
+                return targetCgi_m;
+        }
+
+	/******************************************************************************
+	* add bearerStatus
+	******************************************************************************/
+	void X2HOMmProcedureContext::addBearerStatus(PdnHoStatus& bearerStatus_i)
+	{
+    		bearerStatus_m.push_back(bearerStatus_i);
+	}
+	
+	/******************************************************************************
+	* remove bearerStatus
+	******************************************************************************/
+	void X2HOMmProcedureContext::removeBearerStatus(PdnHoStatus& bearerStatus_i)
+	{
+		for( auto i = bearerStatus_m.begin(); i != bearerStatus_m.end(); i++)
+    		{
+        		if((*i) == bearerStatus_i)
+        		{
+            			bearerStatus_m.erase(i);
+				break;
+        		}
+    		}  	
+	}
+		
+	/******************************************************************************
+	* returns bearerStatusContainer
+	******************************************************************************/
+	std::vector<PdnHoStatus>& X2HOMmProcedureContext::getBearerStatusContainer()
+	{
+		return bearerStatus_m;
+	}
+	
+	/******************************************************************************
+	* find bearerStatus
+	******************************************************************************/
+	std::vector<PdnHoStatus>::iterator X2HOMmProcedureContext::findBearerStatus(PdnHoStatus& bearerStatus_i)
+	{
+	    return std::find(std::begin(bearerStatus_m), std::end(bearerStatus_m), bearerStatus_i);
+	}
+	
+
+	
+	/******************************************************************************
+	*******************************************************************************
+	*							X2HOSmProcedureContext
+	*******************************************************************************
+	******************************************************************************/
+	
+	/******************************************************************************
+	* Constructor
+	******************************************************************************/
+	X2HOSmProcedureContext::X2HOSmProcedureContext():           
+            pathSwitchReqMsg_m(),
+            erabFailedList_m()
+	{	
+	}
+	
+	/******************************************************************************
+	* Destructor
+	******************************************************************************/
+	X2HOSmProcedureContext::~X2HOSmProcedureContext()
+	{
+	}	
+
+	/******************************************************************************
+	* sets pathSwitchReqMsg
+	******************************************************************************/
+	void X2HOSmProcedureContext::setPathSwitchReqMsg( std::shared_ptr<cmn::EventMessage> pathSwitchReqMsg_i )
+	{
+		pathSwitchReqMsg_m = std::move(pathSwitchReqMsg_i);
+	}
+	
+	/******************************************************************************
+	* resets pathSwitchReqMsg
+	******************************************************************************/
+	void X2HOSmProcedureContext::resetPathSwitchReqMsgPtr()
+	{
+		pathSwitchReqMsg_m.reset();
+	}
+	
+	/******************************************************************************
+	* returns pathSwitchReqMsg
+	******************************************************************************/
+	std::shared_ptr<cmn::EventMessage> X2HOSmProcedureContext::getPathSwitchReqMsg() const
+	{
+        	return pathSwitchReqMsg_m;
+	}
+	
+	/******************************************************************************
+	* returns pathSwitchReqMsgRaw
+	******************************************************************************/
+	cmn::EventMessage* X2HOSmProcedureContext::getPathSwitchReqMsgRaw() const
+    	{
+        	return pathSwitchReqMsg_m.get();
+    	}
+	
+	/******************************************************************************
+	* sets erabFailedList
+	******************************************************************************/
+	void X2HOSmProcedureContext::setErabFailedList( erab_list& erabFailedList_i )
+	{
+		erabFailedList_m = erabFailedList_i;
+	}
+	
+	/******************************************************************************
+	* returns erabFailedList
+	******************************************************************************/	
+        erab_list& X2HOSmProcedureContext::getErabFailedList()
+        {
+                return erabFailedList_m;
+        }   
 
 	
 } // mme

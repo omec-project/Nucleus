@@ -344,6 +344,29 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 
 			break;
 		}
+                case path_switch_request:
+                {
+                        if (msgData_p->ue_idx > 0)
+                        {
+                                cb = SubsDataGroupManager::Instance()->findControlBlock(msgData_p->ue_idx);
+                        }
+                        else
+                        {
+                                log_msg(LOG_INFO, "Failed to find control block with ue idx : %d.", msgData_p->ue_idx);
+                        }
+
+                        if (cb == NULL)
+                        {
+                                log_msg(LOG_INFO, "Failed to find control block using ue idx %d."
+                                                " Allocate a temporary control block", msgData_p->ue_idx);
+
+                            // Respond  with Path Switch Req Failure from default Path Switch Request event handler
+                            cb = SubsDataGroupManager::Instance()->allocateCB();
+                            cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
+                        }
+
+                        break;
+                }
 		default:
 		{
 			log_msg(LOG_INFO, "Unhandled message type %d ", msgData_p->msg_type);

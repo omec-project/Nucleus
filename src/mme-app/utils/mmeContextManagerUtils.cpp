@@ -19,6 +19,8 @@
 #include <mmeStates/serviceRequestStates.h>
 #include <mmeStates/tauStates.h>
 #include <mmeStates/erabModIndicationStates.h>
+#include <mmeStates/x2HandoverMmStates.h>
+#include <mmeStates/x2HandoverSmStates.h>
 #include <utils/mmeContextManagerUtils.h>
 #include <utils/mmeCommonUtils.h>
 #include <utils/mmeTimerUtils.h>
@@ -235,6 +237,40 @@ MmeContextManagerUtils::allocateDedBrDeActivationProcedureCtxt(SM::ControlBlock&
     return prcdCtxt_p;
 }
 
+X2HOMmProcedureContext* MmeContextManagerUtils::allocateX2HoMmContext(SM::ControlBlock& cb_r)
+{
+    log_msg(LOG_DEBUG, "allocateX2HoMmContext: Entry");
+
+    X2HOMmProcedureContext *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getX2HOMmProcedureContext();
+    if (prcdCtxt_p != NULL)
+    {
+        mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_X2_ENB_HANDOVER_PROC);
+        prcdCtxt_p->setCtxtType(ProcedureType::x2HandoverMm_c);
+        prcdCtxt_p->setNextState(X2HoMmStart::Instance());
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
+X2HOSmProcedureContext* MmeContextManagerUtils::allocateX2HoSmContext(SM::ControlBlock& cb_r, uint8_t bearerId)
+{
+    log_msg(LOG_DEBUG, "allocateX2HoSmContext: Entry");
+
+    X2HOSmProcedureContext *prcdCtxt_p =
+            SubsDataGroupManager::Instance()->getX2HOSmProcedureContext();
+    if (prcdCtxt_p != NULL)
+    {
+        prcdCtxt_p->setCtxtType(ProcedureType::x2HandoverSm_c);
+        prcdCtxt_p->setNextState(X2HoSmStart::Instance());
+        prcdCtxt_p->setBearerId(bearerId);
+        cb_r.addTempDataBlock(prcdCtxt_p);
+    }
+
+    return prcdCtxt_p;
+}
+
 bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 {
 	log_msg(LOG_DEBUG, "deleteProcedureCtxt: Entry");
@@ -350,6 +386,24 @@ bool MmeContextManagerUtils::deleteProcedureCtxt(MmeProcedureCtxt* procedure_p)
 
 			break;
 		}
+		case x2HandoverMm_c:
+		{
+			X2HOMmProcedureContext* x2HoProc_p =
+                    					static_cast<X2HOMmProcedureContext*>(procedure_p);
+
+			subsDgMgr_p->deleteX2HOMmProcedureContext(x2HoProc_p);
+			
+			break;
+		}
+		case x2HandoverSm_c:
+		{
+			X2HOSmProcedureContext* x2HoProc_p =
+							static_cast<X2HOSmProcedureContext*>(procedure_p);
+
+			subsDgMgr_p->deleteX2HOSmProcedureContext(x2HoProc_p);
+
+			break;
+		}
 		default:
 		{
 			log_msg(LOG_INFO, "Unsupported procedure type %d", procedure_p->getCtxtType());
@@ -403,6 +457,36 @@ bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r)
     		static_cast<MmeProcedureCtxt*>(procedure_p->getNextTempDataBlock());
     
         if (procedure_p->getCtxtType() != defaultMmeProcedure_c)
+        {
+            // stop state guard timer if any running
+            deallocateProcedureCtxt(cb_r, procedure_p);
+        }
+
+        procedure_p = nextProcedure_p;
+    }
+    return rc;
+}
+
+bool MmeContextManagerUtils::deallocateAllProcedureCtxts(SM::ControlBlock& cb_r, ProcedureType procType)
+{
+    bool rc = false;
+
+    if (procType == defaultMmeProcedure_c)
+    {
+        return rc;
+    }
+
+    MmeProcedureCtxt* procedure_p =
+            static_cast<MmeProcedureCtxt*>(cb_r.getFirstTempDataBlock());
+
+    MmeProcedureCtxt* nextProcedure_p = NULL;
+
+    while (procedure_p != NULL)
+    {
+        nextProcedure_p =
+            static_cast<MmeProcedureCtxt*>(procedure_p->getNextTempDataBlock());
+
+        if (procedure_p->getCtxtType() == procType)
         {
             // stop state guard timer if any running
             deallocateProcedureCtxt(cb_r, procedure_p);

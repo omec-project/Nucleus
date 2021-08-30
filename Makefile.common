@@ -20,10 +20,11 @@ INC_DIRS= \
           -I$(INCLUDE_DIR)/s11 \
           -I$(TOPDIR)/src/s11/cpp_utils \
           -I$(INCLUDE_DIR)/s1ap \
+          -I$(INCLUDE_DIR)/s1ap/s1apContextManager \
           -I$(INCLUDE_DIR)/s6a \
           -I$(TOPDIR)/src/s1ap/asn1c/asnGenFiles \
-	  -I$(TOPDIR)/src/gtpV2Codec \
-	  -I$(INCLUDE_DIR)/common \
+	      -I$(TOPDIR)/src/gtpV2Codec \
+	      -I$(INCLUDE_DIR)/common \
           -I$(INCLUDE_DIR)/cmn \
           -I$(INCLUDE_DIR)/stateMachineFwk \
 	  -I$(TOPDIR)/src/mmeGrpcProtos          

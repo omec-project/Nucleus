@@ -100,6 +100,13 @@
                                 "NextState":"end_state"
                             },
                             {
+                                "Name":"PATH_SWITCH_REQ_FROM_ENB",
+                                "Actions":[
+                                    "DEFAULT_PATH_SWITCH_REQ_HANDLER"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
                                 "Name":"DSR_FROM_HSS",
                                 "Actions":[
                                     "DEFAULT_DELETE_SUBS_REQ_HANDLER"
@@ -2161,6 +2168,211 @@
                             }
                         ]
                     }
+                ]
+            },
+            {
+                "Name":"X2_HANDOVER_MM",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
+                "States":[
+                    {
+                        "Name":"x2_ho_mm_start",
+                        "Events":[
+                            {
+                                "Name":"START_X2_HO",
+                                "Actions":[
+                                    "INIT_X2_HO"
+                                ],
+                                "NextState":"x2_ho_mm_wf_sm_complete"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_PATH_SWITCH_FAIL_TO_ENB",
+                                    "ABORT_X2_HO_MM"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"x2_ho_mm_wf_sm_complete",
+                        "Events":[
+                            {
+                                "Name":"X2_HO_SM_COMPLETE",
+                                "Actions":[
+                                    "HANDLE_X2_HO_SM_CMP_IND",
+                                    "SEND_PATH_SWITCH_ACK_TO_ENB",
+                                    "IS_TAU_REQUIRED"
+                                ],
+                                "NextState":"x2_ho_mm_wf_tau_check"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_PATH_SWITCH_FAIL_TO_ENB",
+                                    "ABORT_X2_HO_MM"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "24000"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"x2_ho_mm_wf_tau_check",
+                        "Events":[
+                            {
+                                "Name":"TAU_REQUIRED",
+                                "Actions":[],
+                                "NextState":"x2_ho_mm_wf_tau_req"
+                            },
+                            {
+                                "Name":"TAU_NOT_REQUIRED",
+                                "Actions":[
+                                    "X2_HO_MM_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"x2_ho_mm_wf_tau_req",
+                        "Events":[
+                            {
+                                "Name":"TAU_REQUEST_FROM_UE",
+                                "Actions":[
+                                    "PROCESS_TAU_REQUEST",
+                                    "SEND_TAU_RESPONSE_TO_UE",
+                                    "X2_HO_MM_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    }					
+                ]
+            },
+            {
+                "Name":"X2_HANDOVER_SM",
+                "Properties": [
+                    {
+                        "stateGuardTimerFeature" : "enabled"
+                    }
+                ],
+                "States":[
+                    {
+                        "Name":"x2_ho_sm_start",
+                        "Events":[
+                            {
+                                "Name":"START_X2_HO_SM",
+                                "Actions":[
+                                    "SEND_MB_REQ_TO_SGW_FOR_X2_HO"
+                                ],
+                                "NextState":"x2_ho_sm_wf_mb_resp"
+                            },
+                            {
+                                "Name":"X2_HO_SM_FAILURE",
+                                "Actions":[
+                                ],
+                                "NextState":"x2_ho_sm_wf_ho_complete"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_X2_HO_SM"
+                                ],
+                                "NextState":"end_state"
+                            }                            
+                        ]
+                    },
+                    {
+                        "Name":"x2_ho_sm_wf_mb_resp",
+                        "Events":[
+                            {
+                                "Name":"MB_RESP_FROM_SGW",
+                                "Actions":[
+                                    "PROCESS_MB_RESP_FOR_X2_HO",
+                                    "SEND_SM_HO_COMPLETE"
+                                ],
+                                "NextState":"x2_ho_sm_wf_mb_resp"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_X2_HO_SM"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            }
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"x2_ho_sm_wf_ho_complete",
+                        "Events":[
+                            {
+                                "Name":"X2_HO_COMPLETE",
+                                "Actions":[
+                                    "X2_HO_SM_COMPLETE"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "ABORT_X2_HO_SM"
+                                ],
+                                "NextState":"end_state"
+                            },
+                            {
+                                "Name": "STATE_GUARD_TIMEOUT",
+                                "Actions": [
+                                    "HANDLE_STATE_GUARD_TIMEOUTS"
+                                ],
+                                "NextState": "end_state"
+                            }                            
+                        ],
+                        "Properties": [
+                            {
+                                "timeout": "12000"
+                            }
+                        ]
+                    }                    
                 ]
             }
 	]

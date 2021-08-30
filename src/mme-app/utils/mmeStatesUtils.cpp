@@ -301,8 +301,28 @@ EventStatus MmeStatesUtils::validate_event(ControlBlock &cb,
     case DED_BEARER_DEACT_START:
     case PAGING_FAILURE:
     case DETACH_FAILURE:
+    case START_X2_HO_SM:
     {
         rc = EventStatus::CONSUME_AND_FORWARD;
+    }
+        break;
+    case X2_HO_SM_FAILURE:
+    {
+        PdnHoStatusEMsgShPtr eMsg =
+                std::dynamic_pointer_cast<PdnHoStatusEMsg>(
+                        event.getEventData());
+        if (eMsg)
+        {
+            if (smProc_p->getCtxtType() == x2HandoverSm_c &&
+                    smProc_p->getBearerId() == eMsg->pdnHoStatus.def_bearer_id)
+            {
+                rc = EventStatus::CONSUME_AND_FORWARD;
+            }
+            else if (smProc_p->getCtxtType() == x2HandoverMm_c)
+            {
+                rc = EventStatus::CONSUME;
+            }
+        }
     }
         break;
     default:

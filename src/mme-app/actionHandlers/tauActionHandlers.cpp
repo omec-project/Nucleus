@@ -57,7 +57,7 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
 	if (ue_ctxt == NULL)
 	{
-		log_msg(LOG_ERROR, "send_tau_response_to_ue: ue context is NULL",cb.getCBIndex());
+		log_msg(LOG_ERROR, "cb index = %u send_tau_response_to_ue: ue context is NULL",cb.getCBIndex());
 		return ActStatus::HALT;
 	}
 
@@ -78,6 +78,14 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 		tau_resp.s1ap_enb_ue_id = s1HoPrCtxt->getTargetS1apEnbUeId();
 		memcpy(&tau_resp.tai, &(s1HoPrCtxt->getTargetTai().tai_m), sizeof(struct TAI));
 		ue_ctxt->setUtranCgi(s1HoPrCtxt->getTargetCgi());
+	}
+	else if(prcdCtxt_p->getCtxtType() == x2HandoverMm_c)
+	{
+                X2HOMmProcedureContext *x2HoPrCtxt = static_cast<X2HOMmProcedureContext*>(prcdCtxt_p);
+                tau_resp.enb_fd = ue_ctxt->getEnbFd();
+                tau_resp.s1ap_enb_ue_id = ue_ctxt->getS1apEnbUeId();
+                memcpy(&tau_resp.tai, &(x2HoPrCtxt->getTargetTai().tai_m), sizeof(struct TAI));
+                ue_ctxt->setUtranCgi(x2HoPrCtxt->getTargetCgi());
 	}
 	else
 	{
@@ -151,7 +159,8 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &tau_resp, sizeof(tau_resp), destAddr);
 
-	if( prcdCtxt_p->getCtxtType() != s1Handover_c)
+	if((prcdCtxt_p->getCtxtType() != s1Handover_c) ||
+		(prcdCtxt_p->getCtxtType() != x2HandoverMm_c))
 	{
 	    mmeStats::Instance()->increment(mmeStatsCounter::MME_PROCEDURES_TAU_PROC_SUCCESS);
 

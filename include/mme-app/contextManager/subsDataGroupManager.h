@@ -34,6 +34,8 @@
 #include "contextManager/smDedActProcCtxtManager.h"
 #include "contextManager/mmeSmDeleteBearerProcCtxtManager.h"
 #include "contextManager/smDedDeActProcCtxtManager.h"
+#include "contextManager/x2HOMmProcedureContextManager.h"
+#include "contextManager/x2HOSmProcedureContextManager.h"
 namespace mme
 {	
 	class SubsDataGroupManager:public cmn::DGM::DataGroupManager
@@ -234,6 +236,28 @@ namespace mme
 			 *  Delete a SmDedDeActProcCtxt data block
 			 ******************************************/
 			void deleteSmDedDeActProcCtxt(SmDedDeActProcCtxt* SmDedDeActProcCtxtp );
+			/******************************************
+			 * getX2HOMmProcedureContext
+			 * Get X2HOMmProcedureContext data block
+			 ******************************************/
+			X2HOMmProcedureContext* getX2HOMmProcedureContext();
+			
+			/******************************************
+			 * deleteX2HOMmProcedureContext
+			 *  Delete a X2HOMmProcedureContext data block
+			 ******************************************/
+			void deleteX2HOMmProcedureContext(X2HOMmProcedureContext* X2HOMmProcedureContextp );
+			/******************************************
+			 * getX2HOSmProcedureContext
+			 * Get X2HOSmProcedureContext data block
+			 ******************************************/
+			X2HOSmProcedureContext* getX2HOSmProcedureContext();
+			
+			/******************************************
+			 * deleteX2HOSmProcedureContext
+			 *  Delete a X2HOSmProcedureContext data block
+			 ******************************************/
+			void deleteX2HOSmProcedureContext(X2HOSmProcedureContext* X2HOSmProcedureContextp );
 			
 			/******************************************
 			* addimsikey
@@ -370,6 +394,16 @@ namespace mme
 			* SmDedDeActProcCtxt Pool Manager
 			****************************************/
 			SmDedDeActProcCtxtManager* SmDedDeActProcCtxtManagerm_p;
+			
+			/****************************************
+			* X2HOMmProcedureContext Pool Manager
+			****************************************/
+			X2HOMmProcedureContextManager* X2HOMmProcedureContextManagerm_p;
+			
+			/****************************************
+			* X2HOSmProcedureContext Pool Manager
+			****************************************/
+			X2HOSmProcedureContextManager* X2HOSmProcedureContextManagerm_p;
 			
 			
 			/****************************************
