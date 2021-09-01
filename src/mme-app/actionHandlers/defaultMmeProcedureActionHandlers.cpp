@@ -1207,7 +1207,7 @@ ActStatus ActionHandlers::default_delete_subs_req_handler(ControlBlock& cb)
         {
             if (msgData_p->dsr_flags & dsrCompApnProfWdwl_c)
             {
-                log_msg(LOG_INFO, "DSR received with Complete APN Config "
+                log_msg(LOG_ERROR, "DSR received with Complete APN Config "
                     "Profile Withdrawal Flag set to 1");
             }
             else
