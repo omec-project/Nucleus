@@ -133,8 +133,9 @@ install_build_pkg_deps() {
 
 install_freediameter() {
     $SUDO rm -rf /tmp/freediameter
-    git clone -q https://github.com/omec-project/freediameter.git /tmp/freediameter
+    git clone -q https://github.com/sdecugis/freeDiameter.git /tmp/freediameter
     pushd /tmp/freediameter
+    git checkout -q tags/1.5.0
     mkdir -p build && cd build
     cmake -DDISABLE_SCTP:BOOL=OFF .. && make -j && $SUDO make install
     popd
