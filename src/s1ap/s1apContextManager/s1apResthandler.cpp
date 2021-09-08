@@ -20,11 +20,6 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
 {
     static bool needConfig = true;
 
-    std::cout<<"Received message on http interface\n";
-    std::cout << request.resource() << std::endl;
-    std::cout << request.method() << std::endl;
-    std::cout << request.body() << std::endl;
-
     if (request.resource() == "/v1/config-check") {
       if (needConfig == true) {
          response.send(Pistache::Http::Code::Not_Found);
@@ -46,7 +41,6 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
         }
         if(doc.HasMember("plmnlist"))
         {
-            const rapidjson::Value& plmnSec = doc["plmnlist"];
             for(uint32_t i=0; i< doc["plmnlist"].Size();i++)
             {
                 const rapidjson::Value& plmnName = doc["plmnlist"][i];
