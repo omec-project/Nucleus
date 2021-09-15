@@ -309,7 +309,7 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	// UE-AMBR received from HSS. Treated as APN-AMBR as well.
 	// Bitrate values beyond 4.2 Gbps will be set in extended AMBR fields.
 	// Extended AMBR fields can store bit rate values upto 4.2 Tbps.
-	struct AMBR ambr;
+	struct AMBR ambr = {0};
 	ambr.max_requested_bw_dl = ula_msg->max_requested_bw_dl;
 	ambr.max_requested_bw_ul = ula_msg->max_requested_bw_ul;
 	if(ula_msg->extended_max_requested_bw_dl > 0 || ula_msg->extended_max_requested_bw_ul > 0)
