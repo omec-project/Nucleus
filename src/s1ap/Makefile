@@ -25,6 +25,7 @@ SOURCES := $(shell find $(SRCDIR) -type f -name '*.$(SRCEXT)')
 OBJECTS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/s1ap/%,$(SOURCES:.$(SRCEXT)=.o))
 
 CFLAGS += -Wall -Werror
+LFLAGS += -no-pie
 
 ifeq ($(DEBUG),true)
 	CFLAGS += -g
