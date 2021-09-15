@@ -162,7 +162,8 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
 	    log_msg(LOG_ERROR, "No CB found for enb fd %d.", enb_fd);
         if (ho_required_ies.data != NULL)
             free(ho_required_ies.data);
-	    return E_FAIL;
+    
+        return E_FAIL;
     }
     
     ho_required.src_enb_context_id = cbIndex;
