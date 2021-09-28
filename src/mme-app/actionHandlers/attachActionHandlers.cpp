@@ -1036,7 +1036,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	    nas.elements_len ++;
 
 	nas.elements = (nas_pdu_elements *) calloc(nas.elements_len,sizeof(nas_pdu_elements));
-	nas.elements[0].pduElement.attach_res = 2; /* EPS Only */
+	nas.elements[0].pduElement.attach_res = 1; /* EPS Only */
 	nas.elements[1].pduElement.t3412 = 224; 
 	nas.elements[2].pduElement.tailist.type = 1;
 	nas.elements[2].pduElement.tailist.num_of_elements = 0;

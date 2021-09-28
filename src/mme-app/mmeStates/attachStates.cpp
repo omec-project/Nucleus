@@ -934,7 +934,6 @@ void AttachWfInitCtxtRespAttCmp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.addAction(&ActionHandlers::send_attach_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
@@ -1013,7 +1012,6 @@ void AttachWfInitCtxtResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.addAction(&ActionHandlers::send_attach_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
@@ -1092,7 +1090,6 @@ void AttachWfAttCmp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.addAction(&ActionHandlers::send_attach_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
@@ -1179,7 +1176,6 @@ void AttachWfMbResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
-                actionTable.addAction(&ActionHandlers::send_attach_reject);
                 actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
