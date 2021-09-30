@@ -93,9 +93,17 @@ class mmeConfig
 {
     private:
         std::list<apn_config*> apn_list;
+        apn_config  *m_default_apn;
     public:
+        mmeConfig() { m_default_apn = NULL; }
+        ~mmeConfig() {}
 
-        void   add_apn(apn_config *t) { apn_list.push_back(t); }
+        void add_apn(apn_config *t)
+        {
+            apn_list.push_back(t);
+            if(t->get_apn().compare("default") == 0)
+                m_default_apn = t;
+        }
 
         apn_config* find_apn(const std::string apn) 
         {
@@ -106,11 +114,16 @@ class mmeConfig
                 temp = *it;
                 if(temp->get_apn().compare(apn) == 0)
                 {
+                    std::cout<<"Matched APN "<<temp->get_apn()<<", length "<<temp->get_apn().length()<<std::endl;
                     return temp;
                 }
-                std::cout<<"Not matched APN "<<temp->get_apn()<<", length "<<temp->get_apn().length()<<std::endl;
             }
-            return nullptr;
+            if (m_default_apn != NULL) {
+                std::cout<<"Using Default APN "<<m_default_apn->get_apn()<<", length "<<m_default_apn->get_apn().length()<<std::endl;
+            } else {
+                std::cout<<"Default APN not configured "<<std::endl;
+            }
+            return m_default_apn;
         }
 
         static void mme_parse_config_new(mme_config_t *);
