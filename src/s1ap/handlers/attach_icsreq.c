@@ -419,10 +419,21 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
 
 //	buffer_copy(&g_rab2_buffer, &datalen, sizeof(datalen));
 
-	log_msg(LOG_INFO, "RAB2 payload length before adding NAS %lu", g_rab2_buffer.pos);
-	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
+    log_msg(LOG_INFO, "RAB2 payload length before adding NAS %lu", g_rab2_buffer.pos);
+    if(g_icsReqInfo->nasMsgSize <= 127)
+    {
+	    buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgSize, sizeof(uint8_t));
+	    buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_icsReqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_rab2_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_rab2_buffer, &g_icsReqInfo->nasMsgBuf[0], g_icsReqInfo->nasMsgSize);
+    }
 
 	log_msg(LOG_INFO, "RAB2 payload length %lu", g_rab2_buffer.pos);
 	log_msg(LOG_INFO, "RAB1 payload length before appending RAB2  %lu", g_rab1_buffer.pos);

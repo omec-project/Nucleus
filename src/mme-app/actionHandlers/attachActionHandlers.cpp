@@ -1051,9 +1051,14 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.procedure_trans_identity = sessionCtxt->getPti();
 	nas.elements[3].pduElement.esm_msg.session_management_msgs = ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
 	nas.elements[3].pduElement.esm_msg.eps_qos.qci = bearerCtxt->getBearerQos().qci;
-	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
-	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
-    log_msg(LOG_DEBUG, "ESM apn length = %d ",nas.elements[3].pduElement.esm_msg.apn.len);
+    if(procedure_p->getRequestedApn().apnname_m.len > 0) {
+	  nas.elements[3].pduElement.esm_msg.apn.len = procedure_p->getRequestedApn().apnname_m.len;
+	  memcpy(nas.elements[3].pduElement.esm_msg.apn.val, procedure_p->getRequestedApn().apnname_m.val, procedure_p->getRequestedApn().apnname_m.len);
+    } else {
+	  nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
+	  memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
+    }
+    log_msg(LOG_DEBUG, "ESM apn length = %d %s ",nas.elements[3].pduElement.esm_msg.apn.len, nas.elements[3].pduElement.esm_msg.apn.val);
 
 	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
 	memcpy(nas.elements[3].pduElement.esm_msg.pco_opt.pco_options, procedure_p->getPcoOptions(), nas.elements[3].pduElement.pco_opt.pco_length);
