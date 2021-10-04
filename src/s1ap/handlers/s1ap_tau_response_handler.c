@@ -199,13 +199,24 @@ tau_rsp_processing(struct tauResp_Q_msg *g_tauRespInfo)
 	log_msg(LOG_INFO, "Received TAU response from mme-app. Nas message %d ",g_tauRespInfo->nasMsgSize);
 	datalen = g_tauRespInfo->nasMsgSize + 1; 
 
-	buffer_copy(&g_buffer, &datalen,
-						sizeof(datalen));
+	buffer_copy(&g_buffer, &datalen, sizeof(datalen));
 
-	buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgSize, sizeof(uint8_t));
+    if(g_tauRespInfo->nasMsgSize <= 127)
+    {
+        buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgSize, sizeof(uint8_t));
+        buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgBuf[0], g_tauRespInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_tauRespInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgBuf[0], g_tauRespInfo->nasMsgSize);
+    }
 
-	buffer_copy(&g_buffer, &g_tauRespInfo->nasMsgBuf[0], g_tauRespInfo->nasMsgSize);
-	datalen = g_buffer.pos - s1ap_len_pos - 1;
+	datalen = g_buffer.pos - s1ap_len_pos - 1; 
 	memcpy(g_buffer.buf + s1ap_len_pos, &datalen, sizeof(datalen));
 
    	send_sctp_msg(g_tauRespInfo->enb_fd, g_buffer.buf, g_buffer.pos,1);

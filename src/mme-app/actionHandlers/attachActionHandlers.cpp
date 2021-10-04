@@ -499,11 +499,11 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
     	}
 	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
 	nas.elements_len = num_nas_elements;
-	nas.elements->pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
+	nas.elements[0].pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
 	if(ue_ctxt->getUeNetCapab().ue_net_capab_m.len >= 4)
 	{
         /*Copy first 4 bytes of security algo info*/
-	    memcpy(nas.elements->pduElement.ue_network.u.octets, ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets, 4);
+	    memcpy(nas.elements[0].pduElement.ue_network.u.octets, ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets, 4);
 	   
         if(ue_ctxt->getMsNetCapab().ms_net_capab_m.pres == true)
 	    {
@@ -514,19 +514,19 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 		* and mask 0x7D: for GEA2 -GEA7
 		*/
             log_msg(LOG_DEBUG, "MS network present"); 
-	        nas.elements->pduElement.ue_network.len = 5;
+	        nas.elements[0].pduElement.ue_network.len = 5;
 	    	unsigned char val = 0x00;
 		    val = ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[0]&0x80;
             val |= ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[1]&0x7E;
             val >>= 1;
-	        nas.elements->pduElement.ue_network.u.octets[4] = val;
+	        nas.elements[0].pduElement.ue_network.u.octets[4] = val;
 	    }
 	    else
 	    {
 	        /*If MS capability is not present. Then only 
 		* Capability till UMTS Algorithms is sent.*/
             log_msg(LOG_DEBUG, "MS network not present"); 
-	        nas.elements->pduElement.ue_network.len = 4;
+	        nas.elements[0].pduElement.ue_network.len = 4;
 	    }
 	}
 	else
@@ -534,7 +534,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	    /*Copy as much info of UE network capability 
 	    * as received.
 	    */
-            memcpy(nas.elements->pduElement.ue_network.u.octets,
+            memcpy(nas.elements[0].pduElement.ue_network.u.octets,
 				   	ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets,
 					ue_ctxt->getUeNetCapab().ue_net_capab_m.len);
 	}
@@ -542,7 +542,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	if (mme_cfg->feature_list.dcnr_support && ue_ctxt->getUeAddSecCapabPres())
     {
         nas.opt_ies_flags.ue_add_sec_cap_presence = true;
-        memcpy(&(nas.elements->pduElement.ue_add_sec_capab),
+        memcpy(&(nas.elements[1].pduElement.ue_add_sec_capab),
                 &(ue_ctxt->getUeAddSecCapab()),
                 sizeof(ue_add_sec_capabilities));
     }
