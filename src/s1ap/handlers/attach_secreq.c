@@ -76,7 +76,6 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 
 	unsigned char datalen = 2;
 
-	/* TODO need to add proper handling*/
 	unsigned char mme_ue_id[3];
 	datalen = copyU16(mme_ue_id, s1apPDU.value.data[0].val.mme_ue_s1ap_id);
 	buffer_copy(&g_sec_value_buffer, &datalen, sizeof(datalen));
@@ -91,7 +90,6 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	buffer_copy(&g_sec_value_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	/* TODO needs proper handling*/
 	unsigned char enb_ue_id[3];
 	datalen = copyU16(enb_ue_id, s1apPDU.value.data[1].val.enb_ue_s1ap_id);
 	buffer_copy(&g_sec_value_buffer, &datalen, sizeof(datalen));
@@ -100,11 +98,9 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	/* id-NAS-PDU */
 	protocolIe_Id = id_NAS_PDU;
 	copyU16(tmpStr, protocolIe_Id);
-	buffer_copy(&g_sec_value_buffer, tmpStr,
-			sizeof(protocolIe_Id));
+	buffer_copy(&g_sec_value_buffer, tmpStr, sizeof(protocolIe_Id));
 
-	buffer_copy(&g_sec_value_buffer, &protocolIe_criticality,
-			sizeof(protocolIe_criticality));
+	buffer_copy(&g_sec_value_buffer, &protocolIe_criticality, sizeof(protocolIe_criticality));
 
 
 	log_msg(LOG_INFO, "Received Security Command  has nas message %d ",g_secReqInfo->nasMsgSize);
@@ -113,9 +109,20 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	buffer_copy(&g_sec_value_buffer, &datalen,
 						sizeof(datalen));
 
-	buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgBuf[0], g_secReqInfo->nasMsgSize);
+    if(g_secReqInfo->nasMsgSize <= 127)
+    {
+	    buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgSize, sizeof(uint8_t));
+	    buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgBuf[0], g_secReqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_secReqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_sec_value_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_sec_value_buffer, &g_secReqInfo->nasMsgBuf[0], g_secReqInfo->nasMsgSize);
+    }
 
 	/* Copy values in g_sec_buffer */
 	g_sec_buffer.pos = 0;
@@ -130,11 +137,25 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 	buffer_copy(&g_sec_buffer, &s1apPDU.criticality,
 			sizeof(s1apPDU.criticality));
 
-	buffer_copy(&g_sec_buffer, &g_sec_value_buffer.pos,
-			sizeof(uint8_t));
-
-	buffer_copy(&g_sec_buffer, &g_sec_value_buffer,
-			g_sec_value_buffer.pos);
+	uint16_t s1aplen = g_sec_value_buffer.pos;
+	log_msg(LOG_INFO, "Security Command  s1ap header pos %lu ",g_sec_buffer.pos);
+    if(s1aplen <= 127)
+    {
+        datalen = s1aplen;
+	    buffer_copy(&g_sec_buffer, &datalen, sizeof(datalen));
+	    log_msg(LOG_INFO, "Security Command  s1ap payload size %d ",s1aplen);
+    }
+    else
+    {
+        s1aplen  = s1aplen | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = s1aplen >> 8;
+        lenStr[1] = s1aplen & 0xff;
+	    buffer_copy(&g_sec_buffer, lenStr, sizeof(lenStr));
+	    log_msg(LOG_INFO, "Security Command  s1ap payload size %d ",s1aplen);
+    }
+	log_msg(LOG_INFO, "Security Command  s1ap header pos %lu and s1ap payload len = %lu ",g_sec_buffer.pos, g_sec_value_buffer.pos);
+	buffer_copy(&g_sec_buffer, &g_sec_value_buffer, g_sec_value_buffer.pos);
 
 	free(s1apPDU.value.data);
 	//STIMER_GET_CURRENT_TP(g_attach_stats[s1apPDU.value.data[1].enb_ue_s1ap_id].secreq_out);
@@ -150,9 +171,6 @@ secreq_processing(struct sec_mode_Q_msg * g_secReqInfo)
 void*
 secreq_handler(void *data)
 {
-	log_msg(LOG_INFO, "SecReq handler ready.");
-
 	secreq_processing((struct sec_mode_Q_msg *)data);
-
 	return NULL;
 }

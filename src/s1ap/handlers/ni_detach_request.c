@@ -20,7 +20,7 @@
 #include "msgType.h"
 
 static int
-get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_request_Q_msg *g_acptReqInfo)
+get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_request_Q_msg *g_niDetachReqInfo)
 {
 	uint8_t ieCnt = 0;
 
@@ -29,10 +29,10 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 	value->data = (proto_IEs *) calloc(NI_DTCH_REQUEST_NO_OF_IES,
 			sizeof(proto_IEs));
 
-	value->data[ieCnt].val.mme_ue_s1ap_id = g_acptReqInfo->ue_idx;
+	value->data[ieCnt].val.mme_ue_s1ap_id = g_niDetachReqInfo->ue_idx;
 	ieCnt++;
 
-	value->data[ieCnt].val.enb_ue_s1ap_id = g_acptReqInfo->enb_s1ap_ue_id;
+	value->data[ieCnt].val.enb_ue_s1ap_id = g_niDetachReqInfo->enb_s1ap_ue_id;
 	ieCnt++;
 
 	return SUCCESS;
@@ -42,7 +42,7 @@ get_ni_detach_request_protoie_value(struct proto_IE *value, struct ni_detach_req
 * Stage specific message processing.
 */
 static int
-ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
+ni_detach_request_processing(struct ni_detach_request_Q_msg *g_niDetachReqInfo)
 {
 	unsigned char tmpStr[4];
 	struct s1ap_PDU s1apPDU = {0};
@@ -58,7 +58,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	s1apPDU.procedurecode = id_downlinkNASTransport;
 	s1apPDU.criticality = CRITICALITY_IGNORE;
 
-	get_ni_detach_request_protoie_value(&s1apPDU.value, g_acptReqInfo);
+	get_ni_detach_request_protoie_value(&s1apPDU.value, g_niDetachReqInfo);
 
 	g_acpt_buffer.pos = 0;
 
@@ -113,15 +113,26 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 	buffer_copy(&g_acpt_buffer, &protocolIe_criticality,
 					sizeof(protocolIe_criticality));
 
-	log_msg(LOG_INFO, "Received network initiated detach - nas message %d ",g_acptReqInfo->nasMsgSize);
+	log_msg(LOG_INFO, "Received network initiated detach - nas message %d ",g_niDetachReqInfo->nasMsgSize);
 
-	datalen = g_acptReqInfo->nasMsgSize + 1; 
+	datalen = g_niDetachReqInfo->nasMsgSize + 1; 
 
 	buffer_copy(&g_acpt_buffer, &datalen, sizeof(datalen));
 
-	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_acpt_buffer, &g_acptReqInfo->nasMsgBuf[0], g_acptReqInfo->nasMsgSize);
+    if(g_niDetachReqInfo->nasMsgSize <= 127)
+    {
+        buffer_copy(&g_acpt_buffer, &g_niDetachReqInfo->nasMsgSize, sizeof(uint8_t));
+        buffer_copy(&g_acpt_buffer, &g_niDetachReqInfo->nasMsgBuf[0], g_niDetachReqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_niDetachReqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_acpt_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_acpt_buffer, &g_niDetachReqInfo->nasMsgBuf[0], g_niDetachReqInfo->nasMsgSize);
+    }
 
 	/* Copy length to s1ap length field */
 	datalen = g_acpt_buffer.pos - s1ap_len_pos - 1;
@@ -129,7 +140,7 @@ ni_detach_request_processing(struct ni_detach_request_Q_msg *g_acptReqInfo)
 
 	/* TODO: temp fix */
 	//g_ics_buffer.buf[1] = 0x09;
-	send_sctp_msg(g_acptReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
+	send_sctp_msg(g_niDetachReqInfo->enb_fd, g_acpt_buffer.buf, g_acpt_buffer.pos,1);
 
 	log_msg(LOG_INFO, "NI Detach Request sent to UE.");
     	free(s1apPDU.value.data);

@@ -142,9 +142,20 @@ s1ap_attach_id_req_processing(struct attachIdReq_info *g_attachIdReqInfo)
 	buffer_copy(&g_value_buffer, &datalen,
 						sizeof(datalen));
 
-	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
+    if(g_attachIdReqInfo->nasMsgSize <= 127)
+    {
+	    buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgSize, sizeof(uint8_t));
+	    buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_attachIdReqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_value_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_value_buffer, &g_attachIdReqInfo->nasMsgBuf[0], g_attachIdReqInfo->nasMsgSize);
+    }
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(uint8_t));

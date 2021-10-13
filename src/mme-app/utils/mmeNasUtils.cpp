@@ -420,7 +420,6 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
         case NAS_IE_TYPE_MS_NETWORK_CAPABILITY:
         {
             log_msg(LOG_DEBUG, "MS Network capability : Handling.");
-            index++;
             nas->elements[index].msgType = NAS_IE_TYPE_MS_NETWORK_CAPABILITY;
             nas->elements[index].pduElement.ms_network.pres = true;
             nas->elements[index].pduElement.ms_network.element_id = msg[0];
@@ -430,6 +429,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             memcpy((nas->elements[index].pduElement.ms_network.capab), msg,
                     nas->elements[index].pduElement.ms_network.len);
             msg += nas->elements[index].pduElement.ms_network.len;
+            index++;
             break;
         }
         case NAS_IE_TYPE_SUPPORTED_CODECS:
@@ -2096,11 +2096,11 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			value = (nas->header.security_encryption_algo << 4 | nas->header.security_integrity_algo);
 			buffer_copy(nasBuffer, &value, sizeof(value));
 			buffer_copy(nasBuffer, &nas->header.nas_security_param, sizeof(nas->header.nas_security_param));
-			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.len,
-						sizeof(nas->elements->pduElement.ue_network.len));
+			buffer_copy(nasBuffer, &nas->elements[0].pduElement.ue_network.len,
+						sizeof(nas->elements[0].pduElement.ue_network.len));
 
-			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.u.octets,
-						nas->elements->pduElement.ue_network.len);
+			buffer_copy(nasBuffer, &nas->elements[0].pduElement.ue_network.u.octets,
+						nas->elements[0].pduElement.ue_network.len);
 
  			/* Request IMEI from the device */
 			uint8_t imei = 0xc1;
@@ -2113,7 +2113,7 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
                 	    buffer_copy(nasBuffer, &ue_add_sec_cap_id, sizeof(ue_add_sec_cap_id));
                 	    uint8_t datalength = 4;
                 	    buffer_copy(nasBuffer, &datalength, sizeof(datalength));
-                	    buffer_copy(nasBuffer, &nas->elements->pduElement.ue_add_sec_capab, datalength);
+                	    buffer_copy(nasBuffer, &nas->elements[1].pduElement.ue_add_sec_capab, datalength);
             		}
 
 			/* Calculate mac */

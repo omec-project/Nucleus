@@ -135,8 +135,20 @@ emm_info_request_processing(struct ue_emm_info *g_ueEmmInfoMsg)
 	log_msg(LOG_INFO, "Received EMM information request has nas message %d ",g_ueEmmInfoMsg->nasMsgSize);
 	datalen = g_ueEmmInfoMsg->nasMsgSize + 1; 
 	buffer_copy(&g_s1ap_buffer, &datalen, sizeof(datalen));
-	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));
-	buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgBuf[0], g_ueEmmInfoMsg->nasMsgSize);
+    if(g_ueEmmInfoMsg->nasMsgSize <= 127)
+    {
+        buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgSize, sizeof(uint8_t));
+        buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgBuf[0], g_ueEmmInfoMsg->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_ueEmmInfoMsg->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_s1ap_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_s1ap_buffer, &g_ueEmmInfoMsg->nasMsgBuf[0], g_ueEmmInfoMsg->nasMsgSize);
+    }
 
     /* adding length of s1ap message before adding s1ap message */
 	uint8_t s1applen = g_s1ap_buffer.pos;
