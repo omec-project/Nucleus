@@ -44,10 +44,10 @@ using namespace cmn::utils;
  ***************************************/
 ActStatus ActionHandlers::process_erab_release_response(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "process_erab_release_response : Entry\n");
+    log_msg(LOG_DEBUG, "process_erab_release_response : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedDeActProcCtxt *dedBrDeActProc_p =
             dynamic_cast<SmDedDeActProcCtxt*>(cb.getTempDataBlock());
@@ -95,7 +95,6 @@ ActStatus ActionHandlers::process_erab_release_response(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "process_erab_release_response : Exit\n");
     return actStatus;
 }
 
@@ -104,32 +103,32 @@ ActStatus ActionHandlers::process_erab_release_response(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "process_deact_ded_bearer_accept : Entry\n");
+    log_msg(LOG_DEBUG, "process_deact_ded_bearer_accept : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedDeActProcCtxt *dedBrDeActProc_p =
             dynamic_cast<SmDedDeActProcCtxt*>(cb.getTempDataBlock());
     VERIFY(dedBrDeActProc_p, return ActStatus::ABORT,
-            "Ded Bearer DeActivation Procedure Context is NULL \n");
+            "Ded Bearer DeActivation Procedure Context is NULL ");
 
     MsgBuffer *msgBuf = static_cast<MsgBuffer*>(cb.getMsgData());
     VERIFY(msgBuf,
             dedBrDeActProc_p->setMmeErrorCause(INVALID_MSG_BUFFER); return ActStatus::ABORT,
-            "process_deact_ded_bearer_accept : Invalid message buffer \n");
+            "process_deact_ded_bearer_accept : Invalid message buffer ");
 
     const deactivate_epsbearerctx_accept_Q_msg_t *dedBrDeActAcpt =
             static_cast<const deactivate_epsbearerctx_accept_Q_msg*>(msgBuf->getDataPointer());
     VERIFY(dedBrDeActAcpt,
             dedBrDeActProc_p->setMmeErrorCause(INVALID_DATA_BUFFER); return ActStatus::ABORT,
-            "process_deact_ded_bearer_accept : Invalid data buffer \n");
+            "process_deact_ded_bearer_accept : Invalid data buffer ");
 
     BearerContext *bearerCtxt_p = MmeContextManagerUtils::findBearerContext(
             dedBrDeActProc_p->getBearerId(), ueCtxt_p);
     VERIFY(bearerCtxt_p,
             dedBrDeActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND); return ActStatus::ABORT,
-            "Bearer Context is NULL \n");
+            "Bearer Context is NULL ");
 
     if (dedBrDeActAcpt->pco_opt.pco_length > 0)
     {
@@ -158,7 +157,6 @@ ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "process_deact_ded_bearer_accept : Exit\n");
     return ActStatus::PROCEED;
 }
 
@@ -167,10 +165,10 @@ ActStatus ActionHandlers::process_deact_ded_bearer_accept(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::abort_ded_deactivation(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "abort_ded_deactivation : Entry\n");
+    log_msg(LOG_DEBUG, "abort_ded_deactivation : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedDeActProcCtxt *dedBrDeActProc_p =
             dynamic_cast<SmDedDeActProcCtxt*>(cb.getTempDataBlock());
@@ -217,7 +215,6 @@ ActStatus ActionHandlers::abort_ded_deactivation(ControlBlock &cb)
     mmeStats::Instance()->increment(
             mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_FAILURE);
 
-    log_msg(LOG_DEBUG, "abort_ded_deactivation : Exit\n");
     return ActStatus::PROCEED;
 }
 
@@ -226,10 +223,10 @@ ActStatus ActionHandlers::abort_ded_deactivation(ControlBlock &cb)
  ***************************************/
 ActStatus ActionHandlers::ded_deact_complete(ControlBlock &cb)
 {
-    log_msg(LOG_DEBUG, "ded_deact_complete : Entry\n");
+    log_msg(LOG_DEBUG, "ded_deact_complete : Entry");
 
     UEContext *ueCtxt_p = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt_p, "Invalid UE\n");
+    VERIFY_UE(cb, ueCtxt_p, "Invalid UE");
 
     SmDedDeActProcCtxt *dedBrDeActProc_p =
             dynamic_cast<SmDedDeActProcCtxt*>(cb.getTempDataBlock());
@@ -266,7 +263,7 @@ ActStatus ActionHandlers::ded_deact_complete(ControlBlock &cb)
     mmeStats::Instance()->increment(
             mmeStatsCounter::MME_PROCEDURES_DED_BEARER_DEACTIVATION_PROC_SUCCESS);
 
-    log_msg(LOG_DEBUG, "ded_deact_complete : Entry\n");
+    log_msg(LOG_DEBUG, "ded_deact_complete : Entry");
     return ActStatus::PROCEED;
 }
 
@@ -275,10 +272,10 @@ ActStatus ActionHandlers::ded_deact_complete(ControlBlock &cb)
 ***************************************/
 ActStatus ActionHandlers::send_erab_rel_cmd_and_deact_eps_br_ctxt_req(ControlBlock& cb)
 {
-	log_msg(LOG_DEBUG, "send_erab_rel_cmd_and_deact_eps_br_ctxt_req : Entry\n");
+	log_msg(LOG_DEBUG, "send_erab_rel_cmd_and_deact_eps_br_ctxt_req : Entry");
 
 	UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-	VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+	VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
 	SmDedDeActProcCtxt *dedBrDeActProc_p =
 	        dynamic_cast<SmDedDeActProcCtxt*>(cb.getTempDataBlock());
@@ -322,8 +319,6 @@ ActStatus ActionHandlers::send_erab_rel_cmd_and_deact_eps_br_ctxt_req(ControlBlo
 	{
 		dedBrDeActProc_p->setMmeErrorCause(BEARER_CONTEXT_NOT_FOUND);
 	}
-
-	log_msg(LOG_DEBUG, "send_erab_rel_cmd_and_deact_eps_br_ctxt_req : Exit\n");
 
     return actStatus;
 }

@@ -79,8 +79,6 @@ ActStatus ActionHandlers::send_ho_request_to_target_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &hoReq, sizeof(hoReq), destAddr);
 
-    log_msg(LOG_DEBUG, "Leaving send_ho_request_to_target_enb ");
-
     ProcedureStats::num_of_ho_request_to_target_enb_sent++;
     return ActStatus::PROCEED;
 }
@@ -135,7 +133,6 @@ ActStatus ActionHandlers::process_ho_request_ack(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_request_ack_received++;
 
-    log_msg(LOG_DEBUG, "Leaving process_ho_request_ack");
     return ActStatus::PROCEED;
 }
 
@@ -173,7 +170,6 @@ ActStatus ActionHandlers::send_ho_command_to_src_enb(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &ho_command, sizeof(ho_command), destAddr);
 
     ProcedureStats::num_of_ho_command_to_src_enb_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_command_to_src_enb");
 
     return ActStatus::PROCEED;
 }
@@ -272,7 +268,6 @@ ActStatus ActionHandlers::process_ho_notify(ControlBlock &cb)
     ho_ctxt->setTargetCgi(Cgi(ho_notify->utran_cgi));
 
     ProcedureStats::num_of_ho_notify_received++;
-    log_msg(LOG_DEBUG, "Leaving process_ho_notify");
 
     return ActStatus::PROCEED;
 }
@@ -319,7 +314,6 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_ho(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_ho ");
     return ActStatus::PROCEED;
 }
 
@@ -371,7 +365,6 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_src_enb_for_ho(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent ++;
-    log_msg(LOG_DEBUG,"Leaving send_s1ap_ue_ctxt_rel_command_to_src_enb ");
     return ActStatus::PROCEED;
 }
 
@@ -543,7 +536,6 @@ ActStatus ActionHandlers::process_ho_failure(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_failure_received++;
 
-    log_msg(LOG_INFO, "Leaving process_ho_failure");
     return ActStatus::PROCEED;
 }
 
@@ -586,7 +578,6 @@ ActStatus ActionHandlers::send_ho_prep_failure_to_src_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
     mmeIpcIf.dispatchIpcMsg((char *) &ho_prep_failure, sizeof(ho_prep_failure), destAddr);
     ProcedureStats::num_of_ho_prep_failure_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_prep_failure_to_src_enb");
 
     return ActStatus::PROCEED;
 }
@@ -645,7 +636,6 @@ ActStatus ActionHandlers::send_s1_rel_cmd_to_target_enb(ControlBlock &cb)
     mmeIpcIf.dispatchIpcMsg((char *) &s1relcmd, sizeof(s1relcmd), destAddr);
 
     ProcedureStats::num_of_s1_rel_cmd_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_s1_rel_cmd_to_target_enb ");
     return ActStatus::PROCEED;
 }
 
@@ -674,7 +664,6 @@ ActStatus ActionHandlers::process_ho_cancel_req(ControlBlock &cb)
 
     ProcedureStats::num_of_ho_cancel_received++;
 
-    log_msg(LOG_INFO, "Leaving process_ho_cancel_req");
     return ActStatus::PROCEED;
 }
 
@@ -715,7 +704,6 @@ ActStatus ActionHandlers::send_ho_cancel_ack_to_src_enb(ControlBlock &cb)
     MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
     mmeIpcIf.dispatchIpcMsg((char *) &ho_cancel_ack, sizeof(ho_cancel_ack), destAddr);
     ProcedureStats::num_of_ho_cancel_ack_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_ho_cancel_ack_to_src_enb");
 
     return ActStatus::PROCEED;
 }

@@ -309,7 +309,6 @@ bool MmeGtpMsgUtils::populateDeleteBearerResponse(SM::ControlBlock &cb,
         if (sessionCtxt_p != NULL)
         {
             uint8_t index = 0;
-            uint8_t successCount = 0;
 
             memcpy(&(db_resp.s11_sgw_c_fteid),
                     &(sessionCtxt_p->getS11SgwCtrlFteid().fteid_m),

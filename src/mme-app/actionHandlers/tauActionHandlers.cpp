@@ -168,7 +168,6 @@ ActStatus ActionHandlers::send_tau_response_to_ue(ControlBlock& cb)
 	}
 	ProcedureStats::num_of_tau_response_to_ue_sent++;
 
-	log_msg(LOG_INFO,"Leaving send_tau_response_to_ue");
 	return ActStatus::PROCEED;
 }
 

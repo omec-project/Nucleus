@@ -142,8 +142,6 @@ ActStatus ActionHandlers:: send_s1_rel_cmd_to_ue(SM::ControlBlock& cb)
 	
 	ProcedureStats::num_of_s1_rel_cmd_sent ++;
 	
-	log_msg(LOG_DEBUG,"Leaving send_s1_rel_cmd_to_ue ");
-
 	return ActStatus::PROCEED;
 }
 
@@ -200,8 +198,6 @@ ActStatus ActionHandlers::s1_release_complete(ControlBlock& cb)
 
     ue_ctxt->setS1apEnbUeId(0);
     ProcedureStats::num_of_s1_rel_comp_received++;
-
-    log_msg(LOG_DEBUG, "Leaving s1_release_complete ");
 
     return ActStatus::PROCEED;
 }
