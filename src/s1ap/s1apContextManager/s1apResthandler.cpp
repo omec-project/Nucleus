@@ -16,7 +16,7 @@
 int configVersion;
 char *plmns_cpp[1000];
 int num_plmns_cpp;
-
+std::mutex g_config_mutex;
 void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response)
 {
     static bool needConfig = true;
@@ -42,6 +42,7 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
         }
         if(doc.HasMember("plmnlist"))
         {
+            std::lock_guard<std::mutex> guard(g_config_mutex);
             for(uint32_t i=0; i< doc["plmnlist"].Size();i++)
             {
                 const rapidjson::Value& plmnName = doc["plmnlist"][i];
@@ -57,6 +58,15 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
         }
         needConfig = false;
         configVersion++;
+        char** new_array;
+        new_array = (char**)malloc(num_plmns_cpp * sizeof(char*));
+        if (new_array != NULL) {
+            for (int32_t i=0; i < num_plmns_cpp; i++) {
+                new_array[i] = (char *)malloc(32);
+                strcpy(new_array[i], plmns_cpp[i]);
+            }
+            configCallback(new_array, num_plmns_cpp, configVersion);
+        }
         response.send(Pistache::Http::Code::Ok);
     } else {
       std::stringstream ss;

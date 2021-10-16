@@ -20,6 +20,10 @@ extern char *plmns_cpp[1000];
 class RestHandler : public Pistache::Http::Handler {
 
 public:
+    RestHandler(void (*func)(char **, int, int)) {
+        configCallback = func;
+    }
+    void (*configCallback)(char **, int, int);
     HTTP_PROTOTYPE(RestHandler)
     void onRequest(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response);
 };
