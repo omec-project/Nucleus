@@ -16,6 +16,7 @@
 int configVersion;
 char *plmns_cpp[1000];
 int num_plmns_cpp;
+
 void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Http::ResponseWriter response)
 {
     static bool needConfig = true;

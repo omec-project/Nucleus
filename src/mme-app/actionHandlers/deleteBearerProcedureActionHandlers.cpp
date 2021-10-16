@@ -136,7 +136,6 @@ ActStatus ActionHandlers::init_ded_bearer_deactivation(ControlBlock &cb)
         actStatus = ABORT;
     }
 
-    log_msg(LOG_DEBUG, "init_ded_bearer_deactivation : Exit");
     return actStatus;
 }
 
@@ -199,7 +198,6 @@ ActStatus ActionHandlers::send_delete_bearer_response(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "send_delete_bearer_response : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -264,7 +262,6 @@ ActStatus ActionHandlers::abort_delete_bearer_procedure(ControlBlock &cb)
                 mmeStatsCounter::MME_PROCEDURES_DELETE_BEARER_PROC_FAILURE);
     }
 
-    log_msg(LOG_DEBUG, "abort_delete_bearer_procedure : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -303,7 +300,6 @@ ActStatus ActionHandlers::check_and_init_deactivation(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "check_and_init_deactivation : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -350,7 +346,6 @@ ActStatus ActionHandlers::handle_ded_deact_cmp_ind(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_ded_deact_cmp_ind : Exit");
     return actStatus;
 }
 
@@ -384,7 +379,6 @@ ActStatus ActionHandlers::delete_bearer_proc_complete(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "delete_bearer_proc_complete : Exit");
     return ActStatus::PROCEED;
 }
 

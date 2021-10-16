@@ -91,8 +91,6 @@ ActStatus ActionHandlers::send_erab_mod_conf_to_enb(ControlBlock &cb)
         actStatus = ActStatus::HALT;
     }
 
-    log_msg(LOG_DEBUG, "Leaving send_erab_mod_conf_to_enb ");
-
     return actStatus;
 }
 
