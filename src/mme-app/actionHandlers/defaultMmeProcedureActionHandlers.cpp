@@ -838,8 +838,6 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
 	rc = ActStatus::ABORT;
     }
 
-    log_msg(LOG_DEBUG, "handle_paging_failure: Exit ");
-
     return rc;
 }
 
@@ -1011,8 +1009,6 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
         		dispatchIpcMsg((char*) &dbRsp, sizeof(dbRsp), destAddr);
     }
 	
-    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Exit ");
-	
     return ActStatus::PROCEED;
 }
 
@@ -1043,7 +1039,6 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         }
     }
-    log_msg(LOG_DEBUG, "handle_detach_failure: Exit ");
 
     return rc;
 }
@@ -1053,10 +1048,10 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Entry \n");
+    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Entry");
 
     UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL \n");
+    VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL ");
 
     MmeProcedureCtxt *procCtxt_p =
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
@@ -1083,14 +1078,13 @@ ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
                     break;
                     default:
                     {
-                        log_msg(LOG_DEBUG, "NAS PDU Parse Failure not handled for the msgType %d\n", msgType);
+                        log_msg(LOG_DEBUG, "NAS PDU Parse Failure not handled for the msgType %d", msgType);
                     }
                 }
             }
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Exit \n");
     return ActStatus::PROCEED;
 }
 
@@ -1172,9 +1166,6 @@ ActStatus ActionHandlers::default_path_switch_req_handler(ControlBlock& cb)
                         MmeIpcInterfaceCompId));
         mmeIpcIf.dispatchIpcMsg((char *) &pathFail, sizeof(pathFail), destAddr);
     }
-
-
-    log_msg(LOG_DEBUG, "default_path_switch_req_handler: Exit ");
 
     return rc;
 }

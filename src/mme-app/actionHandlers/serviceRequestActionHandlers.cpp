@@ -78,8 +78,6 @@ ActStatus ActionHandlers::send_paging_req_to_ue(ControlBlock& cb)
 
     ProcedureStats::num_of_paging_request_sent++;
 
-    log_msg(LOG_INFO, "Leaving send_paging_req");
-
     return ActStatus::PROCEED;
 }
 
@@ -116,7 +114,6 @@ ActStatus ActionHandlers::process_service_request(ControlBlock& cb)
 
     mmCtxt->setEcmState(ecmConnected_c);
 	ue_ctxt->setS1apEnbUeId(msgData_p->header.s1ap_enb_ue_id);
-	log_msg(LOG_DEBUG, "Leaving process_service_request ");
 	ProcedureStats::num_of_service_request_received ++;
 
 	return ActStatus::PROCEED;
@@ -163,8 +160,6 @@ ActStatus ActionHandlers::send_ddn_ack_to_sgw(ControlBlock& cb)
             static_cast<MmeIpcInterface&>(compDb.getComponent(
                     MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &ddn_ack, sizeof(ddn_ack), destAddr);
-
-    log_msg(LOG_DEBUG, "Leaving send_ddn_ack_to_sgw ");
 
     ProcedureStats::num_of_ddn_ack_sent++;
 
@@ -265,7 +260,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue_svc_req(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 
     ProcedureStats::num_of_init_ctxt_req_to_ue_sent++;
-    log_msg(LOG_DEBUG, "Leaving send_init_ctxt_req_to_ue_svc_req_ ");
 
     return ActStatus::PROCEED;
 }
@@ -333,7 +327,6 @@ ActStatus ActionHandlers::process_init_ctxt_resp_svc_req(ControlBlock& cb)
     }
 
     ProcedureStats::num_of_processed_init_ctxt_resp++;
-    log_msg(LOG_DEBUG, "Leaving process_init_ctxt_resp_svc_req ");
 
     return ActStatus::PROCEED;
 }
@@ -429,8 +422,6 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_svc_req(ControlBlock& cb)
     mmeIpcIf.dispatchIpcMsg((char*) &mb_msg, sizeof(mb_msg), destAddr);
 
     ProcedureStats::num_of_mb_req_to_sgw_sent++;
-
-    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_svc_req ");
 
     return actStatus;
 }
@@ -620,8 +611,6 @@ ActStatus ActionHandlers::send_ddn_failure_ind(ControlBlock& cb)
             static_cast<MmeIpcInterface&>(compDb.getComponent(
                     MmeIpcInterfaceCompId));
     mmeIpcIf.dispatchIpcMsg((char *) &ddn_fail, sizeof(ddn_fail), destAddr);
-
-    log_msg(LOG_DEBUG, "Leaving send_ddn_failure_ind ");
 
     return ActStatus::PROCEED;
 }
