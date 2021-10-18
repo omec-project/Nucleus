@@ -142,9 +142,20 @@ authreq_processing(struct authreq_info *g_authreqInfo)
 	buffer_copy(&g_value_buffer, &datalen,
 						sizeof(datalen));
 
-	buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgBuf[0], g_authreqInfo->nasMsgSize);
+    if(g_authreqInfo->nasMsgSize <= 127)
+    {
+	    buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgSize, sizeof(uint8_t));
+	    buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgBuf[0], g_authreqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_authreqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_value_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_value_buffer, &g_authreqInfo->nasMsgBuf[0], g_authreqInfo->nasMsgSize);
+    }
 
 	buffer_copy(&g_buffer, &g_value_buffer.pos,
 						sizeof(uint8_t));

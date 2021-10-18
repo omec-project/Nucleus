@@ -545,7 +545,7 @@ icsreq_processing(struct init_ctx_req_Q_msg *g_icsReqInfo)
     }
     else
     {
-        s1aplen  = g_s1ap_buffer.pos | 0x8000; // set MSB to 1
+        s1aplen  = s1aplen | 0x8000; // set MSB to 1
         unsigned char lenStr[2];
         lenStr[0] = s1aplen >> 8;
         lenStr[1] = s1aplen & 0xff;

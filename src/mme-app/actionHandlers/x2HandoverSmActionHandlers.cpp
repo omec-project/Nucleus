@@ -97,7 +97,6 @@ ActStatus ActionHandlers::send_mb_req_to_sgw_for_x2_ho(ControlBlock &cb)
 
     hoCtxt->resetPathSwitchReqMsgPtr();
 
-    log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw_for_x2_ho ");
     return actstatus;
 }
 
@@ -210,7 +209,6 @@ ActStatus ActionHandlers::process_mb_resp_for_x2_ho(ControlBlock &cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "process_mb_resp_for_x2_ho : Exit ");
     return actStatus;
 }
 
@@ -343,7 +341,6 @@ ActStatus ActionHandlers::x2_ho_sm_complete(ControlBlock &cb)
         MmeContextManagerUtils::deallocateProcedureCtxt(cb, proc_p);
     }
 
-    log_msg(LOG_DEBUG, "x2_ho_sm_complete : Exit ");
     return ActStatus::PROCEED;
 }
 

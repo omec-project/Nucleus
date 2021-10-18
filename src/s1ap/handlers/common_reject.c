@@ -45,7 +45,6 @@ process_attach_rej(struct commonRej_info *g_mmeS1apInfo)
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -78,7 +77,6 @@ process_service_rej(struct commonRej_info *g_mmeS1apInfo)
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -111,7 +109,6 @@ process_tau_rej(struct commonRej_info *g_mmeS1apInfo)
     }
 
     send_sctp_msg(g_mmeS1apInfo->enb_fd, buffer, length, 1);
-    log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);

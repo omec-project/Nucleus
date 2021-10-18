@@ -80,7 +80,7 @@ void MonitorSubscriber::handle_monitor_imsi_req(struct monitor_imsi_req *mir, in
         }
         else
         {
-            log_msg(LOG_INFO, "Failed to find Control Block with IMSI %s\n", IMSI.getDigitsArray());
+            log_msg(LOG_INFO, "Failed to find Control Block with IMSI %s", IMSI.getDigitsArray());
             //Deleting stale IMSI-> cb index mapping
             mme::SubsDataGroupManager::Instance()->deleteimsikey(IMSI);
         }

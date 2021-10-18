@@ -117,9 +117,20 @@ esmreq_processing(struct esm_req_Q_msg * g_esmReqInfo)
 	buffer_copy(&g_esm_value_buffer, &datalen,
 						sizeof(datalen));
 
-	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgSize, sizeof(uint8_t));
-
-	buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgBuf[0], g_esmReqInfo->nasMsgSize);
+    if(g_esmReqInfo->nasMsgSize <= 127)
+    {
+	    buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgSize, sizeof(uint8_t));
+	    buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgBuf[0], g_esmReqInfo->nasMsgSize);
+    }
+    else
+    {
+        uint16_t nas_len  = g_esmReqInfo->nasMsgSize | 0x8000; // set MSB to 1
+        unsigned char lenStr[2];
+        lenStr[0] = nas_len >> 8;
+        lenStr[1] = nas_len & 0xff;
+        buffer_copy(&g_esm_value_buffer, lenStr, sizeof(lenStr));
+        buffer_copy(&g_esm_value_buffer, &g_esmReqInfo->nasMsgBuf[0], g_esmReqInfo->nasMsgSize);
+    }
 
 	/* Copy values in g_sec_buffer */
 	g_esm_buffer.pos = 0;
