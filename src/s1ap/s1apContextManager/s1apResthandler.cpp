@@ -40,9 +40,10 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
                 response.send(Pistache::Http::Code::Bad_Request, ss.str());
                 return;
         }
+
+        std::lock_guard<std::mutex> guard(g_config_mutex);
         if(doc.HasMember("plmnlist"))
         {
-            std::lock_guard<std::mutex> guard(g_config_mutex);
             for(uint32_t i=0; i< doc["plmnlist"].Size();i++)
             {
                 const rapidjson::Value& plmnName = doc["plmnlist"][i];
