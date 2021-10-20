@@ -179,6 +179,7 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
                         mme::S1apDataGroupManager::Instance()->sizeEnbFdKeyMap());
                 log_msg(LOG_DEBUG,"setValuesForEnb : Id map size after delete : %d.", 
                 mme::S1apDataGroupManager::Instance()->sizeEnbIdKeyMap());
+                close(enbCbCtx->getEnbFd());
                 enbCbCtx->setEnbFd(enbCtx->enbFd_m);
                 enbCbCtx->setEnbId(enbCtx->enbId_m);
                 enbCbCtx->setS1apEnbUeId(enbCtx->s1apEnbUeId_m);
