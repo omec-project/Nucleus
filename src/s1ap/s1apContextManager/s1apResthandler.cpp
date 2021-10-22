@@ -50,9 +50,9 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
                 std::string key = plmnName.GetString();
                 std::cout<<"plmn "<< key.c_str()<<std::endl;
                 if (plmns_cpp[i] == NULL) {
-                    plmns_cpp[i] = (char *)malloc(32);
+                    plmns_cpp[i] = (char *)calloc(1, 32);
                 }
-                strncpy(plmns_cpp[i],key.c_str(), strlen(key.c_str())); 
+                strncpy(plmns_cpp[i],key.c_str(), strlen(key.c_str())+1);
             }
             num_plmns_cpp = doc["plmnlist"].Size();
             std::cout<<"Number of plmns "<< num_plmns_cpp<<std::endl;
@@ -60,10 +60,10 @@ void RestHandler::onRequest(const Pistache::Http::Request& request, Pistache::Ht
         needConfig = false;
         configVersion++;
         char** new_array;
-        new_array = (char**)malloc(num_plmns_cpp * sizeof(char*));
+        new_array = (char**)calloc(1, num_plmns_cpp * sizeof(char*));
         if (new_array != NULL) {
             for (int32_t i=0; i < num_plmns_cpp; i++) {
-                new_array[i] = (char *)malloc(32);
+                new_array[i] = (char *)calloc(1, 32);
                 strcpy(new_array[i], plmns_cpp[i]);
             }
             configCallback(new_array, num_plmns_cpp, configVersion);
