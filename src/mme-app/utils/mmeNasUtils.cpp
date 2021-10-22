@@ -804,11 +804,6 @@ void MmeNasUtils::decode_deact_ded_br_ctxt_acpt(unsigned char *msg,
 
 int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
-   	//unsigned short msg_len = nas_msg_len;
-   	//unsigned char *bufflog = NULL;
-   	//log_msg(LOG_INFO, "NAS PDU msg: %s", msg_to_hex_str(msg, msg_len, &bufflog));
-   	//log_buffer_free(&bufflog);
-
    	nas_pdu_header_sec nas_header_sec;
    	nas_pdu_header_short nas_header_short;
    	nas_pdu_header_long nas_header_long;
@@ -819,10 +814,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
 
    	sec_header_type = (msg[0] >> 4) & 0x0F;
    	protocol_discr = msg[0] & 0x0F;
-   	//unsigned char is_ESM = ((unsigned short)protocol_discr == 0x02);  // see TS 24.007
-   	//log_msg(LOG_INFO, "Security header=%d", sec_header_type);
-   	//log_msg(LOG_INFO, "Protocol discriminator=%d", protocol_discr);
-   	//log_msg(LOG_INFO, "is_ESM=%d", is_ESM);
 
     unsigned char *buffer = NULL;
     if(0 != sec_header_type) 

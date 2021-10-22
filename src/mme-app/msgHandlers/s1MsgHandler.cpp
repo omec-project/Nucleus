@@ -39,7 +39,7 @@ S1MsgHandler* S1MsgHandler::Instance()
 // Starting point 
 void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 {
-	log_msg(LOG_INFO, "S1 - handleS1Message_v");
+	//log_msg(LOG_INFO, "S1 - handleS1Message_v");
 
 	if (std::move(eMsg).get() == NULL)
 		return;
@@ -47,21 +47,21 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
 	utils::MsgBuffer* msgBuf = eMsg->getMsgBuffer();
 	if (msgBuf == NULL)
 	{
-		log_msg(LOG_INFO, "S1 Message Buffer is empty ");
+		log_msg(LOG_ERROR, "S1 Message Buffer is empty ");
 		return;
 	}
 
-	log_msg(LOG_INFO, "message size %d in s1 ipc message ",msgBuf->getLength());
+	//log_msg(LOG_INFO, "message size %d in s1 ipc message ",msgBuf->getLength());
 	if (msgBuf->getLength() < sizeof (s1_incoming_msg_header_t))
 	{
-	    log_msg(LOG_INFO, "Not enough bytes in s1 ipc message"
+	    log_msg(LOG_ERROR, "Not enough bytes in s1 ipc message"
 	            "Received %d but should be %lu", msgBuf->getLength(),
 	            sizeof (s1_incoming_msg_header_t));
 	    return;
 	}
 
 	s1_incoming_msg_header_t* msgData_p = (s1_incoming_msg_header_t*)(msgBuf->getDataPointer());
-	log_msg(LOG_INFO, "S1 - handleS1Message_v %d",msgData_p->msg_type);
+	//log_msg(LOG_INFO, "S1 - handleS1Message_v %d",msgData_p->msg_type);
 
 	/* Below function should take care of decryption and integrity check */
 	/* Get the control block and pass it to below function */
@@ -104,7 +104,7 @@ void S1MsgHandler::handleS1Message_v(IpcEMsgUnqPtr eMsg)
             handleNasPduParseFailureInd_v(eMsg, msgData_p->ue_idx);
 
             free(nas.elements);
-            log_msg(LOG_ERROR, "NAS pdu parse failed.");
+            log_msg(LOG_ERROR, "NAS pdu parse failed for message received from eNB with s1ap id = %d, ue Index = %d.",s1ap_enb_ue_id, msgData_p->ue_idx);
             return;
         }
 
