@@ -143,7 +143,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	ueCtxt_p->setUeNetCapab(Ue_net_capab(ue_info->ue_net_capab));
 	ueCtxt_p->setMsNetCapab(Ms_net_capab(ue_info->ms_net_capab));
 	ueCtxt_p->setUeAddSecCapabPres(ue_info->ue_add_sec_cap_present);
-    	ueCtxt_p->setUeAddSecCapab(ue_info->ue_add_sec_capab);
+	ueCtxt_p->setUeAddSecCapab(ue_info->ue_add_sec_capab);
 	prcdCtxt_p->setPti(ue_info->pti);
 	prcdCtxt_p->setPcoOptionsLen(ue_info->pco_length);
 	prcdCtxt_p->setPcoOptions(ue_info->pco_options);
@@ -156,7 +156,8 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		case imsiAttach_c:
 		{
 			uint8_t imsi[BINARY_IMSI_LEN] = {0};
-		    	memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
+
+		    memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
 
 			// Only upper nibble of first octect in imsi need to be considered
 			// Changing the lower nibble to 0x0f for handling
@@ -1078,7 +1079,7 @@ ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
                     break;
                     default:
                     {
-                        log_msg(LOG_DEBUG, "NAS PDU Parse Failure not handled for the msgType %d", msgType);
+                        log_msg(LOG_ERROR, "NAS PDU Parse Failure not handled for the msgType %d", msgType);
                     }
                 }
             }

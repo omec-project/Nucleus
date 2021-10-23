@@ -889,11 +889,12 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		uint32_t mTmsi = MmeCommonUtils::allocateMtmsi();
 		if (mTmsi == 0)
 		{
-			log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: Failed to allocate mTmsi ");
+			log_msg(LOG_ERROR, "send_init_ctxt_req_to_ue: Failed to allocate mTmsi ");
 			return ActStatus::ABORT;
 		}
 
-		ue_ctxt->setMTmsi(mTmsi);
+        ue_ctxt->setMTmsi(mTmsi);
+        log_msg(LOG_INFO, "Subscriber %s, tmsi = %d ", ue_ctxt->getImsi().getDigitsArray(), mTmsi);
 
 		// TODO: Should this be done here or attach_done method
 		SubsDataGroupManager::Instance()->addmTmsikey(mTmsi, ue_ctxt->getContextID());
@@ -1046,7 +1047,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	  nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
 	  memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
     }
-    log_msg(LOG_DEBUG, "ESM apn length = %d %s ",nas.elements[3].pduElement.esm_msg.apn.len, nas.elements[3].pduElement.esm_msg.apn.val);
 
 	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
 	memcpy(nas.elements[3].pduElement.esm_msg.pco_opt.pco_options, procedure_p->getPcoOptions(), nas.elements[3].pduElement.pco_opt.pco_length);
@@ -1119,7 +1119,6 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&icr_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	icr_msg.nasMsgSize = nasBuffer.pos;
-	log_msg(LOG_DEBUG, "nas message size %d ",icr_msg.nasMsgSize);
 	free(nas.elements);
 
 	cmn::ipc::IpcAddress destAddr;
