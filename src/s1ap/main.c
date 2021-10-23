@@ -241,16 +241,19 @@ accept_sctp(void *data)
 				log_msg(LOG_ERROR, "1 setsockopt() failed %s ",strerror(errno));
 			}
 
-			log_msg(LOG_INFO, "New Connection Established.");
+			log_msg(LOG_INFO, "New Connection Established %d.", new_socket);
 
+            bool found=false;
 			for (i = 0; i < MAX_ENB; i++) {
-
 				if( enb_socket[i] == 0 ) {
-
 					enb_socket[i] = new_socket;
+                    found = true;
 					break;
 				}
 			}
+            if (found == false) {
+			    log_msg(LOG_ERROR, "All 32 connections used, can not handle more than 32 eNBs");
+            }
 		}
 
 		for (i = 0; i < MAX_ENB; i++) {
