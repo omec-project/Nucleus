@@ -23,7 +23,7 @@
                                 struct EnbStruct* enbCtx);
 
     bool clearControlBlockDetailsEnbFd_cpp(uint32_t enbFd, struct EnbStruct *);
-    void runRestServer_cpp(uint32_t port);
+    void runRestServer_cpp(uint32_t port, void (*func)(char**, int, int));
     int getConfigPlmns_cpp(char *plmns[]);
     int getConfigVersion_cpp();
 #endif

@@ -641,9 +641,8 @@ ics_req_attach_processing(struct init_ctx_req_Q_msg *g_icsreq)
         if(buffer) {
                 free(buffer);
         }
-        log_msg(LOG_INFO, "----ICS Req for paging sent to UE.---");
+        log_msg(LOG_INFO, "----ICS Req for attach sent to UE.---");
         return SUCCESS;
-
 }
 
 void*

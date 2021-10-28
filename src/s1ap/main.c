@@ -241,16 +241,19 @@ accept_sctp(void *data)
 				log_msg(LOG_ERROR, "1 setsockopt() failed %s ",strerror(errno));
 			}
 
-			log_msg(LOG_INFO, "New Connection Established.");
+			log_msg(LOG_INFO, "New Connection Established %d.", new_socket);
 
+            bool found=false;
 			for (i = 0; i < MAX_ENB; i++) {
-
 				if( enb_socket[i] == 0 ) {
-
 					enb_socket[i] = new_socket;
+                    found = true;
 					break;
 				}
 			}
+            if (found == false) {
+			    log_msg(LOG_ERROR, "All 32 connections used, can not handle more than 32 eNBs");
+            }
 		}
 
 		for (i = 0; i < MAX_ENB; i++) {
@@ -511,35 +514,23 @@ main(int argc, char **argv)
 	return SUCCESS;
 }
 
+void update_config(char *plmns[], int num_plmns, int cfgVersion)
+{
+	log_msg(LOG_INFO, "update config. new version : %d", cfgVersion);
+    update_mcc_mnc(s1ap_inst->s1ap_config, plmns, num_plmns);
+    if (plmns != NULL) {
+        for(uint32_t i =0; i < num_plmns; i++) {
+            free(plmns[i]);
+        }
+        free(plmns);
+    }
+}
+
 void *
 rest_handler(void *data)
 {
     uint32_t *port = (uint32_t *)data;
-    runRestServer(*port);
-    return NULL;
-}
-
-void *
-rest_handler_poll(void *data)
-{
-    int configVersion=0;
-    int new_configVersion=0;
-
-    char *plmns[1000];
-    while(1) {
-        // Get configtimestamp
-        new_configVersion = getConfigVersion();
-        if (new_configVersion == configVersion) {
-            sleep(3);
-            continue;
-        }
-        configVersion = new_configVersion;
-        // if its later config then get Plmn list from rest module 
-        int num;
-        num = getConfigPlmns(plmns);
-        // parse it.. and update s1ap_config 
-        update_mcc_mnc(s1ap_inst->s1ap_config, plmns, num);
-    }
+    runRestServer(*port, &update_config);
     return NULL;
 }
 
@@ -551,10 +542,6 @@ void init_rest_server(void)
     pthread_create(&thread_id, &attr, &rest_handler, &s1ap_rest_port);
     pthread_attr_destroy(&attr);
 
-    pthread_attr_t attr1;
-    pthread_t thread_id1;
-    pthread_attr_init(&attr1);
-    pthread_create(&thread_id1, &attr1, &rest_handler_poll, NULL);
     return;
 }
 

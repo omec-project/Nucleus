@@ -97,7 +97,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "TAI decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_TAI;
 						memcpy(&proto_ies->data[i].val.tai.tac, s1apTAI_p->tAC.buf, s1apTAI_p->tAC.size);
 						memcpy(proto_ies->data[i].val.tai.plmn_id.idx,
@@ -118,7 +117,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "CGI decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_UTRAN_CGI;
 						memcpy(&proto_ies->data[i].val.utran_cgi.cell_id,
                                s1apCGI_p->cell_ID.buf, s1apCGI_p->cell_ID.size);
@@ -141,7 +139,6 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 							return -1;
 						}
 
-                        log_msg(LOG_DEBUG, "RRC Cause decode Success");
                         proto_ies->data[i].IE_type = S1AP_IE_RRC_EST_CAUSE;
 						proto_ies->data[i].val.rrc_est_cause = (enum ie_RRC_est_cause) *s1apRRCEstCause_p;
 					} break;

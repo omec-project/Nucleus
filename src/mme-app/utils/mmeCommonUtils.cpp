@@ -222,15 +222,15 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 					//Deleting the IMSI key, since there is no cb associated with it.
 					SubsDataGroupManager::Instance()->deleteimsikey(IMSIInfo);
 
-					log_msg(LOG_INFO, "create new cb for IMSI %s.",
-							IMSIInfo.getDigitsArray());
 
 					cb = SubsDataGroupManager::Instance()->allocateCB();
 					if(cb == NULL) 
 					{
-						log_msg(LOG_DEBUG, "create new cb for IMSI failed. %s ",IMSIInfo.getDigitsArray());
+						log_msg(LOG_ERROR, "create new cb for IMSI failed. %s ",IMSIInfo.getDigitsArray());
 						return nullptr;
 					}
+					log_msg(LOG_INFO, "create new cb for IMSI %s. CB index = %d ",
+							IMSIInfo.getDigitsArray(), cb->getCBIndex());
 					cb->addTempDataBlock(DefaultMmeProcedureCtxt::Instance());
 				}
 			}
@@ -248,7 +248,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 						cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 						if(cb == NULL)
 						{
-						    log_msg(LOG_INFO, "Failed to find control block with mTmsi %d", 
+						    log_msg(LOG_ERROR, "Failed to find control block with mTmsi %d", 
 								    ue_info->mi_guti.m_TMSI);
 						    // Deleting stale mTmsi -> cbIdx mapping.
 						    SubsDataGroupManager::Instance()->deletemTmsikey(ue_info->mi_guti.m_TMSI);
@@ -306,7 +306,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 				cb = SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
 				if(cb == NULL)
 				{
-				    log_msg(LOG_INFO,"No CB found for UE with mTMSI %d", detach_Req->ue_m_tmsi);
+				    log_msg(LOG_ERROR,"No CB found for UE with mTMSI %d", detach_Req->ue_m_tmsi);
 				    // Deleting stale mTmsi -> cbIdx mapping.
 				    SubsDataGroupManager::Instance()->deletemTmsikey(detach_Req->ue_m_tmsi);
 				}
@@ -327,7 +327,7 @@ SM::ControlBlock* MmeCommonUtils::findControlBlock(cmn::utils::MsgBuffer* buf)
 			}
 			else
 			{
-				log_msg(LOG_INFO, "Failed to find control block with mTmsi %d", tau_Req->ue_m_tmsi);
+				log_msg(LOG_ERROR, "Failed to find control block with mTmsi %d", tau_Req->ue_m_tmsi);
 			}
 
 			if (cb == NULL)

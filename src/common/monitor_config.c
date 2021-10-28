@@ -49,7 +49,6 @@ handle_events(int fd, int *wd, config_watch_t *config)
     char *ptr;
 
     /* Loop while events can be read from inotify file descriptor. */
-    log_msg(LOG_INFO,"Config - %p - Received file event for %s at time %lu ",config, config->config_file, t);
     for (;;) {
 
         /* Read some events. */
@@ -78,19 +77,20 @@ handle_events(int fd, int *wd, config_watch_t *config)
 
             if (event->mask & IN_ACCESS)
             {
-                log_msg(LOG_DEBUG,"IN_ACCESS : ");
+                //log_msg(LOG_DEBUG,"IN_ACCESS : ");
                 continue;
             }
             if (event->mask & IN_OPEN)
             {
-                log_msg(LOG_DEBUG,"IN_OPEN: skip ");
+                //log_msg(LOG_DEBUG,"IN_OPEN: skip ");
                 continue;
             }
             if (event->mask & IN_CLOSE_NOWRITE)
             {
-                log_msg(LOG_DEBUG,"IN_CLOSE_NOWRITE: ");
+                //log_msg(LOG_DEBUG,"IN_CLOSE_NOWRITE: ");
                 continue;
             }
+#if 0
             if (event->mask & IN_ATTRIB)
                 log_msg(LOG_DEBUG,"IN_ATTRIB: ");
             if (event->mask & IN_CLOSE_WRITE)
@@ -111,11 +111,13 @@ handle_events(int fd, int *wd, config_watch_t *config)
                 log_msg(LOG_DEBUG,"IN_MOVED_TO: ");
            	if (event->mask & IN_IGNORED)
                 log_msg(LOG_DEBUG,"IN_IGNORE: file deleted ");
+#endif
 
             if (wd[0] == event->wd && config->handled == false) {
                 handled = true;
                 uint32_t flags=0;
 				config->handled=true;
+                log_msg(LOG_INFO,"Config - %p - Received file event for %s at time %lu ",config, config->config_file, t);
                 config->callback(config->config_file, flags); 
                 break;
             }
@@ -210,9 +212,9 @@ config_thread_handler(void *config)
             }
           }
           else 
-	  {
-	    break;
-	  }
+	      {
+	        break;
+	      }
         }
       }
     }
