@@ -729,6 +729,7 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
         log_msg(LOG_INFO, " Supported only 1024 eNBs ");
         return;
     }
+
      // new enb found  
      struct s1apEnbStatus_Msg *temp = NULL;
      if(enb->status == 0) {
@@ -751,7 +752,7 @@ void S1MsgHandler::handleS1apEnbStatusMsg_v(IpcEMsgUnqPtr eMsg)
      if(enb->status == 1)
         mmeStats::Instance()->increment(mmeStatsCounter::ENB_NUM_ACTIVE, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
      else
-        mmeStats::Instance()->decrement(mmeStatsCounter::ENB_NUM_ACTIVE, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
+        mmeStats::Instance()->set(mmeStatsCounter::ENB_NUM_ACTIVE, 0, {{"enbname",enbname.str()}, {"enbid",enbid.str()},{"tac",tac.str()}});
     return;
 
 }

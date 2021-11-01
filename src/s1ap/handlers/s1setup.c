@@ -284,6 +284,7 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
     s1Msg.status = 1;
     s1Msg.context_id = temp_cbIndex;
     s1Msg.enbId_m = enbStruct.enbId_m;
+    s1Msg.tacid = enbStruct.tai_m.tac;
     s1Msg.restart_counter = enbStruct.restart_counter;
     strncpy(s1Msg.eNbName, enbStruct.eNbName, 128);
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
