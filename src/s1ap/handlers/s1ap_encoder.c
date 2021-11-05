@@ -163,7 +163,6 @@ int s1ap_mme_encode_service_rej(
         memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
                 val[2].value.choice.NAS_PDU.size);
     }
-    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
