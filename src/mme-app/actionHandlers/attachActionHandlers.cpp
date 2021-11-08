@@ -1115,7 +1115,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
         // add EPS Nwk Feature Support with restrict dcnr flag set
         nas.elements[index++].pduElement.eps_nw_feature_supp.restrictDcnr = 1;
     }
-        
+        memcpy(&icr_msg.nasPDU, &nas, sizeof(nas)); 
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&icr_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	icr_msg.nasMsgSize = nasBuffer.pos;

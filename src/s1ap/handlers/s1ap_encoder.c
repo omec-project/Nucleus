@@ -163,7 +163,6 @@ int s1ap_mme_encode_service_rej(
         memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
                 val[2].value.choice.NAS_PDU.size);
     }
-    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
@@ -580,7 +579,16 @@ int s1ap_mme_encode_initial_context_setup_request(
 	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
 	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
 
-        ASN_SEQUENCE_ADD(&val[3].value.choice.E_RABToBeSetupListCtxtSUReq.list,
+	if (s1apPDU->nasMsgLen != 0)
+	{
+		erab_to_be_setup->nAS_PDU = calloc(1, sizeof(NAS_PDU_t));
+		erab_to_be_setup->nAS_PDU->buf = calloc(s1apPDU->nasMsgLen,
+                	sizeof(uint8_t));
+		erab_to_be_setup->nAS_PDU->size = s1apPDU->nasMsgLen;
+		memcpy(erab_to_be_setup->nAS_PDU->buf, s1apPDU->nasMsgBuf, s1apPDU->nasMsgLen);
+	}
+
+	ASN_SEQUENCE_ADD(&val[3].value.choice.E_RABToBeSetupListCtxtSUReq.list,
                 erab_to_be_setup_item);
 
     }

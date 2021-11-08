@@ -38,6 +38,9 @@ struct s1ap_common_req_Q_msg {
 	unsigned char sec_key[32];
 	unsigned char bearer_id;
 	erab_setup_list erab_su_list;
+	ho_restriction_list ho_restrict_list;
+	uint8_t nasMsgBuf[300];
+	uint8_t nasMsgLen;
 };
 
 struct s11_req_Q_msg {
