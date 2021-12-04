@@ -448,6 +448,7 @@ struct commonRej_info
   int s1ap_enb_ue_id;
   int enb_fd;
   unsigned char cause;
+  s1apCause_t s1apCause;
   uint8_t 	nasMsgBuf[300]; 
   uint8_t 	nasMsgSize; 
 };

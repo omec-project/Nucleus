@@ -856,7 +856,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                 if((IdentityResponse == nas->header.message_type)
                    || (AuthenticationResponse == nas->header.message_type)
                    || (AuthenticationFailure == nas->header.message_type)
-                   || (TauRequest == nas->header.message_type)
                    || (DetachRequest == nas->header.message_type))
                 {
                     log_msg(LOG_DEBUG,"No Need for mac check.");

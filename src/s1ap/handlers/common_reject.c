@@ -54,6 +54,21 @@ process_attach_rej(struct commonRej_info *g_mmeS1apInfo)
 }
 
 /**
+* create and call S1 release command
+*/
+static int
+create_and_send_s1_rel(struct commonRej_info *val) {
+    struct s1relcmd_info s1rel = {0};
+    s1rel.msg_type = s1_release_command;
+    s1rel.ue_idx = val->ue_idx;
+    s1rel.enb_s1ap_ue_id = val->s1ap_enb_ue_id;
+    s1rel.enb_fd = val->enb_fd;
+    s1rel.cause = val->s1apCause;
+    s1_release_command_handler((void *)&s1rel);
+    return SUCCESS;
+}
+
+/**
 * message processing for Service Reject
 */
 static int
@@ -129,8 +144,9 @@ s1ap_reject_handler(void *data)
 	{
 	case attach_reject:
 	{
-        process_attach_rej(nasReject);
-	    break;
+		process_attach_rej(nasReject);
+		create_and_send_s1_rel(nasReject);
+		break;
 	}
 	case service_reject:
 	{
