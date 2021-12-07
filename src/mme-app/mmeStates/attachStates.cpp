@@ -63,7 +63,6 @@ void AttachState::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_s1_rel_req_during_attach);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[S1_REL_REQ_FROM_UE] = actionTable;
         }
@@ -71,7 +70,6 @@ void AttachState::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::handle_nas_pdu_parse_failure);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[NAS_PDU_PARSE_FAILURE] = actionTable;
         }
@@ -135,7 +133,6 @@ void AttachStart::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -206,7 +203,6 @@ void AttachWfImsiValidateAction::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -277,7 +273,6 @@ void AttachWfAia::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -348,7 +343,6 @@ void AttachWfIdentityResponse::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -418,7 +412,6 @@ void AttachWfAuthResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -496,7 +489,6 @@ void AttachWfAuthRespValidate::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -567,7 +559,6 @@ void AttachWfSecCmp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -638,7 +629,6 @@ void AttachWfEsmInfoCheck::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -709,7 +699,6 @@ void AttachWfEsmInfoResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -780,7 +769,6 @@ void AttachWfUla::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -846,7 +834,6 @@ void AttachWfCsResp::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -935,7 +922,6 @@ void AttachWfInitCtxtRespAttCmp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -1014,7 +1000,6 @@ void AttachWfInitCtxtResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -1093,7 +1078,6 @@ void AttachWfAttCmp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }
@@ -1180,7 +1164,6 @@ void AttachWfMbResp::initialize()
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::del_session_req);
                 actionTable.addAction(&ActionHandlers::send_attach_reject);
-                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
                 actionTable.addAction(&ActionHandlers::abort_attach);
                 eventToActionsMap[ABORT_EVENT] = actionTable;
         }

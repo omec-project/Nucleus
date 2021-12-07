@@ -1328,6 +1328,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
         
         struct commonRej_info attach_rej;
+        S1apCause s1apCause;
         attach_rej.msg_type = attach_reject;
         attach_rej.ue_idx = ueCtxt_p->getContextID();
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
@@ -1335,25 +1336,33 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         if (procCtxt != NULL)
         {
             attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+            s1apCause = procCtxt->getS1apCause();
         }
         else
         {
             attach_rej.cause = emmCause_network_failure;
         }
-		struct Buffer nasBuffer;
-		struct nasPDU nas = {0};
-		const uint8_t num_nas_elements = 1;
-		nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
-		nas.elements_len = num_nas_elements;
-		nas.header.security_header_type = Plain;
-		nas.header.proto_discriminator = EPSMobilityManagementMessages;
-		nas.header.message_type = AttachReject;
+
+        if(s1apCause.s1apCause_m.present == s1apCause_PR_NOTHING)
+        {
+            s1apCause = MmeCauseUtils::convertToS1apCause(procCtxt->getMmeErrorCause());
+        }
+        
+        attach_rej.s1apCause = s1apCause.s1apCause_m;
+        struct Buffer nasBuffer;
+        struct nasPDU nas = {0};
+        const uint8_t num_nas_elements = 1;
+        nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+        nas.elements_len = num_nas_elements;
+        nas.header.security_header_type = Plain;
+        nas.header.proto_discriminator = EPSMobilityManagementMessages;
+        nas.header.message_type = AttachReject;
 		//Removed the hard-coded value "0x09", to set the appropriate EMM Cause
-		nas.elements[0].pduElement.attach_res = attach_rej.cause;
-		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
-		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
-		attach_rej.nasMsgSize = nasBuffer.pos;
-		free(nas.elements);
+        nas.elements[0].pduElement.attach_res = attach_rej.cause;
+        MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+        memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+        attach_rej.nasMsgSize = nasBuffer.pos;
+        free(nas.elements);
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

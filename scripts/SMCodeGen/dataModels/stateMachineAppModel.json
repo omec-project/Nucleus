@@ -130,7 +130,6 @@
                                 "Actions":[
                                     "HANDLE_S1_REL_REQ_DURING_ATTACH",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -140,7 +139,6 @@
                                 "Actions":[
                                     "HANDLE_NAS_PDU_PARSE_FAILURE",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -166,7 +164,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -194,7 +191,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -223,7 +219,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -252,7 +247,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -280,7 +274,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -317,7 +310,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -346,7 +338,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -374,7 +365,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -403,7 +393,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -432,7 +421,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -454,7 +442,6 @@
                                 "Name":"ABORT_EVENT",
                                 "Actions":[
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -506,7 +493,6 @@
                                 "Actions":[
                                     "DEL_SESSION_REQ",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -545,7 +531,6 @@
                                 "Actions":[
                                     "DEL_SESSION_REQ",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -584,7 +569,6 @@
                                 "Actions":[
                                     "DEL_SESSION_REQ",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
@@ -634,7 +618,6 @@
                                 "Actions":[
                                     "DEL_SESSION_REQ",
                                     "SEND_ATTACH_REJECT",
-                                    "SEND_S1_REL_CMD_TO_UE",
                                     "ABORT_ATTACH"
                                 ],
                                 "NextState":"end_state"
