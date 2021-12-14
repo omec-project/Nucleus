@@ -18,6 +18,7 @@ install_build_pkg_deps() {
 		libidn11-dev \
 		bison \
 		flex \
+		valgrind \
         wget \
 		libgnutls-dev \
         zlib1g-dev \

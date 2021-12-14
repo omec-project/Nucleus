@@ -16,7 +16,8 @@ install_run_pkg_deps() {
 		libsctp1 \
 		netbase\
 		openssh-server\
-		sshpass
+		sshpass \
+		valgrind
 }
 
 install_run_utils() {
