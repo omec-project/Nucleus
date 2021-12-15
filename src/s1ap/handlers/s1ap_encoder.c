@@ -640,6 +640,10 @@ int s1ap_mme_encode_initial_context_setup_request(
         E_RABToBeSetupItemCtxtSUReq_t *erab_to_be_setup =
                 &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemCtxtSUReq);
 
+        if (s1apPDU->nasMsgLen != 0) {
+            free(erab_to_be_setup->nAS_PDU->buf);
+            free(erab_to_be_setup->nAS_PDU);
+        }
         free(erab_to_be_setup->transportLayerAddress.buf);
         free(erab_to_be_setup->gTP_TEID.buf);
     }
@@ -2152,6 +2156,7 @@ int s1ap_mme_encode_path_switch_req_ack(
         enc_error = true;
     }
 
+    free(val[2].value.choice.SecurityContext.nextHopParameter.buf);
     for (int i = 0; i < s1apPDU->erab_to_be_switched_ul_list.count; i++)
     {
         E_RABToBeSwitchedULItemIEs_t *erab_to_be_switched_item =

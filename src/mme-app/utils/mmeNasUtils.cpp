@@ -952,9 +952,18 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             }
             else
             {
-                controlBlk_p = 
-                    SubsDataGroupManager::Instance()->findControlBlock(
+                if (msg_data->msg_type == S1AP_INITIAL_UE_MSG_CODE) {
+                    initial_ue_msg_t *init = (initial_ue_msg_t*)msg_data;
+                    int32_t tmsi = ntohl(init->s_tmsi.m_TMSI);
+                    init->header.ue_idx = tmsi; // copy tmsi as UE id. 
+                    uint32_t cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tmsi);
+                    controlBlk_p = 
+                        SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+                } else {
+                    controlBlk_p = 
+                        SubsDataGroupManager::Instance()->findControlBlock(
                                                             msg_data->ue_idx);
+                }
 
                 if(controlBlk_p != NULL)
                 {
