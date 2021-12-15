@@ -65,7 +65,10 @@ s1_init_ctx_resp_handler(SuccessfulOutcome_t *msg)
 	                    ics_resp.erab_setup_resp_list.erab_su_res_item[j].gtp_teid =
 				    s1_ics_ies.data[i].val.erab.elements[j].su_res.gtp_teid;
                     }
-                }break;
+                }
+
+                free(s1_ics_ies.data[i].val.erab.elements);
+                break;
             default:
                 log_msg(LOG_WARNING,"Unhandled IE %d ",s1_ics_ies.data[i].IE_type);
         }

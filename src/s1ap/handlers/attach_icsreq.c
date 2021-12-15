@@ -641,6 +641,11 @@ ics_req_attach_processing(struct init_ctx_req_Q_msg *g_icsreq)
         if(buffer) {
                 free(buffer);
         }
+
+        if (s1apPDU.value.data) {
+            free(s1apPDU.value.data);
+        }
+
         log_msg(LOG_INFO, "----ICS Req for attach sent to UE.---");
         return SUCCESS;
 }
