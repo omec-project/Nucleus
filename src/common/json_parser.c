@@ -16,7 +16,7 @@
 
 FILE *json_fp;
 
-static char *
+char *
 seek_to_tag(char *name)
 {
 	char *tmp = name;
@@ -32,11 +32,15 @@ seek_to_tag(char *name)
 	while(1) {
 		char tag_not_found = 1;
 		char *line =(char *) calloc(1, 128);
+		//char line[128] = {0};
 		char *entry;
 		char *tmp2;
 
 		while(tag_not_found) {
-			if (NULL == fgets(line, 128, json_fp)) return NULL;
+			if (NULL == fgets(line, 128, json_fp)) {
+				free(line);
+				return NULL;
+			}
 			if(NULL != (entry = strstr(line, tag))) {
 				tag_not_found = 0; /*found*/
 				if(last_iteration) return line;
@@ -59,6 +63,8 @@ seek_to_tag(char *name)
 		strncpy(tag, tmp, tmp2-tmp);
 		tmp = tmp2+1;
 		tag_not_found = 1;/*seach for next tag*/
+        free(line);
+        line = NULL;
 	}
 
 }
@@ -72,6 +78,7 @@ get_string_scalar(char *path)
 	if(NULL == entry) {
 		log_msg(LOG_ERROR, "%s: entry not found", path);
 		free(value);
+	    free(entry);
 		return NULL;
 	}
 
@@ -83,6 +90,7 @@ get_string_scalar(char *path)
 	char *tmp = strchr(entry, ':');
 	sscanf(tmp, ": \"%[^\"]", value);
 	log_msg(LOG_INFO, "%s = %s", path, value);
+	free(entry);
 	return value;
 }
 
@@ -94,6 +102,7 @@ get_int_scalar(char *path)
 
 	if(NULL == entry) {
 		log_msg(LOG_ERROR, "%s: entry not found", path);
+	    free(entry);
 		return -1;
 	}
 	char *tmp = strchr(entry, ':');

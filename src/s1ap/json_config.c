@@ -87,6 +87,7 @@ parse_s1ap_conf(s1ap_config_t *config)
 	    	config->plmns[count-1].mnc_digits = mnc_digits;
 	    	log_msg(LOG_INFO, "Configured plmn %x %x %x", config->plmns[count-1].idx[0], config->plmns[count-1].idx[1], config->plmns[count-1].idx[2]); 
 	    	count++;
+			free(plmn);
 	    }
 	    config->num_plmns = count - 1;
     }
