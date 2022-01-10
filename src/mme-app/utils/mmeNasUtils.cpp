@@ -334,17 +334,17 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
                     (unsigned char* )nas->elements[index].pduElement.IMSI,
                     imsi_len, &bufflog));
     log_buffer_free(&bufflog);
+    index++; // IMSI
 
     /*UE network capacity*/
-    index++;
     nas->elements[index].msgType = NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
     nas->elements[index].pduElement.ue_network.len = msg[0];
     msg++;
     memcpy((nas->elements[index].pduElement.ue_network.u.octets), msg,
             nas->elements[index].pduElement.ue_network.len);
     msg += nas->elements[index].pduElement.ue_network.len;
+    index++; // UE_NETWORK_CAP
 
-    index++;
     /*ESM msg container*/
     unsigned short len = msg[0] << 8 | msg[1];
     msg += 2;
@@ -352,6 +352,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
     //log_msg(LOG_DEBUG, "ESM Message len=%x", len);
     nas->elements[index].pduElement.pti = msg[1];
     nas->elements[index].msgType = NAS_IE_TYPE_PTI;
+    index++; // PTI
     //log_msg(LOG_DEBUG, "pti=%x", nas->elements[index].pduElement.pti);
     unsigned short int msg_offset = 4;
     /*ESM message header len is 4: bearer_id_flags(1)+proc_tx_id(1)+msg_id(1)
@@ -365,7 +366,6 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
         //log_msg(LOG_DEBUG, "ESM container AVP val=%x", val);
         if (13 == (val >> 4))
         {
-            index++;
             nas->elements[index].msgType = NAS_IE_TYPE_TX_FLAG;
             // byte 0 - EBI+PD, byte1 - pti, byte2 - message type, byte3 - pdntype+reqtype, byte4 - ESM info transfer flag == Total 5 bytes... msg[0] to msg[4]
             //nas->elements[2].esm_info_tx_required = true;
@@ -375,6 +375,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
                 //log_msg(LOG_DEBUG, "ESM information requested ");
             }
             msg_offset++; /* just one byte AVP */
+            index++; 
             continue;
 
         }
@@ -384,12 +385,12 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             unsigned char pco_length = msg[msg_offset + 1];
             // element Id 1 byte and pco length 1 byte
             // Copy from - 1 byte header Extension + Configuration Protocol
-            index++;
             nas->elements[index].msgType = NAS_IE_TYPE_PCO;
             memcpy(&nas->elements[index].pduElement.pco_opt.pco_options[0],
                     &msg[msg_offset + 2], pco_length);
             nas->elements[index].pduElement.pco_opt.pco_length = pco_length;
             msg_offset = pco_length + 2; // msg offset was already at PCO AVP type. Now it should point to next AVP type
+            index++; // PCO
             continue;
         }
         break; // unhandled ESM AVP...Add support..for now just break out..else we would be in tight loop
@@ -414,7 +415,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             memcpy(&(nas->elements[index].pduElement.ue_add_sec_capab), msg,
                     datalen);
             msg += datalen;
-            index++;
+            index++; // UE_ADD_SECURITY
             break;
         }
         case NAS_IE_TYPE_MS_NETWORK_CAPABILITY:
@@ -429,7 +430,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             memcpy((nas->elements[index].pduElement.ms_network.capab), msg,
                     nas->elements[index].pduElement.ms_network.len);
             msg += nas->elements[index].pduElement.ms_network.len;
-            index++;
+            index++; // MS_NET_CAP
             break;
         }
         case NAS_IE_TYPE_SUPPORTED_CODECS:
