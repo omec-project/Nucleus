@@ -278,15 +278,15 @@ handle_s1ap_message(void *msg)
     switch (pdu_p->present) {
         case S1AP_PDU_PR_initiatingMessage:
             s1ap_mme_decode_initiating (pdu_p->choice.initiatingMessage, enb_fd);
-            free(pdu_p->choice.initiatingMessage);
+            ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
             break;
         case S1AP_PDU_PR_successfulOutcome:
             s1ap_mme_decode_successfull_outcome (pdu_p->choice.successfulOutcome);
-            free(pdu_p->choice.successfulOutcome);
+            ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
             break;
         case S1AP_PDU_PR_unsuccessfulOutcome:
             s1ap_mme_decode_unsuccessfull_outcome (pdu_p->choice.unsuccessfulOutcome);
-            free(pdu_p->choice.unsuccessfulOutcome);
+            ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
             break;
         default:
             log_msg(LOG_WARNING, "Unknown message outcome (%d) or not implemented", (int)pdu_p->present);
