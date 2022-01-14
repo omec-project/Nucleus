@@ -139,12 +139,12 @@ int s1ap_mme_encode_service_rej(
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
     initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
-    //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
             
+	const int num_val = 3;
     DownlinkNASTransport_IEs_t **val 
-        = calloc(3 * sizeof(DownlinkNASTransport_IEs_t *),
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
                  sizeof(uint8_t)); 
-    for (int i = 0; i < 3 ; i++) {
+    for (int i = 0; i < num_val ; i++) {
         val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
                         sizeof(uint8_t));
     }
@@ -230,15 +230,15 @@ int s1ap_mme_encode_tau_rej(
 	initiating_msg->criticality = 1;
 	initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;
 
+	const int num_val = 3;
     DownlinkNASTransport_IEs_t **val 
-        = calloc(3 * sizeof(DownlinkNASTransport_IEs_t *),
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
                  sizeof(uint8_t)); 
-    for (int i = 0; i < 3 ; i++) {
+    for (int i = 0; i < num_val ; i++) {
         val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
                         sizeof(uint8_t));
     }
     
-	memset(val, 0, (3*(sizeof(DownlinkNASTransport_IEs_t))));
 	val[0]->id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
 	val[0]->criticality = 0;
 	val[0]->value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
@@ -318,13 +318,13 @@ int s1ap_mme_encode_attach_rej(
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
-    initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
-    //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
-            
+    initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;
+
+	const int num_val = 3;
     DownlinkNASTransport_IEs_t **val 
-        = calloc(3 * sizeof(DownlinkNASTransport_IEs_t *),
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
                  sizeof(uint8_t)); 
-    for (int i = 0; i < 3 ; i++) {
+    for (int i = 0; i < num_val ; i++) {
         val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
                         sizeof(uint8_t));
     }
@@ -435,6 +435,10 @@ int s1ap_mme_encode_ue_context_release_command(
         {
             log_msg(LOG_ERROR,"calloc failed.");
             free(pdu.choice.initiatingMessage);
+            for(int i = 0; i < 2 ; i++) {
+                free(val[i]);
+            }
+            free(val);
             return -1;
         }
         memcpy(ue_id_val.choice.uE_S1AP_ID_pair, &s1apId_pair, sizeof(struct UE_S1AP_ID_pair));
