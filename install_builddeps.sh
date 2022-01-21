@@ -185,14 +185,20 @@ install_prometheus() {
 }
 
 install_pistache() {
-    cat patches/pistache.patch.1.txt
+    if [ -d "/openmme/tmp/patches" ] then
+        PATCH_ROOT="/openmme/tmp/"
+    else
+        PATCH_ROOT=$(dirs -l -0)
+    fi
+    
+    cat $PATCH_ROOT/patches/pistache.patch.1.txt
     pushd /tmp
     echo "Installing pistache"
     $SUDO rm -rf /tmp/pistache
     git clone https://github.com/pistacheio/pistache.git
     pushd pistache
     git checkout 270bbefeb25a402153a55053f845e9c7674ab713
-    patch -p1 < $(dirs -l -0)/patches/pistache.patch.1.txt
+    patch -p1 < $PATCH_ROOT/patches/pistache.patch.1.txt
     mkdir build && cd build
     /tmp/cmake-3.18.0-Linux-x86_64/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../
     make 
