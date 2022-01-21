@@ -185,7 +185,7 @@ install_prometheus() {
 }
 
 install_pistache() {
-    if [ -d "/openmme/tmp/patches" ] then
+    if [ -d "/openmme/tmp/patches" ]; then
         PATCH_ROOT="/openmme/tmp/"
     else
         PATCH_ROOT=$(dirs -l -0)
