@@ -143,7 +143,7 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 	ueCtxt_p->setUeNetCapab(Ue_net_capab(ue_info->ue_net_capab));
 	ueCtxt_p->setMsNetCapab(Ms_net_capab(ue_info->ms_net_capab));
 	ueCtxt_p->setUeAddSecCapabPres(ue_info->ue_add_sec_cap_present);
-    	ueCtxt_p->setUeAddSecCapab(ue_info->ue_add_sec_capab);
+	ueCtxt_p->setUeAddSecCapab(ue_info->ue_add_sec_capab);
 	prcdCtxt_p->setPti(ue_info->pti);
 	prcdCtxt_p->setPcoOptionsLen(ue_info->pco_length);
 	prcdCtxt_p->setPcoOptions(ue_info->pco_options);
@@ -156,7 +156,8 @@ ActStatus ActionHandlers::default_attach_req_handler(ControlBlock& cb)
 		case imsiAttach_c:
 		{
 			uint8_t imsi[BINARY_IMSI_LEN] = {0};
-		    	memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
+
+		    memcpy( imsi, ue_info->IMSI, BINARY_IMSI_LEN );
 
 			// Only upper nibble of first octect in imsi need to be considered
 			// Changing the lower nibble to 0x0f for handling
@@ -854,8 +855,6 @@ ActStatus ActionHandlers::handle_paging_failure(ControlBlock& cb)
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_paging_failure: Exit ");
-
     return rc;
 }
 
@@ -1027,8 +1026,6 @@ ActStatus ActionHandlers::default_delete_bearer_req_handler(ControlBlock& cb)
         		dispatchIpcMsg((char*) &dbRsp, sizeof(dbRsp), destAddr);
     }
 	
-    log_msg(LOG_DEBUG, "default_delete_bearer_req_handler: Exit ");
-	
     return ActStatus::PROCEED;
 }
 
@@ -1059,7 +1056,6 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
             MmeContextManagerUtils::deleteUEContext(cb.getCBIndex());
         }
     }
-    log_msg(LOG_DEBUG, "handle_detach_failure: Exit ");
 
     return rc;
 }
@@ -1069,10 +1065,10 @@ ActStatus ActionHandlers::handle_detach_failure(ControlBlock& cb)
 ***************************************/
 ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
 {
-    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Entry \n");
+    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Entry");
 
     UEContext *ueCtxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL \n");
+    VERIFY_UE(cb, ueCtxt, "CLR Hdlr: UE Context is NULL ");
 
     MmeProcedureCtxt *procCtxt_p =
             dynamic_cast<MmeProcedureCtxt*>(cb.getTempDataBlock());
@@ -1099,14 +1095,13 @@ ActStatus ActionHandlers::handle_nas_pdu_parse_failure(ControlBlock& cb)
                     break;
                     default:
                     {
-                        log_msg(LOG_DEBUG, "NAS PDU Parse Failure not handled for the msgType %d\n", msgType);
+                        log_msg(LOG_ERROR, "NAS PDU Parse Failure not handled for the msgType %d", msgType);
                     }
                 }
             }
         }
     }
 
-    log_msg(LOG_DEBUG, "handle_nas_pdu_parse_failure: Exit \n");
     return ActStatus::PROCEED;
 }
 
@@ -1188,9 +1183,6 @@ ActStatus ActionHandlers::default_path_switch_req_handler(ControlBlock& cb)
                         MmeIpcInterfaceCompId));
         mmeIpcIf.dispatchIpcMsg((char *) &pathFail, sizeof(pathFail), destAddr);
     }
-
-
-    log_msg(LOG_DEBUG, "default_path_switch_req_handler: Exit ");
 
     return rc;
 }

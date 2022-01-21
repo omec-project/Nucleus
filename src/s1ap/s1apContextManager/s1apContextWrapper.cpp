@@ -215,7 +215,7 @@ uint32_t setValuesForEnbCtx_cpp(uint32_t cbIndex, EnbStruct* enbCtx, bool update
     return SUCCESS;
 }
 
-void runRestServer_cpp(uint32_t port)
+void runRestServer_cpp(uint32_t port, void (*func)(char**, int, int))
 {
     Pistache::Http::Endpoint *m_endpoint;
     try
@@ -228,7 +228,7 @@ void runRestServer_cpp(uint32_t port)
 
        m_endpoint = new Pistache::Http::Endpoint( addr );
        m_endpoint->init( opts );
-       m_endpoint->setHandler( Pistache::Http::make_handler<RestHandler>() );
+       m_endpoint->setHandler( Pistache::Http::make_handler<RestHandler>(func) );
        m_endpoint->serveThreaded();
      }
      catch ( std::runtime_error &e )

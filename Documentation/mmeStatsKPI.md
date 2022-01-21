@@ -54,10 +54,12 @@
 |Counter|number_of_messages_received|s1ap_erab_modification_indication|number of s1ap Erab modification indication received by MME|[{'interface': 's1ap'}, {'msg_type': 'erab_modification_indication'}]|['enb_addr']|
 |Counter|number_of_messages_received|s1ap_erab_setup_response|number of s1ap Erab setup response received by MME|[{'interface': 's1ap'}, {'msg_type': 'erab_setup_response'}]|['enb_addr']|
 |Counter|number_of_messages_received|s1ap_erab_release_response|number of s1ap Erab release response received by MME|[{'interface': 's1ap'}, {'msg_type': 'erab_release_response'}]|['enb_addr']|
+|Counter|number_of_messages_received|s1ap_path_switch_request|number of s1ap Path switch request received by MME|[{'interface': 's1ap'}, {'msg_type': 'path_switch_request'}]|['enb_addr']|
 |Counter|number_of_messages_received|s6a_authentication_information_answer|number of authentication answer received from HSS|[{'interface': 's6a'}, {'msg_type': 'authentication_information_answer'}]|['hss_addr']|
 |Counter|number_of_messages_received|s6a_update_location_answer|number of update location answer received from HSS|[{'interface': 's6a'}, {'msg_type': 'update_location_answer'}]|['hss_addr']|
 |Counter|number_of_messages_received|s6a_purge_answer|number of purge answer received from HSS|[{'interface': 's6a'}, {'msg_type': 'purge_answer'}]|['hss_addr']|
 |Counter|number_of_messages_received|s6a_cancel_location_request|number of cancel location request received by MME|[{'interface': 's6a'}, {'msg_type': 'cancel_location_request'}]|['hss_addr']|
+|Counter|number_of_messages_received|s6a_delete_subscriber_request|number of delete subscriber data request received by MME|[{'interface': 's6a'}, {'msg_type': 'delete_subscriber_data_request'}]|['hss_addr']|
 |Counter|number_of_messages_received|s11_create_session_response|number of CSRsp received by MME|[{'interface': 's11'}, {'msg_type': 'create_session_response'}]|['sgw_addr']|
 |Counter|number_of_messages_received|s11_modify_bearer_response|number of MBRsp received by MME|[{'interface': 's11'}, {'msg_type': 'modify_bearer_response'}]|['sgw_addr']|
 |Counter|number_of_messages_received|s11_delete_session_response|number of DSRsp received by MME|[{'interface': 's11'}, {'msg_type': 'delete_session_response'}]|['sgw_addr']|
@@ -95,16 +97,20 @@
 |Counter|number_of_messages_sent|s1ap_detach_accept|number of detach accept sent to eNB|[{'interface': 's1ap'}, {'msg_type': 'detach_accept'}]|['enb_addr']|
 |Counter|number_of_messages_sent|s1ap_erab_setup_request|number of erab setup request sent to eNB|[{'interface': 's1ap'}, {'msg_type': 'erab_setup_request'}]|['enb_addr']|
 |Counter|number_of_messages_sent|s1ap_erab_release_command|number of erab release command sent to eNB|[{'interface': 's1ap'}, {'msg_type': 'erab_release_command'}]|['enb_addr']|
+|Counter|number_of_messages_sent|s1ap_path_switch_req_ack|number of path switch request ack sent to eNB|[{'interface': 's1ap'}, {'msg_type': 'path_switch_request_ack'}]|['enb_addr']|
+|Counter|number_of_messages_sent|s1ap_path_switch_req_fail|number of path switch request failure sent to eNB|[{'interface': 's1ap'}, {'msg_type': 'path_switch_request_fail'}]|['enb_addr']|
 |Counter|number_of_messages_sent|s11_create_session_request|number of CSReq sent by MME|[{'interface': 's11'}, {'msg_type': 'create_session_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_modify_bearer_request|number of MBReq sent by MME|[{'interface': 's11'}, {'msg_type': 'modify_bearer_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_delete_session_request|number of DSReq sent by MME|[{'interface': 's11'}, {'msg_type': 'delete_session_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_downlink_data_notification_ack|number of DDN Ack sent by MME|[{'interface': 's11'}, {'msg_type': 'downlink_data_notification_ack'}]|['sgw_addr']|
+|Counter|number_of_messages_sent|s11_downlink_data_notification_failure_ind|number of DDN Failure Indication sent by MME|[{'interface': 's11'}, {'msg_type': 'downlink_data_notification_failure_ind'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_release_bearer_request|number of RAB request sent by MME|[{'interface': 's11'}, {'msg_type': 'release_bearer_request'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_create_bearer_response|number of create bearer response sent by MME|[{'interface': 's11'}, {'msg_type': 'create_bearer_response'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s11_delete_bearer_response|number of delete bearer response sent by MME|[{'interface': 's11'}, {'msg_type': 'delete_bearer_response'}]|['sgw_addr']|
 |Counter|number_of_messages_sent|s6a_authentication_info_request|number of authentication information request sent by MME|[{'interface': 's6a'}, {'msg_type': 'authentication_info_request'}]|['hss_addr']|
 |Counter|number_of_messages_sent|s6a_update_location_request|number of ULR request sent by MME |[{'interface': 's6a'}, {'msg_type': 'update_location_request'}]|['hss_addr']|
 |Counter|number_of_messages_sent|s6a_purge_request|number of Purge request sent by MME|[{'interface': 's6a'}, {'msg_type': 'purge_request'}]|['hss_addr']|
+|Counter|number_of_messages_sent|s6a_delete_subscriber_answer|number of delete subscriber data answer sent by MME|[{'interface': 's6a'}, {'msg_type': 'delete_subscriber_data_answer'}]|['hss_addr']|
 
 
 # mme_procedures
@@ -126,6 +132,7 @@
 |Counter|number_of_procedures|s1_release_proc_result|s1 release procedure results|[{'procedure': 'S1_RELEASE_PROC'}, {'proc_result': 'failure'}]|['enb_addr', 'failure_reason']|
 |Counter|number_of_procedures|service_request_proc|number of service request procedure started by MME|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'init_by': 'ddn_init'}]|['enb_addr']|
 |Counter|number_of_procedures|service_request_proc|number of service request procedure started by MME|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'init_by': 'pgw_init'}]|['enb_addr']|
+|Counter|number_of_procedures|service_request_proc|number of service request procedure started by MME|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'init_by': 'hss_init'}]|['enb_addr']|
 |Counter|number_of_procedures|service_request_proc|number of service request procedure started by MME|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'init_by': 'ue_init'}]|['enb_addr']|
 |Counter|number_of_procedures|service_request_proc_result|service request procedure results|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'proc_result': 'success'}]|['enb_addr', 'failure_reason']|
 |Counter|number_of_procedures|service_request_proc_result|service request procedure results|[{'procedure': 'SERVICE_REQUEST_PROC'}, {'proc_result': 'failure'}]|['enb_addr', 'failure_reason']|
@@ -135,6 +142,9 @@
 |Counter|number_of_procedures|s1_enb_handover_proc|number of s1 enb handover procedure started by MME|[{'procedure': 'S1_ENB_HANDOVER_PROC'}]|['enb_addr']|
 |Counter|number_of_procedures|s1_enb_handover_proc_result|s1 enb handover procedure results|[{'procedure': 'S1_ENB_HANDOVER_PROC'}, {'proc_result': 'success'}]|['enb_addr', 'failure_reason']|
 |Counter|number_of_procedures|s1_enb_handover_proc_result|s1 enb handover procedure results|[{'procedure': 'S1_ENB_HANDOVER_PROC'}, {'proc_result': 'failure'}]|['enb_addr', 'failure_reason']|
+|Counter|number_of_procedures|x2_enb_handover_proc|number of x2 enb handover procedure started by MME|[{'procedure': 'X2_ENB_HANDOVER_PROC'}]|['enb_addr']|
+|Counter|number_of_procedures|x2_enb_handover_proc_result|x2 enb handover procedure results|[{'procedure': 'X2_ENB_HANDOVER_PROC'}, {'proc_result': 'success'}]|['enb_addr', 'failure_reason']|
+|Counter|number_of_procedures|x2_enb_handover_proc_result|x2 enb handover procedure results|[{'procedure': 'X2_ENB_HANDOVER_PROC'}, {'proc_result': 'failure'}]|['enb_addr', 'failure_reason']|
 |Counter|number_of_procedures|erab_mod_ind_proc|number of erab modification indication procedure started by MME|[{'procedure': 'ERAB_MOD_IND_PROC'}]|['enb_addr']|
 |Counter|number_of_procedures|erab_mod_ind_proc_result|erab modification indication indication procedure results|[{'procedure': 'ERAB_MOD_IND_PROC'}, {'proc_result': 'success'}]|['enb_addr', 'failure_reason']|
 |Counter|number_of_procedures|erab_mod_ind_proc_result|erab modification indication indication procedure results|[{'procedure': 'ERAB_MOD_IND_PROC'}, {'proc_result': 'failure'}]|['enb_addr', 'failure_reason']|

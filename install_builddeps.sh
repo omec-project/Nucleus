@@ -48,6 +48,7 @@ install_build_pkg_deps() {
         make
         rapidjson-dev
         unzip
+        valgrind
     "
     #Names of APT Packages we need to install for Ubuntu 18.04
     UBUNTU_18_04_PACKAGE_NAMES="
@@ -74,6 +75,7 @@ install_build_pkg_deps() {
         make
         rapidjson-dev
         unzip
+        valgrind
     "
     #Names of APT Packages we need to install for Ubuntu 20.04
     UBUNTU_20_04_PACKAGE_NAMES="
@@ -100,6 +102,7 @@ install_build_pkg_deps() {
         make
         rapidjson-dev
         unzip
+        valgrind
         "
     $SUDO apt update
     case $DISTRO_NAME in

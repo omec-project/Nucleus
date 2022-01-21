@@ -89,7 +89,6 @@ ActStatus ActionHandlers::init_x2_ho(ControlBlock& cb)
     SM::Event evt(START_X2_HO_SM, NULL);
     cb.qInternalEvent(evt);
 
-    log_msg(LOG_DEBUG, "init_x2_ho : Exit");
     return ActStatus::PROCEED;
 }
 
@@ -152,7 +151,6 @@ ActStatus ActionHandlers::handle_x2_ho_sm_cmp_ind(ControlBlock &cb)
         actStatus = ActStatus::ABORT;
     }
 
-    log_msg(LOG_DEBUG, "handle_x2_ho_sm_cmp_ind : Exit");
     return actStatus;
 }
 
@@ -164,7 +162,7 @@ ActStatus ActionHandlers::send_path_switch_ack_to_enb(ControlBlock &cb)
     log_msg(LOG_DEBUG, "send_path_switch_ack_to_enb : Entry ");
 
     UEContext *ue_ctxt = static_cast<UEContext*>(cb.getPermDataBlock());
-    VERIFY_UE(cb, ue_ctxt, "Invalid UE\n");
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
 
     X2HOMmProcedureContext *proc_p =
             dynamic_cast<X2HOMmProcedureContext*>(cb.getTempDataBlock());
@@ -200,7 +198,6 @@ ActStatus ActionHandlers::send_path_switch_ack_to_enb(ControlBlock &cb)
         actStatus = ActStatus::ABORT;
     }
 
-    log_msg(LOG_DEBUG, "send_path_switch_ack_to_enb : Exit ");
     return actStatus;
 }
 
@@ -239,7 +236,6 @@ ActStatus ActionHandlers::send_path_switch_fail_to_enb(ControlBlock &cb)
                 destAddr);
     }
 
-    log_msg(LOG_DEBUG, "send_path_switch_fail_to_enb : Exit ");
     return ActStatus::PROCEED;
 }
 
@@ -304,7 +300,6 @@ ActStatus ActionHandlers::abort_x2_ho_mm(ControlBlock &cb)
     }
     }
 
-    log_msg(LOG_DEBUG, "abort_x2_ho_mm : Exit ");
     return ActStatus::PROCEED;
 }
 
@@ -331,6 +326,5 @@ ActStatus ActionHandlers::x2_ho_mm_complete(ControlBlock &cb)
     mmeStats::Instance()->increment(
             mmeStatsCounter::MME_PROCEDURES_X2_ENB_HANDOVER_PROC_SUCCESS);
 
-    log_msg(LOG_DEBUG, "x2_ho_mm_complete : Exit ");
     return ActStatus::PROCEED;
 }

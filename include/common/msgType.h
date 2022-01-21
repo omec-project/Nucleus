@@ -383,6 +383,7 @@ struct init_ctx_req_Q_msg {
     uint8_t pci;
 	bool ho_restrict_list_presence;
 	ho_restriction_list ho_restrict_list;
+	struct nasPDU   nasPDU;	
 	uint8_t 	nasMsgBuf[300]; 
 	uint8_t 	nasMsgSize; //dont change size..lot of dependency on size  
 }__attribute__ ((packed));
@@ -447,6 +448,7 @@ struct commonRej_info
   int s1ap_enb_ue_id;
   int enb_fd;
   unsigned char cause;
+  s1apCause_t s1apCause;
   uint8_t 	nasMsgBuf[300]; 
   uint8_t 	nasMsgSize; 
 };

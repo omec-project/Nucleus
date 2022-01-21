@@ -812,7 +812,7 @@ def add_increment_api(fh):
         fh.write("\t\t} else if (labels.size() == 2) {\n")
         fh.write("\t\tauto it1 = labels. begin();\n")
         fh.write("\t\tauto it2 = it1++;\n")
-        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it2->second+it2->second};\n")
+        fh.write("\t\tstruct Node s1 = {name, it1->first+it2->first, it1->second+it2->second};\n")
         fh.write("\t\tauto itf = metrics_map.find(s1);\n")
         fh.write("\t\tif(itf != metrics_map.end()) {\n")
         fh.write("\t\t    "+gauge.family +"_DynamicMetricObject2 *obj = static_cast<"+gauge.family+"_DynamicMetricObject2 *>(itf->second);\n")

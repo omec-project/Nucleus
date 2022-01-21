@@ -85,10 +85,10 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
   size_t mactlen = 0;
   uint32_t msg_len = 0;
   log_msg(LOG_DEBUG,"count %d, bearer %d direction %d, data_len %d ", count, bearer, direction, data_len);
-  log_msg(LOG_DEBUG,"nas data ");
-  printBytes(data, data_len);
-  log_msg(LOG_DEBUG,"nas key ");
-  printBytes(int_key, AES_128_KEY_SIZE);
+  //log_msg(LOG_DEBUG,"nas data ");
+  //printBytes(data, data_len);
+  //log_msg(LOG_DEBUG,"nas key ");
+  //printBytes(int_key, AES_128_KEY_SIZE);
   unsigned char* message = (unsigned char*)calloc(data_len+8, sizeof(uint8_t));
   if(message == NULL)
   {
@@ -108,7 +108,7 @@ calculate_aes_mac(uint8_t *int_key, uint32_t count, uint8_t direction,
 
   CMAC_Update(ctx, message, sizeof(message));
   CMAC_Final(ctx, mact, &mactlen);
-  log_msg(LOG_DEBUG,"mac length = %lu",mactlen);
+  //log_msg(LOG_DEBUG,"mac length = %lu",mactlen);
 
   printBytes(mact, mactlen);
 
@@ -239,7 +239,7 @@ static void log_buffer_free(unsigned char** buffer)
 
 void MmeNasUtils::select_sec_alg(UEContext *ue_ctxt)
 {
-    log_msg(LOG_DEBUG, "Inside select_sec_alg ");
+    //log_msg(LOG_DEBUG, "Inside select_sec_alg ");
 
     uint8_t eea;
     uint8_t eia;
@@ -293,7 +293,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
     }
     case NAS_EPS_MOBILE_ID_GUTI:
     {
-        log_msg(LOG_INFO, "Mobile identity GUTI Rcvd ");
+        //log_msg(LOG_INFO, "Mobile identity GUTI Rcvd ");
         // Mobile Identity contains GUTI
         // MCC+MNC offset = 3
         // MME Group Id   = 2
@@ -334,25 +334,26 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
                     (unsigned char* )nas->elements[index].pduElement.IMSI,
                     imsi_len, &bufflog));
     log_buffer_free(&bufflog);
+    index++; // IMSI
 
     /*UE network capacity*/
-    index++;
     nas->elements[index].msgType = NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
     nas->elements[index].pduElement.ue_network.len = msg[0];
     msg++;
     memcpy((nas->elements[index].pduElement.ue_network.u.octets), msg,
             nas->elements[index].pduElement.ue_network.len);
     msg += nas->elements[index].pduElement.ue_network.len;
+    index++; // UE_NETWORK_CAP
 
-    index++;
     /*ESM msg container*/
     unsigned short len = msg[0] << 8 | msg[1];
     msg += 2;
     //now msg points to ESM message contents
-    log_msg(LOG_DEBUG, "ESM Message len=%x", len);
+    //log_msg(LOG_DEBUG, "ESM Message len=%x", len);
     nas->elements[index].pduElement.pti = msg[1];
     nas->elements[index].msgType = NAS_IE_TYPE_PTI;
-    log_msg(LOG_DEBUG, "pti=%x", nas->elements[index].pduElement.pti);
+    index++; // PTI
+    //log_msg(LOG_DEBUG, "pti=%x", nas->elements[index].pduElement.pti);
     unsigned short int msg_offset = 4;
     /*ESM message header len is 4: bearer_id_flags(1)+proc_tx_id(1)+msg_id(1)
      * +pdn_type(1)*/
@@ -362,19 +363,19 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
     while (msg_offset < len)
     {
         unsigned char val = msg[msg_offset];
-        log_msg(LOG_DEBUG, "ESM container AVP val=%x", val);
+        //log_msg(LOG_DEBUG, "ESM container AVP val=%x", val);
         if (13 == (val >> 4))
         {
-            index++;
             nas->elements[index].msgType = NAS_IE_TYPE_TX_FLAG;
             // byte 0 - EBI+PD, byte1 - pti, byte2 - message type, byte3 - pdntype+reqtype, byte4 - ESM info transfer flag == Total 5 bytes... msg[0] to msg[4]
             //nas->elements[2].esm_info_tx_required = true;
             if (val & 1)
             {
                 nas->elements[index].pduElement.esm_info_tx_required = true;
-                log_msg(LOG_DEBUG, "ESM information requested ");
+                //log_msg(LOG_DEBUG, "ESM information requested ");
             }
             msg_offset++; /* just one byte AVP */
+            index++; 
             continue;
 
         }
@@ -384,12 +385,12 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             unsigned char pco_length = msg[msg_offset + 1];
             // element Id 1 byte and pco length 1 byte
             // Copy from - 1 byte header Extension + Configuration Protocol
-            index++;
             nas->elements[index].msgType = NAS_IE_TYPE_PCO;
             memcpy(&nas->elements[index].pduElement.pco_opt.pco_options[0],
                     &msg[msg_offset + 2], pco_length);
             nas->elements[index].pduElement.pco_opt.pco_length = pco_length;
             msg_offset = pco_length + 2; // msg offset was already at PCO AVP type. Now it should point to next AVP type
+            index++; // PCO
             continue;
         }
         break; // unhandled ESM AVP...Add support..for now just break out..else we would be in tight loop
@@ -405,7 +406,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
         {
         case NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY:
         {
-            log_msg(LOG_DEBUG, "UE_ADDITIONAL_SECURITY_CAPABILITY. Handling");
+            //log_msg(LOG_DEBUG, "UE_ADDITIONAL_SECURITY_CAPABILITY. Handling");
             nas->elements[index].msgType =
                     NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
             msg++; //skipping Element ID
@@ -414,13 +415,12 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             memcpy(&(nas->elements[index].pduElement.ue_add_sec_capab), msg,
                     datalen);
             msg += datalen;
-            index++;
+            index++; // UE_ADD_SECURITY
             break;
         }
         case NAS_IE_TYPE_MS_NETWORK_CAPABILITY:
         {
-            log_msg(LOG_DEBUG, "MS Network capability : Handling.");
-            index++;
+            //log_msg(LOG_DEBUG, "MS Network capability : Handling.");
             nas->elements[index].msgType = NAS_IE_TYPE_MS_NETWORK_CAPABILITY;
             nas->elements[index].pduElement.ms_network.pres = true;
             nas->elements[index].pduElement.ms_network.element_id = msg[0];
@@ -430,6 +430,7 @@ void MmeNasUtils::decode_attach_req(unsigned char *msg, int &nas_msg_len,
             memcpy((nas->elements[index].pduElement.ms_network.capab), msg,
                     nas->elements[index].pduElement.ms_network.len);
             msg += nas->elements[index].pduElement.ms_network.len;
+            index++; // MS_NET_CAP
             break;
         }
         case NAS_IE_TYPE_SUPPORTED_CODECS:
@@ -514,10 +515,8 @@ void MmeNasUtils::decode_tau_req(unsigned char *msg, int &nas_msg_len,
 
     /*EPS mobility identity*/
     datalen = msg[1];
-    log_msg(LOG_DEBUG, "datalen :%d", datalen);
+    //log_msg(LOG_DEBUG, "datalen :%d", datalen);
     unsigned char eps_identity = msg[2] & 0x07;
-    log_msg(LOG_DEBUG, "NAS TAU Request Rcvd :  %d %d %d %d, eps id %d",
-            msg[0], msg[1], msg[2], msg[4], eps_identity);
 
     if (eps_identity == NAS_EPS_MOBILE_ID_GUTI)
     {
@@ -545,6 +544,9 @@ void MmeNasUtils::decode_tau_req(unsigned char *msg, int &nas_msg_len,
         index++;
         msg += datalen + 2; //Datalength of EPS mobile identity(7) + Length Byte of EPS mobile identity(1) +
         //NAS KSI (1/2) + EPS Update Type (1/2)
+    } else {
+        log_msg(LOG_DEBUG, "NAS TAU Request Rcvd :  %d %d %d %d, eps id %d",
+            msg[0], msg[1], msg[2], msg[4], eps_identity);
     }
 
     bool status = true;
@@ -557,13 +559,12 @@ void MmeNasUtils::decode_tau_req(unsigned char *msg, int &nas_msg_len,
         {
         case NAS_IE_TYPE_UE_NETWORK_CAPABILITY:
         {
-            log_msg(LOG_DEBUG,
-                    "NAS TAU REQ - UE Network capability : Handling.");
+            //log_msg(LOG_DEBUG, "NAS TAU REQ - UE Network capability : Handling.");
             nas->elements[index].msgType = NAS_IE_TYPE_UE_NETWORK_CAPABILITY;
             msg++; //skipping Element ID
             datalen = msg[0];
             nas->elements[index].pduElement.ue_network.len = datalen;
-            log_msg(LOG_INFO, "UE NET CAP Length %d", datalen);
+            //log_msg(LOG_INFO, "UE NET CAP Length %d", datalen);
             msg++;
             memcpy(&(nas->elements[index].pduElement.ue_network.u.octets), msg,
                     datalen);
@@ -804,12 +805,6 @@ void MmeNasUtils::decode_deact_ded_br_ctxt_acpt(unsigned char *msg,
 
 int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char *msg,  int nas_msg_len, struct nasPDU *nas)
 {
-   	unsigned short msg_len = nas_msg_len;
-
-   	unsigned char *bufflog = NULL;
-   	log_msg(LOG_INFO, "NAS PDU msg: %s", msg_to_hex_str(msg, msg_len, &bufflog));
-   	log_buffer_free(&bufflog);
-
    	nas_pdu_header_sec nas_header_sec;
    	nas_pdu_header_short nas_header_short;
    	nas_pdu_header_long nas_header_long;
@@ -820,15 +815,10 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
 
    	sec_header_type = (msg[0] >> 4) & 0x0F;
    	protocol_discr = msg[0] & 0x0F;
-   	unsigned char is_ESM = ((unsigned short)protocol_discr == 0x02);  // see TS 24.007
-   	log_msg(LOG_INFO, "Security header=%d", sec_header_type);
-   	log_msg(LOG_INFO, "Protocol discriminator=%d", protocol_discr);
-   	log_msg(LOG_INFO, "is_ESM=%d", is_ESM);
 
     unsigned char *buffer = NULL;
     if(0 != sec_header_type) 
 	{ /*security header*/
-        log_msg(LOG_INFO, "Security header");
         if(SERVICE_REQ_SECURITY_HEADER == sec_header_type)
         {
                 log_msg(LOG_INFO, "Recvd security header for Service request.");
@@ -847,19 +837,15 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             memcpy(&nas_header_sec, msg, sizeof(nas_pdu_header_sec));
             if((sec_header_type == 1)||(sec_header_type = 2))
             {
-                log_msg(LOG_DEBUG,"header type Integrity protected.");
-                log_msg(LOG_INFO, "seq no=%x", nas_header_sec.seq_no);
+                log_msg(LOG_DEBUG,"Sec Header = %d, header type Integrity protected. seq no=%x", sec_header_type, nas_header_sec.seq_no);
                 nas->header.seq_no = nas_header_sec.seq_no; 
                 unsigned char *msg_ptr = msg + 6;
 
                 sec_header_type = msg_ptr[0] >> 4;
                 protocol_discr = msg_ptr[0] & 0x0F;
                 unsigned char is_EMM = ((unsigned short)protocol_discr == 0x07);  // see TS 24.007
-                log_msg(LOG_INFO, "Security header=%d", sec_header_type);
-                log_msg(LOG_INFO, "Protocol discriminator=%d", protocol_discr);
-                log_msg(LOG_INFO, "is_EMM=%d", is_EMM);
-                if(is_EMM){
-                    log_msg(LOG_INFO, "NAS PDU is EMM");
+                log_msg(LOG_INFO, "Security header=%d, Protocol discriminator %d , is_EMM %d", sec_header_type, protocol_discr, is_EMM);
+                if(is_EMM) {
                     memcpy(&nas_header_short, msg_ptr, sizeof(nas_header_short)); /*copy only till msg type*/
                     msg_ptr += 2;
 
@@ -871,12 +857,13 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                 if((IdentityResponse == nas->header.message_type)
                    || (AuthenticationResponse == nas->header.message_type)
                    || (AuthenticationFailure == nas->header.message_type)
-                   || (TauRequest == nas->header.message_type)
                    || (DetachRequest == nas->header.message_type))
                 {
                     log_msg(LOG_DEBUG,"No Need for mac check.");
                     skip_mac_check = true;
                 }
+            } else {
+                log_msg(LOG_INFO, "Security header type %d ", sec_header_type);
             }
         }
 
@@ -889,9 +876,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                 initial_ue_msg_t *init = (initial_ue_msg_t*)msg_data;
                 int32_t tmsi = ntohl(init->s_tmsi.m_TMSI);
                 init->header.ue_idx = tmsi; // copy tmsi as UE id. 
-                log_msg(LOG_DEBUG,"TMSI : %u", tmsi);
 			    uint32_t cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tmsi);
-                log_msg(LOG_DEBUG,"cb_index : %u", cbIndex);
                 controlBlk_p = 
                     SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
                 if(controlBlk_p != NULL)
@@ -924,10 +909,9 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                                       direction, bearer, buffer, buf_len,
                                       calc_mac, int_alg);
 
-                        log_msg(LOG_DEBUG, "Check Service Req Short mac.");
                         unsigned char short_mac_local[SHORT_MAC_SIZE] = {0};
                         bufflog = NULL;
-                        log_msg(LOG_INFO, "calcmac=%s", 
+                        log_msg(LOG_INFO, "Check Service Request Short mac calcmac=%s", 
                                 msg_to_hex_str(
                                    (unsigned char *)calc_mac, 
                                     MAC_SIZE, &bufflog));
@@ -949,19 +933,19 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                             return MAC_MISMATCH;
                         }
 
-                        log_msg(LOG_DEBUG, "MAC matched for service req.");
+                        //log_msg(LOG_DEBUG, "MAC matched for service req.");
                         secContext.increment_uplink_count();
                         return SUCCESS;
                     }
                     else
                     {
-                        log_msg(LOG_DEBUG, "No UE context found for the CB Index %d", cbIndex);
+                        log_msg(LOG_ERROR,"Failed to find UE context for Control block. mTMSI %d, control block Index = %u ", tmsi, cbIndex);
                         return E_FAIL;
                     }
                 }
                 else
                 {
-                    log_msg(LOG_ERROR,"Failed to find Control block with mTMSI %d", tmsi);
+                    log_msg(LOG_ERROR,"Failed to find Control block with mTMSI %d, control block Index = %u ", tmsi, cbIndex);
                     // Deleting stale mTmsi -> cbIdx mapping.
                     SubsDataGroupManager::Instance()->deletemTmsikey(tmsi);
                     return SUCCESS;
@@ -969,10 +953,18 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             }
             else
             {
-                log_msg(LOG_DEBUG,"ue_idx : %u", msg_data->ue_idx);
-                controlBlk_p = 
-                    SubsDataGroupManager::Instance()->findControlBlock(
+                if (msg_data->msg_type == S1AP_INITIAL_UE_MSG_CODE) {
+                    initial_ue_msg_t *init = (initial_ue_msg_t*)msg_data;
+                    int32_t tmsi = ntohl(init->s_tmsi.m_TMSI);
+                    init->header.ue_idx = tmsi; // copy tmsi as UE id. 
+                    uint32_t cbIndex = SubsDataGroupManager::Instance()->findCBWithmTmsi(tmsi);
+                    controlBlk_p = 
+                        SubsDataGroupManager::Instance()->findControlBlock(cbIndex);
+                } else {
+                    controlBlk_p = 
+                        SubsDataGroupManager::Instance()->findControlBlock(
                                                             msg_data->ue_idx);
+                }
 
                 if(controlBlk_p != NULL)
                 {
@@ -999,21 +991,21 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                         calculate_mac(int_key, ul_count,
                                       direction, bearer, buffer, buf_len,
                                       calc_mac, int_alg);
-                        bufflog = NULL;
-                        log_msg(LOG_INFO, "calcmac=%s", 
-                                msg_to_hex_str(
-                                               (unsigned char *)calc_mac, 
-                                               MAC_SIZE, &bufflog));
-                        log_buffer_free(&bufflog);
                         if(memcmp(nas_header_sec.mac, calc_mac, MAC_SIZE))
                         {
+                            bufflog = NULL;
+                            log_msg(LOG_INFO, "calcmac=%s", 
+                                    msg_to_hex_str(
+                                                   (unsigned char *)calc_mac, 
+                                                   MAC_SIZE, &bufflog));
+                            log_buffer_free(&bufflog);
+
                             log_msg(LOG_ERROR,
                                     "MAC Failure in msg type %d for UE with IMSI %s",
                                     nas->header.message_type, ueCtxt_p->getImsi().getDigitsArray());
                             return MAC_MISMATCH;
                         }
-
-                        log_msg(LOG_DEBUG, "MAC matched.");
+                        //log_msg(LOG_DEBUG, "MAC matched.");
                         secContext.increment_uplink_count();
                     }
                 }
@@ -1024,18 +1016,14 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             }
         }
         
-        log_msg(LOG_INFO, "seq no=%x", nas_header_sec.seq_no);
         nas->header.seq_no = nas_header_sec.seq_no; 
         msg += 6;
 
         sec_header_type = msg[0] >> 4;
         protocol_discr = msg[0] & 0x0F;
         unsigned char is_ESM = ((unsigned short)protocol_discr == 0x02);  // see TS 24.007
-        log_msg(LOG_INFO, "Security header=%d", sec_header_type);
-        log_msg(LOG_INFO, "Protocol discriminator=%d", protocol_discr);
-        log_msg(LOG_INFO, "is_ESM=%d", is_ESM);
         if (is_ESM) {
-                log_msg(LOG_INFO, "NAS PDU is ESM");
+                log_msg(LOG_INFO, "ESM - Seq number = %x Security header=%d, protocol discriminator = %d ", nas_header_sec.seq_no, sec_header_type, protocol_discr);
                 memcpy(&nas_header_long, msg, sizeof(nas_header_long)); /*copy only till msg type*/
                 msg += 3;
 
@@ -1044,7 +1032,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                 nas->header.procedure_trans_identity = nas_header_long.procedure_trans_identity;
                 nas->header.message_type = nas_header_long.message_type;
         } else {
-                log_msg(LOG_INFO, "NAS PDU is EMM");
+                log_msg(LOG_INFO, "EMM - Seq number = %x Security header=%d, protocol discriminator = %d ", nas_header_sec.seq_no, sec_header_type, protocol_discr);
                 memcpy(&nas_header_short, msg, sizeof(nas_header_short)); /*copy only till msg type*/
                 msg += 2;
 
@@ -1052,7 +1040,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                 nas->header.proto_discriminator = nas_header_short.proto_discriminator;
                 nas->header.message_type = nas_header_short.message_type;
         }
-    } 
+    }
 	else 
 	{
         log_msg(LOG_INFO, "No security header");
@@ -1065,14 +1053,11 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
     }
 
 
-    log_msg(LOG_INFO, "Nas msg type: %X", nas->header.message_type);
 
     switch(nas->header.message_type) 
     {
         case ESMInformationResponse:
 		{
-            log_msg(LOG_INFO, "NAS_ESM_RESP recvd");
-
             unsigned char element_id;
             memcpy(&element_id, msg, 1);
             msg++;
@@ -1084,7 +1069,7 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             memcpy(&(nas->elements[0].pduElement.apn.len), msg, 1);
             msg++;
             memcpy(nas->elements[0].pduElement.apn.val, msg, nas->elements[0].pduElement.apn.len);
-            log_msg(LOG_INFO, "APN name - %s", nas->elements[0].pduElement.apn.val);
+            log_msg(LOG_INFO, "NAS_ESM_RESP received -  APN name - %s", nas->elements[0].pduElement.apn.val);
             break;
         }
 
@@ -1096,13 +1081,12 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
 
         case AuthenticationResponse:
 		{
-            log_msg(LOG_INFO, "NAS_AUTH_RESP recvd");
             nas->elements_len = 1;
             nas->elements = (nas_pdu_elements *)calloc(sizeof(nas_pdu_elements), 5);
             //if(NULL == nas.elements)...
             memcpy(&(nas->elements[0].pduElement.auth_resp), msg, sizeof(struct XRES));
             uint64_t res = *(uint64_t *)(&nas->elements[0].pduElement.auth_resp.val);
-            log_msg(LOG_INFO, "NAS_AUTH_RESP recvd len %d %lu",nas->elements[0].pduElement.auth_resp.len,res);
+            log_msg(LOG_INFO, "NAS_AUTH_RESP recvd len %d, auth response =  %lu",nas->elements[0].pduElement.auth_resp.len,res);
             break;
 		}
 
@@ -1157,7 +1141,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
 		}
         case DetachRequest:
         {
-            log_msg(LOG_INFO, "NAS_DETACH_REQUEST recvd");
             nas->elements_len = 1;
             nas->elements = (nas_pdu_elements *) calloc(sizeof(nas_pdu_elements), 1);
 
@@ -1166,7 +1149,6 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             log_msg(LOG_INFO, "NAS Detach Request Rcvd :  %d %d %d %d, eps id %d", msg[0],msg[1],msg[2],msg[4],eps_identity); 
             if(eps_identity == 0x06)
             {
-                log_msg(LOG_INFO, "Mobile identity GUTI Rcvd ");
                 // Mobile Identity contains GUTI
                 // MCC+MNC offset = 3
                 // MME Group Id   = 2
@@ -1193,18 +1175,18 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
             log_msg(LOG_INFO, "NAS_DETACH_ACCEPT recvd");
             break;
         }
-	case ActivateDedicatedBearerContextAccept:
-	{
-	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_ACPT recvd");
-	    MmeNasUtils::decode_act_ded_br_ctxt_acpt(msg, nas_msg_len, nas);
-	    break;
-	}
-	case ActivateDedicatedBearerContextReject:
-	{
-	    log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_RJCT received");
-	    MmeNasUtils::decode_act_ded_br_ctxt_rjct(msg, nas_msg_len, nas);
-	    break;
-	}
+	    case ActivateDedicatedBearerContextAccept:
+	    {
+	        log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_ACPT recvd");
+	        MmeNasUtils::decode_act_ded_br_ctxt_acpt(msg, nas_msg_len, nas);
+	        break;
+	    }
+	    case ActivateDedicatedBearerContextReject:
+	    {
+	        log_msg(LOG_INFO, "NAS_ACT_DED_BEARER_CTXT_RJCT received");
+	        MmeNasUtils::decode_act_ded_br_ctxt_rjct(msg, nas_msg_len, nas);
+	        break;
+	    }
         case DeactivateEPSBearerContextAccept:
         {
             log_msg(LOG_INFO, "NAS_DEACT_DED_BEARER_CTXT_ACPT recvd");
@@ -1231,7 +1213,6 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		{
             ue_attach_info_t attach_req = {0};
             initial_ue_msg_t *init = (initial_ue_msg_t*)s1Msg;
-			log_msg(LOG_INFO, "Copy Required details of message ATTACH REQUEST");
     		int nas_index = 0;
             attach_req.header = *s1Msg; // copy header 
 			attach_req.header.msg_type = msg_type_t::attach_request;
@@ -1246,7 +1227,6 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
             // copy nas AVPs
 			while(nas_index < nas->elements_len)
             {
-                log_msg(LOG_DEBUG, "nasIndex %d, msgType %d", nas_index, nas->elements[nas_index].msgType);
                 attach_req.seq_no = nas->header.seq_no;
                 switch(nas->elements[nas_index].msgType)
                 {
@@ -1311,7 +1291,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
                         }
                     default:
                         {
-                            log_msg(LOG_INFO, "nas element not handled");
+                            log_msg(LOG_DEBUG, "NAS element not handled - nasIndex %d, msgType %d", nas_index, nas->elements[nas_index].msgType);
                         }
                 }
 
@@ -1322,7 +1302,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case AuthenticationResponse:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message AUTH RESPONSE ");
+			//log_msg(LOG_INFO, "Copy Required details of message AUTH RESPONSE ");
             authresp_Q_msg_t auth_rsp = {0};
             auth_rsp.header = *s1Msg;
 			auth_rsp.header.msg_type = msg_type_t::auth_response;
@@ -1335,7 +1315,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case AuthenticationFailure:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message AUTH FAILURE ");
+			//log_msg(LOG_INFO, "Copy Required details of message AUTH FAILURE ");
             authresp_Q_msg_t auth_rsp = {0};
             auth_rsp.header = *s1Msg;
 			auth_rsp.header.msg_type = msg_type_t::auth_response;
@@ -1348,7 +1328,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case SecurityModeComplete:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message SEC MODE COMPLETE ");
+			//log_msg(LOG_INFO, "Copy Required details of message SEC MODE COMPLETE ");
             secmode_resp_Q_msg_t *sec_rsp = (secmode_resp_Q_msg_t *)s1Msg;
 			sec_rsp->header.msg_type = msg_type_t::sec_mode_complete;
             sec_rsp->status = SUCCESS;
@@ -1357,7 +1337,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		case ESMInformationResponse:
 		{
             esm_resp_Q_msg_t esm_resp = {0};
-			log_msg(LOG_INFO, "Copy Required details of message ESM RESPONSE ");
+			//log_msg(LOG_INFO, "Copy Required details of message ESM RESPONSE ");
             uplink_nas_t *ulMsg = (uplink_nas_t*)s1Msg;
 			ulMsg->header.msg_type = msg_type_t::esm_info_response;
             esm_resp.header = *s1Msg;
@@ -1369,7 +1349,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case AttachComplete:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message ATTACH COMPLETE ");
+			//log_msg(LOG_INFO, "Copy Required details of message ATTACH COMPLETE ");
             attach_complete_Q_msg_t att_cmp = {0}; 
             att_cmp.header = *s1Msg;
 			att_cmp.header.msg_type = msg_type_t::attach_complete;
@@ -1384,7 +1364,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
             serv_req.header = *s1Msg;
 			serv_req.header.msg_type = msg_type_t::service_request;
 			serv_req.enb_fd = init->enb_fd;
-			log_msg(LOG_INFO, "Copy Required details of message SERVICE REQUEST eNB fd %d ", serv_req.enb_fd);
+			//log_msg(LOG_INFO, "Copy Required details of message SERVICE REQUEST eNB fd %d ", serv_req.enb_fd);
             
             // copy s1ap AVPs
             serv_req.tai = init->tai;
@@ -1402,7 +1382,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		case DetachRequest:
 		{
             detach_req_Q_msg_t det_req = {0};
-			log_msg(LOG_INFO, "Copy Required details of message DETACH REQUEST ");
+			//log_msg(LOG_INFO, "Copy Required details of message DETACH REQUEST ");
             det_req.header = *s1Msg;
 			det_req.header.msg_type = msg_type_t::detach_request;
 		   	det_req.ue_m_tmsi = nas->elements[0].pduElement.mi_guti.m_TMSI;
@@ -1411,14 +1391,14 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case DetachAccept:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message DETACH ACCEPT ");
+			//log_msg(LOG_INFO, "Copy Required details of message DETACH ACCEPT ");
 			s1Msg->msg_type = msg_type_t::detach_accept_from_ue;
 			break;
 		}
 		case TauRequest:
 		{
             tauReq_Q_msg_t tau_req  = {0};
-			log_msg(LOG_INFO, "Copy Required details of message TAU REQUEST ");
+			//log_msg(LOG_INFO, "Copy Required details of message TAU REQUEST ");
             int nas_index = 0;
             tau_req.header = *s1Msg;
 
@@ -1436,7 +1416,6 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 
             while (nas_index < nas->elements_len)
             {
-                log_msg(LOG_INFO, "nasIndex %d, msgType %d", nas_index, nas->elements[nas_index].msgType);
                 tau_req.seq_num = nas->header.seq_no;
                 switch (nas->elements[nas_index].msgType)
                 {
@@ -1448,7 +1427,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 				    }
                     case NAS_IE_TYPE_UE_NETWORK_CAPABILITY:
                     {
-                        log_msg(LOG_DEBUG, "NAS_IE_TYPE_UE_NETWORK_CAPABILITY");
+                        //log_msg(LOG_DEBUG, "NAS_IE_TYPE_UE_NETWORK_CAPABILITY");
                         tau_req.ue_net_capab.len = nas->elements[nas_index].pduElement.ue_network.len;
                         memcpy(&(tau_req.ue_net_capab.u.octets),
                             	&(nas->elements[nas_index].pduElement.ue_network.u.octets),
@@ -1476,7 +1455,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		case IdentityResponse:
 		{
             identityResp_Q_msg_t id_rsp = {0};
-			log_msg(LOG_INFO, "Copy Required details of message IDENTITY RESPONSE ");
+			//log_msg(LOG_INFO, "Copy Required details of message IDENTITY RESPONSE ");
             id_rsp.header = *s1Msg;
 			id_rsp.header.msg_type = msg_type_t::id_response;
             id_rsp.status = SUCCESS;
@@ -1491,7 +1470,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		case ActivateDedicatedBearerContextAccept:
 		{
             dedicatedBearerContextAccept_Q_msg_t act_ded_br_accept = {0};
-	        log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_ACPT");
+	        //log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_ACPT");
 
             act_ded_br_accept.header = *s1Msg;
 		    act_ded_br_accept.header.msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_accept;
@@ -1501,7 +1480,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		    int nas_index = 0;
 		    while (nas_index < nas->elements_len)
             {
-                log_msg(LOG_INFO, "nasIndex %d, msgType %d", nas_index, nas->elements[nas_index].msgType);
+                //log_msg(LOG_INFO, "nasIndex %d, msgType %d", nas_index, nas->elements[nas_index].msgType);
 			    switch (nas->elements[nas_index].msgType)
                 {
 			        case NAS_IE_TYPE_PCO:
@@ -1525,7 +1504,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
 		}
 		case ActivateDedicatedBearerContextReject:
 		{
-	    	log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_RJCT");
+	    	//log_msg(LOG_INFO, "Copy Required details of NAS_ACT_DED_BEARER_CTXT_RJCT");
             dedicatedBearerContextReject_Q_msg_t act_ded_br_reject = {0};
             act_ded_br_reject.header = *s1Msg;
 	    	act_ded_br_reject.header.msg_type = msg_type_t::activate_dedicated_eps_bearer_ctxt_reject;
@@ -1555,7 +1534,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
         }
         case DeactivateEPSBearerContextAccept:
         {
-            log_msg(LOG_INFO, "Copy Required details of NAS_DEACT_DED_BEARER_CTXT_ACPT");
+            //log_msg(LOG_INFO, "Copy Required details of NAS_DEACT_DED_BEARER_CTXT_ACPT");
             deactivate_epsbearerctx_accept_Q_msg_t deact_bearer_accept = {0};
             int nas_index = 0;
             deact_bearer_accept.header = *s1Msg;
@@ -1591,7 +1570,7 @@ void MmeNasUtils::copy_nas_to_s1msg(struct nasPDU *nas, s1_incoming_msg_header_t
         }
 		default:
 		{
-			log_msg(LOG_INFO, "Copy Required details of message ATTACH REQUEST");
+			log_msg(LOG_INFO, "Unknown message type %d ", nas->header.message_type);
 			s1Msg->msg_type = attach_request;
 			break;
 		}
@@ -2096,25 +2075,25 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 			value = (nas->header.security_encryption_algo << 4 | nas->header.security_integrity_algo);
 			buffer_copy(nasBuffer, &value, sizeof(value));
 			buffer_copy(nasBuffer, &nas->header.nas_security_param, sizeof(nas->header.nas_security_param));
-			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.len,
-						sizeof(nas->elements->pduElement.ue_network.len));
+			buffer_copy(nasBuffer, &nas->elements[0].pduElement.ue_network.len,
+						sizeof(nas->elements[0].pduElement.ue_network.len));
 
-			buffer_copy(nasBuffer, &nas->elements->pduElement.ue_network.u.octets,
-						nas->elements->pduElement.ue_network.len);
+			buffer_copy(nasBuffer, &nas->elements[0].pduElement.ue_network.u.octets,
+						nas->elements[0].pduElement.ue_network.len);
 
  			/* Request IMEI from the device */
 			uint8_t imei = 0xc1;
 			buffer_copy(nasBuffer, &imei, sizeof(imei));
             
-            		/*Additional UE Security Capability */
-            		if (nas->opt_ies_flags.ue_add_sec_cap_presence)
-            		{
-                	    uint8_t ue_add_sec_cap_id = NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
-                	    buffer_copy(nasBuffer, &ue_add_sec_cap_id, sizeof(ue_add_sec_cap_id));
-                	    uint8_t datalength = 4;
-                	    buffer_copy(nasBuffer, &datalength, sizeof(datalength));
-                	    buffer_copy(nasBuffer, &nas->elements->pduElement.ue_add_sec_capab, datalength);
-            		}
+            /*Additional UE Security Capability */
+            if (nas->opt_ies_flags.ue_add_sec_cap_presence)
+            {
+                uint8_t ue_add_sec_cap_id = NAS_IE_TYPE_UE_ADDITIONAL_SECURITY_CAPABILITY;
+                buffer_copy(nasBuffer, &ue_add_sec_cap_id, sizeof(ue_add_sec_cap_id));
+                uint8_t datalength = 4;
+                buffer_copy(nasBuffer, &datalength, sizeof(datalength));
+                buffer_copy(nasBuffer, &nas->elements[1].pduElement.ue_add_sec_capab, datalength);
+            }
 
 			/* Calculate mac */
 			uint8_t direction = 1;
@@ -2541,24 +2520,24 @@ void MmeNasUtils::encode_nas_msg(struct Buffer *nasBuffer, struct nasPDU *nas, S
 				&nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
 			break;
 		}
-        	case DeactivateEPSBearerContextRequest:
-        	{
-            		log_msg(LOG_DEBUG, "Encoding deactivate Dedicated Bearer Context Req NAS message in mme-app");
-            		uint8_t mac_data_pos = MmeNasUtils::encode_deact_ded_br_req(nasBuffer, nas);
+       	case DeactivateEPSBearerContextRequest:
+       	{
+            log_msg(LOG_DEBUG, "Encoding deactivate Dedicated Bearer Context Req NAS message in mme-app");
+            uint8_t mac_data_pos = MmeNasUtils::encode_deact_ded_br_req(nasBuffer, nas);
 
-            		/* Calculate mac */
-            		uint8_t direction = 1;
-            		uint8_t bearer = 0;
-            		unsigned char int_key[NAS_INT_KEY_SIZE];
-            		secContext.getIntKey(&int_key[0]);
-            		nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
-            		calculate_mac(int_key, nas->dl_count, direction, bearer,
-                          &nasBuffer->buf[mac_data_pos],
-                          nasBuffer->pos - mac_data_pos,
-                          &nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
-            		break;
-        	}
-		default:
-			log_msg(LOG_DEBUG, "Encoding Authentication Request NAS message in mme-app");
+            /* Calculate mac */
+            uint8_t direction = 1;
+            uint8_t bearer = 0;
+            unsigned char int_key[NAS_INT_KEY_SIZE];
+            secContext.getIntKey(&int_key[0]);
+            nas_int_algo_enum int_alg = secContext.getSelectIntAlg();
+            calculate_mac(int_key, nas->dl_count, direction, bearer,
+                  &nasBuffer->buf[mac_data_pos],
+                  nasBuffer->pos - mac_data_pos,
+                  &nasBuffer->buf[mac_data_pos - MAC_SIZE], int_alg);
+        	break;
+        }
+	    default:
+			log_msg(LOG_DEBUG, "Encoding NAS message %d failed in mme-app", nas->header.message_type);
 	}
 }

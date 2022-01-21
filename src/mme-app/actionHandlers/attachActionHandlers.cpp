@@ -184,7 +184,6 @@ ActStatus ActionHandlers::send_air_to_hss(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_air_sent ++;
-	log_msg(LOG_DEBUG, "Leaving send_air_to_hss ");
 	
 	return ActStatus::PROCEED;
 
@@ -228,7 +227,6 @@ ActStatus ActionHandlers::send_ulr_to_hss(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &s6a_req, sizeof(s6a_req), destAddr);
 
 	ProcedureStats::num_of_ulr_sent ++;
-	log_msg(LOG_DEBUG, "Leaving send_ulr_to_hss ");
 	
 	return ActStatus::PROCEED;
 }
@@ -260,7 +258,6 @@ ActStatus ActionHandlers::process_aia(SM::ControlBlock& cb)
 	ue_ctxt->setAiaSecInfo(E_utran_sec_vector(msgData_p->sec));
 	
 	ProcedureStats::num_of_processed_aia ++;
-	log_msg(LOG_DEBUG, "Leaving handle_aia ");
 	
 	return ActStatus::PROCEED;
 }
@@ -327,7 +324,6 @@ ActStatus ActionHandlers::process_ula(SM::ControlBlock& cb)
 	ue_ctxt->setPdnAddr(Paa(pdn_addr));
 	
 	ProcedureStats::num_of_processed_ula ++;
-	log_msg(LOG_DEBUG, "Leaving handle_ula_v ");
 	
 	return ActStatus::PROCEED;
 }
@@ -371,7 +367,6 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &authreq, sizeof(authreq), destAddr);
 	
 	ProcedureStats::num_of_auth_req_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving auth_req_to_ue_v sent message of length %lu",sizeof(authreq));
 		
 	return ActStatus::PROCEED;
 }
@@ -440,8 +435,6 @@ ActStatus ActionHandlers::auth_response_validate(SM::ControlBlock& cb)
 
     }
 	
-	log_msg(LOG_DEBUG, "Leaving auth_response_validate ");
-	
 	return ActStatus::PROCEED;
 }
 
@@ -499,11 +492,11 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
     	}
 	nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
 	nas.elements_len = num_nas_elements;
-	nas.elements->pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
+	nas.elements[0].pduElement.ue_network.len = ue_ctxt->getUeNetCapab().ue_net_capab_m.len;
 	if(ue_ctxt->getUeNetCapab().ue_net_capab_m.len >= 4)
 	{
         /*Copy first 4 bytes of security algo info*/
-	    memcpy(nas.elements->pduElement.ue_network.u.octets, ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets, 4);
+	    memcpy(nas.elements[0].pduElement.ue_network.u.octets, ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets, 4);
 	   
         if(ue_ctxt->getMsNetCapab().ms_net_capab_m.pres == true)
 	    {
@@ -514,19 +507,19 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 		* and mask 0x7D: for GEA2 -GEA7
 		*/
             log_msg(LOG_DEBUG, "MS network present"); 
-	        nas.elements->pduElement.ue_network.len = 5;
+	        nas.elements[0].pduElement.ue_network.len = 5;
 	    	unsigned char val = 0x00;
 		    val = ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[0]&0x80;
             val |= ue_ctxt->getMsNetCapab().ms_net_capab_m.capab[1]&0x7E;
             val >>= 1;
-	        nas.elements->pduElement.ue_network.u.octets[4] = val;
+	        nas.elements[0].pduElement.ue_network.u.octets[4] = val;
 	    }
 	    else
 	    {
 	        /*If MS capability is not present. Then only 
 		* Capability till UMTS Algorithms is sent.*/
             log_msg(LOG_DEBUG, "MS network not present"); 
-	        nas.elements->pduElement.ue_network.len = 4;
+	        nas.elements[0].pduElement.ue_network.len = 4;
 	    }
 	}
 	else
@@ -534,7 +527,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	    /*Copy as much info of UE network capability 
 	    * as received.
 	    */
-            memcpy(nas.elements->pduElement.ue_network.u.octets,
+            memcpy(nas.elements[0].pduElement.ue_network.u.octets,
 				   	ue_ctxt->getUeNetCapab().ue_net_capab_m.u.octets,
 					ue_ctxt->getUeNetCapab().ue_net_capab_m.len);
 	}
@@ -542,7 +535,7 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	if (mme_cfg->feature_list.dcnr_support && ue_ctxt->getUeAddSecCapabPres())
     {
         nas.opt_ies_flags.ue_add_sec_cap_presence = true;
-        memcpy(&(nas.elements->pduElement.ue_add_sec_capab),
+        memcpy(&(nas.elements[1].pduElement.ue_add_sec_capab),
                 &(ue_ctxt->getUeAddSecCapab()),
                 sizeof(ue_add_sec_capabilities));
     }
@@ -560,7 +553,6 @@ ActStatus ActionHandlers::sec_mode_cmd_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &sec_mode_msg, sizeof(sec_mode_msg), destAddr);
 	
 	ProcedureStats::num_of_sec_mode_cmd_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving sec_mode_cmd_to_ue ");
 	
 	return ActStatus::PROCEED;
 }
@@ -594,7 +586,6 @@ ActStatus ActionHandlers::process_sec_mode_resp(SM::ControlBlock& cb)
 	}
 
 	ProcedureStats::num_of_processed_sec_mode_resp ++;
-	log_msg(LOG_DEBUG, "Leaving handle_sec_mode_resp ");
 	
 	return ActStatus::PROCEED;
 }
@@ -677,7 +668,6 @@ ActStatus ActionHandlers::send_esm_info_req_to_ue(SM::ControlBlock& cb)
 	MmeIpcInterface &mmeIpcIf = static_cast<MmeIpcInterface&>(compDb.getComponent(MmeIpcInterfaceCompId));   
 	mmeIpcIf.dispatchIpcMsg((char *) &esmreq, sizeof(esmreq), destAddr);
 
-	log_msg(LOG_DEBUG, "Leaving send_esm_info_req_to_ue ");
 	ProcedureStats::num_of_esm_info_req_to_ue_sent ++;
 	return ActStatus::PROCEED;
 }
@@ -828,9 +818,8 @@ ActStatus ActionHandlers::cs_req_to_sgw(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &cs_msg, sizeof(cs_msg), destAddr);
 
 	ProcedureStats::num_of_cs_req_to_sgw_sent ++;
-	log_msg(LOG_DEBUG, "Leaving cs_req_to_sgw ");
 
-    	return ActStatus::PROCEED;
+    return ActStatus::PROCEED;
 }
 
 ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
@@ -880,7 +869,6 @@ ActStatus ActionHandlers::process_cs_resp(SM::ControlBlock& cb)
 	sessionCtxt->setPdnAddr(Paa(csr_info->pdn_addr));
 		
 	ProcedureStats::num_of_processed_cs_resp ++;
-	log_msg(LOG_DEBUG, "Leaving handle_cs_resp ");
 	
 	return ActStatus::PROCEED;
 }
@@ -901,11 +889,12 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 		uint32_t mTmsi = MmeCommonUtils::allocateMtmsi();
 		if (mTmsi == 0)
 		{
-			log_msg(LOG_DEBUG, "send_init_ctxt_req_to_ue: Failed to allocate mTmsi ");
+			log_msg(LOG_ERROR, "send_init_ctxt_req_to_ue: Failed to allocate mTmsi ");
 			return ActStatus::ABORT;
 		}
 
-		ue_ctxt->setMTmsi(mTmsi);
+        ue_ctxt->setMTmsi(mTmsi);
+        log_msg(LOG_INFO, "Subscriber %s, tmsi = %d ", ue_ctxt->getImsi().getDigitsArray(), mTmsi);
 
 		// TODO: Should this be done here or attach_done method
 		SubsDataGroupManager::Instance()->addmTmsikey(mTmsi, ue_ctxt->getContextID());
@@ -1051,9 +1040,13 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	nas.elements[3].pduElement.esm_msg.procedure_trans_identity = sessionCtxt->getPti();
 	nas.elements[3].pduElement.esm_msg.session_management_msgs = ESM_MSG_ACTV_DEF_BEAR__CTX_REQ;
 	nas.elements[3].pduElement.esm_msg.eps_qos.qci = bearerCtxt->getBearerQos().qci;
-	nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
-	memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
-    log_msg(LOG_DEBUG, "ESM apn length = %d ",nas.elements[3].pduElement.esm_msg.apn.len);
+    if(procedure_p->getRequestedApn().apnname_m.len > 0) {
+	  nas.elements[3].pduElement.esm_msg.apn.len = procedure_p->getRequestedApn().apnname_m.len;
+	  memcpy(nas.elements[3].pduElement.esm_msg.apn.val, procedure_p->getRequestedApn().apnname_m.val, procedure_p->getRequestedApn().apnname_m.len);
+    } else {
+	  nas.elements[3].pduElement.esm_msg.apn.len = sessionCtxt->getAccessPtName().apnname_m.len;
+	  memcpy(nas.elements[3].pduElement.esm_msg.apn.val, sessionCtxt->getAccessPtName().apnname_m.val, sessionCtxt->getAccessPtName().apnname_m.len);
+    }
 
 	nas.elements[3].pduElement.esm_msg.pco_opt.pco_length = procedure_p->getPcoOptionsLen();
 	memcpy(nas.elements[3].pduElement.esm_msg.pco_opt.pco_options, procedure_p->getPcoOptions(), nas.elements[3].pduElement.pco_opt.pco_length);
@@ -1122,11 +1115,10 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
         // add EPS Nwk Feature Support with restrict dcnr flag set
         nas.elements[index++].pduElement.eps_nw_feature_supp.restrictDcnr = 1;
     }
-        
+        memcpy(&icr_msg.nasPDU, &nas, sizeof(nas)); 
 	MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ue_ctxt->getUeSecInfo());
 	memcpy(&icr_msg.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
 	icr_msg.nasMsgSize = nasBuffer.pos;
-	log_msg(LOG_DEBUG, "nas message size %d ",icr_msg.nasMsgSize);
 	free(nas.elements);
 
 	cmn::ipc::IpcAddress destAddr;
@@ -1137,8 +1129,7 @@ ActStatus ActionHandlers::send_init_ctxt_req_to_ue(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &icr_msg, sizeof(icr_msg), destAddr);
 	
 	ProcedureStats::num_of_init_ctxt_req_to_ue_sent ++;
-	log_msg(LOG_DEBUG, "Leaving send_init_ctxt_req_to_ue_v ");
-		
+
 	return ActStatus::PROCEED;
 }
 
@@ -1175,7 +1166,6 @@ ActStatus ActionHandlers::process_init_ctxt_resp(SM::ControlBlock& cb)
 	bearerCtxt->setS1uEnbUserFteid(Fteid(S1uEnbUserFteid));
 
 	ProcedureStats::num_of_processed_init_ctxt_resp ++;
-	log_msg(LOG_DEBUG, "Leaving process_init_ctxt_resp ");
 	
 	return ActStatus::PROCEED;
 }
@@ -1221,7 +1211,6 @@ ActStatus ActionHandlers::send_mb_req_to_sgw(SM::ControlBlock& cb)
 	mmeIpcIf.dispatchIpcMsg((char *) &mb_msg, sizeof(mb_msg), destAddr);
 		
 	ProcedureStats::num_of_mb_req_to_sgw_sent ++;
-	log_msg(LOG_DEBUG, "Leaving send_mb_req_to_sgw ");
 	
 	return ActStatus::PROCEED;
 
@@ -1237,7 +1226,6 @@ ActStatus ActionHandlers::process_attach_cmp_from_ue(SM::ControlBlock& cb)
 	//ue_ctxt->getUeSecInfo().increment_uplink_count();
 
 	ProcedureStats::num_of_processed_attach_cmp_from_ue ++;
-	log_msg(LOG_DEBUG, "Leaving handle_attach_cmp_from_ue ");
 	
 	return ActStatus::PROCEED;
 }
@@ -1304,8 +1292,6 @@ ActStatus ActionHandlers::check_and_send_emm_info(SM::ControlBlock& cb)
     	ProcedureStats::num_of_emm_info_sent++;
     }
 
-    log_msg(LOG_DEBUG, "Leaving check_and_send_emm_info ");
-
     return ActStatus::PROCEED;
 
 }
@@ -1328,8 +1314,6 @@ ActStatus ActionHandlers::attach_done(SM::ControlBlock& cb)
 	ProcedureStats::num_of_attach_done++;
 	ProcedureStats::num_of_subscribers_attached ++;
 
-	log_msg(LOG_DEBUG,"Leaving attach done");
-
     mmeStats::Instance()->increment(mmeStatsCounter::MME_NUM_ACTIVE_SUBSCRIBERS);
 
 	return ActStatus::PROCEED;
@@ -1344,6 +1328,7 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         MmeAttachProcedureCtxt *procCtxt = dynamic_cast<MmeAttachProcedureCtxt*>(cb.getTempDataBlock());
         
         struct commonRej_info attach_rej;
+        S1apCause s1apCause;
         attach_rej.msg_type = attach_reject;
         attach_rej.ue_idx = ueCtxt_p->getContextID();
         attach_rej.s1ap_enb_ue_id = ueCtxt_p->getS1apEnbUeId();
@@ -1351,25 +1336,33 @@ ActStatus ActionHandlers::send_attach_reject(ControlBlock& cb)
         if (procCtxt != NULL)
         {
             attach_rej.cause = MmeCauseUtils::convertToNasEmmCause(procCtxt->getMmeErrorCause());
+            s1apCause = procCtxt->getS1apCause();
         }
         else
         {
             attach_rej.cause = emmCause_network_failure;
         }
-		struct Buffer nasBuffer;
-		struct nasPDU nas = {0};
-		const uint8_t num_nas_elements = 1;
-		nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
-		nas.elements_len = num_nas_elements;
-		nas.header.security_header_type = Plain;
-		nas.header.proto_discriminator = EPSMobilityManagementMessages;
-		nas.header.message_type = AttachReject;
+
+        if(s1apCause.s1apCause_m.present == s1apCause_PR_NOTHING)
+        {
+            s1apCause = MmeCauseUtils::convertToS1apCause(procCtxt->getMmeErrorCause());
+        }
+        
+        attach_rej.s1apCause = s1apCause.s1apCause_m;
+        struct Buffer nasBuffer;
+        struct nasPDU nas = {0};
+        const uint8_t num_nas_elements = 1;
+        nas.elements = (nas_pdu_elements *) calloc(num_nas_elements, sizeof(nas_pdu_elements)); // TODO : should i use new ?
+        nas.elements_len = num_nas_elements;
+        nas.header.security_header_type = Plain;
+        nas.header.proto_discriminator = EPSMobilityManagementMessages;
+        nas.header.message_type = AttachReject;
 		//Removed the hard-coded value "0x09", to set the appropriate EMM Cause
-		nas.elements[0].pduElement.attach_res = attach_rej.cause;
-		MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
-		memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
-		attach_rej.nasMsgSize = nasBuffer.pos;
-		free(nas.elements);
+        nas.elements[0].pduElement.attach_res = attach_rej.cause;
+        MmeNasUtils::encode_nas_msg(&nasBuffer, &nas, ueCtxt_p->getUeSecInfo());
+        memcpy(&attach_rej.nasMsgBuf[0], &nasBuffer.buf[0], nasBuffer.pos);
+        attach_rej.nasMsgSize = nasBuffer.pos;
+        free(nas.elements);
 
         cmn::ipc::IpcAddress destAddr;
         destAddr.u32 = TipcServiceInstance::s1apAppInstanceNum_c;

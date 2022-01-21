@@ -35,7 +35,7 @@ extern ipc_handle ipc_S1ap_Hndl;
 int
 s1_setup_response(int enb_fd, struct PLMN *plmn)
 {
-    log_msg(LOG_DEBUG,"Process S1 Setup response.");
+    log_msg(LOG_DEBUG,"Process S1 Setup response");
 	uint32_t length = 0;
     uint8_t *buffer = NULL;
 	s1ap_config_t *s1ap_cfg = get_s1ap_config();
@@ -64,7 +64,6 @@ s1_setup_response(int enb_fd, struct PLMN *plmn)
 
 
     send_sctp_msg_with_fd(enb_fd, buffer, length, 0);
-   	log_msg(LOG_INFO, "buffer size is %d", length);
     if(buffer)
     {
         free(buffer);
@@ -285,9 +284,9 @@ s1_setup_handler(InitiatingMessage_t *msg, int enb_fd)
     s1Msg.status = 1;
     s1Msg.context_id = temp_cbIndex;
     s1Msg.enbId_m = enbStruct.enbId_m;
+    s1Msg.tacid = enbStruct.tai_m.tac;
     s1Msg.restart_counter = enbStruct.restart_counter;
     strncpy(s1Msg.eNbName, enbStruct.eNbName, 128);
-    log_msg(LOG_INFO, "Send eNB setup message to mme-app %s", s1Msg.eNbName);
 	send_tipc_message(ipc_S1ap_Hndl, mmeAppInstanceNum_c, (char *)&s1Msg, sizeof(s1apEnbStatus_Msg_t));
 
 	return SUCCESS;

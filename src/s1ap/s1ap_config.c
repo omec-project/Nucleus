@@ -70,6 +70,8 @@ switch_config(s1ap_config_t *new_config)
 	{
 		free(last_copy->logging);
 		free(last_copy->mme_name);
+		last_copy->logging = NULL;
+		last_copy->mme_name = NULL;
 		free(last_copy);
 	}
 	

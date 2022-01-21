@@ -32,39 +32,53 @@
 #include "ServedGUMMEIsItem.h"
 #include "msgType.h"
 
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 int s1ap_mme_encode_initiating(
   struct s1ap_common_req_Q_msg *message_p,
   uint8_t **buffer,
   uint32_t *length)
 {
 	log_msg(LOG_INFO, "MME initiating msg Encode.");
-	switch (message_p->IE_type) {
+    int ret = -1;
+	pthread_mutex_lock(&mutex);
+    switch (message_p->IE_type) {
 		case S1AP_CTX_REL_CMD:
 			log_msg(LOG_INFO, "Ue Context release Command Encode.");
-			return s1ap_mme_encode_ue_context_release_command(
+			ret = s1ap_mme_encode_ue_context_release_command(
 					message_p, buffer, length);
+            pthread_mutex_unlock(&mutex);
+            break;
 		case S1AP_PAGING_REQ:
 			log_msg(LOG_INFO, "Paging req Encode.");
-			return s1ap_mme_encode_paging_request(
+			ret = s1ap_mme_encode_paging_request(
 					message_p, buffer, length);
-
+            pthread_mutex_unlock(&mutex);
+            break;
 		case S1AP_INIT_CTXT_SETUP_REQ:
 			log_msg(LOG_INFO, "Init context setup req encode");
-			return s1ap_mme_encode_initial_context_setup_request(
+			ret = s1ap_mme_encode_initial_context_setup_request(
 					message_p, buffer, length); 
-
+            pthread_mutex_unlock(&mutex);
+            break;
 		case S1AP_ATTACH_REJ:
 			log_msg(LOG_INFO, "Attach Reject encode");
-			return s1ap_mme_encode_attach_rej(
+			ret = s1ap_mme_encode_attach_rej(
 					message_p, buffer, length); 
+            pthread_mutex_unlock(&mutex);
+            break;
 		case S1AP_SERVICE_REJ:
 			log_msg(LOG_INFO, "Service Reject encode");
-			return s1ap_mme_encode_service_rej(
+			ret = s1ap_mme_encode_service_rej(
 					message_p, buffer, length); 
+            pthread_mutex_unlock(&mutex);
+            break;
 		case S1AP_TAU_REJ:
 			log_msg(LOG_INFO, "TAU Reject encode");
-			return s1ap_mme_encode_tau_rej(
+			ret = s1ap_mme_encode_tau_rej(
 					message_p, buffer, length);
+            pthread_mutex_unlock(&mutex);
+            break;
 		default:
 			log_msg(
 					LOG_WARNING,
@@ -72,7 +86,7 @@ int s1ap_mme_encode_initiating(
 					(int) message_p->IE_type);
 	}
 
-	return -1;
+	return ret;
 }
 
 int s1ap_mme_encode_outcome(
@@ -81,15 +95,21 @@ int s1ap_mme_encode_outcome(
   uint32_t *length)
 {
     log_msg(LOG_INFO, "MME Outcome Message Encode.");
+    int ret = -1;
+	pthread_mutex_lock(&mutex);
     switch (message_p->IE_type) {
         case S1AP_SETUP_RESPONSE:
             log_msg(LOG_INFO, "S1 Setup Response Encode.");
-            return s1ap_mme_encode_s1_setup_response(
+            ret = s1ap_mme_encode_s1_setup_response(
                       message_p, buffer, length);
+	        pthread_mutex_unlock(&mutex);
+            break;
         case S1AP_SETUP_FAILURE:
             log_msg(LOG_INFO, "S1 Setup failure Encode.");
-            return s1ap_mme_encode_s1_setup_failure(
+            ret =  s1ap_mme_encode_s1_setup_failure(
                       message_p, buffer, length);
+	        pthread_mutex_unlock(&mutex);
+            break;
         default:
             log_msg(
                   LOG_WARNING,
@@ -97,7 +117,7 @@ int s1ap_mme_encode_outcome(
                   (int) message_p->IE_type);
       }
 
-  return -1;
+  return ret;
 }
 
 int s1ap_mme_encode_service_rej(
@@ -119,25 +139,31 @@ int s1ap_mme_encode_service_rej(
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
     initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
-    //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
             
-    DownlinkNASTransport_IEs_t val[3];
-    memset(val, 0, (3*(sizeof(DownlinkNASTransport_IEs_t))));
-    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
-    val[0].criticality = 0;
-    val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
-    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+	const int num_val = 3;
+    DownlinkNASTransport_IEs_t **val 
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < num_val ; i++) {
+        val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
+                        sizeof(uint8_t));
+    }
+    
+    val[0]->id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0]->criticality = 0;
+    val[0]->value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
+    val[0]->value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
     log_msg(LOG_DEBUG,"MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
 
-    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
-    val[1].criticality = 0;
-    val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
-    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+    val[1]->id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1]->criticality = 0;
+    val[1]->value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
+    val[1]->value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
     log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
-    val[2].id = ProtocolIE_ID_id_NAS_PDU;
-    val[2].criticality = 0;
-    val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
+    val[2]->id = ProtocolIE_ID_id_NAS_PDU;
+    val[2]->criticality = 0;
+    val[2]->value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
 
     struct Buffer g_nas_buffer;
@@ -155,18 +181,17 @@ int s1ap_mme_encode_service_rej(
     value = s1apPDU->emm_cause; // UE identity can not be derived by the network
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
-    val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
-    val[2].value.choice.NAS_PDU.buf = calloc(g_nas_buffer.pos, sizeof(uint8_t));
+    val[2]->value.choice.NAS_PDU.size = g_nas_buffer.pos;
+    val[2]->value.choice.NAS_PDU.buf = calloc(g_nas_buffer.pos, sizeof(uint8_t));
 
-    if(val[2].value.choice.NAS_PDU.buf != NULL)
+    if(val[2]->value.choice.NAS_PDU.buf != NULL)
     {
-        memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
-                val[2].value.choice.NAS_PDU.size);
+        memcpy(val[2]->value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
+                val[2]->value.choice.NAS_PDU.size);
     }
-    log_msg(LOG_INFO,"Add values to list.");
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[2]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
@@ -175,12 +200,8 @@ int s1ap_mme_encode_service_rej(
         enc_error = true;
     }
 
-    if(val[2].value.choice.NAS_PDU.buf)
-    {
-        free(val[2].value.choice.NAS_PDU.buf);
-    }
-    
-    free(pdu.choice.initiatingMessage);
+	ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+	free(val);
     if(enc_error) {
         return -1;
     }
@@ -209,23 +230,30 @@ int s1ap_mme_encode_tau_rej(
 	initiating_msg->criticality = 1;
 	initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;
 
-	DownlinkNASTransport_IEs_t val[3];
-	memset(val, 0, (3*(sizeof(DownlinkNASTransport_IEs_t))));
-	val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
-	val[0].criticality = 0;
-	val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
-	val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+	const int num_val = 3;
+    DownlinkNASTransport_IEs_t **val 
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < num_val ; i++) {
+        val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
+                        sizeof(uint8_t));
+    }
+    
+	val[0]->id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+	val[0]->criticality = 0;
+	val[0]->value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
+	val[0]->value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
 	log_msg(LOG_DEBUG,"MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
 
-	val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
-	val[1].criticality = 0;
-	val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
-	val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+	val[1]->id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+	val[1]->criticality = 0;
+	val[1]->value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
+	val[1]->value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
 	log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
-	val[2].id = ProtocolIE_ID_id_NAS_PDU;
-	val[2].criticality = 0;
-	val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
+	val[2]->id = ProtocolIE_ID_id_NAS_PDU;
+	val[2]->criticality = 0;
+	val[2]->value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
 
 	struct Buffer g_nas_buffer;
 	g_nas_buffer.pos = 0;
@@ -241,18 +269,18 @@ int s1ap_mme_encode_tau_rej(
 	value = s1apPDU->emm_cause; // UE identity can not be derived by the network
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
-	val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
-	val[2].value.choice.NAS_PDU.buf = calloc(g_nas_buffer.pos, sizeof(uint8_t));
+	val[2]->value.choice.NAS_PDU.size = g_nas_buffer.pos;
+	val[2]->value.choice.NAS_PDU.buf = calloc(g_nas_buffer.pos, sizeof(uint8_t));
 
-	if(val[2].value.choice.NAS_PDU.buf != NULL)
+	if(val[2]->value.choice.NAS_PDU.buf != NULL)
 	{
-		memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf,
-				val[2].value.choice.NAS_PDU.size);
+		memcpy(val[2]->value.choice.NAS_PDU.buf, g_nas_buffer.buf,
+				val[2]->value.choice.NAS_PDU.size);
 	}
 	log_msg(LOG_INFO,"Add values to list.");
-	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
-	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
-	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
+	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[0]);
+	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[1]);
+	ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[2]);
 
 	bool enc_error = false;
 	if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
@@ -262,13 +290,9 @@ int s1ap_mme_encode_tau_rej(
 	}
 
 	log_msg(LOG_INFO,"free allocated msgs");
-	if(val[2].value.choice.NAS_PDU.buf)
-	{
-		free(val[2].value.choice.NAS_PDU.buf);
-	}
 
-	free(pdu.choice.initiatingMessage);
-
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
 	if(enc_error) {
 		return -1;
 	}
@@ -294,26 +318,32 @@ int s1ap_mme_encode_attach_rej(
     initiating_msg = pdu.choice.initiatingMessage;
     initiating_msg->procedureCode = ProcedureCode_id_downlinkNASTransport;
     initiating_msg->criticality = 1;
-    initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;  
-    //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
-            
-    DownlinkNASTransport_IEs_t val[3];
-    memset(val, 0, (3*(sizeof(DownlinkNASTransport_IEs_t))));
-    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
-    val[0].criticality = 0;
-    val[0].value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
-    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+    initiating_msg->value.present = InitiatingMessage__value_PR_DownlinkNASTransport;
+
+	const int num_val = 3;
+    DownlinkNASTransport_IEs_t **val 
+        = calloc(num_val * sizeof(DownlinkNASTransport_IEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < num_val ; i++) {
+        val[i] = calloc(sizeof(DownlinkNASTransport_IEs_t),
+                        sizeof(uint8_t));
+    }
+    
+    val[0]->id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0]->criticality = 0;
+    val[0]->value.present = DownlinkNASTransport_IEs__value_PR_MME_UE_S1AP_ID;
+    val[0]->value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
     log_msg(LOG_DEBUG, "MME_UE_S1AP_ID : %d",s1apPDU->mme_s1ap_ue_id);
 
-    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
-    val[1].criticality = 0;
-    val[1].value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
-    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+    val[1]->id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1]->criticality = 0;
+    val[1]->value.present = DownlinkNASTransport_IEs__value_PR_ENB_UE_S1AP_ID;
+    val[1]->value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
     log_msg(LOG_DEBUG, "ENB_UE_S1AP_ID : %d",s1apPDU->enb_s1ap_ue_id);
 
-    val[2].id = ProtocolIE_ID_id_NAS_PDU;
-    val[2].criticality = 0;
-    val[2].value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
+    val[2]->id = ProtocolIE_ID_id_NAS_PDU;
+    val[2]->criticality = 0;
+    val[2]->value.present = DownlinkNASTransport_IEs__value_PR_NAS_PDU;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
 
     struct Buffer g_nas_buffer;
@@ -331,18 +361,18 @@ int s1ap_mme_encode_attach_rej(
     value = s1apPDU->emm_cause; // UE identity can not be derived by the network
 	buffer_copy(&g_nas_buffer, &value, sizeof(value));
 
-    val[2].value.choice.NAS_PDU.size = g_nas_buffer.pos;
-    val[2].value.choice.NAS_PDU.buf = (uint8_t*)calloc(g_nas_buffer.pos, sizeof(uint8_t));
+    val[2]->value.choice.NAS_PDU.size = g_nas_buffer.pos;
+    val[2]->value.choice.NAS_PDU.buf = (uint8_t*)calloc(g_nas_buffer.pos, sizeof(uint8_t));
 
-    if(val[2].value.choice.NAS_PDU.buf != NULL)
+    if(val[2]->value.choice.NAS_PDU.buf != NULL)
     {
-        memcpy(val[2].value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
-                val[2].value.choice.NAS_PDU.size);
+        memcpy(val[2]->value.choice.NAS_PDU.buf, g_nas_buffer.buf, 
+                val[2]->value.choice.NAS_PDU.size);
     }
     log_msg(LOG_INFO,"Add values to list.");
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[1]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, &val[2]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.DownlinkNASTransport.protocolIEs.list, val[2]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
@@ -351,13 +381,8 @@ int s1ap_mme_encode_attach_rej(
         enc_error = true;
     }
 
-    if(val[2].value.choice.NAS_PDU.buf)
-    {
-        free(val[2].value.choice.NAS_PDU.buf);
-    }
-    
-    free(pdu.choice.initiatingMessage);
-    
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
     if(enc_error) {
         return -1;
     }
@@ -386,8 +411,13 @@ int s1ap_mme_encode_ue_context_release_command(
     initiating_msg->criticality = 0;
     initiating_msg->value.present = InitiatingMessage__value_PR_UEContextReleaseCommand;  
     
-    UEContextReleaseCommand_IEs_t val[2];
-    memset(val, 0, 2 * sizeof(UEContextReleaseCommand_IEs_t));
+    UEContextReleaseCommand_IEs_t **val 
+        = calloc(2 * sizeof(UEContextReleaseCommand_IEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < 2 ; i++) {
+        val[i] = calloc(sizeof(UEContextReleaseCommand_IEs_t),
+                        sizeof(uint8_t));
+    }
     
     UE_S1AP_IDs_t ue_id_val;
     memset(&ue_id_val, 0, sizeof(UE_S1AP_IDs_t));
@@ -405,6 +435,10 @@ int s1ap_mme_encode_ue_context_release_command(
         {
             log_msg(LOG_ERROR,"calloc failed.");
             free(pdu.choice.initiatingMessage);
+            for(int i = 0; i < 2 ; i++) {
+                free(val[i]);
+            }
+            free(val);
             return -1;
         }
         memcpy(ue_id_val.choice.uE_S1AP_ID_pair, &s1apId_pair, sizeof(struct UE_S1AP_ID_pair));
@@ -419,36 +453,36 @@ int s1ap_mme_encode_ue_context_release_command(
         ue_id_val.present = UE_S1AP_IDs_PR_NOTHING;
     }
 
-    val[0].id = ProtocolIE_ID_id_UE_S1AP_IDs;
-    val[0].criticality = 0;
-    val[0].value.present = UEContextReleaseCommand_IEs__value_PR_UE_S1AP_IDs;
-    memcpy(&val[0].value.choice.UE_S1AP_IDs, &ue_id_val, sizeof(UE_S1AP_IDs_t));
+    val[0]->id = ProtocolIE_ID_id_UE_S1AP_IDs;
+    val[0]->criticality = 0;
+    val[0]->value.present = UEContextReleaseCommand_IEs__value_PR_UE_S1AP_IDs;
+    memcpy(&val[0]->value.choice.UE_S1AP_IDs, &ue_id_val, sizeof(UE_S1AP_IDs_t));
 
-    val[1].id = ProtocolIE_ID_id_Cause;
-    val[1].criticality = 1;
-    val[1].value.present = UEContextReleaseCommand_IEs__value_PR_Cause;
+    val[1]->id = ProtocolIE_ID_id_Cause;
+    val[1]->criticality = 1;
+    val[1]->value.present = UEContextReleaseCommand_IEs__value_PR_Cause;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
-    val[1].value.choice.Cause.present = s1apPDU->cause.present;
+    val[1]->value.choice.Cause.present = s1apPDU->cause.present;
     switch(s1apPDU->cause.present)
     {
         case Cause_PR_radioNetwork:
-            val[1].value.choice.Cause.choice.radioNetwork
+            val[1]->value.choice.Cause.choice.radioNetwork
                 = s1apPDU->cause.choice.radioNetwork;
         break;
         case Cause_PR_transport:
-            val[1].value.choice.Cause.choice.transport
+            val[1]->value.choice.Cause.choice.transport
                 = s1apPDU->cause.choice.transport;
         break;
         case Cause_PR_nas:
-            val[1].value.choice.Cause.choice.nas
+            val[1]->value.choice.Cause.choice.nas
                 = s1apPDU->cause.choice.nas;
         break;
         case Cause_PR_protocol:
-            val[1].value.choice.Cause.choice.protocol
+            val[1]->value.choice.Cause.choice.protocol
                 = s1apPDU->cause.choice.protocol;
         break;
         case Cause_PR_misc:
-            val[1].value.choice.Cause.choice.misc
+            val[1]->value.choice.Cause.choice.misc
                 = s1apPDU->cause.choice.misc;
         break;
         case Cause_PR_NOTHING:
@@ -457,8 +491,8 @@ int s1ap_mme_encode_ue_context_release_command(
     }
 
     log_msg(LOG_INFO,"Add values to list.");
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, &val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs.list, val[1]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
@@ -467,13 +501,8 @@ int s1ap_mme_encode_ue_context_release_command(
         enc_error = true;
     }
 
-    if(ue_id_val.present == UE_S1AP_IDs_PR_uE_S1AP_ID_pair)
-    {
-        free(ue_id_val.choice.uE_S1AP_ID_pair);
-    }
-    
-    free(pdu.choice.initiatingMessage);
-    
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
     if(enc_error) {
         return -1;
     }
@@ -500,38 +529,46 @@ int s1ap_mme_encode_initial_context_setup_request(
     initiating_msg->criticality = 0;
     initiating_msg->value.present = InitiatingMessage__value_PR_InitialContextSetupRequest;
 
-    InitialContextSetupRequestIEs_t val[6];
-    memset(val, 0, 6 * (sizeof(InitialContextSetupRequestIEs_t)));
+    InitialContextSetupRequestIEs_t **val 
+        = calloc(6 * sizeof(InitialContextSetupRequestIEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < 6 ; i++) {
+        val[i] = calloc(sizeof(InitialContextSetupRequestIEs_t),
+                        sizeof(uint8_t));
+    }
 
-    val[0].id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
-    val[0].criticality = 0;
-    val[0].value.present = InitialContextSetupRequestIEs__value_PR_MME_UE_S1AP_ID;
-    val[0].value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
+    //InitialContextSetupRequestIEs_t val[6];
+    //memset(val, 0, 6 * (sizeof(InitialContextSetupRequestIEs_t)));
 
-    val[1].id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
-    val[1].criticality = 0;
-    val[1].value.present = InitialContextSetupRequestIEs__value_PR_ENB_UE_S1AP_ID;
-    val[1].value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
+    val[0]->id = ProtocolIE_ID_id_MME_UE_S1AP_ID;
+    val[0]->criticality = 0;
+    val[0]->value.present = InitialContextSetupRequestIEs__value_PR_MME_UE_S1AP_ID;
+    val[0]->value.choice.MME_UE_S1AP_ID = s1apPDU->mme_s1ap_ue_id;
 
-    val[2].id = ProtocolIE_ID_id_uEaggregateMaximumBitrate;
-    val[2].criticality = 0;
-    val[2].value.present = InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitrate;
+    val[1]->id = ProtocolIE_ID_id_eNB_UE_S1AP_ID;
+    val[1]->criticality = 0;
+    val[1]->value.present = InitialContextSetupRequestIEs__value_PR_ENB_UE_S1AP_ID;
+    val[1]->value.choice.ENB_UE_S1AP_ID = s1apPDU->enb_s1ap_ue_id;
 
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.size = 5;
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf = calloc (5, sizeof(uint8_t));
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[0] = 0x0; 
+    val[2]->id = ProtocolIE_ID_id_uEaggregateMaximumBitrate;
+    val[2]->criticality = 0;
+    val[2]->value.present = InitialContextSetupRequestIEs__value_PR_UEAggregateMaximumBitrate;
+
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.size = 5;
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf = calloc (5, sizeof(uint8_t));
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[0] = 0x0; 
     uint32_t temp_bitrate = htonl(s1apPDU->ueag_max_dl_bitrate);
-    memcpy (&(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[1]), &temp_bitrate, sizeof(uint32_t));
+    memcpy (&(val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf[1]), &temp_bitrate, sizeof(uint32_t));
 
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.size =  5;
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf = calloc (5, sizeof(uint8_t));
-    val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[0] = 0x0; 
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.size =  5;
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf = calloc (5, sizeof(uint8_t));
+    val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[0] = 0x0; 
     temp_bitrate = htonl(s1apPDU->ueag_max_ul_bitrate);
-    memcpy (&(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[1]), &temp_bitrate, sizeof(uint32_t));
+    memcpy (&(val[2]->value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf[1]), &temp_bitrate, sizeof(uint32_t));
 
-    val[3].id = ProtocolIE_ID_id_E_RABToBeSetupListCtxtSUReq;
-    val[3].criticality = 0;
-    val[3].value.present = InitialContextSetupRequestIEs__value_PR_E_RABToBeSetupListCtxtSUReq;
+    val[3]->id = ProtocolIE_ID_id_E_RABToBeSetupListCtxtSUReq;
+    val[3]->criticality = 0;
+    val[3]->value.present = InitialContextSetupRequestIEs__value_PR_E_RABToBeSetupListCtxtSUReq;
 
     E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item_list =
             (E_RABToBeSetupItemCtxtSUReqIEs_t *)calloc(s1apPDU->erab_su_list.count,
@@ -580,37 +617,46 @@ int s1ap_mme_encode_initial_context_setup_request(
 	erab_to_be_setup->gTP_TEID.buf = calloc(4, sizeof(uint8_t));
 	memcpy(erab_to_be_setup->gTP_TEID.buf, &s1uSgwTeid, sizeof(uint32_t));
 
-        ASN_SEQUENCE_ADD(&val[3].value.choice.E_RABToBeSetupListCtxtSUReq.list,
+	if (s1apPDU->nasMsgLen != 0)
+	{
+		erab_to_be_setup->nAS_PDU = calloc(1, sizeof(NAS_PDU_t));
+		erab_to_be_setup->nAS_PDU->buf = calloc(s1apPDU->nasMsgLen,
+                	sizeof(uint8_t));
+		erab_to_be_setup->nAS_PDU->size = s1apPDU->nasMsgLen;
+		memcpy(erab_to_be_setup->nAS_PDU->buf, s1apPDU->nasMsgBuf, s1apPDU->nasMsgLen);
+	}
+
+	ASN_SEQUENCE_ADD(&val[3]->value.choice.E_RABToBeSetupListCtxtSUReq.list,
                 erab_to_be_setup_item);
 
     }
 
 
-    val[4].id = ProtocolIE_ID_id_UESecurityCapabilities;
-    val[4].criticality = 0;
-    val[4].value.present = InitialContextSetupRequestIEs__value_PR_UESecurityCapabilities;
-    val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.buf = calloc(2, sizeof(uint8_t));
-    val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.size = 2;
-    val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.buf[0] = 0xe0;
-    val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.buf[1] = 0x00;
-    val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf = calloc(2, sizeof(uint8_t));
-    val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.size = 2;
-    val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf[0] = 0xc0;
-    val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf[1] = 0x00;
+    val[4]->id = ProtocolIE_ID_id_UESecurityCapabilities;
+    val[4]->criticality = 0;
+    val[4]->value.present = InitialContextSetupRequestIEs__value_PR_UESecurityCapabilities;
+    val[4]->value.choice.UESecurityCapabilities.encryptionAlgorithms.buf = calloc(2, sizeof(uint8_t));
+    val[4]->value.choice.UESecurityCapabilities.encryptionAlgorithms.size = 2;
+    val[4]->value.choice.UESecurityCapabilities.encryptionAlgorithms.buf[0] = 0xe0;
+    val[4]->value.choice.UESecurityCapabilities.encryptionAlgorithms.buf[1] = 0x00;
+    val[4]->value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf = calloc(2, sizeof(uint8_t));
+    val[4]->value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.size = 2;
+    val[4]->value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf[0] = 0xc0;
+    val[4]->value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf[1] = 0x00;
 
-    val[5].id = ProtocolIE_ID_id_SecurityKey;
-    val[5].criticality = 0;
-    val[5].value.present = InitialContextSetupRequestIEs__value_PR_SecurityKey;
-    val[5].value.choice.SecurityKey.size = SECURITY_KEY_SIZE;
-    val[5].value.choice.SecurityKey.buf = calloc(SECURITY_KEY_SIZE, sizeof(uint8_t));
-    memcpy(val[5].value.choice.SecurityKey.buf, s1apPDU->sec_key, SECURITY_KEY_SIZE);
+    val[5]->id = ProtocolIE_ID_id_SecurityKey;
+    val[5]->criticality = 0;
+    val[5]->value.present = InitialContextSetupRequestIEs__value_PR_SecurityKey;
+    val[5]->value.choice.SecurityKey.size = SECURITY_KEY_SIZE;
+    val[5]->value.choice.SecurityKey.buf = calloc(SECURITY_KEY_SIZE, sizeof(uint8_t));
+    memcpy(val[5]->value.choice.SecurityKey.buf, s1apPDU->sec_key, SECURITY_KEY_SIZE);
 
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[1]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[2]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[3]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[4]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, &val[5]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[2]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[3]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[4]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.InitialContextSetupRequest.protocolIEs.list, val[5]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
@@ -619,24 +665,8 @@ int s1ap_mme_encode_initial_context_setup_request(
         enc_error = true;
     }
 
-    free(val[5].value.choice.SecurityKey.buf);
-    free(val[4].value.choice.UESecurityCapabilities.integrityProtectionAlgorithms.buf);
-    free(val[4].value.choice.UESecurityCapabilities.encryptionAlgorithms.buf);
-    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateUL.buf);
-    free(val[2].value.choice.UEAggregateMaximumBitrate.uEaggregateMaximumBitRateDL.buf);
-    for (int i = 0; i < s1apPDU->erab_su_list.count; i++)
-    {
-        E_RABToBeSetupItemCtxtSUReqIEs_t *erab_to_be_setup_item =
-                &(erab_to_be_setup_item_list[i]);
-
-        E_RABToBeSetupItemCtxtSUReq_t *erab_to_be_setup =
-                &(erab_to_be_setup_item->value.choice.E_RABToBeSetupItemCtxtSUReq);
-
-        free(erab_to_be_setup->transportLayerAddress.buf);
-        free(erab_to_be_setup->gTP_TEID.buf);
-    }
-    free(erab_to_be_setup_item_list);
-    free(pdu.choice.initiatingMessage);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
     if(enc_error) {
         return -1;
     }
@@ -668,14 +698,19 @@ int s1ap_mme_encode_paging_request(
     initiating_msg->criticality = 0;
     initiating_msg->value.present = InitiatingMessage__value_PR_Paging;  
 
-    PagingIEs_t val[4];
-    memset(val, 0, 4 * sizeof(PagingIEs_t));
+    PagingIEs_t **val 
+        = calloc(4 * sizeof(PagingIEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < 4 ; i++) {
+        val[i] = calloc(sizeof(PagingIEs_t),
+                        sizeof(uint8_t));
+    }
+    
+    val[0]->id = ProtocolIE_ID_id_UEIdentityIndexValue;
+    val[0]->criticality = 0;
+    val[0]->value.present = PagingIEs__value_PR_UEIdentityIndexValue;
 
-    val[0].id = ProtocolIE_ID_id_UEIdentityIndexValue;
-    val[0].criticality = 0;
-    val[0].value.present = PagingIEs__value_PR_UEIdentityIndexValue;
-
-    UEIdentityIndexValue_t* UEIdentityIndexValue = &val[0].value.choice.UEIdentityIndexValue;
+    UEIdentityIndexValue_t* UEIdentityIndexValue = &val[0]->value.choice.UEIdentityIndexValue;
     uint64_t ue_imsi_value = 0;
     /* Set UE Identity Index value : IMSI mod 4096 */
     UEIdentityIndexValue->size = 2;
@@ -697,9 +732,9 @@ int s1ap_mme_encode_paging_request(
 
     log_msg(LOG_DEBUG,"Encoding STMSI");
 
-    val[1].id = ProtocolIE_ID_id_UEPagingID;
-    val[1].criticality = 0;
-    val[1].value.present = PagingIEs__value_PR_UEPagingID;
+    val[1]->id = ProtocolIE_ID_id_UEPagingID;
+    val[1]->criticality = 0;
+    val[1]->value.present = PagingIEs__value_PR_UEPagingID;
 
     UEPagingID_t pagingId;
     pagingId.present = UEPagingID_PR_s_TMSI;
@@ -714,31 +749,31 @@ int s1ap_mme_encode_paging_request(
     uint32_t m_tmsi = htonl(s1apPDU->m_tmsi);
     memcpy(pagingId.choice.s_TMSI->m_TMSI.buf, &m_tmsi, sizeof(uint32_t));
     pagingId.choice.s_TMSI->m_TMSI.size = sizeof(uint32_t);
-    memcpy(&val[1].value.choice.UEPagingID, &pagingId, sizeof(UEPagingID_t));
+    memcpy(&val[1]->value.choice.UEPagingID, &pagingId, sizeof(UEPagingID_t));
 
     log_msg(LOG_INFO, "Encoding CNDomain");
 
-    val[2].id = ProtocolIE_ID_id_CNDomain;
-    val[2].criticality = 0;
-    val[2].value.present = PagingIEs__value_PR_CNDomain;
-    val[2].value.choice.CNDomain = s1apPDU->cn_domain;
+    val[2]->id = ProtocolIE_ID_id_CNDomain;
+    val[2]->criticality = 0;
+    val[2]->value.present = PagingIEs__value_PR_CNDomain;
+    val[2]->value.choice.CNDomain = s1apPDU->cn_domain;
     
     log_msg(LOG_DEBUG,"Encoding TAI List");
 	
-    val[3].id = ProtocolIE_ID_id_TAIList;
-    val[3].criticality = 0;
-    val[3].value.present = PagingIEs__value_PR_TAIList;
+    val[3]->id = ProtocolIE_ID_id_TAIList;
+    val[3]->criticality = 0;
+    val[3]->value.present = PagingIEs__value_PR_TAIList;
 
-    TAIItemIEs_t tai_item;
-    memset(&tai_item, 0, sizeof(TAIItemIEs_t));
+    TAIItemIEs_t *tai_item = calloc(sizeof(TAIItemIEs_t),
+                                    sizeof(uint8_t));
 
-    tai_item.id = ProtocolIE_ID_id_TAIItem;
-    tai_item.criticality = 0;
-    tai_item.value.present = TAIItemIEs__value_PR_TAIItem;
+    tai_item->id = ProtocolIE_ID_id_TAIItem;
+    tai_item->criticality = 0;
+    tai_item->value.present = TAIItemIEs__value_PR_TAIItem;
 
     log_msg(LOG_DEBUG,"TAI List - Encode PLMN ID");
-    tai_item.value.choice.TAIItem.tAI.pLMNidentity.size = 3;
-    tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf = calloc(3, sizeof(uint8_t));
+    tai_item->value.choice.TAIItem.tAI.pLMNidentity.size = 3;
+    tai_item->value.choice.TAIItem.tAI.pLMNidentity.buf = calloc(3, sizeof(uint8_t));
 
     // plmnId stored in ue info is for s6a/s11/nas interfaces.
     // For s1ap interface, we need to encode the plmn from 216354 to 214365.
@@ -758,20 +793,20 @@ int s1ap_mme_encode_paging_request(
               s1apPDU->tai.plmn_id.idx[2] = plmn_byte3;
 	  }
     }
-    memcpy(tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf, &s1apPDU->tai.plmn_id.idx, 3);
+    memcpy(tai_item->value.choice.TAIItem.tAI.pLMNidentity.buf, &s1apPDU->tai.plmn_id.idx, 3);
 
     log_msg(LOG_DEBUG,"TAI List - Encode TAC");
-    tai_item.value.choice.TAIItem.tAI.tAC.size = 2;
-    tai_item.value.choice.TAIItem.tAI.tAC.buf = calloc(2, sizeof(uint8_t));
-    memcpy(tai_item.value.choice.TAIItem.tAI.tAC.buf, &s1apPDU->tai.tac, 2);
+    tai_item->value.choice.TAIItem.tAI.tAC.size = 2;
+    tai_item->value.choice.TAIItem.tAI.tAC.buf = calloc(2, sizeof(uint8_t));
+    memcpy(tai_item->value.choice.TAIItem.tAI.tAC.buf, &s1apPDU->tai.tac, 2);
 
-    ASN_SEQUENCE_ADD(&val[3].value.choice.TAIList.list, &tai_item);
+    ASN_SEQUENCE_ADD(&val[3]->value.choice.TAIList.list, tai_item);
 
     log_msg(LOG_INFO,"Add values to list.");
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[1]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[2]);
-    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, &val[3]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[1]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[2]);
+    ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[3]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0) 
@@ -780,14 +815,10 @@ int s1ap_mme_encode_paging_request(
         enc_error = true;
     }
 
-    free(pdu.choice.initiatingMessage);
-    free(UEIdentityIndexValue->buf);
-    free(pagingId.choice.s_TMSI->mMEC.buf);
-    free(pagingId.choice.s_TMSI->m_TMSI.buf);
-    free(pagingId.choice.s_TMSI);
-    free(tai_item.value.choice.TAIItem.tAI.pLMNidentity.buf);
-    free(tai_item.value.choice.TAIItem.tAI.tAC.buf);
     
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
+    free(tai_item);
     if(enc_error) {
         return -1;
     }
@@ -822,34 +853,39 @@ int s1ap_mme_encode_s1_setup_failure(
     fail_msg->value.present = UnsuccessfulOutcome__value_PR_S1SetupFailure;
     //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
 
-    S1SetupFailureIEs_t val[1];
-    memset(val, 0, 1 * sizeof(S1SetupFailureIEs_t));
+    S1SetupFailureIEs_t **val 
+        = calloc(1 * sizeof(S1SetupFailureIEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < 1 ; i++) {
+        val[i] = calloc(sizeof(S1SetupFailureIEs_t),
+                        sizeof(uint8_t));
+    }
 
-    val[0].id = ProtocolIE_ID_id_Cause;
-    val[0].criticality = 1;
-    val[0].value.present = S1SetupFailureIEs__value_PR_Cause;
+    val[0]->id = ProtocolIE_ID_id_Cause;
+    val[0]->criticality = 1;
+    val[0]->value.present = S1SetupFailureIEs__value_PR_Cause;
     //memcpy(&val[1].value.choice.Cause, &s1apPDU->cause, sizeof(Cause_t));
-    val[0].value.choice.Cause.present = s1apPDU->cause.present;
+    val[0]->value.choice.Cause.present = s1apPDU->cause.present;
     switch(s1apPDU->cause.present)
     {
         case Cause_PR_radioNetwork:
-            val[0].value.choice.Cause.choice.radioNetwork
+            val[0]->value.choice.Cause.choice.radioNetwork
                 = s1apPDU->cause.choice.radioNetwork;
         break;
         case Cause_PR_transport:
-            val[0].value.choice.Cause.choice.transport
+            val[0]->value.choice.Cause.choice.transport
                 = s1apPDU->cause.choice.transport;
         break;
         case Cause_PR_nas:
-            val[0].value.choice.Cause.choice.nas
+            val[0]->value.choice.Cause.choice.nas
                 = s1apPDU->cause.choice.nas;
         break;
         case Cause_PR_protocol:
-            val[0].value.choice.Cause.choice.protocol
+            val[0]->value.choice.Cause.choice.protocol
                 = s1apPDU->cause.choice.protocol;
         break;
         case Cause_PR_misc:
-            val[0].value.choice.Cause.choice.misc
+            val[0]->value.choice.Cause.choice.misc
                 = s1apPDU->cause.choice.misc;
         break;
         case Cause_PR_NOTHING:
@@ -867,7 +903,8 @@ int s1ap_mme_encode_s1_setup_failure(
         enc_error = true;
     }
 
-    free(pdu.choice.unsuccessfulOutcome);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
 
     if(enc_error) {
         return -1;
@@ -903,63 +940,72 @@ int s1ap_mme_encode_s1_setup_response(
     rsp_msg->value.present = SuccessfulOutcome__value_PR_S1SetupResponse;
     //proto_c = &initiating_msg->value.choice.UEContextReleaseCommand.protocolIEs;
 
-    S1SetupResponseIEs_t val[3];
-    memset(val, 0, 3 * sizeof(S1SetupFailureIEs_t));
+    S1SetupResponseIEs_t **val 
+        = calloc(3 * sizeof(S1SetupResponseIEs_t *),
+                 sizeof(uint8_t)); 
+    for (int i = 0; i < 3 ; i++) {
+        val[i] = calloc(sizeof(S1SetupResponseIEs_t),
+                        sizeof(uint8_t));
+    }
 
-    val[2].id = ProtocolIE_ID_id_MMEname;
-    val[2].criticality = 1;
-    val[2].value.present = S1SetupResponseIEs__value_PR_MMEname;
+    val[2]->id = ProtocolIE_ID_id_MMEname;
+    val[2]->criticality = 1;
+    val[2]->value.present = S1SetupResponseIEs__value_PR_MMEname;
 
     int mme_name_len = strlen(s1apPDU->mme_name);
-    val[2].value.choice.MMEname.size = mme_name_len;
-    val[2].value.choice.MMEname.buf = calloc(mme_name_len,
+    val[2]->value.choice.MMEname.size = mme_name_len;
+    val[2]->value.choice.MMEname.buf = calloc(mme_name_len,
                                              sizeof(uint8_t));
-    memcpy(val[2].value.choice.MMEname.buf,
+    memcpy(val[2]->value.choice.MMEname.buf,
            &s1apPDU->mme_name, mme_name_len);
 
-    val[1].id = ProtocolIE_ID_id_RelativeMMECapacity;
-    val[1].criticality = 1;
-    val[1].value.present = S1SetupResponseIEs__value_PR_RelativeMMECapacity;
+    val[1]->id = ProtocolIE_ID_id_RelativeMMECapacity;
+    val[1]->criticality = 1;
+    val[1]->value.present = S1SetupResponseIEs__value_PR_RelativeMMECapacity;
 
-    val[1].value.choice.RelativeMMECapacity = s1apPDU->rel_cap;
+    val[1]->value.choice.RelativeMMECapacity = s1apPDU->rel_cap;
 
-    val[0].id = ProtocolIE_ID_id_ServedGUMMEIs;
-    val[0].criticality = 0;
-    val[0].value.present = S1SetupResponseIEs__value_PR_ServedGUMMEIs;
+    val[0]->id = ProtocolIE_ID_id_ServedGUMMEIs;
+    val[0]->criticality = 0;
+    val[0]->value.present = S1SetupResponseIEs__value_PR_ServedGUMMEIs;
 
-    ServedGUMMEIsItem_t gummei_item;
-    memset(&gummei_item, 0, sizeof(ServedGUMMEIsItem_t));
+    ServedGUMMEIsItem_t *gummei_item
+        = calloc(sizeof(ServedGUMMEIsItem_t), sizeof(uint8_t));
+    memset(gummei_item, 0, sizeof(ServedGUMMEIsItem_t));
 
-    PLMNidentity_t plmn;
-    memset(&plmn, 0, sizeof(PLMNidentity_t));
+    PLMNidentity_t *plmn
+        = calloc(sizeof(PLMNidentity_t), sizeof(uint8_t));
+    memset(plmn, 0, sizeof(PLMNidentity_t));
 
-    plmn.size = 3;
-    plmn.buf = calloc(3, sizeof(uint8_t));
-    memcpy(plmn.buf, s1apPDU->mme_plmn_id.idx, 3);
+    plmn->size = 3;
+    plmn->buf = calloc(3, sizeof(uint8_t));
+    memcpy(plmn->buf, s1apPDU->mme_plmn_id.idx, 3);
 
-    MME_Group_ID_t group_id;
-    memset(&group_id, 0, sizeof(MME_Group_ID_t));
+    MME_Group_ID_t *group_id
+        = calloc(sizeof(MME_Group_ID_t), sizeof(uint8_t));
+    memset(group_id, 0, sizeof(MME_Group_ID_t));
 
-    group_id.size = 2;
-    group_id.buf = calloc(2, sizeof(uint8_t));
-    group_id.size = copyU16(group_id.buf, s1apPDU->mme_group_id);
+    group_id->size = 2;
+    group_id->buf = calloc(2, sizeof(uint8_t));
+    group_id->size = copyU16(group_id->buf, s1apPDU->mme_group_id);
     //memcpy(group_id.buf, &s1apPDU->mme_group_id, 2);
 
-    MME_Code_t mmecode;
-    memset(&mmecode, 0, sizeof(MME_Code_t));
+    MME_Code_t *mmecode
+        = calloc(sizeof(MME_Code_t), sizeof(uint8_t));
+    memset(mmecode, 0, sizeof(MME_Code_t));
 
-    mmecode.size = 1;
-    mmecode.buf = calloc(1, sizeof(uint8_t));
-    memcpy(mmecode.buf, &s1apPDU->mme_code, 1);
+    mmecode->size = 1;
+    mmecode->buf = calloc(1, sizeof(uint8_t));
+    memcpy(mmecode->buf, &s1apPDU->mme_code, 1);
 
-    ASN_SEQUENCE_ADD(&gummei_item.servedPLMNs.list, &plmn);
-    ASN_SEQUENCE_ADD(&gummei_item.servedGroupIDs.list, &group_id);
-    ASN_SEQUENCE_ADD(&gummei_item.servedMMECs.list, &mmecode);
-    ASN_SEQUENCE_ADD(&val[0].value.choice.ServedGUMMEIs.list, &gummei_item);
+    ASN_SEQUENCE_ADD(&gummei_item->servedPLMNs.list, plmn);
+    ASN_SEQUENCE_ADD(&gummei_item->servedGroupIDs.list, group_id);
+    ASN_SEQUENCE_ADD(&gummei_item->servedMMECs.list, mmecode);
+    ASN_SEQUENCE_ADD(&val[0]->value.choice.ServedGUMMEIs.list, gummei_item);
 
-    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[2]);
-    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[0]);
-    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, &val[1]);
+    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, val[2]);
+    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, val[0]);
+    ASN_SEQUENCE_ADD(&rsp_msg->value.choice.S1SetupResponse.protocolIEs.list, val[1]);
 
     bool enc_error = false;
     if ((enc_ret = aper_encode_to_new_buffer (&asn_DEF_S1AP_PDU, 0, &pdu, (void **)buffer)) < 0)
@@ -968,11 +1014,8 @@ int s1ap_mme_encode_s1_setup_response(
         enc_error = true;
     }
 
-    free(pdu.choice.successfulOutcome);
-    free(val[2].value.choice.MMEname.buf);
-    free(plmn.buf);
-    free(group_id.buf);
-    free(mmecode.buf);
+    ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
+    free(val);
     if(enc_error) {
         return -1;
     }
@@ -2144,6 +2187,7 @@ int s1ap_mme_encode_path_switch_req_ack(
         enc_error = true;
     }
 
+    free(val[2].value.choice.SecurityContext.nextHopParameter.buf);
     for (int i = 0; i < s1apPDU->erab_to_be_switched_ul_list.count; i++)
     {
         E_RABToBeSwitchedULItemIEs_t *erab_to_be_switched_item =
