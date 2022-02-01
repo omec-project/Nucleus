@@ -364,6 +364,7 @@ ActStatus ActionHandlers::default_service_req_handler(ControlBlock& cb)
                 log_msg(LOG_ERROR, "Allocated service request procedure context ");
                 mmCtxt->setEcmState(ecmConnected_c);
                 ueCtxt->setS1apEnbUeId(serviceReq->header.s1ap_enb_ue_id);
+                ueCtxt->setEnbFd(enb_fd);
 
                 SM::Event evt(SERVICE_REQUEST_FROM_UE, NULL);
                 cb.qInternalEvent(evt);
@@ -546,6 +547,7 @@ ActStatus ActionHandlers::default_tau_req_handler(ControlBlock& cb)
 
                 tauReqProc_p->setS1apEnbUeId(tauReq->header.s1ap_enb_ue_id);
                 tauReqProc_p->setEnbFd(tauReq->enb_fd);
+                ueCtxt->setS1apEnbUeId(tauReq->header.s1ap_enb_ue_id);
 
                 //TAI and CGI obtained from s1ap ies.
                 //Convert the PLMN in s1ap format to nas format before storing in procedure context.
