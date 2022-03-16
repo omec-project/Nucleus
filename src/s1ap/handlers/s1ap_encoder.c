@@ -730,8 +730,6 @@ int s1ap_mme_encode_paging_request(
     UEIdentityIndexValue->buf[1] = (index_value & 0x3) << 6;
     UEIdentityIndexValue->bits_unused = 6;
 
-    log_msg(LOG_DEBUG,"Encoding STMSI");
-
     val[1]->id = ProtocolIE_ID_id_UEPagingID;
     val[1]->criticality = 0;
     val[1]->value.present = PagingIEs__value_PR_UEPagingID;
@@ -751,14 +749,11 @@ int s1ap_mme_encode_paging_request(
     pagingId.choice.s_TMSI->m_TMSI.size = sizeof(uint32_t);
     memcpy(&val[1]->value.choice.UEPagingID, &pagingId, sizeof(UEPagingID_t));
 
-    log_msg(LOG_INFO, "Encoding CNDomain");
-
     val[2]->id = ProtocolIE_ID_id_CNDomain;
     val[2]->criticality = 0;
     val[2]->value.present = PagingIEs__value_PR_CNDomain;
     val[2]->value.choice.CNDomain = s1apPDU->cn_domain;
     
-    log_msg(LOG_DEBUG,"Encoding TAI List");
 	
     val[3]->id = ProtocolIE_ID_id_TAIList;
     val[3]->criticality = 0;
@@ -771,7 +766,6 @@ int s1ap_mme_encode_paging_request(
     tai_item->criticality = 0;
     tai_item->value.present = TAIItemIEs__value_PR_TAIItem;
 
-    log_msg(LOG_DEBUG,"TAI List - Encode PLMN ID");
     tai_item->value.choice.TAIItem.tAI.pLMNidentity.size = 3;
     tai_item->value.choice.TAIItem.tAI.pLMNidentity.buf = calloc(3, sizeof(uint8_t));
 
@@ -795,14 +789,12 @@ int s1ap_mme_encode_paging_request(
     }
     memcpy(tai_item->value.choice.TAIItem.tAI.pLMNidentity.buf, &s1apPDU->tai.plmn_id.idx, 3);
 
-    log_msg(LOG_DEBUG,"TAI List - Encode TAC");
     tai_item->value.choice.TAIItem.tAI.tAC.size = 2;
     tai_item->value.choice.TAIItem.tAI.tAC.buf = calloc(2, sizeof(uint8_t));
     memcpy(tai_item->value.choice.TAIItem.tAI.tAC.buf, &s1apPDU->tai.tac, 2);
 
     ASN_SEQUENCE_ADD(&val[3]->value.choice.TAIList.list, tai_item);
 
-    log_msg(LOG_INFO,"Add values to list.");
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[0]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[1]);
     ASN_SEQUENCE_ADD(&initiating_msg->value.choice.Paging.protocolIEs.list, val[2]);
@@ -818,7 +810,6 @@ int s1ap_mme_encode_paging_request(
     
     ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF_S1AP_PDU, &pdu);
     free(val);
-    free(tai_item);
     if(enc_error) {
         return -1;
     }
