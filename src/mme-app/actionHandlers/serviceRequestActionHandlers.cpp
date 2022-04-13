@@ -690,3 +690,26 @@ ActStatus ActionHandlers::service_request_complete(ControlBlock& cb)
     return ActStatus::PROCEED;
 }
 
+/***************************************
+* Action handler : validate_mac_in_ue_context
+***************************************/
+ActStatus ActionHandlers::validate_mac_in_ue_context(ControlBlock& cb)
+{
+    log_msg(LOG_DEBUG, "Inside validate mac in ue context ");
+	
+	UEContext *ue_ctxt = dynamic_cast<UEContext*>(cb.getPermDataBlock());
+    VERIFY_UE(cb, ue_ctxt, "Invalid UE");
+
+    uint8_t macValidate =
+            ue_ctxt->getUeSecInfo().getMacFailFlag();
+    if (macValidate == 1) {
+        SM::Event evt(SERVICE_REQUEST_VALIDATE_MAC_SUCCESS, NULL);
+        cb.qInternalEvent(evt);
+    } else {
+        SM::Event evt(SERVICE_REQUEST_VALIDATE_MAC_FAILURE, NULL);
+        cb.qInternalEvent(evt);
+    }
+
+    return ActStatus::PROCEED;
+}
+

@@ -1105,9 +1105,9 @@
                                 "Name":"SERVICE_REQUEST_FROM_UE",
                                 "Actions":[
                                     "PROCESS_SERVICE_REQUEST",
-                                    "AUTH_REQ_TO_UE"
+                                    "VALIDATE_MAC_IN_UE_CONTEXT"
                                 ],
-                                "NextState":"service_request_wf_auth_response"
+                                "NextState":"service_request_wf_mac_validate_action"
                             },
                             {
                                 "Name":"STATE_GUARD_TIMEOUT",
@@ -1131,7 +1131,36 @@
                         "Name":"service_request_start",
                         "Events":[
                             {
-                                "Name":"SERVICE_REQUEST_FROM_UE",
+                                "Name":"SERVICE_REQUEST_VALIDATE_MAC",
+                                "Actions":[
+                                    "VALIDATE_MAC_IN_UE_CONTEXT"
+                                ],
+                                "NextState":"service_request_wf_mac_validate_action"
+                            },
+                            {
+                                "Name":"ABORT_EVENT",
+                                "Actions":[
+                                    "SEND_SERVICE_REJECT",
+                                    "SEND_S1_REL_CMD_TO_UE",
+                                    "S1_RELEASE_COMPLETE",
+                                    "ABORT_SERVICE_REQ_PROCEDURE"
+                                ],
+                                "NextState":"end_state"
+                            }
+                        ]
+                    },
+                    {
+                        "Name":"service_request_wf_mac_validate_action",
+                        "Events":[
+                            {
+                                "Name":"SERVICE_REQUEST_VALIDATE_MAC_SUCCESS",
+                                "Actions":[
+                                    "SEND_INIT_CTXT_REQ_TO_UE_SVC_REQ"
+                                ],
+                                "NextState":"service_request_wf_init_ctxt_resp"
+                            },
+                            {
+                                "Name":"SERVICE_REQUEST_VALIDATE_MAC_FAILURE",
                                 "Actions":[
                                     "AUTH_REQ_TO_UE"
                                 ],

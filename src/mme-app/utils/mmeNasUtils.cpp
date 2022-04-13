@@ -930,7 +930,8 @@ int MmeNasUtils::parse_nas_pdu(s1_incoming_msg_header_t* msg_data, unsigned char
                                     "Service Request :  MAC Failure for UE with IMSI %s",
                                     ueCtxt_p->getImsi().getDigitsArray());
 
-                            return MAC_MISMATCH;
+                            //return MAC_MISMATCH;
+                            secContext.setMacFailFlag(1);
                         }
 
                         //log_msg(LOG_DEBUG, "MAC matched for service req.");

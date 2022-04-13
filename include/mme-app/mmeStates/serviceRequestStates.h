@@ -1,7 +1,7 @@
 
 
  /*
- * Copyright 2021-present Infosys Limited
+ * Copyright 2022-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -177,6 +177,46 @@
 			*    Protected constructor
 			****************************************/
 			ServiceRequestStart();  
+	};
+	
+	class ServiceRequestWfMacValidateAction : public ServiceRequestState
+	{
+		public:
+			/******************************************
+			* Instance 
+			*    Creates static instance for the state
+			*******************************************/
+			static ServiceRequestWfMacValidateAction* Instance();
+
+			/****************************************
+			* ServiceRequestWfMacValidateAction
+			*    Destructor
+			****************************************/
+			~ServiceRequestWfMacValidateAction();			
+			
+			/******************************************
+			* initialize
+			*  Initializes action handlers for the state
+			* and next state
+			******************************************/
+			void initialize();
+
+			/*****************************************
+			* returns stateId
+			*****************************************/
+			uint16_t getStateId() const;
+
+			/*****************************************
+			* returns stateName
+			*****************************************/
+			const char* getStateName() const;
+
+		protected:
+			/****************************************
+			* ServiceRequestWfMacValidateAction
+			*    Protected constructor
+			****************************************/
+			ServiceRequestWfMacValidateAction();  
 	};
 	
 	class ServiceRequestWfAuthResponse : public ServiceRequestState

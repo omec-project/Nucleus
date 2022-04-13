@@ -24,6 +24,7 @@ struct nas_count {
 struct secinfo {
     uint8_t is_current_flag;
     uint8_t ksi;
+    uint8_t mac_fail_flag;
     nas_ciph_algo_enum sec_alg;
     nas_int_algo_enum int_alg;
     uint32_t next_hop_chaining_count;
@@ -122,6 +123,10 @@ class Secinfo
         {
             secinfo_m.int_alg = val;
         }
+        void setMacFailFlag(uint8_t val)
+        {
+            secinfo_m.mac_fail_flag = val;
+        }
         void setSelectedSecAlg(nas_ciph_algo_enum val)
         {
             secinfo_m.sec_alg = val;
@@ -151,6 +156,10 @@ class Secinfo
             uint32_t oc = secinfo_m.uplink_count.overflow_count;
             val = seqno | (oc << 8);
             return val;
+        }
+        uint8_t getMacFailFlag()
+        {
+            return secinfo_m.mac_fail_flag;
         }
         uint8_t getDownlinkSeqNo()
         {

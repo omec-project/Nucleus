@@ -1,7 +1,7 @@
 
 
 /*
- * Copyright 2021-present Infosys Limited
+ * Copyright 2022-present Infosys Limited
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -192,8 +192,8 @@ void PagingWfServiceReq::initialize()
         {
                 ActionTable actionTable;
                 actionTable.addAction(&ActionHandlers::process_service_request);
-                actionTable.addAction(&ActionHandlers::auth_req_to_ue);
-                actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
+                actionTable.addAction(&ActionHandlers::validate_mac_in_ue_context);
+                actionTable.setNextState(ServiceRequestWfMacValidateAction::Instance());
                 eventToActionsMap[SERVICE_REQUEST_FROM_UE] = actionTable;
         }
         {
@@ -261,15 +261,9 @@ void ServiceRequestStart::initialize()
         ServiceRequestState::initialize();
         {
                 ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::auth_req_to_ue);
-                actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
-                eventToActionsMap[SERVICE_REQUEST_FROM_UE] = actionTable;
-        }
-        {
-                ActionTable actionTable;
-                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
-                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
-                eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+                actionTable.addAction(&ActionHandlers::validate_mac_in_ue_context);
+                actionTable.setNextState(ServiceRequestWfMacValidateAction::Instance());
+                eventToActionsMap[SERVICE_REQUEST_VALIDATE_MAC] = actionTable;
         }
         {
                 ActionTable actionTable;
@@ -295,6 +289,84 @@ uint16_t ServiceRequestStart::getStateId()const
 const char* ServiceRequestStart::getStateName()const
 {
 	return "service_request_start";
+}
+
+/******************************************************************************
+* Constructor
+******************************************************************************/
+ServiceRequestWfMacValidateAction::ServiceRequestWfMacValidateAction(): ServiceRequestState()
+{
+        stateGuardTimeoutDuration_m = defaultStateGuardTimerDuration_c;
+        stateEntryAction = &MmeStatesUtils::on_state_entry;
+        stateExitAction = &MmeStatesUtils::on_state_exit;
+        eventValidator = &MmeStatesUtils::validate_event;
+		
+}
+
+/******************************************************************************
+* Destructor
+******************************************************************************/
+ServiceRequestWfMacValidateAction::~ServiceRequestWfMacValidateAction()
+{
+}
+
+/******************************************************************************
+* creates and returns static instance
+******************************************************************************/
+ServiceRequestWfMacValidateAction* ServiceRequestWfMacValidateAction::Instance()
+{
+        static ServiceRequestWfMacValidateAction state;
+        return &state;
+}
+
+/******************************************************************************
+* initializes eventToActionsMap
+******************************************************************************/
+void ServiceRequestWfMacValidateAction::initialize()
+{
+        ServiceRequestState::initialize();
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_init_ctxt_req_to_ue_svc_req);
+                actionTable.setNextState(ServiceRequestWfInitCtxtResp::Instance());
+                eventToActionsMap[SERVICE_REQUEST_VALIDATE_MAC_SUCCESS] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::auth_req_to_ue);
+                actionTable.setNextState(ServiceRequestWfAuthResponse::Instance());
+                eventToActionsMap[SERVICE_REQUEST_VALIDATE_MAC_FAILURE] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::svc_req_state_guard_timeout);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[STATE_GUARD_TIMEOUT] = actionTable;
+        }
+        {
+                ActionTable actionTable;
+                actionTable.addAction(&ActionHandlers::send_service_reject);
+                actionTable.addAction(&ActionHandlers::send_s1_rel_cmd_to_ue);
+                actionTable.addAction(&ActionHandlers::s1_release_complete);
+                actionTable.addAction(&ActionHandlers::abort_service_req_procedure);
+                eventToActionsMap[ABORT_EVENT] = actionTable;
+        }
+}
+
+/******************************************************************************
+* returns stateId
+******************************************************************************/
+uint16_t ServiceRequestWfMacValidateAction::getStateId()const
+{
+	return service_request_wf_mac_validate_action;
+}
+
+/******************************************************************************
+* returns stateName
+******************************************************************************/
+const char* ServiceRequestWfMacValidateAction::getStateName()const
+{
+	return "service_request_wf_mac_validate_action";
 }
 
 /******************************************************************************

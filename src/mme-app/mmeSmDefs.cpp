@@ -80,6 +80,9 @@ void populateEventStringMap()
     smUtil->addEventToStrEntry(S1_REL_REQ_FROM_UE,"S1_REL_REQ_FROM_UE");      
     smUtil->addEventToStrEntry(SEC_MODE_RESP_FROM_UE,"SEC_MODE_RESP_FROM_UE");      
     smUtil->addEventToStrEntry(SERVICE_REQUEST_FROM_UE,"SERVICE_REQUEST_FROM_UE");      
+    smUtil->addEventToStrEntry(SERVICE_REQUEST_VALIDATE_MAC,"SERVICE_REQUEST_VALIDATE_MAC");      
+    smUtil->addEventToStrEntry(SERVICE_REQUEST_VALIDATE_MAC_FAILURE,"SERVICE_REQUEST_VALIDATE_MAC_FAILURE");      
+    smUtil->addEventToStrEntry(SERVICE_REQUEST_VALIDATE_MAC_SUCCESS,"SERVICE_REQUEST_VALIDATE_MAC_SUCCESS");      
     smUtil->addEventToStrEntry(START_DED_DEACTIVATION,"START_DED_DEACTIVATION");      
     smUtil->addEventToStrEntry(START_UE_DETACH,"START_UE_DETACH");      
     smUtil->addEventToStrEntry(START_X2_HO,"START_X2_HO");      

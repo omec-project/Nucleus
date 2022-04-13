@@ -674,6 +674,11 @@ namespace mme
         static SM::ActStatus validate_imsi_in_ue_context(SM::ControlBlock& cb);                
 
         /**********************************************
+        * Action handler : validate_mac_in_ue_context
+        ***********************************************/
+        static SM::ActStatus validate_mac_in_ue_context(SM::ControlBlock& cb);                
+
+        /**********************************************
         * Action handler : x2_ho_mm_complete
         ***********************************************/
         static SM::ActStatus x2_ho_mm_complete(SM::ControlBlock& cb);                

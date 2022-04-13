@@ -341,6 +341,7 @@ ActStatus ActionHandlers::auth_req_to_ue(SM::ControlBlock& cb)
 
 	ue_ctxt->getUeSecInfo().resetUplinkCount();
 	ue_ctxt->getUeSecInfo().resetDownlinkCount();
+	ue_ctxt->getUeSecInfo().setMacFailFlag(0);
 
 	E_UTRAN_sec_vector *secVect = const_cast<E_UTRAN_sec_vector*>(ue_ctxt->getAiaSecInfo().AiaSecInfo_mp);
 

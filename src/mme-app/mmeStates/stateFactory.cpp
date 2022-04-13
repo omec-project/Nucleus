@@ -121,6 +121,7 @@ void StateFactory::initialize()
 	ServiceRequestWfAuthRespValidate::Instance()->initialize();
 	ServiceRequestWfAuthResponse::Instance()->initialize();
 	ServiceRequestWfInitCtxtResp::Instance()->initialize();
+	ServiceRequestWfMacValidateAction::Instance()->initialize();
 	ServiceRequestWfMbResp::Instance()->initialize();
 	ServiceRequestWfSecCmp::Instance()->initialize();
 	TauStart::Instance()->initialize();
