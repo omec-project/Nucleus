@@ -88,6 +88,11 @@ int s1_handover_ack_handler(SuccessfulOutcome_t *msg)
             log_msg(LOG_INFO,
                     "Handover Request Ack S1AP_IE_TARGET_TOSOURCE_TRANSPARENTCONTAINER.");
 
+            if (s1_ho_ack_ies.data[i].val.targetToSrcTranspContainer.size > TRANS_CONT_SIZE) {
+                log_msg(LOG_WARNING, "IE with oversized Target_ToSource_TransparentContainer received--discarding");
+                break;
+            }
+
             handover_ack.targetToSrcTranspContainer.count =
                     s1_ho_ack_ies.data[i].val.targetToSrcTranspContainer.size;
 

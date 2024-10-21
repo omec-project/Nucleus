@@ -80,6 +80,11 @@ int convertToInitUeProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_ies,
 							return -1;
 						}
 
+                        if (s1apNASPDU_p->size > MAX_NAS_MSG_SIZE) {
+                            log_msg(LOG_ERROR, "Decoding of IE NAS PDU failed due to oversized buffer");
+                            return -1;
+                        }
+
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU;
 						memcpy(s1Msg->nasMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
 						s1Msg->nasMsg.nasMsgSize = s1apNASPDU_p->size;
@@ -468,6 +473,11 @@ int convertUplinkNasToProtoIe(InitiatingMessage_t *msg, struct proto_IE* proto_i
 							return -1;
 						}
 
+                        if (s1apNASPDU_p->size > MAX_NAS_MSG_SIZE) {
+                            log_msg(LOG_ERROR, "Decoding of IE NAS PDU failed due to oversized buffer");
+                            return -1;
+                        }
+
                         proto_ies->data[i].IE_type = S1AP_IE_NAS_PDU; 
 						memcpy(s1Msg->nasMsg.nasMsgBuf, (char*)s1apNASPDU_p->buf, s1apNASPDU_p->size);
 						s1Msg->nasMsg.nasMsgSize = s1apNASPDU_p->size;
@@ -629,6 +639,10 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 
 					if(s1apErabSetupItem_p->gTP_TEID.buf != NULL)
 					{
+						if (s1apErabSetupItem_p->gTP_TEID.size != 4) {
+							log_msg(LOG_ERROR, "Decoding of IE E_RABSetupItemCtxtSURes failed due to incorrect sized GTP_TEID");
+							return -1;
+						}
                                             memcpy(
                                                 &(proto_ies->data[i].val.erab.elements[j].su_res.gtp_teid),
                                                 s1apErabSetupItem_p->gTP_TEID.buf,
@@ -646,6 +660,11 @@ int convertInitCtxRspToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE* proto_
 
 					if(s1apErabSetupItem_p->transportLayerAddress.buf != NULL)
 					{
+                        if (s1apErabSetupItem_p->transportLayerAddress.size != sizeof(int)) {
+                            log_msg(LOG_ERROR, "Decoding of IE E_RABSetupItemCtxtSURes->transp_layer_addr failed due to incorrect sized buffer");
+                            return -1;
+                        }
+
                                             memcpy(
                                                 &(proto_ies->data[i].val.erab.elements[j].su_res.transp_layer_addr),
                                                 s1apErabSetupItem_p->transportLayerAddress.buf,
@@ -1186,6 +1205,12 @@ int convertHoAcklToProtoIe(SuccessfulOutcome_t *msg, struct proto_IE *proto_ies)
                         {
                             log_msg(LOG_ERROR,
                                     "Decoding of IE eRABAdmittedItem failed");
+                            return -1;
+                        }
+
+                        if (eRabAdmittedItem_p->dL_transportLayerAddress->size != 4) {
+                            log_msg(LOG_ERROR,
+                                    "Decoding of IE eRABAdmittedItem DL TransportLayerAddress failed");
                             return -1;
                         }
 

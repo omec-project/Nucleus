@@ -120,6 +120,11 @@ int s1_handover_required_handler(InitiatingMessage_t *msg, int enb_fd)
             log_msg(LOG_INFO,
                     "handover required S1AP_IE_SOURCE_TOTARGET_TRANSPARENTCONTAINER.");
 
+            if (ho_required_ies.data[i].val.srcToTargetTranspContainer.size > TRANS_CONT_SIZE) {
+                log_msg(LOG_ERROR, "failed to decode IE: TransparentContainer too large");
+                break;
+            }
+
             ho_required.srcToTargetTranspContainer.count =
                     ho_required_ies.data[i].val.srcToTargetTranspContainer.size;
 

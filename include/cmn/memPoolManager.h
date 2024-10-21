@@ -46,7 +46,7 @@ namespace cmn {
 				blockArray_mpa.reset(blkArray_p.release());
 
 				uint32_t  i = 1;
-				for (; i < numOfBlocks; i++)
+				for (; i < (numOfBlocks - 1); i++)
 				{
 					blockArray_mpa[i-1].setNextMemBlock(&blockArray_mpa[i]);
 				}
